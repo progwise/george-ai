@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 import {
   AiAssistantInput,
-  AiAutomationInput,
   AiBaseCaseInputType,
   AiConnectorInput,
   AiConversationCreateInput,
@@ -18,8 +17,10 @@ import {
   AiListSortingDirection,
   AiListSortingInput,
   AiListSourceInput,
+  AutomationBatchStatus,
+  AutomationInput,
   AutomationItemStatus,
-  BatchStatus,
+  AutomationTriggerType,
   ConnectorConfigInput,
   ConversationInvitationInput,
   ConversationSortOrder,
@@ -45,7 +46,6 @@ import {
   ProviderHealthStatus,
   QueueType,
   SortOrder,
-  TriggerType,
   UpdateAiLanguageModelInput,
   UserProfileInput,
   WorkerType,
@@ -67,9 +67,11 @@ export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
 
 export const AiListSortingDirectionSchema = z.nativeEnum(AiListSortingDirection)
 
+export const AutomationBatchStatusSchema = z.nativeEnum(AutomationBatchStatus)
+
 export const AutomationItemStatusSchema = z.nativeEnum(AutomationItemStatus)
 
-export const BatchStatusSchema = z.nativeEnum(BatchStatus)
+export const AutomationTriggerTypeSchema = z.nativeEnum(AutomationTriggerType)
 
 export const ConversationSortOrderSchema = z.nativeEnum(ConversationSortOrder)
 
@@ -107,8 +109,6 @@ export const QueueTypeSchema = z.nativeEnum(QueueType)
 
 export const SortOrderSchema = z.nativeEnum(SortOrder)
 
-export const TriggerTypeSchema = z.nativeEnum(TriggerType)
-
 export const WorkerTypeSchema = z.nativeEnum(WorkerType)
 
 export const WorkspaceRoleSchema = z.nativeEnum(WorkspaceRole)
@@ -122,19 +122,6 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
     languageModelId: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
-  })
-}
-
-export function AiAutomationInputSchema(): z.ZodObject<Properties<AiAutomationInput>> {
-  return z.object({
-    actionConfig: z.string().nullish(),
-    connectorAction: z.string().nullish(),
-    connectorId: z.string(),
-    executeOnEnrichment: z.boolean().nullish(),
-    filter: z.string().nullish(),
-    listId: z.string(),
-    name: z.string(),
-    schedule: z.string().nullish(),
   })
 }
 
@@ -259,6 +246,19 @@ export function AiListSortingInputSchema(): z.ZodObject<Properties<AiListSorting
 export function AiListSourceInputSchema(): z.ZodObject<Properties<AiListSourceInput>> {
   return z.object({
     libraryId: z.string(),
+  })
+}
+
+export function AutomationInputSchema(): z.ZodObject<Properties<AutomationInput>> {
+  return z.object({
+    actionConfig: z.string().nullish(),
+    connectorAction: z.string().nullish(),
+    connectorId: z.string(),
+    executeOnEnrichment: z.boolean().nullish(),
+    filter: z.string().nullish(),
+    listId: z.string(),
+    name: z.string(),
+    schedule: z.string().nullish(),
   })
 }
 

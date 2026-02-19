@@ -41,7 +41,6 @@ graphql(`
     originUri
     mimeType
     size
-    uploadedAt
     dropError
     createdAt
     originModificationDate
@@ -49,22 +48,33 @@ graphql(`
     chunkCount
     manifest {
       version
+      documentId
+      name
       mimeType
-      originalContentHash
-      originalUpdatedAt
       sourceHash
-      createdAt
+      created
+      origin {
+        uri
+        hash
+        creationDate
+        lastModifiedDate
+        author
+      }
       extractions {
         extractionMethod
-        extractionHash
-        extractionDate
+        sourceHash
+        created
+        updated
       }
-      usage {
-        sourceBytes
+      storageStats {
+        extractionBytes
+        attachmentBytes
         physicalBytes
+        extractionFileCount
+        physicalFileCount
+        attachmentFileCount
+        lastUpdate
         lastReconcile
-        activeExtractions
-        extractions
       }
     }
   }
@@ -230,22 +240,25 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                     </span>
                   ) : (
                     file.manifest.extractions
-                      .sort((a, b) => new Date(a.extractionDate).getTime() - new Date(b.extractionDate).getTime())
+                      .sort(
+                        (a, b) =>
+                          new Date(a.updated || a.created).getTime() - new Date(b.updated || b.created).getTime(),
+                      )
                       .map((extraction) => (
                         <span
                           key={`${file.id}-extraction-${extraction.extractionMethod}`}
                           className={twMerge(
                             'badge gap-1 badge-sm',
-                            file.manifest?.sourceHash === extraction.extractionHash ? 'badge-success' : 'badge-warning',
+                            file.manifest?.sourceHash === extraction.sourceHash ? 'badge-success' : 'badge-warning',
                           )}
                           title={`${t('files.extractionMethod')}: ${extraction.extractionMethod}`}
                         >
-                          {file.manifest?.sourceHash === extraction.extractionHash ? (
+                          {file.manifest?.sourceHash === extraction.sourceHash ? (
                             <CheckIcon className="size-3" />
                           ) : (
                             <ExclamationIcon className="size-3" />
                           )}
-                          {`${extraction.extractionMethod} (${dateTimeStringShort(extraction.extractionDate, language)})`}
+                          {`${extraction.extractionMethod} (${dateTimeStringShort(extraction.updated || extraction.created, language)})`}
                         </span>
                       ))
                   )}
@@ -394,13 +407,20 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 </td>
                 <td className="text-nowrap">{formatBytes(file.size) ?? '-'}</td>
                 <td>
-                  {file.manifest?.usage.activeExtractions ?? '-'}/{file.manifest?.usage.extractions ?? '-'}
+                  {file.manifest?.extractions.filter(
+                    (extraction) => extraction.sourceHash === file.manifest?.sourceHash,
+                  ).length ?? '-'}
+                  /{file.manifest?.extractions.length ?? '-'}
                 </td>
                 <td className="text-nowrap">
-                  <ClientDate date={file?.manifest?.originalUpdatedAt} format="dateTime" fallback="" />
+                  <ClientDate
+                    date={file?.manifest?.origin?.lastModifiedDate || file?.manifest?.origin?.creationDate}
+                    format="dateTime"
+                    fallback=""
+                  />
                 </td>
                 <td className="text-nowrap">
-                  <ClientDate date={file?.manifest?.usage.lastReconcile} format="dateTime" fallback="" />
+                  <ClientDate date={file?.manifest?.storageStats.lastReconcile} format="dateTime" fallback="" />
                 </td>
               </tr>
             ))}

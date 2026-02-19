@@ -1,4 +1,5 @@
-import { getCronExpression } from '../../domain/crawler/get-cron-expression'
+import { getCronExpression } from '@george-ai/app-domain'
+
 import { builder } from '../builder'
 
 console.log('Setting up: AiLibraryCrawlerCronJob')

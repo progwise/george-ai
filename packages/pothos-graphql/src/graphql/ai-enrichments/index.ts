@@ -1,4 +1,5 @@
-import { EnrichmentMetadataSchema, EnrichmentStatusValues } from '../../domain'
+import { EnrichmentMetadataSchema, EnrichmentStatusValues } from '@george-ai/app-domain'
+
 import { builder } from '../builder'
 
 import './queries'

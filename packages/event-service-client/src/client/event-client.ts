@@ -8,7 +8,7 @@ export interface EventClientConfig {
 export interface EventClient {
   isConnected(): Promise<boolean>
 
-  ensureStream(args: { streamName: string; subjects: string[]; description?: string; persist: boolean }): Promise<void>
+  ensureWorkerStream(args: { streamName: string; subjects: string[]; description?: string }): Promise<void>
 
   deleteStream(name: string): Promise<void>
 

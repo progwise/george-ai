@@ -34,11 +34,11 @@ describe('DomainError', () => {
 
   it('Throwing DomainError should be catchable as Error', () => {
     try {
-      throw new DomainError('Catch test', 'authentication')
+      throw new DomainError('Catch test', 'authorization')
     } catch (err) {
       expect(err).toBeInstanceOf(Error)
       expect(err).toBeInstanceOf(DomainError)
-      expect((err as DomainError).domain).toBe('authentication')
+      expect((err as DomainError).domain).toBe('authorization')
       expect((err as DomainError).message).toBe('Catch test')
     }
   })

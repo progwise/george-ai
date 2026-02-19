@@ -8,11 +8,10 @@ import { ModelResponse } from './schema'
 import { subscribeModelCalls } from './subscribe'
 
 export const initializeModelCallsStream = async () => {
-  await eventClient.ensureStream({
+  await eventClient.ensureWorkerStream({
     streamName: MODEL_CALLS_STREAM_NAME,
     description: `Events for AI service provider calls`,
     subjects: MODEL_CALLS_STREAM_SUBJECTS,
-    persist: false,
   })
   return MODEL_CALLS_STREAM_NAME
 }

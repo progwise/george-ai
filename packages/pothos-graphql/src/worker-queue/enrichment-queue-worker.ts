@@ -1,13 +1,11 @@
 import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
 import { createLogger } from '@george-ai/app-commons'
 import { Prisma, prisma } from '@george-ai/app-database'
-import { workspaceStorage } from '@george-ai/file-management'
+import { languageModel } from '@george-ai/app-domain'
+import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTask } from '@george-ai/app-domain'
+import { extraction } from '@george-ai/file-management'
 import { fetchPageAsMarkdown } from '@george-ai/html-crawler-client'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
-
-import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTaskForProcessing } from '../domain/enrichment'
-import { logModelUsage } from '../domain/languageModel'
-import { getLibraryWorkspace } from '../domain/workspace'
 
 const logger = createLogger('Enrichment Worker')
 
@@ -21,19 +19,15 @@ const MAX_CONCURRENT_ENRICHMENTS = 3 // Maximum concurrent getEnrichedValue call
 async function processQueueItem({
   enrichmentTask,
   metadata,
+  workspaceId,
 }: {
   enrichmentTask: Prisma.AiEnrichmentTaskGetPayload<object>
   metadata: EnrichmentMetadata
+  workspaceId: string
 }) {
   try {
     if (!metadata.input) {
       throw new Error(`no input data for processing for task ${enrichmentTask.id}`)
-    }
-
-    // Get workspaceId from library
-    const workspaceId = await getLibraryWorkspace(metadata.input.libraryId)
-    if (!workspaceId) {
-      throw new Error(`Library ${metadata.input.libraryId} has no workspace`)
     }
 
     // Mark as processing - use updateMany to handle race conditions
@@ -249,9 +243,9 @@ CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.
       // Process full content context sources
       if (metadata.input.contextFullContent) {
         try {
-          const markdownReader = await workspaceStorage.readExtraction(workspaceId, {
+          const markdownReader = await extraction.read(workspaceId, {
             libraryId: metadata.input.libraryId,
-            fileId: metadata.input.fileId,
+            documentId: metadata.input.fileId,
             fragment: metadata.input.fragment || undefined,
           })
 
@@ -301,7 +295,7 @@ CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.
 
       // Log usage for enrichment (async, non-blocking)
       const durationMs = Date.now() - startTime
-      await logModelUsage({
+      await languageModel.logModelUsage({
         modelId: metadata.input.aiModelId,
         listId: enrichmentTask.listId,
         libraryId: metadata.input.libraryId,
@@ -474,6 +468,13 @@ async function processQueue() {
       },
       orderBy: [{ priority: 'desc' }, { requestedAt: 'asc' }],
       take: Math.min(BATCH_SIZE, availableCapacity),
+      include: {
+        list: {
+          select: {
+            workspaceId: true,
+          },
+        },
+      },
     })
 
     if (queueItems.length === 0) {
@@ -485,7 +486,7 @@ async function processQueue() {
     // Process items in parallel
     await Promise.all(
       queueItems.map((enrichmentTask) => {
-        const validationResult = validateEnrichmentTaskForProcessing(enrichmentTask)
+        const validationResult = validateEnrichmentTask(enrichmentTask)
         if (!validationResult.success) {
           logger.error(`Validation failed for enrichment task ${enrichmentTask.id}: ${validationResult.error}`)
           // Mark as failed due to validation error
@@ -509,7 +510,11 @@ async function processQueue() {
             },
           })
         } else {
-          return processQueueItem({ enrichmentTask, metadata: validationResult.data })
+          return processQueueItem({
+            enrichmentTask,
+            metadata: validationResult.data,
+            workspaceId: enrichmentTask.list.workspaceId,
+          })
         }
       }),
     )

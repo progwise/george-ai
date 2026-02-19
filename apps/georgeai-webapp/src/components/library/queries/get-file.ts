@@ -21,29 +21,35 @@ const getFile = createServerFn({ method: 'GET' })
           file(fileId: $fileId, libraryId: $libraryId) {
             ...FileCaptionCard_File
             id
+            createdAt
+            updatedAt
             name
             originUri
             docPath
             mimeType
             size
-            createdAt
-            updatedAt
-            archivedAt
+            libraryId
+            dropError
             originModificationDate
-            lastUpdate {
-              id
-              createdAt
-              message
-              updateType
-            }
+            archivedAt
             manifest {
               version
               sourceHash
               extractions {
                 extractionMethod
-                extractionHash
-                extractionDate
+                sourceHash
+                created
+                updated
               }
+            }
+            supportedExtractionMethods
+            chunkCount
+            status
+            lastUpdate {
+              id
+              createdAt
+              message
+              updateType
             }
           }
         }

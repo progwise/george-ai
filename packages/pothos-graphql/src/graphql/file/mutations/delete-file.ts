@@ -2,7 +2,7 @@ import { GraphQLError } from 'graphql/error'
 
 import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
-import { workspace } from '@george-ai/app-domain'
+import { deleteFiles } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
 
@@ -26,7 +26,7 @@ builder.mutationField('deleteFile', (t) =>
       if (!file) {
         throw new GraphQLError('File not found')
       }
-      await workspace.deleteFiles(workspaceId, { libraryId, fileIds: [fileId] })
+      await deleteFiles(workspaceId, { libraryId, documentIds: [fileId] })
       return file
     },
   }),

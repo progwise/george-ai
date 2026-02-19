@@ -1,6 +1,6 @@
 import { getWorkspaceRole } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
-import { workspaceStorage } from '@george-ai/file-management'
+import { workspace } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../builder'
@@ -43,7 +43,7 @@ builder.prismaObject('Workspace', {
       type: 'WorkspaceManifest',
       nullable: true,
       resolve: async (parent) => {
-        return await workspaceStorage.getWorkspace(parent.id)
+        return await workspace.get(parent.id)
       },
     }),
     chunksCount: t.field({

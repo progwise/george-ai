@@ -1,8 +1,7 @@
 import { Request, Response } from 'express'
 import { Readable, Transform } from 'stream'
 
-import { workspace } from '@george-ai/app-domain'
-import { workspaceStorage } from '@george-ai/file-management'
+import domain from '@george-ai/app-domain'
 
 import { logger } from './common'
 import { getUserContextFromExpressRequest } from './get-user-context'
@@ -49,39 +48,11 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
     return
   }
 
-  const fileInfo = await workspace.getFileInfo(context.workspaceId, {
-    libraryId,
-    fileId,
-  })
-
-  logger.debug('Received upload request', { uploadToken, userId, workspaceId: context.workspaceId, fileInfo })
-
-  if (!fileInfo || !fileInfo.createdAt) {
-    logger.warn('File info not found for upload token', {
-      uploadToken,
-      libraryId,
-      fileId,
-      workspaceId: context.workspaceId,
-    })
-    httpResponse.status(400).send(`Bad Request: file info not found for ${uploadToken}`)
-    return
-  }
-
-  if (fileInfo.updatedAt < new Date(Date.now() - 1000 * 60 * 5)) {
-    httpResponse.status(400).send('Bad Request: x-upload-token expired')
-    return
-  }
-
-  if (!fileInfo.name) {
-    httpResponse.status(400).send('Bad Request: File record is incomplete (missing name).')
-    return
-  }
-
   const lockKey = fileId
 
   // Check if file is already being uploaded
   if (uploadLocks.has(lockKey)) {
-    logger.error('Upload already in progress for file:', { fileInfo })
+    logger.error('Upload already in progress for file:', { libraryId, fileId })
     httpResponse.status(409).send('Bad Request: File upload already in progress')
     return
   }
@@ -135,28 +106,18 @@ export const handlePostUpload = async (httpRequest: Request, httpResponse: Respo
       return
     }
 
-    logger.warn('Upload http request desctroyed', { fileInfo })
+    logger.warn('Upload http request close', { libraryId, fileId })
   })
 
   try {
-    const fileManifest = await workspaceStorage.writeSource(context.workspaceId, {
-      libraryId: fileInfo.libraryId,
-      fileId: fileInfo.id,
+    const manifest = await domain.file.uploadFile(context.workspaceId, {
+      libraryId,
+      fileId,
       stream,
-      meta: {
-        mimeType: fileInfo.mimeType || 'application/octet-stream',
-        originalName: fileInfo.name,
-        originalUpdatedAt: fileInfo.originModificationDate?.toISOString() || new Date().toISOString(),
-        originalContentHash: fileInfo.originFileHash,
-      },
-    })
-    await workspace.markUploadFinished(context.workspaceId, {
-      libraryId: fileInfo.libraryId,
-      fileId: fileInfo.id,
     })
     uploadCompleted = true
     httpResponse.statusCode = 200
-    logger.info('File upload and processing completed', { fileInfo, fileManifest })
+    logger.debug('File upload and processing completed', { libraryId, fileId, manifest })
     httpResponse.end(JSON.stringify({ status: 'success' }))
   } catch (error) {
     logger.error('Error writing source to storage:', error)

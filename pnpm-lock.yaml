@@ -498,6 +498,9 @@ importers:
 
   packages/app-domain:
     dependencies:
+      '@george-ai/api-crawler':
+        specifier: workspace:*
+        version: link:../api-crawler
       '@george-ai/app-commons':
         specifier: workspace:*
         version: link:../app-commons
@@ -507,15 +510,30 @@ importers:
       '@george-ai/event-service-client':
         specifier: workspace:*
         version: link:../event-service-client
+      '@george-ai/file-converter':
+        specifier: workspace:*
+        version: link:../file-converter
       '@george-ai/file-management':
         specifier: workspace:*
         version: link:../file-management
+      '@george-ai/html-crawler-client':
+        specifier: workspace:*
+        version: link:../html-crawler-client
+      '@george-ai/mailer':
+        specifier: workspace:*
+        version: link:../mailer
+      '@george-ai/smb-crawler-client':
+        specifier: workspace:*
+        version: link:../smb-crawler-client
       '@george-ai/vector-store':
         specifier: workspace:*
         version: link:../vector-store
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
+      cron:
+        specifier: ^4.3.0
+        version: 4.4.0
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -691,6 +709,9 @@ importers:
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
+      mime-types:
+        specifier: ^2.1.35
+        version: 2.1.35
       p-limit:
         specifier: ^7.2.0
         version: 7.2.0
@@ -704,6 +725,9 @@ importers:
       '@george-ai/package-configs':
         specifier: workspace:*
         version: link:../package-configs
+      '@types/mime-types':
+        specifier: ^2.1.4
+        version: 2.1.4
       '@types/node':
         specifier: ^22.13.8
         version: 22.19.7
@@ -911,9 +935,6 @@ importers:
       '@george-ai/mailer':
         specifier: workspace:*
         version: link:../mailer
-      '@george-ai/smb-crawler-client':
-        specifier: workspace:*
-        version: link:../smb-crawler-client
       '@george-ai/vector-store':
         specifier: workspace:*
         version: link:../vector-store
@@ -1157,21 +1178,15 @@ importers:
       '@george-ai/app-commons':
         specifier: workspace:*
         version: link:../../packages/app-commons
+      '@george-ai/app-domain':
+        specifier: workspace:*
+        version: link:../../packages/app-domain
       '@george-ai/event-service-client':
         specifier: workspace:*
         version: link:../../packages/event-service-client
-      '@george-ai/file-converter':
-        specifier: workspace:*
-        version: link:../../packages/file-converter
       '@george-ai/file-management':
         specifier: workspace:*
         version: link:../../packages/file-management
-      '@george-ai/llm-client':
-        specifier: workspace:*
-        version: link:../../packages/llm-client
-      '@george-ai/vector-store':
-        specifier: workspace:*
-        version: link:../../packages/vector-store
       tsx:
         specifier: ^4.19.2
         version: 4.21.0
@@ -6293,6 +6308,7 @@ packages:
 
   glob@10.5.0:
     resolution: {integrity: sha512-DfXN8DfhJ7NH3Oe7cFmu3NCu1wKbkReJ8TorzSAFbSKrlNaQSKfIzqYqVY8zlbs2NLBbWpRiU52GX2PbaBVNkg==}
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
     hasBin: true
 
   glob@13.0.0:
@@ -6301,7 +6317,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@14.0.0:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
@@ -8826,7 +8842,7 @@ packages:
   tar@7.5.3:
     resolution: {integrity: sha512-ENg5JUHUm2rDD7IvKNFGzyElLXNjachNLp6RaGf4+JOgxXHkqA+gq81ZAMCUmtMtqBsoU62lcp6S27g1LCYGGQ==}
     engines: {node: '>=18'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   terser@5.46.0:
     resolution: {integrity: sha512-jTwoImyr/QbOWFFso3YoU3ik0jBBDJ6JTOQiy/J2YxVJdZCc+5u7skhNwiOR3FQIygFqVUPHl7qbbxtjW2K3Qg==}

@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql/error/GraphQLError'
 
-import { canWriteWorkspaceOrThrow, workspace } from '@george-ai/app-domain'
+import { canWriteWorkspaceOrThrow, processing } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
 import { logger } from '../../common'
@@ -23,7 +23,7 @@ builder.mutationField('processFiles', (t) =>
       await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
 
       try {
-        await workspace.processFiles({ workspaceId, libraryId, fileIds, requestType })
+        await processing.processFiles({ workspaceId, libraryId, fileIds, requestType })
         return { success: true }
       } catch (error) {
         logger.error('Error publishing process files event', { error, workspaceId, requestType, libraryId, fileIds })

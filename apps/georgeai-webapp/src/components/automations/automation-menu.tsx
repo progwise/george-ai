@@ -12,14 +12,14 @@ import { NewAutomationDialog } from './new-automation-dialog'
 import { useAutomationActions } from './use-automation-actions'
 
 graphql(`
-  fragment AutomationMenu_Automation on AiAutomation {
+  fragment AutomationMenu_Automation on Automation {
     id
     name
   }
 `)
 
 graphql(`
-  fragment AutomationMenu_Automations on AiAutomation {
+  fragment AutomationMenu_Automations on Automation {
     id
     name
   }

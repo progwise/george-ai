@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { pipeline } from 'stream/promises'
 
 import { getExtractionMethod } from '@george-ai/app-commons'
-import { workspaceStorage } from '@george-ai/file-management'
+import { getDocumentManifest, getExtraction, readExtraction, readSource } from '@george-ai/app-domain'
 
 import { logger } from './common'
 import { getUserContextFromExpressRequest } from './get-user-context'
@@ -20,40 +20,37 @@ export const handleGetFile = async (request: Request, response: Response) => {
     return
   }
 
-  logger.debug('Received request for library file', { libraryId, fileId, extractionMethod, fragment })
+  logger.debug('Received request for get-file', { libraryId, fileId, extractionMethod, fragment })
 
   const context = await getUserContextFromExpressRequest(request)
 
-  logger.debug('User context extracted from request', {
-    userId: context.session?.user?.id,
-    workspaceId: context.workspaceId,
-  })
-
   if (!context.session?.user) {
+    logger.debug('Unauthorized request: no user in session', { libraryId, fileId })
     response.status(401).end()
     return
   }
 
   if (!context.workspaceId) {
+    logger.debug('Forbidden request: no workspaceId in context', { libraryId, fileId, userId: context.session.user.id })
     response.status(403).end()
     return
   }
 
-  const file = await workspaceStorage.getFile(context.workspaceId, {
+  const fileManifest = await getDocumentManifest(context.workspaceId, {
     libraryId,
-    fileId,
+    documentId: fileId,
   })
 
-  if (!file) {
+  if (!fileManifest) {
     logger.error('File not found in workspace storage', { libraryId, fileId, workspaceId: context.workspaceId })
     response.status(404).end()
     return
   }
 
   if (extractionMethod) {
-    const extraction = await workspaceStorage.getExtraction(context.workspaceId, {
+    const extraction = await getExtraction(context.workspaceId, {
       libraryId,
-      fileId,
+      documentId: fileId,
       extractionMethod,
     })
     if (!extraction) {
@@ -62,9 +59,9 @@ export const handleGetFile = async (request: Request, response: Response) => {
       return
     }
     if (fragmentNumber) {
-      const fragmentStream = await workspaceStorage.readExtraction(context.workspaceId, {
+      const fragmentStream = await readExtraction(context.workspaceId, {
         libraryId,
-        fileId,
+        documentId: fileId,
         extractionMethod,
         fragment: fragmentNumber,
       })
@@ -76,9 +73,9 @@ export const handleGetFile = async (request: Request, response: Response) => {
       response.end()
       return
     }
-    const extractionStream = await workspaceStorage.readExtraction(context.workspaceId, {
+    const extractionStream = await readExtraction(context.workspaceId, {
       libraryId,
-      fileId,
+      documentId: fileId,
       extractionMethod,
     })
     response.setHeader('Content-Type', 'text/markdown; charset=utf-8')
@@ -90,15 +87,15 @@ export const handleGetFile = async (request: Request, response: Response) => {
     return
   }
 
-  const { stream: sourceFileStream, fileSize } = await workspaceStorage.readSource(context.workspaceId, {
+  const { stream: sourceFileStream, fileSize } = await readSource(context.workspaceId, {
     libraryId,
-    fileId,
+    documentId: fileId,
   })
 
-  logger.debug('Serving source file stream', { libraryId, fileId, workspaceId: context.workspaceId, file })
+  logger.debug('Serving source file stream', { libraryId, fileId, workspaceId: context.workspaceId, fileManifest })
 
-  response.setHeader('Content-Type', file.mimeType || 'application/octet-stream')
-  response.setHeader('Content-Disposition', `attachment; filename="${file.fileName}"`)
+  response.setHeader('Content-Type', fileManifest.mimeType || 'application/octet-stream')
+  response.setHeader('Content-Disposition', `attachment; filename="${fileManifest.name}"`)
   response.setHeader('Content-Length', fileSize)
 
   try {

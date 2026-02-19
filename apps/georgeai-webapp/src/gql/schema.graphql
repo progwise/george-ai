@@ -29,23 +29,6 @@ type ActionConfigOption {
 }
 
 """
-A key-value pair for action configuration
-"""
-type ActionConfigValue {
-  key: String!
-  value: String
-}
-
-"""
-Maps a source enrichment field to a target field with transform
-"""
-type ActionFieldMapping {
-  sourceFieldId: String!
-  targetField: String!
-  transform: String!
-}
-
-"""
 AI Act Assessment Query
 """
 type AiActAssessment {
@@ -165,95 +148,6 @@ input AiAssistantInput {
   url: String
 }
 
-type AiAutomation {
-  batches: [AiAutomationBatch!]!
-  connector: AiConnector!
-  connectorAction: String!
-  connectorActionConfig: ConnectorActionConfig!
-  connectorId: String!
-  createdAt: DateTime!
-  executeOnEnrichment: Boolean!
-  id: ID!
-  list: AiList!
-  listId: String!
-  name: String!
-  schedule: String
-  updatedAt: DateTime!
-  workspace: Workspace!
-  workspaceId: String!
-}
-
-type AiAutomationBatch {
-  automation: AiAutomation!
-  automationId: String!
-  createdAt: DateTime!
-  executions: [AiAutomationItemExecution!]!
-  finishedAt: DateTime
-  id: ID!
-  itemsFailed: Int!
-  itemsProcessed: Int!
-  itemsSkipped: Int!
-  itemsSuccess: Int!
-  itemsTotal: Int!
-  itemsWarning: Int!
-  startedAt: DateTime
-  status: BatchStatus!
-  triggeredBy: TriggerType!
-}
-
-input AiAutomationInput {
-  actionConfig: String
-  connectorAction: String
-  connectorId: String!
-  executeOnEnrichment: Boolean
-  filter: String
-  listId: String!
-  name: String!
-  schedule: String
-}
-
-type AiAutomationItem {
-  automation: AiAutomation!
-  automationId: String!
-  createdAt: DateTime!
-  executions: [AiAutomationItemExecution!]!
-  """
-  True if any mapped field is missing a value
-  """
-  hasIncompleteData: Boolean!
-  id: ID!
-  inScope: Boolean!
-  lastExecutedAt: DateTime
-  listItem: AiListItem!
-  listItemId: String!
-  preview: [AutomationPreviewValue!]!
-  status: AutomationItemStatus!
-  updatedAt: DateTime!
-}
-
-type AiAutomationItemExecution {
-  automationItem: AiAutomationItem!
-  automationItemId: String!
-  batch: AiAutomationBatch
-  batchId: String
-  finishedAt: DateTime
-  id: ID!
-  inputJson: String!
-  outputJson: String
-  startedAt: DateTime!
-  status: AutomationItemStatus!
-}
-
-"""
-Query result for Automation Items
-"""
-type AiAutomationItemsResult {
-  items: [AiAutomationItem!]!
-  skip: Int!
-  take: Int!
-  totalCount: Int!
-}
-
 input AiBaseCaseInputType {
   condition: String
   id: String
@@ -262,7 +156,7 @@ input AiBaseCaseInputType {
 }
 
 type AiConnector {
-  automations: [AiAutomation!]!
+  automations: [Automation!]!
   baseUrl: String!
   configJson: String!
   connectorType: String!
@@ -550,7 +444,7 @@ type AiLibraryFile {
   lastUpdate: AiLibraryUpdate
   library: AiLibrary!
   libraryId: String!
-  manifest: FileManifest
+  manifest: DocumentManifest
   mimeType: String!
   name: String!
   originModificationDate: DateTime
@@ -559,7 +453,6 @@ type AiLibraryFile {
   status: String!
   supportedExtractionMethods: [ExtractionMethod!]!
   updatedAt: DateTime
-  uploadedAt: DateTime
 }
 
 type AiLibraryUpdate {
@@ -719,11 +612,11 @@ input AiListInput {
 
 type AiListItem {
   chunkCount: Int
-  extractionInfo: ExtractionMetadata
+  extractionInfo: ExtractionManifest
   extractionMethod: ExtractionMethod
   file: AiLibraryFile!
   fileId: String!
-  fileInfo: FileManifest
+  fileInfo: DocumentManifest
   fragment: Int
   id: ID!
   itemName: String!
@@ -869,6 +762,99 @@ type AssistantParticipant implements AiConversationParticipant {
   userId: ID
 }
 
+type Attachment {
+  fileName: String!
+  mimeType: String
+  size: Int!
+}
+
+type Automation {
+  batches: [AutomationBatch!]!
+  connector: AiConnector!
+  connectorAction: String!
+  connectorActionConfig: ConnectorActionConfig!
+  connectorId: String!
+  createdAt: DateTime!
+  executeOnEnrichment: Boolean!
+  id: ID!
+  list: AiList!
+  listId: String!
+  name: String!
+  schedule: String
+  updatedAt: DateTime!
+  workspace: Workspace!
+  workspaceId: String!
+}
+
+type AutomationBatch {
+  automation: Automation!
+  automationId: String!
+  createdAt: DateTime!
+  executions: [AutomationItemExecution!]!
+  finishedAt: DateTime
+  id: ID!
+  itemsFailed: Int!
+  itemsProcessed: Int!
+  itemsSkipped: Int!
+  itemsSuccess: Int!
+  itemsTotal: Int!
+  itemsWarning: Int!
+  startedAt: DateTime
+  status: AutomationBatchStatus!
+  triggeredBy: AutomationTriggerType!
+}
+
+enum AutomationBatchStatus {
+  COMPLETED
+  COMPLETED_WITH_ERRORS
+  FAILED
+  PENDING
+  RUNNING
+}
+
+input AutomationInput {
+  actionConfig: String
+  connectorAction: String
+  connectorId: String!
+  executeOnEnrichment: Boolean
+  filter: String
+  listId: String!
+  name: String!
+  schedule: String
+}
+
+type AutomationItem {
+  automation: Automation!
+  automationId: String!
+  createdAt: DateTime!
+  executions: [AutomationItemExecution!]!
+  """
+  True if any mapped field is missing a value
+  """
+  hasIncompleteData: Boolean!
+  id: ID!
+  inScope: Boolean!
+  lastExecutedAt: DateTime
+  listItem: AiListItem!
+  listItemId: String!
+  preview: [AutomationPreviewValue!]!
+  status: AutomationItemStatus!
+  updatedAt: DateTime!
+}
+
+type AutomationItemExecution {
+  automationItem: AutomationItem!
+  automationItemId: String!
+  batch: AutomationBatch
+  batchId: String
+  finishedAt: DateTime
+  id: ID!
+  inputJson: String!
+  outputJson: String
+  startedAt: DateTime!
+  status: AutomationItemStatus!
+}
+
 enum AutomationItemStatus {
   FAILED
   PENDING
@@ -876,6 +862,16 @@ enum AutomationItemStatus {
   SKIPPED
   SUCCESS
   WARNING
+}
+
+"""
+Query result for Automation Items
+"""
+type AutomationItemsResult {
+  items: [AutomationItem!]!
+  skip: Int!
+  take: Int!
+  totalCount: Int!
 }
 
 """
@@ -888,12 +884,13 @@ type AutomationPreviewValue {
   value: String
 }
 
-enum BatchStatus {
-  COMPLETED
-  COMPLETED_WITH_ERRORS
-  FAILED
-  PENDING
-  RUNNING
+"""
+Trigger type for an automation batch execution
+"""
+enum AutomationTriggerType {
+  ENRICHMENT
+  MANUAL
+  SCHEDULE
 }
 
 scalar BigInt
@@ -908,8 +905,25 @@ type ComputeFieldValueResult {
 Generic configuration for connector actions
 """
 type ConnectorActionConfig {
-  fieldMappings: [ActionFieldMapping!]!
-  values: [ActionConfigValue!]!
+  fieldMappings: [ConnectorActionFieldMapping!]!
+  values: [ConnectorActionConfigValue!]!
+}
+
+"""
+A key-value pair for action configuration
+"""
+type ConnectorActionConfigValue {
+  key: String!
+  value: String
+}
+
+"""
+Maps a source enrichment field to a target field with transform
+"""
+type ConnectorActionFieldMapping {
+  sourceFieldId: String!
+  targetField: String!
+  transform: String!
 }
 
 type ConnectorActionInfo {
@@ -966,9 +980,7 @@ enum CrawlerUriType {
 }
 
 type CreateWorkspaceResult {
-  id: ID!
-  name: String!
-  slug: String!
+  workspaceId: String!
 }
 
 """
@@ -988,11 +1000,44 @@ input DateTimePeriod {
 
 scalar Decimal
 
-type EmbedFileRequest implements ProcessingRequest {
+type DocumentExtraction {
+  created: DateTime!
+  extractionMethod: ExtractionMethod!
+  sourceHash: String!
+  updated: DateTime
+}
+
+"""
+Information about a file stored in the AI library
+"""
+type DocumentManifest {
+  created: DateTime!
+  documentId: String!
+  """
+  Available extractions for this file (e.g., CSV, PDF with different models)
+  """
+  extractions: [DocumentExtraction!]!
+  mimeType: String!
+  name: String!
+  origin: DocumentOrigin
+  sourceHash: String
+  storageStats: StorageStats!
+  version: Int!
+}
+
+type DocumentOrigin {
+  author: String
+  creationDate: DateTime
+  hash: String
+  lastModifiedDate: DateTime
+  uri: String
+}
+
+type EmbedDocumentRequest implements ProcessingRequest {
+  documentId: String
   embeddingModelName: String
   embeddingModelProvider: ModelProvider
   extractionMethod: String
-  fileId: String
   libraryId: String
   requestType: String
   settings: [ProcessingRequestSettingItem!]
@@ -1017,7 +1062,7 @@ enum EmbeddingStatus {
 }
 
 type EnrichItemRequest implements ProcessingRequest {
-  fileId: String
+  documentId: String
   fragment: Int
   libraryId: String
   requestType: String
@@ -1098,9 +1143,9 @@ type EventProcessingStatusResult {
   status: EventProcessingStatus!
 }
 
-type ExtractFileRequest implements ProcessingRequest {
+type ExtractDocumentRequest implements ProcessingRequest {
+  documentId: String
   extractionMethod: String
-  fileId: String
   libraryId: String
   requestType: String
   settings: [ProcessingRequestSettingItem!]
@@ -1108,28 +1153,24 @@ type ExtractFileRequest implements ProcessingRequest {
   workspaceId: String
 }
 
-type ExtractionAttachment {
-  filename: String!
-  mimeType: String
-  size: Int!
-}
-
 """
 Metadata about a specific extraction of a file
 """
-type ExtractionMetadata {
-  attachments: [ExtractionAttachment!]
-  extractedAt: DateTime!
-  extractedBytes: Int!
-  extractionFiles: Int!
+type ExtractionManifest {
+  attachments: [Attachment!]
+  created: DateTime!
+  creator: ID
+  documentId: ID!
+  extracted: DateTime
   extractionMethod: ExtractionMethod!
   fragmentCount: Int
   hasFragments: Boolean!
-  physicalBytes: Int!
-  physicalFiles: Int!
+  libraryId: ID!
   sourceHash: String!
-  splitFragmentPattern: String
+  storageStats: StorageStats
+  updated: DateTime
   version: Int!
+  workspaceId: ID!
 }
 
 enum ExtractionMethod {
@@ -1192,31 +1233,6 @@ input FileChunksSelector {
   libraryId: String
   modelName: String
   updateAuthorGlobPattern: String
-}
-
-type FileExtraction {
-  extractionDate: DateTime!
-  extractionHash: String!
-  extractionMethod: ExtractionMethod!
-}
-
-"""
-Information about a file stored in the AI library
-"""
-type FileManifest {
-  createdAt: DateTime!
-  """
-  Available extractions for this file (e.g., CSV, PDF with different models)
-  """
-  extractions: [FileExtraction!]!
-  fileId: String!
-  fileName: String!
-  mimeType: String!
-  originalContentHash: String
-  originalUpdatedAt: DateTime
-  sourceHash: String
-  usage: StorageUsage!
-  version: Int!
 }
 
 """
@@ -1288,14 +1304,15 @@ input LibraryInput {
 }
 
 type LibraryManifest {
-  createdAt: DateTime!
-  description: String
-  id: ID!
+  attachments: [Attachment!]
+  created: DateTime!
+  creator: ID
+  libraryId: String!
   name: String!
-  settings: LibrarySettings!
-  updatedAt: DateTime!
-  usage: StorageUsage
+  storageStats: StorageStats
+  updated: DateTime
   version: Int!
+  workspaceId: String!
 }
 
 type LibrarySettings {
@@ -1367,7 +1384,6 @@ type ListItemResult {
   size: Int
   type: String!
   updatedAt: DateTime
-  uploadedAt: DateTime
 }
 
 """
@@ -1479,7 +1495,7 @@ type Mutation {
     data: AiLibraryCrawlerInput!
     libraryId: String!
   ): AiLibraryCrawler!
-  createAutomation(data: AiAutomationInput!): AiAutomation!
+  createAutomation(data: AutomationInput!): Automation!
   createConnector(data: AiConnectorInput!): AiConnector!
   createConversationInvitations(conversationId: String!, data: [ConversationInvitationInput!]!): AiConversation
   createEnrichmentTasks(
@@ -1588,8 +1604,8 @@ type Mutation {
   toggleAdminStatus(userId: String!): User
   toggleModel(enabled: Boolean!, id: ID!): AiLanguageModel
   toggleModelProvider(enabled: Boolean!, id: String!): AiServiceProvider!
-  triggerAutomation(id: ID!): TriggerResult!
-  triggerAutomationItem(automationItemId: ID!): TriggerResult!
+  triggerAutomation(id: ID!): TriggerAutomationResult!
+  triggerAutomationItem(automationItemId: ID!): TriggerAutomationResult!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibraryCrawler(
@@ -1598,7 +1614,7 @@ type Mutation {
     id: String!
   ): AiLibraryCrawler!
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
-  updateAutomation(data: AiAutomationInput!, id: ID!): AiAutomation!
+  updateAutomation(data: AutomationInput!, id: ID!): Automation!
   updateConnector(data: AiConnectorInput!, id: ID!): AiConnector!
   updateLibrary(data: LibraryInput!, id: String!): AiLibrary!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
@@ -1731,11 +1747,11 @@ type Query {
   ): ModelUsageStats
   apiCrawlerTemplates: [ApiCrawlerTemplate!]!
   apiKeys(libraryId: String!): [ApiKey!]!
-  automation(id: ID!): AiAutomation!
-  automationBatches(automationId: ID!, skip: Int, take: Int): [AiAutomationBatch!]!
-  automationItem(id: ID!): AiAutomationItem!
-  automationItems(automationId: ID!, inScope: Boolean, skip: Int, status: String, take: Int): AiAutomationItemsResult!
-  automations(listId: String): [AiAutomation!]!
+  automation(id: ID!): Automation!
+  automationBatches(automationId: ID!, skip: Int, take: Int): [AutomationBatch!]!
+  automationItem(id: ID!): AutomationItem!
+  automationItems(automationId: ID!, inScope: Boolean, skip: Int, status: String, take: Int): AutomationItemsResult!
+  automations(listId: String): [Automation!]!
   chunkCount(
     extractionMethod: ExtractionMethod
     fileId: String
@@ -1749,7 +1765,7 @@ type Query {
   connectors(connectorType: String): [AiConnector!]!
   countFiles(libraryId: String!, namePrefix: String, originUriPrefix: String, showArchived: Boolean!): Int!
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
-  extraction(extractionMethod: ExtractionMethod, fileId: String!, libraryId: String!): ExtractionMetadata
+  extraction(extractionMethod: ExtractionMethod, fileId: String!, libraryId: String!): ExtractionManifest
   file(fileId: String!, libraryId: String!): AiLibraryFile!
   fileChunks(
     extractionMethod: ExtractionMethod
@@ -1791,7 +1807,7 @@ type Query {
   ): AiLanguageModelsResult!
   myWorkspaceInvitations: [WorkspaceInvitation!]!
   processingRequests(
-    fileId: String
+    documentId: String
     libraryId: String
     requestType: ProcessingRequestType
     startSequence: Int
@@ -1898,16 +1914,15 @@ type StopEventProcessingResult {
 """
 Storage usage information for a workspace
 """
-type StorageUsage {
-  activeExtractedBytes: Int!
-  activeExtractions: Int!
-  extractedBytes: Int!
-  extractions: Int!
+type StorageStats {
+  attachmentBytes: Int!
+  attachmentFileCount: Int!
+  extractionBytes: Int!
+  extractionFileCount: Int!
   lastReconcile: DateTime
+  lastUpdate: DateTime
   physicalBytes: Int!
-  physicalFiles: Int!
-  sourceBytes: Int!
-  sourceFiles: Int!
+  physicalFileCount: Int!
 }
 
 type SyncModelsResult {
@@ -1932,16 +1947,10 @@ type TestProviderConnectionResult {
   success: Boolean!
 }
 
-type TriggerResult {
+type TriggerAutomationResult {
   batchId: String
   message: String!
   success: Boolean!
-}
-
-enum TriggerType {
-  ENRICHMENT
-  MANUAL
-  SCHEDULE
 }
 
 input UpdateAiLanguageModelInput {
@@ -2068,13 +2077,13 @@ type WorkspaceInvitation {
 Manifest information about a workspace
 """
 type WorkspaceManifest {
-  createdAt: DateTime!
-  id: ID!
+  created: DateTime!
   name: String!
   settings: WorkspaceSettings!
-  updatedAt: DateTime!
-  usage: StorageUsage!
+  storageStats: StorageStats!
+  updated: DateTime
   version: Int!
+  workspaceId: ID!
 }
 
 type WorkspaceMember {

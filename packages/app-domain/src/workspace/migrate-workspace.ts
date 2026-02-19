@@ -1,5 +1,5 @@
 import { prisma } from '@george-ai/app-database'
-import { workspaceStorage } from '@george-ai/file-management'
+import { migrate } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { logger } from '../common'
@@ -18,7 +18,7 @@ export async function migrateWorkspace(parameters: { workspaceId: string }): Pro
     throw new DomainError('Workspace not found', 'workspace')
   }
 
-  await workspaceStorage.migrateWorkspace(workspaceId, {
+  await migrate.migrateWorkspace(workspaceId, {
     workspaceName: workspace.name,
     libraries: workspace.libraries,
     fileInfoLoader: async (fileId: string) => {
@@ -30,8 +30,11 @@ export async function migrateWorkspace(parameters: { workspaceId: string }): Pro
           name: true,
           mimeType: true,
           createdAt: true,
-          uploadedAt: true,
           originFileHash: true,
+          originUri: true,
+          crawledByCrawlerId: true,
+          updatedAt: true,
+          originModificationDate: true,
         },
       })
 
@@ -43,9 +46,14 @@ export async function migrateWorkspace(parameters: { workspaceId: string }): Pro
         workspaceId,
         libraryId: fileInfo.libraryId,
         fileId,
-        fileName: fileInfo.name,
+        name: fileInfo.name,
         mimeType: fileInfo.mimeType,
         createdAt: fileInfo.createdAt.toISOString(),
+        originUri: fileInfo.originUri,
+        originFileHash: fileInfo.originFileHash,
+        crawledByCrawlerId: fileInfo.crawledByCrawlerId,
+        updatedAt: fileInfo.updatedAt.toISOString(),
+        originModificationDate: fileInfo.originModificationDate?.toISOString() ?? null,
       }
     },
   })

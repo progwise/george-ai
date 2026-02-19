@@ -6,9 +6,7 @@ import { backendRequest } from '../../../server-functions/backend'
 const createWorkspaceMutationDocument = graphql(`
   mutation CreateWorkspace($name: String!, $slug: String!) {
     createWorkspace(name: $name, slug: $slug) {
-      id
-      name
-      slug
+      workspaceId
     }
   }
 `)

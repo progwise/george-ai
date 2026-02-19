@@ -1,8 +1,8 @@
 import type { ModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
+import { callConversationMessagesUpdateSubscriptions } from '@george-ai/app-domain'
 import { askAssistantChain } from '@george-ai/langchain-chat'
 
-import { callConversationMessagesUpdateSubscriptions } from '../../subscriptions'
 import { builder } from '../builder'
 
 builder.prismaObject('AiConversationMessage', {

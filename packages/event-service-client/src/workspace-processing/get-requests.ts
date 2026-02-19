@@ -3,26 +3,26 @@ import { ProcessingRequestType } from '@george-ai/app-commons'
 import { eventClient } from '../client'
 import { logger } from '../common'
 import { WORKSPACE_STREAM_NAME, getEventSubjectFilter } from './common'
-import { EmbedFileRequest, EnrichItemRequest, ExtractFileRequest, ProcessingRequestSchema } from './schema'
+import { EmbedDocumentRequest, EnrichItemRequest, ExtractDocumentRequest, ProcessingRequestSchema } from './schema'
 
 export async function getRequests(
   workspaceId: string,
   requestType?: ProcessingRequestType | null,
-  options?: { libraryId?: string | null; fileId?: string | null; startSequence?: number | null; take?: number },
+  options?: { libraryId?: string | null; documentId?: string | null; startSequence?: number | null; take?: number },
 ): Promise<{
   items: {
     id: string
     subject: string
     deliveryCount: number
-    request?: ExtractFileRequest | EmbedFileRequest | EnrichItemRequest | null
+    request?: ExtractDocumentRequest | EmbedDocumentRequest | EnrichItemRequest | null
     error?: string
     rawText?: string
   }[]
   totalCount: number
   lastSequence: number
 }> {
-  const { libraryId, fileId, startSequence, take = 20 } = options || {}
-  const subjectFilter = getEventSubjectFilter({ workspaceId, requestType, libraryId, fileId })
+  const { libraryId, documentId, startSequence, take = 20 } = options || {}
+  const subjectFilter = getEventSubjectFilter({ workspaceId, requestType, libraryId, documentId })
   const { rawMessages, totalCount, lastSequence } = await eventClient.getMessages({
     streamName: WORKSPACE_STREAM_NAME,
     subjectFilter,

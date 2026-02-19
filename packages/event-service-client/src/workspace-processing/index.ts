@@ -9,11 +9,10 @@ import { getWorkspaceProcessStatistics, getWorkspaceStatistics } from './statist
 import { subscribeEvent } from './subscribe'
 
 export const initializeWorkspaceProcessingStream = async () => {
-  await eventClient.ensureStream({
+  await eventClient.ensureWorkerStream({
     streamName: WORKSPACE_STREAM_NAME,
     description: `Events for workspace processings like embed, extract, enrich`,
     subjects: WORKSPACE_PROCESSING_STREAM_SUBJECTS,
-    persist: false,
   })
   return WORKSPACE_STREAM_NAME
 }
@@ -21,6 +20,7 @@ export const initializeWorkspaceProcessingStream = async () => {
 export type * from './schema'
 export type * from './common'
 export type * from './statistics'
+export type * from './controller'
 
 export default {
   stopProcessing,

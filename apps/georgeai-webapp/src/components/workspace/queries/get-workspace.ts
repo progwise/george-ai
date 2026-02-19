@@ -14,10 +14,16 @@ const workspaceQueryDocument = graphql(`
       slug
       manifest {
         version
-        usage {
+        workspaceId
+        storageStats {
+          extractionBytes
+          attachmentBytes
           physicalBytes
-          physicalFiles
-          extractions
+          extractionFileCount
+          physicalFileCount
+          attachmentFileCount
+          lastUpdate
+          lastReconcile
         }
       }
       role

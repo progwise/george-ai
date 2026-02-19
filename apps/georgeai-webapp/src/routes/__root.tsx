@@ -4,8 +4,8 @@ import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanst
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Suspense } from 'react'
 
-import { AuthProvider } from '../auth/auth'
-import { getUserQueryOptions } from '../auth/get-user'
+import { AuthProvider } from '../auth/auth-provider'
+import { getUserQueryOptions } from '../auth/queries'
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
 import TopNavigation from '../components/top-navigation'

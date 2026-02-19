@@ -5,7 +5,8 @@ import { builder } from './../builder'
 import './queries'
 import './mutations'
 
-import { FieldContextType, FieldSourceType, FieldType } from '../../domain/list'
+import { ListFieldContextType, ListFieldSourceType, ListFieldType } from '@george-ai/app-domain'
+
 import { logger } from '../common'
 
 logger.info('Setting up: AiListField')
@@ -17,12 +18,12 @@ builder.prismaObject('AiListField', {
     listId: t.exposeString('listId', { nullable: false }),
     list: t.relation('list', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
-    type: t.field({ type: 'ListFieldType', nullable: false, resolve: (field) => field.type as FieldType }),
+    type: t.field({ type: 'ListFieldType', nullable: false, resolve: (field) => field.type as ListFieldType }),
     order: t.exposeInt('order', { nullable: false }),
     sourceType: t.field({
       type: 'ListFieldSourceType',
       nullable: false,
-      resolve: (field) => field.sourceType as FieldSourceType,
+      resolve: (field) => field.sourceType as ListFieldSourceType,
     }),
     fileProperty: t.exposeString('fileProperty'),
     prompt: t.exposeString('prompt'),
@@ -106,7 +107,7 @@ builder.prismaObject('AiListFieldContext', {
     contextType: t.field({
       type: 'ListFieldContextType',
       nullable: false,
-      resolve: (context) => context.contextType as FieldContextType,
+      resolve: (context) => context.contextType as ListFieldContextType,
     }),
     contextFieldId: t.exposeString('contextFieldId'),
     contextField: t.relation('contextField'),

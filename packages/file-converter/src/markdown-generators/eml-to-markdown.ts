@@ -2,7 +2,7 @@ import { NodeHtmlMarkdown } from '@kingsword/node-html-markdown'
 import { AddressObject, simpleParser } from 'mailparser'
 import { Readable } from 'stream'
 
-import { workspaceStorage } from '@george-ai/file-management'
+import { document, extraction } from '@george-ai/file-management'
 
 import { FileConverterParameters, logger } from './common'
 
@@ -68,11 +68,15 @@ const cleanHtml = (html: string): string => {
 export async function emlToMarkdown(parameters: FileConverterParameters) {
   logger.debug('[EML Converter] Starting conversion', parameters)
 
-  const { workspaceId, libraryId, fileId } = parameters
+  const { workspaceId, libraryId, documentId } = parameters
 
-  const { stream: readStream } = await workspaceStorage.readSource(workspaceId, {
+  const fileManifest = await document.get(workspaceId, {
     libraryId,
-    fileId,
+    documentId,
+  })
+  const { stream: readStream } = await document.readSource(workspaceId, {
+    libraryId,
+    documentId,
   })
 
   // simpleParser can accept a stream, but we need the buffer for reliable parsing
@@ -130,19 +134,15 @@ export async function emlToMarkdown(parameters: FileConverterParameters) {
 
   const fullMarkdown = (headers + bodyMarkdown).trim()
 
-  const extractionWriter = await workspaceStorage.createExtraction(workspaceId, {
-    libraryId,
-    fileId,
-    extractionMethod: 'emlExtraction',
-  })
+  const extractionWriter = await extraction.create(fileManifest, 'emlExtraction')
 
   try {
-    extractionWriter.write(fullMarkdown)
-    const result = await extractionWriter.finish()
+    await extractionWriter.write(fullMarkdown)
+    const result = await extractionWriter.ack()
     logger.debug('[EML Converter] Conversion completed', parameters)
     return result
   } catch (error) {
-    await extractionWriter.abort(error instanceof Error ? error : undefined)
+    await extractionWriter.nack(error instanceof Error ? error : undefined)
     logger.error('[EML Converter] Conversion failed', { ...parameters, error })
     throw error
   }

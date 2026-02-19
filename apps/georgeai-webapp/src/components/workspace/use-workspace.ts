@@ -222,9 +222,9 @@ export const useWorkspace = (user: UserFragment) => {
     mutationFn: async (data: { name: string; slug: string }) => {
       return await createWorkspaceFn({ data })
     },
-    onSuccess: async ({ id }) => {
+    onSuccess: async ({ workspaceId }) => {
       toastSuccess(t('workspace.createSuccess'))
-      await setWorkspace(id)
+      await setWorkspace(workspaceId)
     },
     onError: (error) => {
       toastError(error.message)

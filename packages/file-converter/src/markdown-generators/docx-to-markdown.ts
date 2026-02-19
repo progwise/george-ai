@@ -1,7 +1,7 @@
 import mammoth from 'mammoth'
 import { Readable } from 'stream'
 
-import { workspaceStorage } from '@george-ai/file-management'
+import { document, extraction } from '@george-ai/file-management'
 
 import { FileConverterParameters, logger } from './common'
 
@@ -38,11 +38,16 @@ function getExtensionFromMimeType(mimeType: string): string {
 export async function docxToMarkdown(parameters: FileConverterParameters) {
   logger.debug('[DOCX Converter] Starting conversion', parameters)
 
-  const { workspaceId, libraryId, fileId } = parameters
+  const { workspaceId, libraryId, documentId } = parameters
 
-  const { stream: readStream } = await workspaceStorage.readSource(workspaceId, {
+  const fileManifest = await document.get(workspaceId, {
     libraryId,
-    fileId,
+    documentId,
+  })
+
+  const { stream: readStream } = await document.readSource(workspaceId, {
+    libraryId,
+    documentId,
   })
 
   // Mammoth only accepts path, buffer, or file - not streams
@@ -73,14 +78,10 @@ export async function docxToMarkdown(parameters: FileConverterParameters) {
   // @ts-expect-error - convertToMarkdown exists but not in type definitions
   const result = await mammoth.convertToMarkdown({ buffer }, { convertImage })
 
-  const extractionWriter = await workspaceStorage.createExtraction(workspaceId, {
-    libraryId,
-    fileId,
-    extractionMethod: 'docxExtraction',
-  })
+  const extractionWriter = await extraction.create(fileManifest, 'docxExtraction')
 
   try {
-    extractionWriter.write(result.value)
+    await extractionWriter.write(result.value)
 
     // Add extracted images as attachments
     for (const image of extractedImages) {
@@ -91,11 +92,11 @@ export async function docxToMarkdown(parameters: FileConverterParameters) {
       logger.debug('[DOCX Converter] Images extracted', { imageCount: extractedImages.length })
     }
 
-    const extractionResult = await extractionWriter.finish()
+    const extractionResult = await extractionWriter.ack()
     logger.debug('[DOCX Converter] Conversion completed', parameters)
     return extractionResult
   } catch (error) {
-    await extractionWriter.abort(error instanceof Error ? error : undefined)
+    await extractionWriter.nack(error instanceof Error ? error : undefined)
     logger.error('[DOCX Converter] Conversion failed', { ...parameters, error })
     throw error
   }

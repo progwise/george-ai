@@ -5,15 +5,15 @@ import cors from 'cors'
 import express from 'express'
 import { createYoga } from 'graphql-yoga'
 
-import { initializeWorkspace, schema, startEnrichmentQueueWorker } from '@george-ai/pothos-graphql'
+import { schema } from '@george-ai/pothos-graphql'
 
-import { assistantIconMiddleware } from './assistantIconMiddleware'
-import { avatarMiddleware } from './avatarMiddleware'
+import { assistantIconMiddleware } from './assistant-icon-middleware'
 import { logger } from './common'
 import { conversationMessagesSSE } from './conversation-messages-sse'
 import { getUserContext } from './get-user-context'
 import { handleGetFile } from './handle-get-file'
 import { handlePostUpload } from './handle-post-upload'
+import { userAvatarMiddleware } from './user-avatar-middleware'
 
 logger.info('Starting GeorgeAI GraphQL server...')
 
@@ -28,14 +28,6 @@ logger.info(`
   OLLAMA_BASE_URL: ${process.env.OLLAMA_BASE_URL || 'not set'}
   OPENAI_API_KEY: ${process.env.OPENAI_API_KEY ? '******' : 'not set'}
   `)
-
-// Initialize workspace provider cache
-initializeWorkspace()
-// Start workers
-if (process.env.AUTOSTART_ENRICHMENT_WORKER === 'true') {
-  logger.info('Auto-starting enrichment queue worker...')
-  startEnrichmentQueueWorker().catch((error) => logger.error('Enrichment worker error:', error))
-}
 
 const yoga = createYoga({
   schema,
@@ -81,7 +73,7 @@ app.use(cookieParser())
 // Serve static files (robots.txt)
 app.use(express.static('public'))
 app.use('/assistant-icon', assistantIconMiddleware)
-app.use('/avatar', avatarMiddleware)
+app.use('/avatar', userAvatarMiddleware)
 app.post('/upload', handlePostUpload)
 app.get('/library-files/:libraryId/:fileId', handleGetFile)
 app.get('/conversation-messages-sse', conversationMessagesSSE)

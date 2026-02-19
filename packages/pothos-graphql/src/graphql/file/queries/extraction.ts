@@ -1,12 +1,12 @@
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
-import { workspaceStorage } from '@george-ai/file-management'
+import { document, extraction as ex } from '@george-ai/file-management'
 
 import { builder } from '../../builder'
 import { logger } from '../../common'
 
 builder.queryField('extraction', (t) => {
   return t.withAuth({ isLoggedIn: true }).field({
-    type: 'ExtractionMetadata',
+    type: 'ExtractionManifest',
     nullable: true,
     args: {
       libraryId: t.arg.string({ required: true }),
@@ -19,9 +19,9 @@ builder.queryField('extraction', (t) => {
     resolve: async (_source, { libraryId, fileId, extractionMethod }, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
       if (!extractionMethod) {
-        const file = await workspaceStorage.getFile(workspaceId, {
+        const file = await document.get(workspaceId, {
           libraryId,
-          fileId,
+          documentId: fileId,
         })
         if (!file?.extractions || file.extractions.length < 1) {
           logger.warn('File or Extraction not found when trying to resolve extraction', {
@@ -34,9 +34,9 @@ builder.queryField('extraction', (t) => {
         extractionMethod = file.extractions[0].extractionMethod
       }
 
-      const extraction = await workspaceStorage.getExtraction(workspaceId, {
+      const extraction = await ex.get(workspaceId, {
         libraryId,
-        fileId,
+        documentId: fileId,
         extractionMethod,
       })
       return extraction

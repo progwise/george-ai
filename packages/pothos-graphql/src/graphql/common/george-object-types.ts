@@ -1,33 +1,41 @@
 import { ExtractionMethod, WorkspaceRole } from '@george-ai/app-commons'
+import { AutomationPreviewValue } from '@george-ai/app-domain'
+import { ActionConfigValue, ActionFieldMapping, ConnectorActionConfig } from '@george-ai/connector-types'
 import {
-  EmbedFileRequest,
+  EmbedDocumentRequest,
   EnrichItemRequest,
-  ExtractFileRequest,
+  ExtractDocumentRequest,
   WorkspaceProcessStatistics,
 } from '@george-ai/event-service-client'
 import {
-  ExtractionMetadata,
-  FileManifest,
+  Attachment,
+  DocumentManifest,
+  ExtractionManifest,
   LibraryManifest,
-  StorageUsage,
+  StorageStats,
   WorkspaceManifest,
 } from '@george-ai/file-management'
 import { EmbeddingStatistic, FileChunk } from '@george-ai/vector-store'
 
-export interface GeorgeObjectTypes {
+export type GeorgeObjectTypes = {
+  Attachment: Attachment
+  AutomationPreviewValue: AutomationPreviewValue
+  ConnectorActionConfig: ConnectorActionConfig
+  ConnectorActionConfigValue: ActionConfigValue
+  ConnectorActionFieldMapping: ActionFieldMapping
+  DocumentManifest: DocumentManifest
   EmbeddingStatistic: EmbeddingStatistic
-  EmbedFileRequest: EmbedFileRequest
+  EmbedDocumentRequest: EmbedDocumentRequest
   EnrichItemRequest: EnrichItemRequest
-  ExtractFileRequest: ExtractFileRequest
-  ExtractionMetadata: ExtractionMetadata
+  ExtractDocumentRequest: ExtractDocumentRequest
+  ExtractionManifest: ExtractionManifest
   ExtractionMethod: ExtractionMethod
   FileChunk: FileChunk
-  FileExtraction: FileManifest['extractions'][number]
-  FileManifest: FileManifest
+  FileExtraction: DocumentManifest['extractions'][number]
   LibraryManifest: LibraryManifest
   LibrarySettings: LibraryManifest['settings']
   ProcessingRequestSettings: Record<string, string | number | boolean> | null
-  StorageUsage: StorageUsage
+  StorageStats: StorageStats
   WorkspaceManifest: WorkspaceManifest
   WorkspaceRole: WorkspaceRole
   WorkspaceSettings: WorkspaceManifest['settings']

@@ -16,6 +16,6 @@ export const getExtractionMethod = (value: string): ExtractionMethod | undefined
   if (EXTRACTION_METHODS.includes(value as ExtractionMethod)) {
     return value as ExtractionMethod
   }
-  logger.warn(`Invalid extraction method: ${value}`)
-  return undefined
+  logger.error(`Invalid extraction method: ${value}`)
+  throw new Error(`Invalid extraction method: ${value}`)
 }

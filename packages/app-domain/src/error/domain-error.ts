@@ -3,7 +3,10 @@ export class DomainError extends Error {
   readonly message: string
   readonly name: string = 'GeorgeAiDomainError'
 
-  constructor(message: string, domain: 'workspace' | 'authentication' | 'validation' | 'authorization') {
+  constructor(
+    message: string,
+    domain: 'workspace' | 'file' | 'document' | 'library' | 'extraction' | 'embedding' | 'validation' | 'authorization',
+  ) {
     super(message)
 
     this.message = message

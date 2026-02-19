@@ -1,8 +1,8 @@
 import { getListStatistics, prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+import { EnrichmentStatusType } from '@george-ai/app-domain'
 
 import { EnrichmentStatus } from '.'
-import { EnrichmentStatusType } from '../../domain/enrichment'
 import { builder } from '../builder'
 
 const EnrichmentQueueResult = builder

@@ -1,27 +1,27 @@
-import { ExtractFileStatus, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
-import { workspaceStorage } from '@george-ai/file-management'
+import { getExtraction, getLibraryManifest } from '@george-ai/app-domain'
+import { ExtractDocumentStatus, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
 
 import { logger } from '../../../common'
 
-export async function extractFileCompleted(event: ExtractFileStatus) {
-  const { extractionMethod, fileId, workspaceId, libraryId } = event
+export async function extractDocumentCompleted(event: ExtractDocumentStatus) {
+  const { extractionMethod, documentId, workspaceId, libraryId } = event
 
-  const extraction = await workspaceStorage.getExtraction(workspaceId, {
+  const extraction = await getExtraction(workspaceId, {
     libraryId,
-    fileId,
+    documentId,
     extractionMethod,
   })
   if (!extraction) {
     logger.error('Extraction not found', {
-      fileId,
+      documentId,
       workspaceId,
       libraryId,
       extractionMethod,
     })
     throw new Error('Extraction not found')
   }
-  const library = await workspaceStorage.getLibrary(workspaceId, { libraryId })
-  const imageAnalysisSettings = library?.settings.imageAnalysis
+  const library = await getLibraryManifest(workspaceId, { libraryId })
+  const imageAnalysisSettings = library?.settings?.imageAnalysis
   if (imageAnalysisSettings) {
     const imageAttachments = extraction.attachments?.filter((att) => att.mimeType?.startsWith('image/')) || []
     if (imageAttachments.length > 0) {
@@ -35,26 +35,24 @@ export async function extractFileCompleted(event: ExtractFileStatus) {
           {
             role: 'user',
             content: `Provide a detailed analysis of the following images:\n${imageAttachments
-              .map((att) => `- ${att.filename}`)
+              .map((att) => `- ${att.fileName} (MIME type: ${att.mimeType})`)
               .join('\n')}\nInclude observations about content, style, and any notable features.`,
           },
         ],
-        attachmentFilePaths: await Promise.all(
-          imageAttachments.map((att) =>
-            workspaceStorage.getAttachmentFilePath(workspaceId, {
-              libraryId,
-              fileId,
-              extractionMethod,
-              attachmentFileName: att.filename,
-            }),
-          ),
-        ).then((paths) => paths.filter((path): path is string => !!path)),
+        attachments:
+          imageAttachments.map((att) => ({
+            workspaceId,
+            libraryId,
+            documentId,
+            extractionMethod,
+            attachmentFileName: att.fileName,
+          })) || [],
         replySubject: workspaceProcessing.getEventSubject({ ...event, eventType: 'reply' }),
-        context: { fileId, libraryId, extractionMethod },
+        context: { documentId, libraryId, extractionMethod },
       })
 
       logger.info('Published image analysis provider call', {
-        fileId,
+        documentId,
         workspaceId,
         libraryId,
         extractionMethod,

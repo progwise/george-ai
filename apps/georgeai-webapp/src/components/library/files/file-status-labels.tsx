@@ -7,13 +7,14 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 graphql(`
   fragment FileStatusLabels_File on AiLibraryFile {
     id
-    supportedExtractionMethods
     name
+    supportedExtractionMethods
     manifest {
       extractions {
         extractionMethod
-        extractionDate
-        extractionHash
+        sourceHash
+        created
+        updated
       }
     }
     embeddingStatistics {
@@ -32,7 +33,9 @@ export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
   useTranslation()
   const { supportedExtractionMethods, manifest, embeddingStatistics } = file
 
-  const sortedExtractions = manifest?.extractions.sort((a, b) => b.extractionDate.localeCompare(a.extractionDate)) || []
+  const sortedExtractions = manifest?.extractions.sort(
+    (a, b) => new Date(b.updated || b.created).getTime() - new Date(a.updated || a.created).getTime(),
+  )
 
   const extractionsWithEmbeddingInfo = sortedExtractions?.map((extraction) => {
     const embedding = embeddingStatistics?.find((e) => e.extractionMethod === extraction.extractionMethod)
@@ -54,7 +57,7 @@ export const FileStatusLabels = ({ file }: FileStatusLabelsProps) => {
         </div>
       ) : (
         supportedExtractionMethods.map((method) => {
-          const embeddingInfos = extractionsWithEmbeddingInfo.filter((e) => e.extractionMethod === method) || []
+          const embeddingInfos = extractionsWithEmbeddingInfo?.filter((e) => e.extractionMethod === method) || []
           const embedding = embeddingInfos
             .map((e) => (e.embedding ? `${e.embedding.modelName} (${e.embedding.chunkCount.toLocaleString()})` : null))
             .filter((info): info is string => info !== null)

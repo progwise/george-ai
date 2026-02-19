@@ -61,55 +61,47 @@ export class NatsClient implements EventClient {
     return this.nc !== null && !this.nc.isClosed()
   }
 
-  async ensureStream(args: {
-    streamName: string
-    subjects: string[]
-    description?: string
-    persist: boolean
-  }): Promise<void> {
+  async ensureWorkerStream(args: { streamName: string; subjects: string[]; description?: string }): Promise<void> {
     if (!this.jsm) {
       throw new Error('Not connected to NATS')
     }
 
-    const { streamName, subjects, description, persist } = args
+    const { streamName, subjects, description } = args
 
     const existingStream = await this.jsm.streams.info(streamName).catch(() => null)
     if (!existingStream) {
-      logger.info(`Stream didn't exists, creating: ${streamName} (persist: ${persist})`)
+      logger.info('Creating stream', { streamName, subjects, description })
       await this.jsm.streams.add({
         name: streamName,
         subjects,
         description,
-        retention: persist ? RetentionPolicy.Limits : RetentionPolicy.Workqueue,
-        max_age: persist ? 0 : 30 * 24 * 60 * 60 * 1e9, // 30 days vs 1 day
+        retention: RetentionPolicy.Workqueue,
+        max_age: 0,
         max_msgs: -1, // unlimited
         max_bytes: -1, // unlimited
-        storage: persist ? StorageType.File : StorageType.Memory,
+        storage: StorageType.File,
       })
     } else {
       const existingSubjects = existingStream.config.subjects.sort().join(',')
       const desiredSubjects = subjects.sort().join(',')
-      const existingPersist = existingStream.config.retention === RetentionPolicy.Limits
-      const desiredPersist = persist
-      logger.info(`Stream already exists: ${streamName} (persist: ${existingPersist})`)
-      if (existingPersist !== desiredPersist) {
-        logger.error(
-          `Stream persistence mismatch for ${streamName}, existing: ${existingPersist}, desired: ${desiredPersist}. Updating...`,
-        )
-        throw new Error('Cannot change stream persistence after creation')
-      }
+      logger.info('Stream already exists', { streamName, existingSubjects, desiredSubjects, description })
+
       if (existingSubjects !== desiredSubjects) {
-        logger.info(
-          `Stream subjects mismatch for ${streamName}, existing: ${existingSubjects}, desired: ${desiredSubjects}. Updating...`,
-        )
+        logger.info('Stream subjects mismatch', {
+          streamName,
+          existingSubjects,
+          desiredSubjects,
+        })
         await this.jsm.streams.update(streamName, {
           subjects,
         })
       }
       if (description && existingStream.config.description !== description) {
-        logger.info(
-          `Stream description mismatch for ${streamName}, existing: ${existingStream.config.description}, desired: ${description}. Updating...`,
-        )
+        logger.info('Stream description mismatch', {
+          streamName,
+          existingDescription: existingStream.config.description,
+          desiredDescription: description,
+        })
         await this.jsm.streams.update(streamName, {
           description,
         })
@@ -190,7 +182,6 @@ export class NatsClient implements EventClient {
         consumerInfo.config.max_ack_pending === (params.maxPendingMessages || 1000) &&
         consumerInfo.config.max_deliver === (params.maxDeliveryAttempts || 3)
       ) {
-        logger.debug('Consumer already up to date', { consumerName, streamName, consumerInfo })
         return
       }
       await this.jsm.consumers.update(streamName, consumerName, {
@@ -530,7 +521,9 @@ export class NatsClient implements EventClient {
 
     let lastSequence = startSequence ?? 0
 
-    const fetchBatch = await consumer.fetch({ max_messages: take > totalCount ? totalCount : take, expires: 1000 })
+    const max_messages = Math.min(take, totalCount) // Ensure we don't request more messages than exist
+
+    const fetchBatch = await consumer.fetch({ max_messages, expires: 1000 })
 
     for await (const msg of fetchBatch) {
       lastSequence = msg.info.streamSequence
@@ -541,7 +534,7 @@ export class NatsClient implements EventClient {
         deliveryCount: msg.info.deliveryCount,
         data: msg.data,
       })
-      if (messages.length >= take) {
+      if (messages.length >= max_messages) {
         break
       }
     }

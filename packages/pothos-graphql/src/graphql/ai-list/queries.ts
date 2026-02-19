@@ -1,9 +1,8 @@
 import { z } from 'zod'
 
 import { prisma } from '@george-ai/app-database'
-import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+import { ListFieldType, canReadWorkspaceOrThrow, list as lst } from '@george-ai/app-domain'
 
-import { FieldType, LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES } from '../../domain/list'
 import { builder } from '../builder'
 import { AiListFilterInput, AiListSortingInput, ListItemsQueryResult } from './field-values'
 
@@ -116,9 +115,9 @@ builder.queryField('aiListItems', (t) =>
           id: field.id,
           listId: field.listId,
           name: field.name,
-          sourceType: z.enum(LIST_FIELD_SOURCE_TYPES).parse(field.sourceType),
-          fileProperty: z.enum(LIST_FIELD_FILE_PROPERTIES).nullable().parse(field.fileProperty),
-          type: field.type as FieldType,
+          sourceType: z.enum(lst.LIST_FIELD_SOURCE_TYPES).parse(field.sourceType),
+          fileProperty: z.enum(lst.LIST_FIELD_FILE_PROPERTIES).nullable().parse(field.fileProperty),
+          type: field.type as ListFieldType,
         })),
         skip: args.skip ?? 0,
         take: args.take ?? 20,

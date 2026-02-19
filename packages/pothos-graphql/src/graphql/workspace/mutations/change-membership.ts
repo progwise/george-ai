@@ -3,7 +3,6 @@ import { GraphQLError } from 'graphql'
 import { prisma } from '@george-ai/app-database'
 import { canAdminWorkspaceOrThrow, doesOwnWorkspaceOrThrow } from '@george-ai/app-domain'
 
-import { isLastAdmin } from '../../../domain/workspace'
 import { builder } from '../../builder'
 
 // Update a member's role (admin only, owner role requires current user to be owner)
@@ -39,8 +38,16 @@ builder.mutationField('changeWorkspaceMembership', (t) =>
 
       // Prevent demoting the last admin
       if ((currentMembership.role === 'admin' || currentMembership.role === 'owner') && role === 'member') {
-        const isLast = await isLastAdmin(workspaceId, targetUserId)
-        if (isLast) {
+        // Count all members with admin privileges (admin or owner)
+        const otherAdminCount = await prisma.workspaceMember.count({
+          where: {
+            workspaceId,
+            userId: { not: targetUserId },
+            role: { in: ['admin', 'owner'] },
+          },
+        })
+
+        if (otherAdminCount < 1) {
           throw new GraphQLError('Cannot demote the last admin. Promote another member first.')
         }
       }

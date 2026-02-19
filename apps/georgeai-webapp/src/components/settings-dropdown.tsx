@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { JSX } from 'react'
 
-import { useAuth } from '../auth/auth'
+import { useAuth } from '../auth'
 import { useTheme } from '../hooks/use-theme'
 import { useLanguage } from '../i18n/use-language-hook'
 import { useTranslation } from '../i18n/use-translation-hook'

@@ -35,27 +35,29 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
   if (jwtToken) {
     const decoded = jwt.decode(jwtToken) as { sub?: string; preferred_username?: string; email?: string } | null
     if (decoded?.email) {
-      const userInformation = await user.getUserByMail(decoded.email)
+      const userInformation = await user.getUser({ email: decoded.email })
       if (!userInformation) {
         return { session: null, workspaceId: undefined }
       }
 
+      const userProfile = await user.getUserProfile(userInformation.userId)
+
       // Get workspace membership (single efficient query with fallback)
       const membership = await user.getWorkspaceMembership({
-        userId: userInformation.id,
+        userId: userInformation.userId,
         workspaceId: requestedWorkspaceId || userInformation.defaultWorkspaceId,
       })
 
       return {
         session: {
           user: {
-            id: userInformation.id,
+            id: userInformation.userId,
             username: userInformation.username,
             email: decoded.email,
             isAdmin: userInformation.isAdmin ?? false,
             defaultWorkspaceId: userInformation.defaultWorkspaceId ?? undefined,
           },
-          userProfile: userInformation.profile ?? undefined,
+          userProfile: userProfile ?? undefined,
         },
         jwt: jwtToken,
         workspaceId: membership ? membership.workspaceId : undefined,
@@ -69,29 +71,31 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
     const apiKeyResult = await apiKey.validateApiKey({ apiKey: bearerToken })
     if (apiKeyResult) {
       // Get user information for the API key owner by ID
-      const userInformation = await user.getUserById(apiKeyResult.userId)
+      const userInformation = await user.getUser({ userId: apiKeyResult.userId })
       if (userInformation) {
         // For API keys, get workspace from the associated library
         const workspaceId = await workspace.getWorkspaceId({ libraryId: apiKeyResult.libraryId })
 
         if (workspaceId) {
           // SECURITY: Verify user is a member of the library's workspace
-          const membership = await user.getWorkspaceMembership({ userId: userInformation.id, workspaceId })
+          const membership = await user.getWorkspaceMembership({ userId: userInformation.userId, workspaceId })
 
           if (!membership) {
             // User is not a member of the library's workspace - unauthorized
             return { session: null }
           }
 
+          const userProfile = await user.getUserProfile(userInformation.userId)
+
           return {
             session: {
               user: {
-                id: userInformation.id,
+                id: userInformation.userId,
                 username: userInformation.username,
                 email: userInformation.email,
                 isAdmin: userInformation.isAdmin ?? false,
               },
-              userProfile: userInformation.profile ?? undefined,
+              userProfile: userProfile ?? undefined,
             },
             apiKey: apiKeyResult,
             workspaceId,

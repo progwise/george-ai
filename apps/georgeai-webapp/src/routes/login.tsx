@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
 import { z } from 'zod'
 
-import { useAuth } from '../auth/auth'
+import { useAuth } from '../auth'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { BowlerLogoIcon } from '../icons/bowler-logo-icon'
 

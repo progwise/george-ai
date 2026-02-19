@@ -2,7 +2,7 @@ import { GraphQLError } from 'graphql/error'
 
 import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
-import { workspaceStorage } from '@george-ai/file-management'
+import { library as lib } from '@george-ai/file-management'
 
 import { builder } from '../../builder'
 
@@ -35,7 +35,7 @@ builder.mutationField('createLibrary', (t) =>
             ocrModelId: ocrModelId || null,
           },
         })
-        await workspaceStorage.createLibrary(workspaceId, { libraryId: library.id, name: library.name })
+        await lib.create(workspaceId, { libraryId: library.id, name: library.name })
         return library
       } catch (error) {
         if (error instanceof Error) {

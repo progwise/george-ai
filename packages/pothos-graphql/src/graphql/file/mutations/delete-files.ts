@@ -1,5 +1,5 @@
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
-import { workspace } from '@george-ai/app-domain'
+import { deleteFiles } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
 
@@ -13,7 +13,7 @@ builder.mutationField('deleteFiles', (t) =>
     },
     resolve: async (_source, { libraryId, fileIds }, { workspaceId, session }) => {
       await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
-      return await workspace.deleteFiles(workspaceId, { libraryId, fileIds })
+      return await deleteFiles(workspaceId, { libraryId, documentIds: fileIds })
     },
   }),
 )

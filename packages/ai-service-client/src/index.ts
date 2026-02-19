@@ -1,3 +1,4 @@
+import { logger } from './instance-manager/common'
 import { discoverOllamaModels } from './ollama/ollama-discover'
 import { clearAllOllamaResourceManagers, invalidateOllamaResourceManager } from './ollama/ollama-resource-manager'
 import { discoverOpenAIModels } from './openAi/openai-discover'
@@ -58,6 +59,9 @@ export const initializeWorkspace = (
   loader: (workspaceId: string) => Promise<ServiceProviderConfig[]>,
   options?: { ttl?: number; maxSize?: number },
 ) => {
+  logger.info(
+    'Initializing workspace provider cache...\n\nMake sure to call initializeWorkspace() once on application startup with a loader function that fetches providers for a workspace from the database.\n\nExample:\n\ninitializeWorkspace(async (workspaceId) => {\n  // Fetch provider configs for the workspace from your database\n  return await db.getProvidersForWorkspace(workspaceId)\n}, { ttl: 60000, maxSize: 100 })',
+  )
   providerCache.initialize(loader, options)
 }
 

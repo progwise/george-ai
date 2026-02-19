@@ -22,7 +22,7 @@ export const createAutomationFn = createServerFn({ method: 'POST' })
   .handler(async (ctx) => {
     return await backendRequest(
       graphql(`
-        mutation createAutomation($data: AiAutomationInput!) {
+        mutation createAutomation($data: AutomationInput!) {
           createAutomation(data: $data) {
             id
             name

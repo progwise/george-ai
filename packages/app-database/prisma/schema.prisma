@@ -232,7 +232,6 @@ model AiLibraryFile {
   originUri              String?
   mimeType               String
   size                   Int?
-  uploadedAt             DateTime?
   dropError              String?
   crawledByCrawlerId     String?
   docPath                String?
@@ -243,8 +242,19 @@ model AiLibraryFile {
   library                AiLibrary         @relation(fields: [libraryId], references: [id])
   updates                AiLibraryUpdate[]
   listItems              AiListItem[]
+  fileUploads            FileUploads[]
 
   @@unique([libraryId, originUri])
+}
+
+model FileUploads {
+  id         String        @id @default(cuid())
+  createdAt  DateTime      @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+  fileId     String
+  uploadUrl  String
+  file       AiLibraryFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
 }
 
 model AiLibraryCrawler {

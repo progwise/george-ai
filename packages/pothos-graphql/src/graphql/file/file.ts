@@ -1,6 +1,6 @@
 import { prisma } from '@george-ai/app-database'
 import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
-import { workspaceStorage } from '@george-ai/file-management'
+import { document } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../builder'
@@ -20,7 +20,6 @@ builder.prismaObject('AiLibraryFile', {
     docPath: t.exposeString('docPath', { nullable: true }),
     mimeType: t.exposeString('mimeType', { nullable: false }),
     size: t.exposeInt('size', { nullable: true }),
-    uploadedAt: t.expose('uploadedAt', { type: 'DateTime', nullable: true }),
     libraryId: t.exposeString('libraryId', {
       nullable: false,
     }),
@@ -30,12 +29,12 @@ builder.prismaObject('AiLibraryFile', {
     archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
 
     manifest: t.withAuth({ isLoggedIn: true }).field({
-      type: 'FileManifest',
+      type: 'DocumentManifest',
       nullable: true,
       resolve: async (file, _args, { workspaceId }) => {
-        const fileManifest = await workspaceStorage.getFile(workspaceId, {
+        const fileManifest = await document.get(workspaceId, {
           libraryId: file.libraryId,
-          fileId: file.id,
+          documentId: file.id,
         })
         return fileManifest
       },
@@ -91,7 +90,7 @@ builder.prismaObject('AiLibraryFile', {
         if (file.archivedAt) {
           return 'archived'
         }
-        if (file.uploadedAt) {
+        if (file.updatedAt) {
           return 'uploaded'
         }
         if (file.dropError) {

@@ -1,12 +1,12 @@
 import { pipeline } from 'node:stream/promises'
 
-import { type EmbedFileRequest, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
-import { vectorStore } from '@george-ai/vector-store'
+import { readChunks } from '@george-ai/app-domain'
+import { type EmbedDocumentRequest, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
 
 import { WORKER_ID, logger } from '../../common'
 
-export async function embedFile(event: EmbedFileRequest) {
-  const { workspaceId, libraryId, fileId, embeddingModelProvider, embeddingModelName, extractionMethod } = event
+export async function embedFile(event: EmbedDocumentRequest) {
+  const { workspaceId, libraryId, documentId, embeddingModelProvider, embeddingModelName, extractionMethod } = event
 
   const result = {
     chunkCount: 0,
@@ -16,11 +16,11 @@ export async function embedFile(event: EmbedFileRequest) {
     processingTimeMs: 0,
   }
 
-  const chunkStream = vectorStore.readChunks({ workspaceId, libraryId, fileId, extractionMethod })
+  const chunkStream = readChunks({ workspaceId, libraryId, fileId: documentId, extractionMethod })
 
   try {
     logger.debug('Processing file embedding', {
-      fileId,
+      documentId,
       workspaceId,
       embeddingModelName,
       embeddingModelProvider,
@@ -39,7 +39,7 @@ export async function embedFile(event: EmbedFileRequest) {
           .map((chunk) => ({
             workspaceId,
             libraryId,
-            fileId,
+            documentId,
             fragment: chunk.fragment,
             extractionMethod,
             chunkIndex: chunk.chunk,
@@ -58,9 +58,9 @@ export async function embedFile(event: EmbedFileRequest) {
       }
     })
   } catch (error) {
-    const message = `Error embedding for file ${fileId}, model ${embeddingModelName}, provider ${embeddingModelProvider}, workspace ${workspaceId}: \n${error instanceof Error ? error.message : 'Unknown error'}`
+    const message = `Error embedding for file ${documentId}, model ${embeddingModelName}, provider ${embeddingModelProvider}, workspace ${workspaceId}: \n${error instanceof Error ? error.message : 'Unknown error'}`
     logger.error('Error processing file embedding', {
-      fileId,
+      documentId,
       workspaceId,
       embeddingModelName,
       embeddingModelProvider,
@@ -69,9 +69,9 @@ export async function embedFile(event: EmbedFileRequest) {
     return { ...result, processingTimeMs: Date.now() - result.startTime, success: false, message }
   }
 
-  const message = `Successfully embedded ${result.chunkCount} chunks for file ${fileId} using model ${embeddingModelName}`
+  const message = `Successfully embedded ${result.chunkCount} chunks for file ${documentId} using model ${embeddingModelName}`
   logger.debug('Successfully embedded file', {
-    fileId,
+    documentId,
     workspaceId,
     embeddingModelName,
     chunkCount: result.chunkCount,

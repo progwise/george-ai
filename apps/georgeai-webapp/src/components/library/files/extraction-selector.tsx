@@ -1,12 +1,16 @@
 import { useMemo, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { ExtractionMethod } from '@george-ai/app-commons'
-
+import { ExtractionMethod } from '../../../gql/graphql'
 import { ClientDate } from '../../client-date'
 
 interface ExtractionSelectorProps {
-  extractions: Array<{ extractionMethod: ExtractionMethod; extractionHash: string; extractionDate: string }>
+  extractions: Array<{
+    extractionMethod: ExtractionMethod
+    souceHash?: string | null
+    created: string
+    updated?: string | null
+  }>
   onChange: (extractionMethod: ExtractionMethod) => void
   selectedExtractionMethod?: ExtractionMethod
 }
@@ -50,7 +54,7 @@ export const ExtractionSelector = ({ extractions, onChange, selectedExtractionMe
                 >
                   <span className="font-medium text-nowrap">{extraction.extractionMethod}</span>
                   <span className="text-xs text-base-content/60">
-                    <ClientDate date={extraction.extractionDate} format="dateTime" />
+                    <ClientDate date={extraction.updated || extraction.created} format="dateTime" />
                   </span>
                 </button>
               </li>

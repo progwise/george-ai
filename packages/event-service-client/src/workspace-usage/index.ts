@@ -7,11 +7,10 @@ import { subscribeUsageTrackingEvent } from './subscribers'
 let initialized = false
 
 export const initializeWorkspaceUsageStream = async () => {
-  await eventClient.ensureStream({
+  await eventClient.ensureWorkerStream({
     streamName: USAGE_STREAM_NAME,
     description: `Events for usage reportings`,
     subjects: USAGE_STREAM_SUBJECTS,
-    persist: false,
   })
   initialized = true
   return USAGE_STREAM_NAME

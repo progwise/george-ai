@@ -9,7 +9,7 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
     workspaceId: TEST_WORKSPACE_ID,
     requestType: 'extractFile',
     extractionMethod: 'textExtraction',
-    fileId: 'test-file-id',
+    documentId: 'test-file-id',
     libraryId: 'test-library-id',
   }
 
@@ -56,7 +56,7 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
           ...TEST_PROCESSING_REQUEST,
           requestType: 'embedFile',
           extractionMethod: 'textExtraction',
-          fileId: `test-file-id-${i}`,
+          documentId: `test-file-id-${i}`,
           embeddingModelName: 'test-model',
           embeddingModelProvider: 'openai',
         }),
@@ -160,7 +160,7 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
     await workspaceProcessing.publishProcessingRequest({
       ...TEST_PROCESSING_REQUEST,
       requestType: 'embedFile',
-      fileId: 'test-file-id-redelivery',
+      documentId: 'test-file-id-redelivery',
       embeddingModelName: 'test-model',
       embeddingModelProvider: 'openai',
     })

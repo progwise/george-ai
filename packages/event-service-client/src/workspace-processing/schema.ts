@@ -25,34 +25,34 @@ export const ProcessingRequestBaseSchema = z.object({
 
 // Extract File
 
-export const ExtractFileRequestSchema = ProcessingRequestBaseSchema.extend({
+export const ExtractDocumentRequestSchema = ProcessingRequestBaseSchema.extend({
   requestType: z.literal('extractFile'),
   libraryId: z.string(),
-  fileId: z.string(),
+  documentId: z.string(),
   extractionMethod: z.enum(EXTRACTION_METHODS),
 })
 
-export type ExtractFileRequest = z.infer<typeof ExtractFileRequestSchema>
+export type ExtractDocumentRequest = z.infer<typeof ExtractDocumentRequestSchema>
 
 // Embed file
 
-export const EmbedFileRequestSchema = ProcessingRequestBaseSchema.extend({
+export const EmbedDocumentRequestSchema = ProcessingRequestBaseSchema.extend({
   requestType: z.literal('embedFile'),
   libraryId: z.string(),
-  fileId: z.string(),
+  documentId: z.string(),
   extractionMethod: z.enum(EXTRACTION_METHODS),
   embeddingModelProvider: z.enum(MODEL_PROVIDERS),
   embeddingModelName: z.string(),
 })
 
-export type EmbedFileRequest = z.infer<typeof EmbedFileRequestSchema>
+export type EmbedDocumentRequest = z.infer<typeof EmbedDocumentRequestSchema>
 
 // Enrich Item
 
 export const EnrichItemRequestSchema = ProcessingRequestBaseSchema.extend({
   requestType: z.literal('enrichItem'),
   libraryId: z.string(),
-  fileId: z.string(),
+  documentId: z.string(),
   fragment: z.number().nullable().optional(),
 })
 
@@ -61,8 +61,8 @@ export type EnrichItemRequest = z.infer<typeof EnrichItemRequestSchema>
 // Discriminated Union of all Requests
 
 export const ProcessingRequestSchema = z.discriminatedUnion('requestType', [
-  ExtractFileRequestSchema,
-  EmbedFileRequestSchema,
+  ExtractDocumentRequestSchema,
+  EmbedDocumentRequestSchema,
   EnrichItemRequestSchema,
 ])
 
@@ -84,32 +84,32 @@ export const ProcessingStatusBaseSchema = z.object({
 })
 
 // Extract File Status
-export const ExtractFileStatusSchema = ProcessingStatusBaseSchema.extend({
+export const ExtractDocumentStatusSchema = ProcessingStatusBaseSchema.extend({
   requestType: z.literal('extractFile'),
   libraryId: z.string(),
-  fileId: z.string(),
+  documentId: z.string(),
   extractionMethod: z.enum(EXTRACTION_METHODS),
 })
 
-export type ExtractFileStatus = z.infer<typeof ExtractFileStatusSchema>
+export type ExtractDocumentStatus = z.infer<typeof ExtractDocumentStatusSchema>
 
 // Embed File Status
 
-export const EmbedFileStatusSchema = ProcessingStatusBaseSchema.extend({
+export const EmbedDocumentStatusSchema = ProcessingStatusBaseSchema.extend({
   requestType: z.literal('embedFile'),
   libraryId: z.string(),
-  fileId: z.string(),
+  documentId: z.string(),
   extractionMethod: z.enum(EXTRACTION_METHODS),
 })
 
-export type EmbedFileStatus = z.infer<typeof EmbedFileStatusSchema>
+export type EmbedDocumentStatus = z.infer<typeof EmbedDocumentStatusSchema>
 
 // Enrich Item Status
 
 export const EnrichItemStatusSchema = ProcessingStatusBaseSchema.extend({
   requestType: z.literal('enrichItem'),
   libraryId: z.string(),
-  fileId: z.string(),
+  documentId: z.string(),
   fragment: z.number().nullable().optional(),
 })
 
@@ -118,8 +118,8 @@ export type EnrichItemStatus = z.infer<typeof EnrichItemStatusSchema>
 // Discriminated Union of all Statuses
 
 export const ProcessingStatusSchema = z.discriminatedUnion('requestType', [
-  ExtractFileStatusSchema,
-  EmbedFileStatusSchema,
+  ExtractDocumentStatusSchema,
+  EmbedDocumentStatusSchema,
   EnrichItemStatusSchema,
 ])
 

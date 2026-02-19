@@ -17,6 +17,7 @@ export const queryKeys = {
   FileChunks: 'FileChunks',
   FileManifest: 'FileManifest',
   FileUsages: 'FileUsages',
+  KeycloakConfig: 'KeycloakConfig',
   ModelProviders: 'ModelProviders',
   ModelProviderStatus: 'ModelProviderStatus',
   ProcessingRequests: 'ProcessingRequests',

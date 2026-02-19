@@ -1,7 +1,7 @@
 import type {
-  EmbedFileRequest,
+  EmbedDocumentRequest,
   EnrichItemRequest,
-  ExtractFileRequest,
+  ExtractDocumentRequest,
   ProcessingRequest,
 } from '@george-ai/event-service-client'
 
@@ -15,10 +15,10 @@ export async function handleActionEvent(event: ProcessingRequest) {
   try {
     switch (event.requestType) {
       case 'embedFile':
-        await embedFile(event as EmbedFileRequest)
+        await embedFile(event as EmbedDocumentRequest)
         break
       case 'extractFile':
-        await extractFile(event as ExtractFileRequest)
+        await extractFile(event as ExtractDocumentRequest)
         break
       case 'enrichItem':
         await enrichItem(event as EnrichItemRequest)

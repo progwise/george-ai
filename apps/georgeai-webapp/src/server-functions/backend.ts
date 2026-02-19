@@ -3,7 +3,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
 import request, { RequestDocument, Variables } from 'graphql-request'
 
-import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../auth/auth'
+import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../auth'
 import { WORKSPACE_COOKIE_NAME } from '../components/workspace/server-functions/workspace-cookie'
 import { BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
 import { graphql } from '../gql'

@@ -1,8 +1,7 @@
 import { prisma } from '@george-ai/app-database'
+import { ListFieldFileProperty, ListFieldSourceType, ListFieldType, ListFilterType } from '@george-ai/app-domain'
 
-import { AiListFilterType, FieldFileProperty, FieldSourceType, FieldType } from '../../domain/list'
-
-const getValueFieldName = (fieldType: FieldType) => {
+const getValueFieldName = (fieldType: ListFieldType) => {
   switch (fieldType) {
     case 'string':
     case 'text':
@@ -22,9 +21,14 @@ const getValueFieldName = (fieldType: FieldType) => {
 
 interface GetItemIdsForListOptions {
   listId: string
-  fields: { id: string; type: FieldType; sourceType: FieldSourceType; fileProperty: FieldFileProperty | null }[]
+  fields: {
+    id: string
+    type: ListFieldType
+    sourceType: ListFieldSourceType
+    fileProperty: ListFieldFileProperty | null
+  }[]
   sorting: { fieldId: string; direction: 'asc' | 'desc' }[]
-  filters: { fieldId: string; filterType: AiListFilterType; value: string }[]
+  filters: { fieldId: string; filterType: ListFilterType; value: string }[]
   showArchived: boolean
   skip: number
   take: number
@@ -34,8 +38,8 @@ interface GetItemIdsForListOptions {
  * Build filter condition for a field with proper parameterization
  */
 const buildFilterCondition = (
-  field: { type: FieldType },
-  filterType: AiListFilterType,
+  field: { type: ListFieldType },
+  filterType: ListFilterType,
   filterValue: string,
   columnRef: string,
   params: (string | number | boolean | Date | null)[],
@@ -137,7 +141,7 @@ const buildFilterCondition = (
 /**
  * Get the proper column reference for a file property (accessed via sourceFile)
  */
-const getFilePropertyColumn = (fileProperty: FieldFileProperty): { table: string; column: string } => {
+const getFilePropertyColumn = (fileProperty: ListFieldFileProperty): { table: string; column: string } => {
   switch (fileProperty) {
     case 'itemName':
       return { table: 'AiListItem', column: 'itemName' }

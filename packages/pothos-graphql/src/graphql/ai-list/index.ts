@@ -6,7 +6,7 @@ import './queries'
 import './mutations'
 
 import { getExtractionMethod } from '@george-ai/app-commons'
-import { workspaceStorage } from '@george-ai/file-management'
+import { document, extraction } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { logger } from '../common'
@@ -57,21 +57,21 @@ builder.prismaObject('AiListItem', {
     source: t.relation('source', { nullable: false }),
     file: t.relation('file', { nullable: false }),
     fileInfo: t.withAuth({ isLoggedIn: true }).field({
-      type: 'FileManifest',
+      type: 'DocumentManifest',
       nullable: true,
       resolve: async (item, _args, { workspaceId }) => {
         const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
           where: { id: item.fileId },
           select: { libraryId: true },
         })
-        return workspaceStorage.getFile(workspaceId, {
+        return document.get(workspaceId, {
           libraryId: sourceFile.libraryId,
-          fileId: item.fileId,
+          documentId: item.fileId,
         })
       },
     }),
     extractionInfo: t.withAuth({ isLoggedIn: true }).field({
-      type: 'ExtractionMetadata',
+      type: 'ExtractionManifest',
       nullable: true,
       resolve: async (item, _args, { workspaceId }) => {
         const sourceFile = await prisma.aiLibraryFile.findFirstOrThrow({
@@ -83,9 +83,9 @@ builder.prismaObject('AiListItem', {
           return null
         }
 
-        const extractionInfo = await workspaceStorage.getExtraction(workspaceId, {
+        const extractionInfo = await extraction.get(workspaceId, {
           libraryId: sourceFile.libraryId,
-          fileId: item.fileId,
+          documentId: item.fileId,
           extractionMethod,
         })
         return extractionInfo

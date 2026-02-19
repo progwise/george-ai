@@ -1,6 +1,6 @@
 import { prisma } from '@george-ai/app-database'
+import { CrawlerUriType } from '@george-ai/app-domain'
 
-import { CrawlerUriType } from '../../domain/crawler/crawler-uri-types'
 import { builder } from '../builder'
 
 builder.prismaObject('AiLibraryCrawler', {

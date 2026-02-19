@@ -5,20 +5,20 @@ import { builder } from '../builder'
 builder.objectRef<WorkspaceManifest>('WorkspaceManifest').implement({
   description: 'Manifest information about a workspace',
   fields: (t) => ({
-    id: t.exposeID('id', { nullable: false }),
+    workspaceId: t.exposeID('workspaceId', { nullable: false }),
     version: t.exposeInt('version', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
-    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
+    created: t.expose('created', { type: 'DateTime', nullable: false }),
+    updated: t.expose('updated', { type: 'DateTime', nullable: true }),
 
     settings: t.field({
       type: 'WorkspaceSettings',
       resolve: (workspace) => workspace.settings,
       nullable: false,
     }),
-    usage: t.field({
-      type: 'StorageUsage',
-      resolve: (workspace) => workspace.usage,
+    storageStats: t.field({
+      type: 'StorageStats',
+      resolve: (workspace) => workspace.storageStats,
       nullable: false,
     }),
   }),

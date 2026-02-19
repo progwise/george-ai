@@ -1,12 +1,12 @@
-import { ExtractFileRequest } from '@george-ai/event-service-client'
-import { transformToMarkdown } from '@george-ai/file-converter'
+import { transform } from '@george-ai/app-domain'
+import { ExtractDocumentRequest } from '@george-ai/event-service-client'
 
 import { logger } from '../../common'
 
-export async function extractFile(event: ExtractFileRequest) {
-  const { extractionMethod, fileId, workspaceId, libraryId, requestType, version } = event
+export async function extractFile(event: ExtractDocumentRequest) {
+  const { extractionMethod, documentId, workspaceId, libraryId, requestType, version } = event
   logger.debug('Starting file extraction', {
-    fileId,
+    documentId,
     workspaceId,
     libraryId,
     extractionMethod,
@@ -14,18 +14,14 @@ export async function extractFile(event: ExtractFileRequest) {
     version,
   })
 
-  const extraction = await transformToMarkdown({
-    workspaceId,
+  const extraction = await transform(workspaceId, {
     libraryId,
-    fileId,
-    timeoutSignal: new AbortController().signal,
-    options: {
-      extractionMethod,
-    },
+    documentId,
+    extractionMethod,
   })
 
   logger.debug('Completed file extraction', {
-    fileId,
+    documentId,
     workspaceId,
     libraryId,
     extractionMethod,

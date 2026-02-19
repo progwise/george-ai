@@ -1,32 +1,48 @@
-import { FileManifest } from '@george-ai/file-management'
+import { DocumentManifest } from '@george-ai/file-management'
 
 import { builder } from '../builder'
 
-builder.objectRef<FileManifest>('FileManifest').implement({
+builder.objectRef<DocumentManifest>('DocumentManifest').implement({
   description: 'Information about a file stored in the AI library',
   fields: (t) => ({
     version: t.exposeInt('version', { nullable: false }),
-    fileId: t.exposeString('id', { nullable: false }),
-    fileName: t.exposeString('fileName', { nullable: false }),
+    documentId: t.exposeString('documentId', { nullable: false }),
+    name: t.exposeString('name', { nullable: false }),
     mimeType: t.exposeString('mimeType', { nullable: false }),
-    originalContentHash: t.exposeString('originalContentHash', { nullable: true }),
     sourceHash: t.exposeString('sourceHash', { nullable: true }),
-    originalUpdatedAt: t.expose('originalUpdatedAt', { type: 'DateTime', nullable: true }),
-    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    usage: t.field({ type: 'StorageUsage', nullable: false, resolve: (file) => file.usage }),
+    created: t.expose('created', { type: 'DateTime', nullable: false }),
+    origin: t.field({
+      type: builder.simpleObject('DocumentOrigin', {
+        fields: (t) => ({
+          uri: t.string({ nullable: true }),
+          hash: t.string({ nullable: true }),
+          creationDate: t.field({ type: 'DateTime', nullable: true }),
+          lastModifiedDate: t.field({ type: 'DateTime', nullable: true }),
+          author: t.string({ nullable: true }),
+        }),
+      }),
+      nullable: true,
+      resolve: (manifest) => manifest.origin,
+    }),
+    storageStats: t.field({
+      type: 'StorageStats',
+      nullable: false,
+      resolve: (manifest) => manifest.storageStats,
+    }),
     extractions: t.field({
       type: [
-        builder.simpleObject('FileExtraction', {
+        builder.simpleObject('DocumentExtraction', {
           fields: (t) => ({
             extractionMethod: t.field({ type: 'ExtractionMethod', nullable: false }),
-            extractionHash: t.string({ nullable: false }),
-            extractionDate: t.field({ type: 'DateTime', nullable: false }),
+            sourceHash: t.field({ type: 'String', nullable: false }),
+            created: t.field({ type: 'DateTime', nullable: false }),
+            updated: t.field({ type: 'DateTime', nullable: true }),
           }),
         }),
       ],
       nullable: { list: false, items: false },
       description: 'Available extractions for this file (e.g., CSV, PDF with different models)',
-      resolve: (file) => file.extractions,
+      resolve: (document) => document.extractions,
     }),
   }),
 })

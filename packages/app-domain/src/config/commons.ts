@@ -1,0 +1,14 @@
+export const CONFIG_VARS = [
+  'UPLOADS_PATH',
+  'CRAWLER_CREDENTIALS_DIR',
+  'PUBLIC_APP_URL',
+  'GIT_COMMIT_SHA',
+  'IS_PRODUCTION',
+  'LOG_LEVEL',
+  'OLLAMA_INSTANCES',
+  'OPENAI_API_KEY',
+  'OPENAI_BASE_URL',
+  'SMB_CRAWLER_URL',
+] as const
+
+export type ConfigVar = (typeof CONFIG_VARS)[number]

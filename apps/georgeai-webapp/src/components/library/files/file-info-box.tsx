@@ -17,23 +17,38 @@ graphql(`
     chunkCount
     originUri
     createdAt
-    uploadedAt
     archivedAt
     crawler {
       uri
       uriType
     }
     manifest {
+      documentId
+      name
+      mimeType
+      sourceHash
+      created
+      origin {
+        uri
+        hash
+        creationDate
+        lastModifiedDate
+        author
+      }
       extractions {
         extractionMethod
-        extractionDate
-        extractionHash
+        sourceHash
+        created
+        updated
       }
-      usage {
-        sourceBytes
-        extractedBytes
+      storageStats {
+        extractionBytes
+        attachmentBytes
         physicalBytes
-        activeExtractions
+        extractionFileCount
+        physicalFileCount
+        attachmentFileCount
+        lastUpdate
         lastReconcile
       }
     }
@@ -68,7 +83,7 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
       <section>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <InfoField label="Status" value={file.status} />
-          <InfoField label="Total Size" value={formatBytes(file.manifest?.usage.physicalBytes)} />
+          <InfoField label="Total Size" value={formatBytes(file.manifest?.storageStats.physicalBytes)} />
         </div>
       </section>
       <div className="divider my-0" />
@@ -76,8 +91,7 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
       <section>
         <h4 className="mb-2 text-xs font-semibold tracking-wide text-base-content/50 uppercase">Usage</h4>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-          <InfoField label="Source" value={formatBytes(file.manifest?.usage.sourceBytes)} />
-          <InfoField label="Extractions" value={formatBytes(file.manifest?.usage.extractedBytes)} />
+          <InfoField label="Extractions" value={formatBytes(file.manifest?.storageStats.extractionBytes)} />
           <InfoField label="Chunks" value={file.chunkCount ?? '-'} />
           <InfoField label="Crawler" value={file.crawler ? `${file.crawler.uri} (${file.crawler.uriType})` : '-'} />
         </div>
@@ -93,7 +107,13 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
           />
           <InfoField
             label="Last Reconcile"
-            value={file.manifest?.usage?.lastReconcile ? <ClientDate date={file.manifest.usage.lastReconcile} /> : '-'}
+            value={
+              file.manifest?.storageStats?.lastReconcile ? (
+                <ClientDate date={file.manifest.storageStats.lastReconcile} />
+              ) : (
+                '-'
+              )
+            }
           />
         </div>
       </section>
@@ -105,7 +125,11 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <InfoField label={t('labels.originModified')} value={<ClientDate date={file.originModificationDate} />} />
           <InfoField label="Created" value={<ClientDate date={file.createdAt} />} />
-          <InfoField label="Uploaded" value={file.uploadedAt ? <ClientDate date={file.uploadedAt} /> : '-'} />
+          <InfoField
+            label="Origin last modified"
+            value={file.manifest ? <ClientDate date={file.manifest.origin?.lastModifiedDate} /> : '-'}
+          />
+          <InfoField label="Origin Uri" value={file.manifest ? <ClientDate date={file.manifest.origin?.uri} /> : '-'} />
           <InfoField label="Archived" value={file.archivedAt ? <ClientDate date={file.archivedAt} /> : '-'} />
         </div>
       </section>

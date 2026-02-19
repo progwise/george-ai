@@ -5,24 +5,21 @@ import { builder } from '../builder'
 builder.objectRef<LibraryManifest>('LibraryManifest').implement({
   fields: (t) => ({
     version: t.exposeInt('version', { nullable: false }),
-    id: t.exposeID('id', { nullable: false }),
-    name: t.exposeString('name', { nullable: false }),
-    description: t.exposeString('description'),
-    createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
-    updatedAt: t.expose('updatedAt', { type: 'DateTime', nullable: false }),
-    settings: t.field({
-      type: 'LibrarySettings',
-      nullable: false,
-      resolve: (manifest) => {
-        return manifest.settings
-      },
+    workspaceId: t.exposeString('workspaceId', { nullable: false }),
+    created: t.expose('created', { type: 'DateTime', nullable: false }),
+    creator: t.exposeID('creator', { nullable: true }),
+    updated: t.expose('updated', { type: 'DateTime', nullable: true }),
+    attachments: t.field({
+      type: ['Attachment'],
+      nullable: { list: true, items: false },
+      resolve: (manifest) => manifest.attachments || [],
     }),
-    usage: t.field({
-      type: 'StorageUsage',
+    storageStats: t.field({
+      type: 'StorageStats',
       nullable: true,
-      resolve: (manifest) => {
-        return manifest.usage || null
-      },
+      resolve: (manifest) => manifest.storageStats || null,
     }),
+    libraryId: t.exposeString('libraryId', { nullable: false }),
+    name: t.exposeString('name', { nullable: false }),
   }),
 })

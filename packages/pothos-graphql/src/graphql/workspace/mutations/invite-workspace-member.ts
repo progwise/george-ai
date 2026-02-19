@@ -2,9 +2,8 @@ import { GraphQLError } from 'graphql'
 import { z } from 'zod'
 
 import { prisma } from '@george-ai/app-database'
-import { canAdminWorkspaceOrThrow } from '@george-ai/app-domain'
+import { INVITATION_EXPIRY_DAYS, canAdminWorkspaceOrThrow, sendWorkspaceInvitationEmail } from '@george-ai/app-domain'
 
-import { INVITATION_EXPIRY_DAYS, sendWorkspaceInvitationEmail } from '../../../domain/workspace'
 import { builder } from '../../builder'
 
 // Invite a member to a workspace (admin only)

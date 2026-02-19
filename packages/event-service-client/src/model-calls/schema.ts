@@ -30,7 +30,7 @@ export const ChatCompletionCallSchema = ModelBaseCall.extend({
       content: z.string(),
     }),
   ),
-  attachmentFilePaths: z.array(z.string()).optional(),
+  attachments: z.array(z.record(z.string(), z.string())).optional(),
 })
 export type ChatCompletionCall = z.infer<typeof ChatCompletionCallSchema>
 

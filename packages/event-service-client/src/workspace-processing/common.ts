@@ -33,15 +33,15 @@ export const getEventSubject = ({
   workspaceId,
   requestType,
   libraryId,
-  fileId,
+  documentId,
 }: {
   eventType: EventType
   workspaceId: string
   requestType: ProcessingRequestType
   libraryId: string
-  fileId: string
+  documentId: string
 }) => {
-  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId}.${eventType}.${requestType}.library.${libraryId}.file.${fileId}`
+  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId}.${eventType}.${requestType}.library.${libraryId}.document.${documentId}`
 }
 
 export const getEventSubjectFilter = ({
@@ -49,15 +49,15 @@ export const getEventSubjectFilter = ({
   workspaceId,
   requestType,
   libraryId,
-  fileId,
+  documentId,
 }: {
   eventType?: EventType
   workspaceId?: string | null
   requestType?: ProcessingRequestType | null
   libraryId?: string | null
-  fileId?: string | null
+  documentId?: string | null
 }) => {
-  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId || '*'}.${eventType || '*'}.${requestType || '*'}.library.${libraryId || '*'}.file.${fileId || '*'}`
+  return `${WORKSPACE_PROCESSING_SUBJECT_PREFIX}.${workspaceId || '*'}.${eventType || '*'}.${requestType || '*'}.library.${libraryId || '*'}.document.${documentId || '*'}`
 }
 
 export const getEventType = (subject: string): EventType => {

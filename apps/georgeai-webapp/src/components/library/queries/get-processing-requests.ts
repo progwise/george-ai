@@ -19,7 +19,7 @@ const processingRequestsDocument = graphql(`
     processingRequests(
       requestType: $requestType
       libraryId: $libraryId
-      fileId: $fileId
+      documentId: $fileId
       startSequence: $startSequence
       take: $take
     ) {
@@ -40,21 +40,21 @@ const processingRequestsDocument = graphql(`
             key
             value
           }
-          ... on ExtractFileRequest {
+          ... on ExtractDocumentRequest {
             libraryId
-            fileId
+            documentId
             extractionMethod
           }
-          ... on EmbedFileRequest {
+          ... on EmbedDocumentRequest {
             libraryId
-            fileId
+            documentId
             extractionMethod
             embeddingModelProvider
             embeddingModelName
           }
           ... on EnrichItemRequest {
             libraryId
-            fileId
+            documentId
             fragment
           }
         }

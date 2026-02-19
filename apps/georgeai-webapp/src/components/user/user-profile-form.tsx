@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { ReactElement, RefObject } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth'
+import { useAuth } from '../../auth'
 import { graphql } from '../../gql'
 import { UserProfileForm_UserProfileFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'

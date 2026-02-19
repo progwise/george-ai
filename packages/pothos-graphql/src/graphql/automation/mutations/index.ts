@@ -1,0 +1,5 @@
+import './create-automation'
+import './delete-automation'
+import './trigger-automation'
+import './trigger-automation-item'
+import './update-automation'

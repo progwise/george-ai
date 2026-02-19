@@ -1,8 +1,8 @@
+import { getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { WorkspaceConfig, workspaceConfig } from '@george-ai/event-service-client'
 
 import { logger } from './common'
-import { getModelProvider } from './workspace/get-model-provider'
 
 export const initializeAppDomain = async () => {
   const workspaces = await prisma.workspace.findMany({

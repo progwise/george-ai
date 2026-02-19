@@ -1,4 +1,5 @@
-import { sharepoint } from '../../domain/crawler'
+import { sharepoint } from '@george-ai/app-domain'
+
 import { builder } from '../builder'
 
 // Define the SharePoint validation result type

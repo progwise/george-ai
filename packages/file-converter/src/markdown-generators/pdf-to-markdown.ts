@@ -2,7 +2,7 @@ import { createRequire } from 'node:module'
 import { Readable } from 'node:stream'
 import { GlobalWorkerOptions, OPS, getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
-import { ExtractionWriter, workspaceStorage } from '@george-ai/file-management/src/storage'
+import { ExtractionWriter, document, extraction } from '@george-ai/file-management'
 
 import { PDF_LAYOUT } from '../constants'
 import { FileConverterParameters, logger } from './common'
@@ -29,29 +29,30 @@ async function streamToBuffer(stream: Readable): Promise<Buffer> {
 
 // Advanced PDF to Markdown converter that preserves layout and structure
 export async function pdfToMarkdown(parameters: FileConverterParameters) {
-  const { workspaceId, libraryId, fileId, timeoutSignal } = parameters
-  logger.debug('Starting PDF conversion', { workspaceId, libraryId, fileId })
+  const { workspaceId, libraryId, documentId, timeoutSignal } = parameters
+  logger.debug('Starting PDF conversion', { workspaceId, libraryId, documentId })
 
-  const { stream: sourceStream } = await workspaceStorage.readSource(workspaceId, {
+  const fileManifest = await document.get(workspaceId, {
     libraryId,
-    fileId,
+    documentId,
   })
 
-  const extractionWriter = await workspaceStorage.createExtraction(workspaceId, {
+  const { stream: sourceStream } = await document.readSource(workspaceId, {
     libraryId,
-    fileId,
-    extractionMethod: 'pdfExtraction',
+    documentId,
   })
+
+  const extractionWriter = await extraction.create(fileManifest, 'pdfExtraction')
 
   try {
     await extractFromPDF(sourceStream, timeoutSignal, extractionWriter)
-    const result = await extractionWriter.finish()
-    logger.debug('PDF conversion completed', { workspaceId, libraryId, fileId })
+    const result = await extractionWriter.ack()
+    logger.debug('PDF conversion completed', { workspaceId, libraryId, documentId })
     return result
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    logger.error('PDF conversion failed', { error: errorMessage, workspaceId, libraryId, fileId })
-    await extractionWriter.abort(error instanceof Error ? error : undefined)
+    logger.error('PDF conversion failed', { error: errorMessage, workspaceId, libraryId, documentId })
+    await extractionWriter.nack(error instanceof Error ? error : undefined)
     throw error
   }
 }
@@ -94,7 +95,7 @@ async function extractFromPDF(
     const { pageMarkdown, images } = await processPage(pdfDocument, pageNum)
 
     // Yield page content immediately to allow garbage collection
-    extractionWriter.write(cleanupPageMarkdown(pageMarkdown))
+    await extractionWriter.write(cleanupPageMarkdown(pageMarkdown))
 
     for (const image of images) {
       extractionWriter.addAttachment(image.filename, Readable.from([image.data]), image.mimeType)
@@ -104,12 +105,12 @@ async function extractFromPDF(
     const screenshot = await renderPageScreenshot(pdfDocument, pageNum, PAGE_SCREENSHOT_SCALE)
     if (screenshot) {
       extractionWriter.addAttachment(screenshot.filename, Readable.from([screenshot.data]), 'image/png')
-      extractionWriter.write(`\n![Page ${pageNum} Screenshot](attachments/${screenshot.filename})\n`)
+      await extractionWriter.write(`\n![Page ${pageNum} Screenshot](attachments/${screenshot.filename})\n`)
     }
 
     // Add page separator (except for last page)
     if (pageNum < numPages) {
-      extractionWriter.write('\n---\n\n')
+      await extractionWriter.write('\n---\n\n')
     }
 
     // Log progress for large documents

@@ -2,7 +2,7 @@ import { GraphQLError } from 'graphql/error'
 
 import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
-import { workspaceStorage } from '@george-ai/file-management'
+import { library as lib } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
@@ -30,7 +30,7 @@ builder.mutationField('deleteLibrary', (t) =>
           {},
         )
         await Promise.all([
-          workspaceStorage.deleteLibrary(workspaceId, { libraryId }),
+          lib.delete(workspaceId, { libraryId }),
           vectorStore.removeChunks({ workspaceId, libraryId }),
         ])
 

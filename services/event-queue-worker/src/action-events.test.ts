@@ -1,40 +1,75 @@
 import { Readable } from 'stream'
 
+import {
+  createDocument,
+  createLibrary,
+  createUser,
+  createWorkspace,
+  deleteWorkspace,
+  getExtraction,
+  prepareUpload,
+  uploadFile,
+} from '@george-ai/app-domain'
 import { workspaceProcessing } from '@george-ai/event-service-client'
-import { workspaceStorage } from '@george-ai/file-management'
 
 import { main } from '.'
 
 describe.sequential('Should process action events', () => {
-  const TEST_WORKSPACE_ID = `test-workspace-action-events_${Date.now()}`
-  const TEST_LIBRARY_ID = 'test-library'
-  const TEST_FILE_ID = 'test-file'
+  let TEST_WORKSPACE_ID: string
+  let TEST_LIBRARY_ID: string
+  let TEST_FILE_ID: string
+  let TEST_USER_ID: string
 
   beforeAll(async () => {
     await main()
-    await workspaceStorage.createWorkspace(TEST_WORKSPACE_ID, { name: 'Test Workspace' })
-    await workspaceStorage.createLibrary(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID, name: 'Test Library' })
+    const workspace = await createWorkspace({ name: 'Test Workspace', slug: 'slug' })
+    TEST_WORKSPACE_ID = workspace.workspaceId
+
+    const user = await createUser({
+      username: `testuser-${Date.now()}`,
+      defaultWorkspaceId: TEST_WORKSPACE_ID,
+      email: `testuser-${Date.now()}@example.com`,
+    })
+    TEST_USER_ID = user.userId
+    const library = await createLibrary(TEST_WORKSPACE_ID, {
+      name: 'Test Library',
+      userId: TEST_USER_ID,
+    })
+    TEST_LIBRARY_ID = library.libraryId
     await workspaceProcessing.ensureWorkspaceConsumers({ workspaceId: TEST_WORKSPACE_ID })
   })
 
   afterAll(async () => {
-    await workspaceStorage.deleteWorkspace(TEST_WORKSPACE_ID)
+    await deleteWorkspace(TEST_WORKSPACE_ID)
   })
 
   it('Given I have a source file in my ...', async () => {
-    const fileInfo = await workspaceStorage.writeSource(TEST_WORKSPACE_ID, {
+    const fileManifest = await createDocument(TEST_WORKSPACE_ID, {
+      libraryId: TEST_LIBRARY_ID,
+      name: 'test.txt',
+      mimeType: 'text/plain',
+      originUri: 'actions/test.txt',
+    })
+    TEST_FILE_ID = fileManifest.documentId
+
+    expect(fileManifest).toBeDefined()
+  })
+
+  it('...and I upload the file content', async () => {
+    const preparation = await prepareUpload(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       fileId: TEST_FILE_ID,
-      stream: Readable.from(['Test file content']),
-      meta: {
-        mimeType: 'text/plain',
-        originalName: 'test.txt',
-        originalUpdatedAt: new Date().toISOString(),
-        originalContentHash: 'test-hash',
-      },
+      uploadUrl: 'test7upload',
+    })
+    expect(preparation).toBeDefined()
+
+    const result = await uploadFile(TEST_WORKSPACE_ID, {
+      libraryId: TEST_LIBRARY_ID,
+      fileId: TEST_FILE_ID,
+      stream: Readable.from(['This is the content of the file.']),
     })
 
-    expect(fileInfo).toBeDefined()
+    expect(result).toBeDefined()
   })
 
   it('When I publish an extraction event for it...', async () => {
@@ -43,7 +78,7 @@ describe.sequential('Should process action events', () => {
       workspaceId: TEST_WORKSPACE_ID,
       version: 1,
       extractionMethod: 'textExtraction',
-      fileId: TEST_FILE_ID,
+      documentId: TEST_FILE_ID,
       libraryId: TEST_LIBRARY_ID,
     })
   })
@@ -53,16 +88,16 @@ describe.sequential('Should process action events', () => {
     const pollIntervalMs = 100
     let elapsed = 0
     while (elapsed < maxWaitMs) {
-      const extraction = await workspaceStorage.getExtraction(TEST_WORKSPACE_ID, {
+      const extraction = await getExtraction(TEST_WORKSPACE_ID, {
         libraryId: TEST_LIBRARY_ID,
-        fileId: TEST_FILE_ID,
+        documentId: TEST_FILE_ID,
         extractionMethod: 'textExtraction',
       })
 
       if (extraction) {
         expect(extraction).toBeDefined()
         expect(extraction.extractionMethod).toBe('textExtraction')
-        expect(extraction.extractedBytes).toBeGreaterThan(0)
+        expect(extraction.storageStats.extractionBytes).toBeGreaterThan(0)
         return
       }
 

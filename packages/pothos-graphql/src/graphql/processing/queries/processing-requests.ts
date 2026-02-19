@@ -1,8 +1,8 @@
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import {
-  EmbedFileRequest,
+  EmbedDocumentRequest,
   EnrichItemRequest,
-  ExtractFileRequest,
+  ExtractDocumentRequest,
   workspaceProcessing,
 } from '@george-ai/event-service-client'
 
@@ -16,7 +16,7 @@ const response = builder
       id: string
       subject: string
       deliveryCount: number
-      request?: ExtractFileRequest | EmbedFileRequest | EnrichItemRequest | null
+      request?: ExtractDocumentRequest | EmbedDocumentRequest | EnrichItemRequest | null
       error?: string
       rawText?: string
     }>
@@ -33,7 +33,7 @@ const response = builder
               id: string
               subject: string
               deliveryCount: number
-              request?: ExtractFileRequest | EmbedFileRequest | EnrichItemRequest | null
+              request?: ExtractDocumentRequest | EmbedDocumentRequest | EnrichItemRequest | null
               error?: string
               rawText?: string
             }>('ProcessingRequestItem')
@@ -62,16 +62,16 @@ builder.queryField('processingRequests', (t) =>
     args: {
       requestType: t.arg({ type: 'ProcessingRequestType', required: false }),
       libraryId: t.arg.string({ required: false }),
-      fileId: t.arg.string({ required: false }),
+      documentId: t.arg.string({ required: false }),
       startSequence: t.arg.int({ required: false, defaultValue: undefined }),
       take: t.arg.int({ defaultValue: 20 }),
     },
-    resolve: async (_root, { requestType, startSequence, take, libraryId, fileId }, { workspaceId, session }) => {
+    resolve: async (_root, { requestType, startSequence, take, libraryId, documentId }, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
 
       const response = await workspaceProcessing.getRequests(workspaceId, requestType, {
         libraryId,
-        fileId,
+        documentId,
         startSequence,
         take,
       })

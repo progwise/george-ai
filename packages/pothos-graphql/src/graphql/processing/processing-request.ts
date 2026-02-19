@@ -1,7 +1,7 @@
 import {
-  EmbedFileRequest,
+  EmbedDocumentRequest,
   EnrichItemRequest,
-  ExtractFileRequest,
+  ExtractDocumentRequest,
   ProcessingRequest,
 } from '@george-ai/event-service-client'
 
@@ -12,9 +12,9 @@ builder.interfaceRef<ProcessingRequest>('ProcessingRequest').implement({
   resolveType: (request) => {
     switch (request.requestType) {
       case 'extractFile':
-        return 'ExtractFileRequest'
+        return 'ExtractDocumentRequest'
       case 'embedFile':
-        return 'EmbedFileRequest'
+        return 'EmbedDocumentRequest'
       case 'enrichItem':
         return 'EnrichItemRequest'
       default:
@@ -49,20 +49,20 @@ builder.interfaceRef<ProcessingRequest>('ProcessingRequest').implement({
   }),
 })
 
-builder.objectRef<ExtractFileRequest>('ExtractFileRequest').implement({
+builder.objectRef<ExtractDocumentRequest>('ExtractDocumentRequest').implement({
   interfaces: ['ProcessingRequest'],
   fields: (t) => ({
     libraryId: t.exposeString('libraryId'),
-    fileId: t.exposeString('fileId'),
+    documentId: t.exposeString('documentId'),
     extractionMethod: t.exposeString('extractionMethod'),
   }),
 })
 
-builder.objectRef<EmbedFileRequest>('EmbedFileRequest').implement({
+builder.objectRef<EmbedDocumentRequest>('EmbedDocumentRequest').implement({
   interfaces: ['ProcessingRequest'],
   fields: (t) => ({
     libraryId: t.exposeString('libraryId'),
-    fileId: t.exposeString('fileId'),
+    documentId: t.exposeString('documentId'),
     extractionMethod: t.exposeString('extractionMethod'),
     embeddingModelProvider: t.field({
       type: 'ModelProvider',
@@ -78,7 +78,7 @@ builder.objectRef<EnrichItemRequest>('EnrichItemRequest').implement({
   interfaces: ['ProcessingRequest'],
   fields: (t) => ({
     libraryId: t.exposeString('libraryId'),
-    fileId: t.exposeString('fileId'),
+    documentId: t.exposeString('documentId'),
     fragment: t.exposeInt('fragment', { nullable: true }),
   }),
 })

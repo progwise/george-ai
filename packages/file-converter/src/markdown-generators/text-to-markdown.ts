@@ -1,6 +1,6 @@
 import { pipeline } from 'node:stream/promises'
 
-import { workspaceStorage } from '@george-ai/file-management'
+import { document, extraction } from '@george-ai/file-management'
 
 import { FileConverterParameters, logger } from './common'
 
@@ -35,31 +35,31 @@ async function* textParser(
 export const textToMarkdown = async (parameters: FileConverterParameters) => {
   logger.debug('[Text Converter] Starting conversion', parameters)
 
-  const { workspaceId, libraryId, fileId, mimeType } = parameters
-  const { stream: sourceStream } = await workspaceStorage.readSource(workspaceId, {
+  const { workspaceId, libraryId, documentId, mimeType } = parameters
+  const fileManifest = await document.get(workspaceId, {
     libraryId,
-    fileId,
+    documentId,
+  })
+  const { stream: sourceStream } = await document.readSource(workspaceId, {
+    libraryId,
+    documentId,
   })
 
-  const writer = await workspaceStorage.createExtraction(parameters.workspaceId, {
-    libraryId: parameters.libraryId,
-    fileId: parameters.fileId,
-    extractionMethod: 'textExtraction',
-  })
+  const writer = await extraction.create(fileManifest, 'textExtraction')
 
   try {
     await pipeline(textParser(sourceStream, { mimeType }), async function (source) {
       for await (const chunk of source) {
-        writer.write(chunk)
+        await writer.write(chunk)
       }
     })
 
-    const result = await writer.finish()
+    const result = await writer.ack()
     logger.debug('[Text Converter] Conversion completed', parameters)
     return result
   } catch (error) {
     logger.error('[Text Converter] Conversion failed', { ...parameters, error })
-    await writer.abort(error instanceof Error ? error : undefined)
+    await writer.nack(error instanceof Error ? error : undefined)
     throw error
   }
 }

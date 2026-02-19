@@ -1,11 +1,11 @@
-import { ExtractFileStatus } from '@george-ai/event-service-client'
+import { ExtractDocumentStatus } from '@george-ai/event-service-client'
 
 import { logger } from '../../../common'
 import { logNoHandler } from '../../common'
-import { extractFileCompleted } from './completed'
+import { extractDocumentCompleted } from './completed'
 
-export async function handleExtractFileStatus(event: ExtractFileStatus) {
-  logger.debug('Handling extractFile status', { event })
+export async function handleExtractFileStatus(event: ExtractDocumentStatus) {
+  logger.debug('Handling extractDocument status', { event })
   try {
     switch (event.status) {
       case 'pending':
@@ -15,7 +15,7 @@ export async function handleExtractFileStatus(event: ExtractFileStatus) {
         logNoHandler(event)
         break
       case 'completed':
-        await extractFileCompleted(event)
+        await extractDocumentCompleted(event)
         break
       case 'failed':
         logNoHandler(event)

@@ -1,6 +1,6 @@
 import { createReadStream } from 'fs'
 
-import { workspaceStorage } from '@george-ai/file-management'
+import { document, extraction, library, workspace } from '@george-ai/file-management'
 import { getTestAssetLocalPath } from '@george-ai/test-utils/src/test-files'
 
 import { transformToMarkdown } from './transform-to-markdown'
@@ -8,35 +8,39 @@ import { transformToMarkdown } from './transform-to-markdown'
 describe.sequential('HTML to Markdown', async () => {
   const TEST_WORKSPACE_ID = `test-workspace-html-to-markdown_${Date.now()}`
   const TEST_LIBRARY_ID = 'test-library'
-  const TEST_HTML_FILE_ID = 'test-html-file'
+  const TEST_HTML_document_ID = 'test-html-document'
 
   beforeAll(async () => {
-    const TEST_HTML_FILE_PATH = await getTestAssetLocalPath('sample-extraction.html')
-    const stream = createReadStream(TEST_HTML_FILE_PATH)
-    await workspaceStorage.createWorkspace(TEST_WORKSPACE_ID, { name: 'Test Workspace' })
-    await workspaceStorage.createLibrary(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID, name: 'Test Library' })
-    await workspaceStorage.writeSource(TEST_WORKSPACE_ID, {
+    const TEST_HTML_document_PATH = await getTestAssetLocalPath('sample-extraction.html')
+    const stream = createReadStream(TEST_HTML_document_PATH)
+    await workspace.create(TEST_WORKSPACE_ID, { name: 'Test Workspace' })
+    await library.create(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
-      fileId: TEST_HTML_FILE_ID,
+      name: 'Test Library',
+    })
+    await document.create(TEST_WORKSPACE_ID, {
+      libraryId: TEST_LIBRARY_ID,
+      documentId: TEST_HTML_document_ID,
+      name: 'test.html',
+      mimeType: 'text/html',
+      uri: 'legacy-uri',
+    })
+    await document.writeSource(TEST_WORKSPACE_ID, {
+      libraryId: TEST_LIBRARY_ID,
+      documentId: TEST_HTML_document_ID,
       stream,
-      meta: {
-        mimeType: 'text/html',
-        originalName: 'test.html',
-        originalUpdatedAt: new Date().toISOString(),
-        originalContentHash: 'test-hash',
-      },
     })
   })
 
   afterAll(async () => {
-    await workspaceStorage.deleteWorkspace(TEST_WORKSPACE_ID)
+    await workspace.delete(TEST_WORKSPACE_ID)
   })
 
   it('should transform HTML to Markdown', async () => {
     await transformToMarkdown({
       workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
-      fileId: TEST_HTML_FILE_ID,
+      documentId: TEST_HTML_document_ID,
       timeoutSignal: new AbortController().signal,
       options: {
         extractionMethod: 'htmlExtraction',
@@ -44,31 +48,33 @@ describe.sequential('HTML to Markdown', async () => {
     })
   })
 
-  it('should have the HTML extraction in the file', async () => {
-    const fileInfo = await workspaceStorage.getFile(TEST_WORKSPACE_ID, {
+  it('should have the HTML extraction in the document', async () => {
+    const documentInfo = await document.get(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
-      fileId: TEST_HTML_FILE_ID,
+      documentId: TEST_HTML_document_ID,
     })
 
-    expect(fileInfo).toBeDefined()
-    expect(fileInfo?.extractions.find((extraction) => extraction.extractionMethod === 'htmlExtraction')).toBeDefined()
+    expect(documentInfo).toBeDefined()
+    expect(
+      documentInfo?.extractions.find((extraction) => extraction.extractionMethod === 'htmlExtraction'),
+    ).toBeDefined()
   })
 
   it('should have the extraction metadata', async () => {
-    const extraction = await workspaceStorage.getExtraction(TEST_WORKSPACE_ID, {
+    const extractionManifest = await extraction.get(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
-      fileId: TEST_HTML_FILE_ID,
+      documentId: TEST_HTML_document_ID,
       extractionMethod: 'htmlExtraction',
     })
 
-    expect(extraction).toBeDefined()
-    expect(extraction!.extractedBytes).toBeGreaterThan(0)
+    expect(extractionManifest).toBeDefined()
+    expect(extractionManifest!.storageStats.physicalBytes).toBeGreaterThan(0)
   })
 
   it('should read the Markdown extraction', async () => {
-    const extractionReadStream = await workspaceStorage.readExtraction(TEST_WORKSPACE_ID, {
+    const extractionReadStream = await extraction.read(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
-      fileId: TEST_HTML_FILE_ID,
+      documentId: TEST_HTML_document_ID,
       extractionMethod: 'htmlExtraction',
     })
 

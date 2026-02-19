@@ -2,10 +2,16 @@ import { GraphQLError } from 'graphql'
 
 import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
+import {
+  deleteFiles,
+  removeCrawlerCredentials,
+  runCrawler,
+  stopCrawler,
+  stopCronJob,
+  updateCrawlerCredentials,
+  upsertCronJob,
+} from '@george-ai/app-domain'
 
-import { deleteFile } from '../../domain'
-import { runCrawler, stopCrawler, stopCronJob, upsertCronJob } from '../../domain'
-import { removeCrawlerCredentials, updateCrawlerCredentials } from '../../domain/crawler/crawler-credentials-manager'
 import { builder } from '../builder'
 import { AiLibraryCrawlerCronJobInput } from './cron-job'
 
@@ -227,11 +233,10 @@ builder.mutationField('deleteAiLibraryCrawler', (t) =>
         include: { cronJob: true, files: true },
       })
 
-      await Promise.all(
-        crawler.files.map((file) =>
-          deleteFile({ workspaceId: context.workspaceId, libraryId: crawler.libraryId, fileId: file.id }),
-        ),
-      )
+      await deleteFiles(context.workspaceId, {
+        libraryId: crawler.libraryId,
+        documentIds: crawler.files.map((file) => file.id),
+      })
       await prisma.aiLibraryCrawler.delete({ where: { id } })
       if (crawler.cronJob) {
         await stopCronJob(crawler.cronJob)

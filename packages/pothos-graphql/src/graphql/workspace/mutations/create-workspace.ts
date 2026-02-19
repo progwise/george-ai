@@ -7,9 +7,7 @@ builder.mutationField('createWorkspace', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: builder.simpleObject('CreateWorkspaceResult', {
       fields: (t) => ({
-        id: t.id({ nullable: false }),
-        name: t.string({ nullable: false }),
-        slug: t.string({ nullable: false }),
+        workspaceId: t.string({ nullable: false }),
       }),
     }),
     nullable: false,
@@ -22,8 +20,8 @@ builder.mutationField('createWorkspace', (t) =>
       const userId = session.user.id
       await canCreateWorkspaceOrThrow({ workspaceId, userId })
       const createdWorkspace = await workspace.createWorkspace({ name, slug, userId })
-      logger.debug('Workspace created successfully', { workspaceId: createdWorkspace.id, name, slug, userId })
-      return createdWorkspace
+      logger.debug('Workspace created successfully', { workspaceId: createdWorkspace.workspaceId, name, slug, userId })
+      return { workspaceId: createdWorkspace.workspaceId }
     },
   }),
 )

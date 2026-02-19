@@ -28,7 +28,7 @@ const getItemDetail = createServerFn({ method: 'GET' })
               libraryId
             }
             fileInfo {
-              fileName
+              name
               extractions {
                 extractionMethod
               }

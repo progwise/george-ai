@@ -1,42 +1,41 @@
 import { z } from 'zod'
 
 import { prisma } from '@george-ai/app-database'
-import { workspaceStorage } from '@george-ai/file-management'
+import { workspace as ws } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { DomainError } from '../error'
 import { logger } from './common'
 
-export async function createWorkspace(params: { name: string; slug: string; userId: string; id?: string }): Promise<{
-  id: string
-  name: string
+export async function createWorkspace(params: { name: string; slug: string; userId?: string }): Promise<{
+  workspaceId: string
   slug: string
 }> {
-  const { name, slug, userId, id } = params
-  logger.info('Creating workspace', { name })
+  const { name, slug, userId } = params
+  logger.info('Creating workspace', params)
 
   try {
     const slugSchema = z.string().regex(/^[a-z0-9-]+$/)
     const validatedSlug = slugSchema.parse(slug)
     return await prisma.$transaction(async (tx) => {
       const workspace = await tx.workspace.create({
+        select: {
+          id: true,
+        },
         data: {
-          id,
           name,
           slug: validatedSlug,
+          createdAt: new Date(),
           members: {
-            create: {
-              userId,
-              role: 'owner',
-            },
+            ...(userId ? { create: { userId, role: 'owner' } } : {}),
           },
         },
       })
 
-      await workspaceStorage.createWorkspace(workspace.id, { name: workspace.name })
+      await ws.create(workspace.id, { name })
 
       await vectorStore.createWorkspace({ workspaceId: workspace.id, vectors: {} }).catch(async (error) => {
-        await workspaceStorage.deleteWorkspace(workspace.id).catch((cleanupError) => {
+        await ws.delete(workspace.id).catch((cleanupError) => {
           logger.error('Error cleaning up workspace storage after vector store creation failure', {
             error: cleanupError,
             workspaceId: workspace.id,
@@ -47,9 +46,8 @@ export async function createWorkspace(params: { name: string; slug: string; user
       })
 
       return {
-        id: workspace.id,
-        name: workspace.name,
-        slug: workspace.slug,
+        workspaceId: workspace.id,
+        slug: validatedSlug,
       }
     })
   } catch (error) {

@@ -1,6 +1,6 @@
 import { getWorkspaceRole } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
-import { workspaceStorage } from '@george-ai/file-management'
+import { library as lib } from '@george-ai/file-management'
 
 import { builder } from '../builder'
 
@@ -40,7 +40,7 @@ builder.prismaObject('AiLibrary', {
       type: 'LibraryManifest',
       nullable: true,
       resolve: async (library, _args, { workspaceId }) => {
-        const manifest = await workspaceStorage.getLibrary(workspaceId, { libraryId: library.id })
+        const manifest = await lib.get(workspaceId, { libraryId: library.id })
         return manifest
       },
     }),

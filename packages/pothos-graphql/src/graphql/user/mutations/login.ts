@@ -1,8 +1,10 @@
 import { prisma } from '@george-ai/app-database'
 import { workspace } from '@george-ai/app-domain'
+import { user as usr } from '@george-ai/app-domain'
 
-import { extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider } from '../../../domain'
+// extractAvatarFromToken, getPreferredAvatarUrl, shouldUpdateAvatarFromProvider
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 builder.mutationField('login', (t) =>
   t.prismaField({
@@ -15,7 +17,9 @@ builder.mutationField('login', (t) =>
       const parsedToken = JSON.parse(Buffer.from(jwtToken.split('.')[1], 'base64').toString())
       const { preferred_username, name, given_name, family_name, email } = parsedToken
 
-      const providerAvatarUrl = await extractAvatarFromToken(parsedToken)
+      const providerAvatarUrl = await usr.extractAvatarFromToken(parsedToken)
+
+      logger.debug('Login attempt', { preferred_username, email, providerAvatarUrl })
 
       // Check if user already exists by email first (more reliable than username)
       const existingUser = await prisma.user.findUnique({
@@ -39,7 +43,7 @@ builder.mutationField('login', (t) =>
       if (existingUser) {
         // User exists with this email, update their info
         const isNewUser = false
-        const shouldUpdateAvatar = shouldUpdateAvatarFromProvider(
+        const shouldUpdateAvatar = usr.shouldUpdateAvatarFromProvider(
           existingUser.avatarUrl || null,
           providerAvatarUrl,
           isNewUser,
@@ -47,7 +51,7 @@ builder.mutationField('login', (t) =>
 
         // Get the preferred avatar URL
         const preferredAvatarUrl = shouldUpdateAvatar
-          ? getPreferredAvatarUrl(providerAvatarUrl, existingUser.avatarUrl)
+          ? usr.getPreferredAvatarUrl(providerAvatarUrl, existingUser.avatarUrl)
           : existingUser.avatarUrl
 
         const user = await prisma.user.update({
@@ -73,14 +77,14 @@ builder.mutationField('login', (t) =>
       })
 
       const isCreatingNewUser = !existingByUsername
-      const shouldUpdateAvatar = shouldUpdateAvatarFromProvider(
+      const shouldUpdateAvatar = usr.shouldUpdateAvatarFromProvider(
         existingByUsername?.avatarUrl || null,
         providerAvatarUrl,
         isCreatingNewUser,
       )
 
       // Get the preferred avatar URL for new user
-      const preferredAvatarUrlForNew = getPreferredAvatarUrl(providerAvatarUrl, null)
+      const preferredAvatarUrlForNew = usr.getPreferredAvatarUrl(providerAvatarUrl, null)
 
       // No user exists with this email, safe to create or upsert by username
       const user = await prisma.user.upsert({

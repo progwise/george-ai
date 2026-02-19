@@ -1,5 +1,5 @@
-import { workspaceStorage } from '@george-ai/file-management'
-import { ExtractionMetadata } from '@george-ai/file-management/src/schemas/extraction-metadata'
+import { document } from '@george-ai/file-management'
+import { ExtractionManifest } from '@george-ai/file-management'
 
 import { isSupportedMimeType } from '../constants'
 import { FileConverterOptions, isMethodAvailableForMimeType } from '../file-converter-options'
@@ -14,56 +14,56 @@ import { textToMarkdown } from './text-to-markdown'
 export const transformToMarkdown = async (parameters: {
   workspaceId: string
   libraryId: string
-  fileId: string
+  documentId: string
   timeoutSignal: AbortSignal
   options: FileConverterOptions
-}): Promise<ExtractionMetadata> => {
-  const { workspaceId, libraryId, fileId, options, timeoutSignal } = parameters
-  const fileInfo = await workspaceStorage.getFile(workspaceId, {
+}): Promise<ExtractionManifest> => {
+  const { workspaceId, libraryId, documentId, options, timeoutSignal } = parameters
+  const manifest = await document.get(workspaceId, {
     libraryId,
-    fileId,
+    documentId,
   })
-  if (!fileInfo) {
+  if (!manifest) {
     throw new Error(
-      `File not found: ${parameters.fileId} in workspace ${parameters.workspaceId}, library ${parameters.libraryId}`,
+      `File not found: ${parameters.documentId} in workspace ${parameters.workspaceId}, library ${parameters.libraryId}`,
     )
   }
 
-  if (!isSupportedMimeType(fileInfo.mimeType)) {
+  if (!isSupportedMimeType(manifest.mimeType)) {
     throw new Error(
-      `Unsupported mime type: ${fileInfo.mimeType} for file ${parameters.fileId} in workspace ${parameters.workspaceId}, library ${parameters.libraryId}`,
+      `Unsupported mime type: ${manifest.mimeType} for document ${parameters.documentId} in workspace ${parameters.workspaceId}, library ${parameters.libraryId}`,
     )
   }
 
-  if (!isMethodAvailableForMimeType(options.extractionMethod, fileInfo.mimeType)) {
+  if (!isMethodAvailableForMimeType(options.extractionMethod, manifest.mimeType)) {
     throw new Error(
-      `Extraction method ${options.extractionMethod} is not available for mime type ${fileInfo.mimeType} for file ${parameters.fileId} in workspace ${parameters.workspaceId}, library ${parameters.libraryId}`,
+      `Extraction method ${options.extractionMethod} is not available for mime type ${manifest.mimeType} for file ${parameters.documentId} in workspace ${parameters.workspaceId}, library ${parameters.libraryId}`,
     )
   }
 
-  const mimeType = fileInfo.mimeType
+  const mimeType = manifest.mimeType
 
   switch (options.extractionMethod) {
     case 'csvExtraction':
       return await csvToMarkdown({
         workspaceId,
         libraryId,
-        fileId,
+        documentId,
         timeoutSignal,
         mimeType,
       })
     case 'pdfExtraction':
-      return await pdfToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
+      return await pdfToMarkdown({ workspaceId, libraryId, documentId, timeoutSignal, mimeType })
     case 'textExtraction':
-      return await textToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
+      return await textToMarkdown({ workspaceId, libraryId, documentId, timeoutSignal, mimeType })
     case 'docxExtraction':
-      return await docxToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
+      return await docxToMarkdown({ workspaceId, libraryId, documentId, timeoutSignal, mimeType })
     case 'emlExtraction':
-      return await emlToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
+      return await emlToMarkdown({ workspaceId, libraryId, documentId, timeoutSignal, mimeType })
     case 'excelExtraction':
-      return await excelToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
+      return await excelToMarkdown({ workspaceId, libraryId, documentId, timeoutSignal, mimeType })
     case 'htmlExtraction':
-      return await htmlToMarkdown({ workspaceId, libraryId, fileId, timeoutSignal, mimeType })
+      return await htmlToMarkdown({ workspaceId, libraryId, documentId, timeoutSignal, mimeType })
     default:
       throw new Error(`Unsupported extraction method: ${options.extractionMethod}`)
   }

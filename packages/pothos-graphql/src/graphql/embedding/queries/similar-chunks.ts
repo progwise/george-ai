@@ -1,10 +1,9 @@
 import { GraphQLError } from 'graphql/error'
 
+import { getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
-import { getModelProvider } from '@george-ai/app-domain/src/workspace/get-model-provider'
-import { providerHealth } from '@george-ai/event-service-client'
-import { modelCalls } from '@george-ai/event-service-client'
+import { modelCalls, providerHealth } from '@george-ai/event-service-client'
 import { FileChunk, vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'

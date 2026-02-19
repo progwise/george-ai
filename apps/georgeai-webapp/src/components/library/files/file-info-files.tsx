@@ -15,8 +15,9 @@ graphql(`
       sourceHash
       extractions {
         extractionMethod
-        extractionDate
-        extractionHash
+        sourceHash
+        created
+        updated
       }
     }
   }

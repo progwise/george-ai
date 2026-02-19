@@ -49,21 +49,6 @@ export type ActionConfigOption = {
   name: Scalars['String']['output']
 }
 
-/** A key-value pair for action configuration */
-export type ActionConfigValue = {
-  __typename?: 'ActionConfigValue'
-  key: Scalars['String']['output']
-  value?: Maybe<Scalars['String']['output']>
-}
-
-/** Maps a source enrichment field to a target field with transform */
-export type ActionFieldMapping = {
-  __typename?: 'ActionFieldMapping'
-  sourceFieldId: Scalars['String']['output']
-  targetField: Scalars['String']['output']
-  transform: Scalars['String']['output']
-}
-
 /** AI Act Assessment Query */
 export type AiActAssessment = {
   __typename?: 'AiActAssessment'
@@ -182,96 +167,6 @@ export type AiAssistantInput = {
   url?: InputMaybe<Scalars['String']['input']>
 }
 
-export type AiAutomation = {
-  __typename?: 'AiAutomation'
-  batches: Array<AiAutomationBatch>
-  connector: AiConnector
-  connectorAction: Scalars['String']['output']
-  connectorActionConfig: ConnectorActionConfig
-  connectorId: Scalars['String']['output']
-  createdAt: Scalars['DateTime']['output']
-  executeOnEnrichment: Scalars['Boolean']['output']
-  id: Scalars['ID']['output']
-  list: AiList
-  listId: Scalars['String']['output']
-  name: Scalars['String']['output']
-  schedule?: Maybe<Scalars['String']['output']>
-  updatedAt: Scalars['DateTime']['output']
-  workspace: Workspace
-  workspaceId: Scalars['String']['output']
-}
-
-export type AiAutomationBatch = {
-  __typename?: 'AiAutomationBatch'
-  automation: AiAutomation
-  automationId: Scalars['String']['output']
-  createdAt: Scalars['DateTime']['output']
-  executions: Array<AiAutomationItemExecution>
-  finishedAt?: Maybe<Scalars['DateTime']['output']>
-  id: Scalars['ID']['output']
-  itemsFailed: Scalars['Int']['output']
-  itemsProcessed: Scalars['Int']['output']
-  itemsSkipped: Scalars['Int']['output']
-  itemsSuccess: Scalars['Int']['output']
-  itemsTotal: Scalars['Int']['output']
-  itemsWarning: Scalars['Int']['output']
-  startedAt?: Maybe<Scalars['DateTime']['output']>
-  status: BatchStatus
-  triggeredBy: TriggerType
-}
-
-export type AiAutomationInput = {
-  actionConfig?: InputMaybe<Scalars['String']['input']>
-  connectorAction?: InputMaybe<Scalars['String']['input']>
-  connectorId: Scalars['String']['input']
-  executeOnEnrichment?: InputMaybe<Scalars['Boolean']['input']>
-  filter?: InputMaybe<Scalars['String']['input']>
-  listId: Scalars['String']['input']
-  name: Scalars['String']['input']
-  schedule?: InputMaybe<Scalars['String']['input']>
-}
-
-export type AiAutomationItem = {
-  __typename?: 'AiAutomationItem'
-  automation: AiAutomation
-  automationId: Scalars['String']['output']
-  createdAt: Scalars['DateTime']['output']
-  executions: Array<AiAutomationItemExecution>
-  /** True if any mapped field is missing a value */
-  hasIncompleteData: Scalars['Boolean']['output']
-  id: Scalars['ID']['output']
-  inScope: Scalars['Boolean']['output']
-  lastExecutedAt?: Maybe<Scalars['DateTime']['output']>
-  listItem: AiListItem
-  listItemId: Scalars['String']['output']
-  preview: Array<AutomationPreviewValue>
-  status: AutomationItemStatus
-  updatedAt: Scalars['DateTime']['output']
-}
-
-export type AiAutomationItemExecution = {
-  __typename?: 'AiAutomationItemExecution'
-  automationItem: AiAutomationItem
-  automationItemId: Scalars['String']['output']
-  batch?: Maybe<AiAutomationBatch>
-  batchId?: Maybe<Scalars['String']['output']>
-  finishedAt?: Maybe<Scalars['DateTime']['output']>
-  id: Scalars['ID']['output']
-  inputJson: Scalars['String']['output']
-  outputJson?: Maybe<Scalars['String']['output']>
-  startedAt: Scalars['DateTime']['output']
-  status: AutomationItemStatus
-}
-
-/** Query result for Automation Items */
-export type AiAutomationItemsResult = {
-  __typename?: 'AiAutomationItemsResult'
-  items: Array<AiAutomationItem>
-  skip: Scalars['Int']['output']
-  take: Scalars['Int']['output']
-  totalCount: Scalars['Int']['output']
-}
-
 export type AiBaseCaseInputType = {
   condition?: InputMaybe<Scalars['String']['input']>
   id?: InputMaybe<Scalars['String']['input']>
@@ -281,7 +176,7 @@ export type AiBaseCaseInputType = {
 
 export type AiConnector = {
   __typename?: 'AiConnector'
-  automations: Array<AiAutomation>
+  automations: Array<Automation>
   baseUrl: Scalars['String']['output']
   configJson: Scalars['String']['output']
   connectorType: Scalars['String']['output']
@@ -596,7 +491,7 @@ export type AiLibraryFile = {
   lastUpdate?: Maybe<AiLibraryUpdate>
   library: AiLibrary
   libraryId: Scalars['String']['output']
-  manifest?: Maybe<FileManifest>
+  manifest?: Maybe<DocumentManifest>
   mimeType: Scalars['String']['output']
   name: Scalars['String']['output']
   originModificationDate?: Maybe<Scalars['DateTime']['output']>
@@ -605,7 +500,6 @@ export type AiLibraryFile = {
   status: Scalars['String']['output']
   supportedExtractionMethods: Array<ExtractionMethod>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
-  uploadedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
 export type AiLibraryUpdate = {
@@ -763,11 +657,11 @@ export type AiListInput = {
 export type AiListItem = {
   __typename?: 'AiListItem'
   chunkCount?: Maybe<Scalars['Int']['output']>
-  extractionInfo?: Maybe<ExtractionMetadata>
+  extractionInfo?: Maybe<ExtractionManifest>
   extractionMethod?: Maybe<ExtractionMethod>
   file: AiLibraryFile
   fileId: Scalars['String']['output']
-  fileInfo?: Maybe<FileManifest>
+  fileInfo?: Maybe<DocumentManifest>
   fragment?: Maybe<Scalars['Int']['output']>
   id: Scalars['ID']['output']
   itemName: Scalars['String']['output']
@@ -925,6 +819,102 @@ export type AssistantParticipant = AiConversationParticipant & {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
+export type Attachment = {
+  __typename?: 'Attachment'
+  fileName: Scalars['String']['output']
+  mimeType?: Maybe<Scalars['String']['output']>
+  size: Scalars['Int']['output']
+}
+
+export type Automation = {
+  __typename?: 'Automation'
+  batches: Array<AutomationBatch>
+  connector: AiConnector
+  connectorAction: Scalars['String']['output']
+  connectorActionConfig: ConnectorActionConfig
+  connectorId: Scalars['String']['output']
+  createdAt: Scalars['DateTime']['output']
+  executeOnEnrichment: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  list: AiList
+  listId: Scalars['String']['output']
+  name: Scalars['String']['output']
+  schedule?: Maybe<Scalars['String']['output']>
+  updatedAt: Scalars['DateTime']['output']
+  workspace: Workspace
+  workspaceId: Scalars['String']['output']
+}
+
+export type AutomationBatch = {
+  __typename?: 'AutomationBatch'
+  automation: Automation
+  automationId: Scalars['String']['output']
+  createdAt: Scalars['DateTime']['output']
+  executions: Array<AutomationItemExecution>
+  finishedAt?: Maybe<Scalars['DateTime']['output']>
+  id: Scalars['ID']['output']
+  itemsFailed: Scalars['Int']['output']
+  itemsProcessed: Scalars['Int']['output']
+  itemsSkipped: Scalars['Int']['output']
+  itemsSuccess: Scalars['Int']['output']
+  itemsTotal: Scalars['Int']['output']
+  itemsWarning: Scalars['Int']['output']
+  startedAt?: Maybe<Scalars['DateTime']['output']>
+  status: AutomationBatchStatus
+  triggeredBy: AutomationTriggerType
+}
+
+export enum AutomationBatchStatus {
+  Completed = 'COMPLETED',
+  CompletedWithErrors = 'COMPLETED_WITH_ERRORS',
+  Failed = 'FAILED',
+  Pending = 'PENDING',
+  Running = 'RUNNING',
+}
+
+export type AutomationInput = {
+  actionConfig?: InputMaybe<Scalars['String']['input']>
+  connectorAction?: InputMaybe<Scalars['String']['input']>
+  connectorId: Scalars['String']['input']
+  executeOnEnrichment?: InputMaybe<Scalars['Boolean']['input']>
+  filter?: InputMaybe<Scalars['String']['input']>
+  listId: Scalars['String']['input']
+  name: Scalars['String']['input']
+  schedule?: InputMaybe<Scalars['String']['input']>
+}
+
+export type AutomationItem = {
+  __typename?: 'AutomationItem'
+  automation: Automation
+  automationId: Scalars['String']['output']
+  createdAt: Scalars['DateTime']['output']
+  executions: Array<AutomationItemExecution>
+  /** True if any mapped field is missing a value */
+  hasIncompleteData: Scalars['Boolean']['output']
+  id: Scalars['ID']['output']
+  inScope: Scalars['Boolean']['output']
+  lastExecutedAt?: Maybe<Scalars['DateTime']['output']>
+  listItem: AiListItem
+  listItemId: Scalars['String']['output']
+  preview: Array<AutomationPreviewValue>
+  status: AutomationItemStatus
+  updatedAt: Scalars['DateTime']['output']
+}
+
+export type AutomationItemExecution = {
+  __typename?: 'AutomationItemExecution'
+  automationItem: AutomationItem
+  automationItemId: Scalars['String']['output']
+  batch?: Maybe<AutomationBatch>
+  batchId?: Maybe<Scalars['String']['output']>
+  finishedAt?: Maybe<Scalars['DateTime']['output']>
+  id: Scalars['ID']['output']
+  inputJson: Scalars['String']['output']
+  outputJson?: Maybe<Scalars['String']['output']>
+  startedAt: Scalars['DateTime']['output']
+  status: AutomationItemStatus
+}
+
 export enum AutomationItemStatus {
   Failed = 'FAILED',
   Pending = 'PENDING',
@@ -932,6 +922,15 @@ export enum AutomationItemStatus {
   Skipped = 'SKIPPED',
   Success = 'SUCCESS',
   Warning = 'WARNING',
+}
+
+/** Query result for Automation Items */
+export type AutomationItemsResult = {
+  __typename?: 'AutomationItemsResult'
+  items: Array<AutomationItem>
+  skip: Scalars['Int']['output']
+  take: Scalars['Int']['output']
+  totalCount: Scalars['Int']['output']
 }
 
 /** Preview of a value that will be written to the target system */
@@ -943,12 +942,11 @@ export type AutomationPreviewValue = {
   value?: Maybe<Scalars['String']['output']>
 }
 
-export enum BatchStatus {
-  Completed = 'COMPLETED',
-  CompletedWithErrors = 'COMPLETED_WITH_ERRORS',
-  Failed = 'FAILED',
-  Pending = 'PENDING',
-  Running = 'RUNNING',
+/** Trigger type for an automation batch execution */
+export enum AutomationTriggerType {
+  Enrichment = 'ENRICHMENT',
+  Manual = 'MANUAL',
+  Schedule = 'SCHEDULE',
 }
 
 export type ComputeFieldValueResult = {
@@ -961,8 +959,23 @@ export type ComputeFieldValueResult = {
 /** Generic configuration for connector actions */
 export type ConnectorActionConfig = {
   __typename?: 'ConnectorActionConfig'
-  fieldMappings: Array<ActionFieldMapping>
-  values: Array<ActionConfigValue>
+  fieldMappings: Array<ConnectorActionFieldMapping>
+  values: Array<ConnectorActionConfigValue>
+}
+
+/** A key-value pair for action configuration */
+export type ConnectorActionConfigValue = {
+  __typename?: 'ConnectorActionConfigValue'
+  key: Scalars['String']['output']
+  value?: Maybe<Scalars['String']['output']>
+}
+
+/** Maps a source enrichment field to a target field with transform */
+export type ConnectorActionFieldMapping = {
+  __typename?: 'ConnectorActionFieldMapping'
+  sourceFieldId: Scalars['String']['output']
+  targetField: Scalars['String']['output']
+  transform: Scalars['String']['output']
 }
 
 export type ConnectorActionInfo = {
@@ -1023,9 +1036,7 @@ export enum CrawlerUriType {
 
 export type CreateWorkspaceResult = {
   __typename?: 'CreateWorkspaceResult'
-  id: Scalars['ID']['output']
-  name: Scalars['String']['output']
-  slug: Scalars['String']['output']
+  workspaceId: Scalars['String']['output']
 }
 
 export type DateTimePeriod = {
@@ -1033,12 +1044,44 @@ export type DateTimePeriod = {
   latest?: InputMaybe<Scalars['DateTime']['input']>
 }
 
-export type EmbedFileRequest = ProcessingRequest & {
-  __typename?: 'EmbedFileRequest'
+export type DocumentExtraction = {
+  __typename?: 'DocumentExtraction'
+  created: Scalars['DateTime']['output']
+  extractionMethod: ExtractionMethod
+  sourceHash: Scalars['String']['output']
+  updated?: Maybe<Scalars['DateTime']['output']>
+}
+
+/** Information about a file stored in the AI library */
+export type DocumentManifest = {
+  __typename?: 'DocumentManifest'
+  created: Scalars['DateTime']['output']
+  documentId: Scalars['String']['output']
+  /** Available extractions for this file (e.g., CSV, PDF with different models) */
+  extractions: Array<DocumentExtraction>
+  mimeType: Scalars['String']['output']
+  name: Scalars['String']['output']
+  origin?: Maybe<DocumentOrigin>
+  sourceHash?: Maybe<Scalars['String']['output']>
+  storageStats: StorageStats
+  version: Scalars['Int']['output']
+}
+
+export type DocumentOrigin = {
+  __typename?: 'DocumentOrigin'
+  author?: Maybe<Scalars['String']['output']>
+  creationDate?: Maybe<Scalars['DateTime']['output']>
+  hash?: Maybe<Scalars['String']['output']>
+  lastModifiedDate?: Maybe<Scalars['DateTime']['output']>
+  uri?: Maybe<Scalars['String']['output']>
+}
+
+export type EmbedDocumentRequest = ProcessingRequest & {
+  __typename?: 'EmbedDocumentRequest'
+  documentId?: Maybe<Scalars['String']['output']>
   embeddingModelName?: Maybe<Scalars['String']['output']>
   embeddingModelProvider?: Maybe<ModelProvider>
   extractionMethod?: Maybe<Scalars['String']['output']>
-  fileId?: Maybe<Scalars['String']['output']>
   libraryId?: Maybe<Scalars['String']['output']>
   requestType?: Maybe<Scalars['String']['output']>
   settings?: Maybe<Array<ProcessingRequestSettingItem>>
@@ -1063,7 +1106,7 @@ export enum EmbeddingStatus {
 
 export type EnrichItemRequest = ProcessingRequest & {
   __typename?: 'EnrichItemRequest'
-  fileId?: Maybe<Scalars['String']['output']>
+  documentId?: Maybe<Scalars['String']['output']>
   fragment?: Maybe<Scalars['Int']['output']>
   libraryId?: Maybe<Scalars['String']['output']>
   requestType?: Maybe<Scalars['String']['output']>
@@ -1153,10 +1196,10 @@ export type EventProcessingStatusResult = {
   status: EventProcessingStatus
 }
 
-export type ExtractFileRequest = ProcessingRequest & {
-  __typename?: 'ExtractFileRequest'
+export type ExtractDocumentRequest = ProcessingRequest & {
+  __typename?: 'ExtractDocumentRequest'
+  documentId?: Maybe<Scalars['String']['output']>
   extractionMethod?: Maybe<Scalars['String']['output']>
-  fileId?: Maybe<Scalars['String']['output']>
   libraryId?: Maybe<Scalars['String']['output']>
   requestType?: Maybe<Scalars['String']['output']>
   settings?: Maybe<Array<ProcessingRequestSettingItem>>
@@ -1164,28 +1207,23 @@ export type ExtractFileRequest = ProcessingRequest & {
   workspaceId?: Maybe<Scalars['String']['output']>
 }
 
-export type ExtractionAttachment = {
-  __typename?: 'ExtractionAttachment'
-  filename: Scalars['String']['output']
-  mimeType?: Maybe<Scalars['String']['output']>
-  size: Scalars['Int']['output']
-}
-
 /** Metadata about a specific extraction of a file */
-export type ExtractionMetadata = {
-  __typename?: 'ExtractionMetadata'
-  attachments?: Maybe<Array<ExtractionAttachment>>
-  extractedAt: Scalars['DateTime']['output']
-  extractedBytes: Scalars['Int']['output']
-  extractionFiles: Scalars['Int']['output']
+export type ExtractionManifest = {
+  __typename?: 'ExtractionManifest'
+  attachments?: Maybe<Array<Attachment>>
+  created: Scalars['DateTime']['output']
+  creator?: Maybe<Scalars['ID']['output']>
+  documentId: Scalars['ID']['output']
+  extracted?: Maybe<Scalars['DateTime']['output']>
   extractionMethod: ExtractionMethod
   fragmentCount?: Maybe<Scalars['Int']['output']>
   hasFragments: Scalars['Boolean']['output']
-  physicalBytes: Scalars['Int']['output']
-  physicalFiles: Scalars['Int']['output']
+  libraryId: Scalars['ID']['output']
   sourceHash: Scalars['String']['output']
-  splitFragmentPattern?: Maybe<Scalars['String']['output']>
+  storageStats?: Maybe<StorageStats>
+  updated?: Maybe<Scalars['DateTime']['output']>
   version: Scalars['Int']['output']
+  workspaceId: Scalars['ID']['output']
 }
 
 export enum ExtractionMethod {
@@ -1252,29 +1290,6 @@ export type FileChunksSelector = {
   libraryId?: InputMaybe<Scalars['String']['input']>
   modelName?: InputMaybe<Scalars['String']['input']>
   updateAuthorGlobPattern?: InputMaybe<Scalars['String']['input']>
-}
-
-export type FileExtraction = {
-  __typename?: 'FileExtraction'
-  extractionDate: Scalars['DateTime']['output']
-  extractionHash: Scalars['String']['output']
-  extractionMethod: ExtractionMethod
-}
-
-/** Information about a file stored in the AI library */
-export type FileManifest = {
-  __typename?: 'FileManifest'
-  createdAt: Scalars['DateTime']['output']
-  /** Available extractions for this file (e.g., CSV, PDF with different models) */
-  extractions: Array<FileExtraction>
-  fileId: Scalars['String']['output']
-  fileName: Scalars['String']['output']
-  mimeType: Scalars['String']['output']
-  originalContentHash?: Maybe<Scalars['String']['output']>
-  originalUpdatedAt?: Maybe<Scalars['DateTime']['output']>
-  sourceHash?: Maybe<Scalars['String']['output']>
-  usage: StorageUsage
-  version: Scalars['Int']['output']
 }
 
 /** Response type for files query */
@@ -1345,14 +1360,15 @@ export type LibraryInput = {
 
 export type LibraryManifest = {
   __typename?: 'LibraryManifest'
-  createdAt: Scalars['DateTime']['output']
-  description?: Maybe<Scalars['String']['output']>
-  id: Scalars['ID']['output']
+  attachments?: Maybe<Array<Attachment>>
+  created: Scalars['DateTime']['output']
+  creator?: Maybe<Scalars['ID']['output']>
+  libraryId: Scalars['String']['output']
   name: Scalars['String']['output']
-  settings: LibrarySettings
-  updatedAt: Scalars['DateTime']['output']
-  usage?: Maybe<StorageUsage>
+  storageStats?: Maybe<StorageStats>
+  updated?: Maybe<Scalars['DateTime']['output']>
   version: Scalars['Int']['output']
+  workspaceId: Scalars['String']['output']
 }
 
 export type LibrarySettings = {
@@ -1427,7 +1443,6 @@ export type ListItemResult = {
   size?: Maybe<Scalars['Int']['output']>
   type: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['DateTime']['output']>
-  uploadedAt?: Maybe<Scalars['DateTime']['output']>
 }
 
 /** Query result for AI list items from all source libraries */
@@ -1520,7 +1535,7 @@ export type Mutation = {
   createAiAssistant?: Maybe<AiAssistant>
   createAiConversation?: Maybe<AiConversation>
   createAiLibraryCrawler: AiLibraryCrawler
-  createAutomation: AiAutomation
+  createAutomation: Automation
   createConnector: AiConnector
   createConversationInvitations?: Maybe<AiConversation>
   createEnrichmentTasks: EnrichmentQueueTasksMutationResult
@@ -1581,13 +1596,13 @@ export type Mutation = {
   toggleAdminStatus?: Maybe<User>
   toggleModel?: Maybe<AiLanguageModel>
   toggleModelProvider: AiServiceProvider
-  triggerAutomation: TriggerResult
-  triggerAutomationItem: TriggerResult
+  triggerAutomation: TriggerAutomationResult
+  triggerAutomationItem: TriggerAutomationResult
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibraryCrawler: AiLibraryCrawler
   updateAssessmentQuestion: Scalars['DateTime']['output']
-  updateAutomation: AiAutomation
+  updateAutomation: Automation
   updateConnector: AiConnector
   updateLibrary: AiLibrary
   updateLibraryUsage?: Maybe<AiLibraryUsage>
@@ -1682,7 +1697,7 @@ export type MutationCreateAiLibraryCrawlerArgs = {
 }
 
 export type MutationCreateAutomationArgs = {
-  data: AiAutomationInput
+  data: AutomationInput
 }
 
 export type MutationCreateConnectorArgs = {
@@ -1962,7 +1977,7 @@ export type MutationUpdateAssessmentQuestionArgs = {
 }
 
 export type MutationUpdateAutomationArgs = {
-  data: AiAutomationInput
+  data: AutomationInput
   id: Scalars['ID']['input']
 }
 
@@ -2121,18 +2136,18 @@ export type Query = {
   aiModelUsageStats?: Maybe<ModelUsageStats>
   apiCrawlerTemplates: Array<ApiCrawlerTemplate>
   apiKeys: Array<ApiKey>
-  automation: AiAutomation
-  automationBatches: Array<AiAutomationBatch>
-  automationItem: AiAutomationItem
-  automationItems: AiAutomationItemsResult
-  automations: Array<AiAutomation>
+  automation: Automation
+  automationBatches: Array<AutomationBatch>
+  automationItem: AutomationItem
+  automationItems: AutomationItemsResult
+  automations: Array<Automation>
   chunkCount?: Maybe<Scalars['Int']['output']>
   connector: AiConnector
   connectorTypes: Array<ConnectorTypeInfo>
   connectors: Array<AiConnector>
   countFiles: Scalars['Int']['output']
   embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
-  extraction?: Maybe<ExtractionMetadata>
+  extraction?: Maybe<ExtractionManifest>
   file: AiLibraryFile
   fileChunks?: Maybe<FileChunksResponse>
   files: FilesQueryResponse
@@ -2383,7 +2398,7 @@ export type QueryModelsArgs = {
 }
 
 export type QueryProcessingRequestsArgs = {
-  fileId?: InputMaybe<Scalars['String']['input']>
+  documentId?: InputMaybe<Scalars['String']['input']>
   libraryId?: InputMaybe<Scalars['String']['input']>
   requestType?: InputMaybe<ProcessingRequestType>
   startSequence?: InputMaybe<Scalars['Int']['input']>
@@ -2518,17 +2533,16 @@ export type StopEventProcessingResult = {
 }
 
 /** Storage usage information for a workspace */
-export type StorageUsage = {
-  __typename?: 'StorageUsage'
-  activeExtractedBytes: Scalars['Int']['output']
-  activeExtractions: Scalars['Int']['output']
-  extractedBytes: Scalars['Int']['output']
-  extractions: Scalars['Int']['output']
+export type StorageStats = {
+  __typename?: 'StorageStats'
+  attachmentBytes: Scalars['Int']['output']
+  attachmentFileCount: Scalars['Int']['output']
+  extractionBytes: Scalars['Int']['output']
+  extractionFileCount: Scalars['Int']['output']
   lastReconcile?: Maybe<Scalars['DateTime']['output']>
+  lastUpdate?: Maybe<Scalars['DateTime']['output']>
   physicalBytes: Scalars['Int']['output']
-  physicalFiles: Scalars['Int']['output']
-  sourceBytes: Scalars['Int']['output']
-  sourceFiles: Scalars['Int']['output']
+  physicalFileCount: Scalars['Int']['output']
 }
 
 export type SyncModelsResult = {
@@ -2556,17 +2570,11 @@ export type TestProviderConnectionResult = {
   success: Scalars['Boolean']['output']
 }
 
-export type TriggerResult = {
-  __typename?: 'TriggerResult'
+export type TriggerAutomationResult = {
+  __typename?: 'TriggerAutomationResult'
   batchId?: Maybe<Scalars['String']['output']>
   message: Scalars['String']['output']
   success: Scalars['Boolean']['output']
-}
-
-export enum TriggerType {
-  Enrichment = 'ENRICHMENT',
-  Manual = 'MANUAL',
-  Schedule = 'SCHEDULE',
 }
 
 export type UpdateAiLanguageModelInput = {
@@ -2701,13 +2709,13 @@ export type WorkspaceInvitation = {
 /** Manifest information about a workspace */
 export type WorkspaceManifest = {
   __typename?: 'WorkspaceManifest'
-  createdAt: Scalars['DateTime']['output']
-  id: Scalars['ID']['output']
+  created: Scalars['DateTime']['output']
   name: Scalars['String']['output']
   settings: WorkspaceSettings
-  updatedAt: Scalars['DateTime']['output']
-  usage: StorageUsage
+  storageStats: StorageStats
+  updated?: Maybe<Scalars['DateTime']['output']>
   version: Scalars['Int']['output']
+  workspaceId: Scalars['ID']['output']
 }
 
 export type WorkspaceMember = {
@@ -3809,17 +3817,17 @@ export type AiAssistantCardsQuery = {
   }>
 }
 
-export type AutomationMenu_AutomationFragment = { __typename?: 'AiAutomation'; id: string; name: string }
+export type AutomationMenu_AutomationFragment = { __typename?: 'Automation'; id: string; name: string }
 
-export type AutomationMenu_AutomationsFragment = { __typename?: 'AiAutomation'; id: string; name: string }
+export type AutomationMenu_AutomationsFragment = { __typename?: 'Automation'; id: string; name: string }
 
 export type AutomationBatchDetailFragment = {
-  __typename?: 'AiAutomationBatch'
+  __typename?: 'AutomationBatch'
   id: string
   createdAt: string
   automationId: string
-  status: BatchStatus
-  triggeredBy: TriggerType
+  status: AutomationBatchStatus
+  triggeredBy: AutomationTriggerType
   itemsTotal: number
   itemsProcessed: number
   itemsSuccess: number
@@ -3839,12 +3847,12 @@ export type GetAutomationBatchesQueryVariables = Exact<{
 export type GetAutomationBatchesQuery = {
   __typename?: 'Query'
   automationBatches: Array<{
-    __typename?: 'AiAutomationBatch'
+    __typename?: 'AutomationBatch'
     id: string
     createdAt: string
     automationId: string
-    status: BatchStatus
-    triggeredBy: TriggerType
+    status: AutomationBatchStatus
+    triggeredBy: AutomationTriggerType
     itemsTotal: number
     itemsProcessed: number
     itemsSuccess: number
@@ -3857,7 +3865,7 @@ export type GetAutomationBatchesQuery = {
 }
 
 export type AutomationItemDetail_AutomationItemFragment = {
-  __typename?: 'AiAutomationItem'
+  __typename?: 'AutomationItem'
   id: string
   createdAt: string
   updatedAt: string
@@ -3874,7 +3882,7 @@ export type AutomationItemDetail_AutomationItemFragment = {
   }>
   listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
   executions: Array<{
-    __typename?: 'AiAutomationItemExecution'
+    __typename?: 'AutomationItemExecution'
     id: string
     status: AutomationItemStatus
     inputJson: string
@@ -3892,7 +3900,7 @@ export type GetAutomationItemQueryVariables = Exact<{
 export type GetAutomationItemQuery = {
   __typename?: 'Query'
   automationItem: {
-    __typename?: 'AiAutomationItem'
+    __typename?: 'AutomationItem'
     id: string
     createdAt: string
     updatedAt: string
@@ -3909,7 +3917,7 @@ export type GetAutomationItemQuery = {
     }>
     listItem: { __typename?: 'AiListItem'; id: string; itemName: string; listId: string }
     executions: Array<{
-      __typename?: 'AiAutomationItemExecution'
+      __typename?: 'AutomationItemExecution'
       id: string
       status: AutomationItemStatus
       inputJson: string
@@ -3922,7 +3930,7 @@ export type GetAutomationItemQuery = {
 }
 
 export type AutomationItemList_AutomationItemFragment = {
-  __typename?: 'AiAutomationItem'
+  __typename?: 'AutomationItem'
   id: string
   createdAt: string
   updatedAt: string
@@ -3952,12 +3960,12 @@ export type GetAutomationItemsQueryVariables = Exact<{
 export type GetAutomationItemsQuery = {
   __typename?: 'Query'
   automationItems: {
-    __typename?: 'AiAutomationItemsResult'
+    __typename?: 'AutomationItemsResult'
     totalCount: number
     skip: number
     take: number
     items: Array<{
-      __typename?: 'AiAutomationItem'
+      __typename?: 'AutomationItem'
       id: string
       createdAt: string
       updatedAt: string
@@ -3979,7 +3987,7 @@ export type GetAutomationItemsQuery = {
 }
 
 export type AutomationDetailFragment = {
-  __typename?: 'AiAutomation'
+  __typename?: 'Automation'
   id: string
   createdAt: string
   updatedAt: string
@@ -3991,9 +3999,9 @@ export type AutomationDetailFragment = {
   executeOnEnrichment: boolean
   connectorActionConfig: {
     __typename?: 'ConnectorActionConfig'
-    values: Array<{ __typename?: 'ActionConfigValue'; key: string; value?: string | null }>
+    values: Array<{ __typename?: 'ConnectorActionConfigValue'; key: string; value?: string | null }>
     fieldMappings: Array<{
-      __typename?: 'ActionFieldMapping'
+      __typename?: 'ConnectorActionFieldMapping'
       sourceFieldId: string
       targetField: string
       transform: string
@@ -4025,7 +4033,7 @@ export type GetAutomationQueryVariables = Exact<{
 export type GetAutomationQuery = {
   __typename?: 'Query'
   automation: {
-    __typename?: 'AiAutomation'
+    __typename?: 'Automation'
     id: string
     createdAt: string
     updatedAt: string
@@ -4037,9 +4045,9 @@ export type GetAutomationQuery = {
     executeOnEnrichment: boolean
     connectorActionConfig: {
       __typename?: 'ConnectorActionConfig'
-      values: Array<{ __typename?: 'ActionConfigValue'; key: string; value?: string | null }>
+      values: Array<{ __typename?: 'ConnectorActionConfigValue'; key: string; value?: string | null }>
       fieldMappings: Array<{
-        __typename?: 'ActionFieldMapping'
+        __typename?: 'ConnectorActionFieldMapping'
         sourceFieldId: string
         targetField: string
         transform: string
@@ -4066,7 +4074,7 @@ export type GetAutomationQuery = {
 }
 
 export type AutomationsBaseFragment = {
-  __typename?: 'AiAutomation'
+  __typename?: 'Automation'
   id: string
   createdAt: string
   updatedAt: string
@@ -4082,7 +4090,7 @@ export type GetAutomationsQueryVariables = Exact<{ [key: string]: never }>
 export type GetAutomationsQuery = {
   __typename?: 'Query'
   automations: Array<{
-    __typename?: 'AiAutomation'
+    __typename?: 'Automation'
     id: string
     createdAt: string
     updatedAt: string
@@ -4116,12 +4124,12 @@ export type GetConnectorsQuery = {
 }
 
 export type CreateAutomationMutationVariables = Exact<{
-  data: AiAutomationInput
+  data: AutomationInput
 }>
 
 export type CreateAutomationMutation = {
   __typename?: 'Mutation'
-  createAutomation: { __typename?: 'AiAutomation'; id: string; name: string }
+  createAutomation: { __typename?: 'Automation'; id: string; name: string }
 }
 
 export type DeleteAutomationMutationVariables = Exact<{
@@ -4136,7 +4144,12 @@ export type TriggerAutomationMutationVariables = Exact<{
 
 export type TriggerAutomationMutation = {
   __typename?: 'Mutation'
-  triggerAutomation: { __typename?: 'TriggerResult'; success: boolean; message: string; batchId?: string | null }
+  triggerAutomation: {
+    __typename?: 'TriggerAutomationResult'
+    success: boolean
+    message: string
+    batchId?: string | null
+  }
 }
 
 export type TriggerAutomationItemMutationVariables = Exact<{
@@ -4145,26 +4158,31 @@ export type TriggerAutomationItemMutationVariables = Exact<{
 
 export type TriggerAutomationItemMutation = {
   __typename?: 'Mutation'
-  triggerAutomationItem: { __typename?: 'TriggerResult'; success: boolean; message: string; batchId?: string | null }
+  triggerAutomationItem: {
+    __typename?: 'TriggerAutomationResult'
+    success: boolean
+    message: string
+    batchId?: string | null
+  }
 }
 
 export type UpdateAutomationMutationVariables = Exact<{
   id: Scalars['ID']['input']
-  data: AiAutomationInput
+  data: AutomationInput
 }>
 
 export type UpdateAutomationMutation = {
   __typename?: 'Mutation'
   updateAutomation: {
-    __typename?: 'AiAutomation'
+    __typename?: 'Automation'
     id: string
     name: string
     connectorAction: string
     connectorActionConfig: {
       __typename?: 'ConnectorActionConfig'
-      values: Array<{ __typename?: 'ActionConfigValue'; key: string; value?: string | null }>
+      values: Array<{ __typename?: 'ConnectorActionConfigValue'; key: string; value?: string | null }>
       fieldMappings: Array<{
-        __typename?: 'ActionFieldMapping'
+        __typename?: 'ConnectorActionFieldMapping'
         sourceFieldId: string
         targetField: string
         transform: string
@@ -4793,25 +4811,40 @@ export type FileCaptionCard_FileFragment = {
   status: string
   chunkCount?: number | null
   createdAt: string
-  uploadedAt?: string | null
   archivedAt?: string | null
   originModificationDate?: string | null
   manifest?: {
-    __typename?: 'FileManifest'
-    version: number
+    __typename?: 'DocumentManifest'
+    documentId: string
+    name: string
+    mimeType: string
     sourceHash?: string | null
+    created: string
+    version: number
     extractions: Array<{
-      __typename?: 'FileExtraction'
+      __typename?: 'DocumentExtraction'
       extractionMethod: ExtractionMethod
-      extractionDate: string
-      extractionHash: string
+      sourceHash: string
+      created: string
+      updated?: string | null
     }>
-    usage: {
-      __typename?: 'StorageUsage'
-      sourceBytes: number
-      extractedBytes: number
+    origin?: {
+      __typename?: 'DocumentOrigin'
+      uri?: string | null
+      hash?: string | null
+      creationDate?: string | null
+      lastModifiedDate?: string | null
+      author?: string | null
+    } | null
+    storageStats: {
+      __typename?: 'StorageStats'
+      extractionBytes: number
+      attachmentBytes: number
       physicalBytes: number
-      activeExtractions: number
+      extractionFileCount: number
+      physicalFileCount: number
+      attachmentFileCount: number
+      lastUpdate?: string | null
       lastReconcile?: string | null
     }
   } | null
@@ -4834,24 +4867,40 @@ export type FileInfoBox_FileFragment = {
   chunkCount?: number | null
   originUri?: string | null
   createdAt: string
-  uploadedAt?: string | null
   archivedAt?: string | null
   originModificationDate?: string | null
   crawler?: { __typename?: 'AiLibraryCrawler'; uri: string; uriType: CrawlerUriType } | null
   manifest?: {
-    __typename?: 'FileManifest'
+    __typename?: 'DocumentManifest'
+    documentId: string
+    name: string
+    mimeType: string
+    sourceHash?: string | null
+    created: string
+    origin?: {
+      __typename?: 'DocumentOrigin'
+      uri?: string | null
+      hash?: string | null
+      creationDate?: string | null
+      lastModifiedDate?: string | null
+      author?: string | null
+    } | null
     extractions: Array<{
-      __typename?: 'FileExtraction'
+      __typename?: 'DocumentExtraction'
       extractionMethod: ExtractionMethod
-      extractionDate: string
-      extractionHash: string
+      sourceHash: string
+      created: string
+      updated?: string | null
     }>
-    usage: {
-      __typename?: 'StorageUsage'
-      sourceBytes: number
-      extractedBytes: number
+    storageStats: {
+      __typename?: 'StorageStats'
+      extractionBytes: number
+      attachmentBytes: number
       physicalBytes: number
-      activeExtractions: number
+      extractionFileCount: number
+      physicalFileCount: number
+      attachmentFileCount: number
+      lastUpdate?: string | null
       lastReconcile?: string | null
     }
   } | null
@@ -4863,14 +4912,15 @@ export type FileInfo_FilesFragment = {
   libraryId: string
   name: string
   manifest?: {
-    __typename?: 'FileManifest'
+    __typename?: 'DocumentManifest'
     version: number
     sourceHash?: string | null
     extractions: Array<{
-      __typename?: 'FileExtraction'
+      __typename?: 'DocumentExtraction'
       extractionMethod: ExtractionMethod
-      extractionDate: string
-      extractionHash: string
+      sourceHash: string
+      created: string
+      updated?: string | null
     }>
   } | null
 }
@@ -4885,26 +4935,41 @@ export type FileMenu_FileFragment = {
   chunkCount?: number | null
   originUri?: string | null
   createdAt: string
-  uploadedAt?: string | null
   archivedAt?: string | null
   originModificationDate?: string | null
   crawler?: { __typename?: 'AiLibraryCrawler'; uri: string; uriType: CrawlerUriType } | null
   manifest?: {
-    __typename?: 'FileManifest'
-    version: number
+    __typename?: 'DocumentManifest'
+    documentId: string
+    name: string
+    mimeType: string
     sourceHash?: string | null
+    created: string
+    version: number
     extractions: Array<{
-      __typename?: 'FileExtraction'
+      __typename?: 'DocumentExtraction'
       extractionMethod: ExtractionMethod
-      extractionDate: string
-      extractionHash: string
+      sourceHash: string
+      created: string
+      updated?: string | null
     }>
-    usage: {
-      __typename?: 'StorageUsage'
-      sourceBytes: number
-      extractedBytes: number
+    origin?: {
+      __typename?: 'DocumentOrigin'
+      uri?: string | null
+      hash?: string | null
+      creationDate?: string | null
+      lastModifiedDate?: string | null
+      author?: string | null
+    } | null
+    storageStats: {
+      __typename?: 'StorageStats'
+      extractionBytes: number
+      attachmentBytes: number
       physicalBytes: number
-      activeExtractions: number
+      extractionFileCount: number
+      physicalFileCount: number
+      attachmentFileCount: number
+      lastUpdate?: string | null
       lastReconcile?: string | null
     }
   } | null
@@ -4915,15 +4980,16 @@ export type FileNavigation_FileFragment = { __typename?: 'AiLibraryFile'; id: st
 export type FileStatusLabels_FileFragment = {
   __typename?: 'AiLibraryFile'
   id: string
-  supportedExtractionMethods: Array<ExtractionMethod>
   name: string
+  supportedExtractionMethods: Array<ExtractionMethod>
   manifest?: {
-    __typename?: 'FileManifest'
+    __typename?: 'DocumentManifest'
     extractions: Array<{
-      __typename?: 'FileExtraction'
+      __typename?: 'DocumentExtraction'
       extractionMethod: ExtractionMethod
-      extractionDate: string
-      extractionHash: string
+      sourceHash: string
+      created: string
+      updated?: string | null
     }>
   } | null
   embeddingStatistics: Array<{
@@ -4949,33 +5015,44 @@ export type AiLibraryFile_FilesTableFragment = {
   originUri?: string | null
   mimeType: string
   size?: number | null
-  uploadedAt?: string | null
   dropError?: string | null
   createdAt: string
   originModificationDate?: string | null
   archivedAt?: string | null
   chunkCount?: number | null
   manifest?: {
-    __typename?: 'FileManifest'
+    __typename?: 'DocumentManifest'
     version: number
+    documentId: string
+    name: string
     mimeType: string
-    originalContentHash?: string | null
-    originalUpdatedAt?: string | null
     sourceHash?: string | null
-    createdAt: string
+    created: string
+    origin?: {
+      __typename?: 'DocumentOrigin'
+      uri?: string | null
+      hash?: string | null
+      creationDate?: string | null
+      lastModifiedDate?: string | null
+      author?: string | null
+    } | null
     extractions: Array<{
-      __typename?: 'FileExtraction'
+      __typename?: 'DocumentExtraction'
       extractionMethod: ExtractionMethod
-      extractionHash: string
-      extractionDate: string
+      sourceHash: string
+      created: string
+      updated?: string | null
     }>
-    usage: {
-      __typename?: 'StorageUsage'
-      sourceBytes: number
+    storageStats: {
+      __typename?: 'StorageStats'
+      extractionBytes: number
+      attachmentBytes: number
       physicalBytes: number
+      extractionFileCount: number
+      physicalFileCount: number
+      attachmentFileCount: number
+      lastUpdate?: string | null
       lastReconcile?: string | null
-      activeExtractions: number
-      extractions: number
     }
   } | null
 }
@@ -5020,19 +5097,14 @@ export type GetExtractionQueryVariables = Exact<{
 export type GetExtractionQuery = {
   __typename?: 'Query'
   extraction?: {
-    __typename?: 'ExtractionMetadata'
+    __typename?: 'ExtractionManifest'
     version: number
     extractionMethod: ExtractionMethod
-    extractedAt: string
+    extracted?: string | null
     hasFragments: boolean
     fragmentCount?: number | null
     sourceHash: string
-    attachments?: Array<{
-      __typename?: 'ExtractionAttachment'
-      size: number
-      filename: string
-      mimeType?: string | null
-    }> | null
+    attachments?: Array<{ __typename?: 'Attachment'; size: number; fileName: string; mimeType?: string | null }> | null
   } | null
 }
 
@@ -5099,45 +5171,61 @@ export type GetFileQuery = {
   file: {
     __typename?: 'AiLibraryFile'
     id: string
+    createdAt: string
+    updatedAt?: string | null
     name: string
     originUri?: string | null
     docPath?: string | null
     mimeType: string
     size?: number | null
-    createdAt: string
-    updatedAt?: string | null
-    archivedAt?: string | null
-    originModificationDate?: string | null
     libraryId: string
+    dropError?: string | null
+    originModificationDate?: string | null
+    archivedAt?: string | null
     supportedExtractionMethods: Array<ExtractionMethod>
-    status: string
     chunkCount?: number | null
-    uploadedAt?: string | null
+    status: string
+    manifest?: {
+      __typename?: 'DocumentManifest'
+      documentId: string
+      name: string
+      mimeType: string
+      sourceHash?: string | null
+      created: string
+      version: number
+      extractions: Array<{
+        __typename?: 'DocumentExtraction'
+        extractionMethod: ExtractionMethod
+        sourceHash: string
+        created: string
+        updated?: string | null
+      }>
+      origin?: {
+        __typename?: 'DocumentOrigin'
+        uri?: string | null
+        hash?: string | null
+        creationDate?: string | null
+        lastModifiedDate?: string | null
+        author?: string | null
+      } | null
+      storageStats: {
+        __typename?: 'StorageStats'
+        extractionBytes: number
+        attachmentBytes: number
+        physicalBytes: number
+        extractionFileCount: number
+        physicalFileCount: number
+        attachmentFileCount: number
+        lastUpdate?: string | null
+        lastReconcile?: string | null
+      }
+    } | null
     lastUpdate?: {
       __typename?: 'AiLibraryUpdate'
       id: string
       createdAt: string
       message?: string | null
       updateType: string
-    } | null
-    manifest?: {
-      __typename?: 'FileManifest'
-      version: number
-      sourceHash?: string | null
-      extractions: Array<{
-        __typename?: 'FileExtraction'
-        extractionMethod: ExtractionMethod
-        extractionDate: string
-        extractionHash: string
-      }>
-      usage: {
-        __typename?: 'StorageUsage'
-        sourceBytes: number
-        extractedBytes: number
-        physicalBytes: number
-        activeExtractions: number
-        lastReconcile?: string | null
-      }
     } | null
     embeddingStatistics: Array<{
       __typename?: 'EmbeddingStatistic'
@@ -5170,33 +5258,44 @@ export type EmbeddingsTableQuery = {
       originUri?: string | null
       mimeType: string
       size?: number | null
-      uploadedAt?: string | null
       dropError?: string | null
       createdAt: string
       originModificationDate?: string | null
       archivedAt?: string | null
       chunkCount?: number | null
       manifest?: {
-        __typename?: 'FileManifest'
-        version: number
+        __typename?: 'DocumentManifest'
+        documentId: string
+        name: string
         mimeType: string
-        originalContentHash?: string | null
-        originalUpdatedAt?: string | null
         sourceHash?: string | null
-        createdAt: string
+        created: string
+        version: number
         extractions: Array<{
-          __typename?: 'FileExtraction'
+          __typename?: 'DocumentExtraction'
           extractionMethod: ExtractionMethod
-          extractionHash: string
-          extractionDate: string
+          sourceHash: string
+          created: string
+          updated?: string | null
         }>
-        usage: {
-          __typename?: 'StorageUsage'
-          sourceBytes: number
+        origin?: {
+          __typename?: 'DocumentOrigin'
+          uri?: string | null
+          hash?: string | null
+          creationDate?: string | null
+          lastModifiedDate?: string | null
+          author?: string | null
+        } | null
+        storageStats: {
+          __typename?: 'StorageStats'
+          extractionBytes: number
+          attachmentBytes: number
           physicalBytes: number
+          extractionFileCount: number
+          physicalFileCount: number
+          attachmentFileCount: number
+          lastUpdate?: string | null
           lastReconcile?: string | null
-          activeExtractions: number
-          extractions: number
         }
       } | null
     }>
@@ -5276,9 +5375,9 @@ export type ProcessingRequestsQuery = {
       rawText?: string | null
       request?:
         | {
-            __typename: 'EmbedFileRequest'
+            __typename: 'EmbedDocumentRequest'
             libraryId?: string | null
-            fileId?: string | null
+            documentId?: string | null
             extractionMethod?: string | null
             embeddingModelProvider?: ModelProvider | null
             embeddingModelName?: string | null
@@ -5294,7 +5393,7 @@ export type ProcessingRequestsQuery = {
         | {
             __typename: 'EnrichItemRequest'
             libraryId?: string | null
-            fileId?: string | null
+            documentId?: string | null
             fragment?: number | null
             version?: number | null
             workspaceId?: string | null
@@ -5306,9 +5405,9 @@ export type ProcessingRequestsQuery = {
             }> | null
           }
         | {
-            __typename: 'ExtractFileRequest'
+            __typename: 'ExtractDocumentRequest'
             libraryId?: string | null
-            fileId?: string | null
+            documentId?: string | null
             extractionMethod?: string | null
             version?: number | null
             workspaceId?: string | null
@@ -6091,11 +6190,11 @@ export type GetItemDetailQuery = {
     fileId: string
     file: { __typename?: 'AiLibraryFile'; id: string; name: string; libraryId: string }
     fileInfo?: {
-      __typename?: 'FileManifest'
-      fileName: string
-      extractions: Array<{ __typename?: 'FileExtraction'; extractionMethod: ExtractionMethod }>
+      __typename?: 'DocumentManifest'
+      name: string
+      extractions: Array<{ __typename?: 'DocumentExtraction'; extractionMethod: ExtractionMethod }>
     } | null
-    extractionInfo?: { __typename?: 'ExtractionMetadata'; fragmentCount?: number | null; hasFragments: boolean } | null
+    extractionInfo?: { __typename?: 'ExtractionManifest'; fragmentCount?: number | null; hasFragments: boolean } | null
   }
 }
 
@@ -6772,7 +6871,18 @@ export type GetWorkspaceQuery = {
     manifest?: {
       __typename?: 'WorkspaceManifest'
       version: number
-      usage: { __typename?: 'StorageUsage'; physicalBytes: number; physicalFiles: number; extractions: number }
+      workspaceId: string
+      storageStats: {
+        __typename?: 'StorageStats'
+        extractionBytes: number
+        attachmentBytes: number
+        physicalBytes: number
+        extractionFileCount: number
+        physicalFileCount: number
+        attachmentFileCount: number
+        lastUpdate?: string | null
+        lastReconcile?: string | null
+      }
     } | null
   }
 }
@@ -6816,7 +6926,7 @@ export type CreateWorkspaceMutationVariables = Exact<{
 
 export type CreateWorkspaceMutation = {
   __typename?: 'Mutation'
-  createWorkspace: { __typename?: 'CreateWorkspaceResult'; id: string; name: string; slug: string }
+  createWorkspace: { __typename?: 'CreateWorkspaceResult'; workspaceId: string }
 }
 
 export type DeleteWorkspaceMutationVariables = Exact<{ [key: string]: never }>
@@ -8601,7 +8711,7 @@ export const AutomationMenu_AutomationFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationMenu_Automation' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomation' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Automation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -8618,7 +8728,7 @@ export const AutomationMenu_AutomationsFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationMenu_Automations' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomation' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Automation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -8635,7 +8745,7 @@ export const AutomationBatchDetailFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationBatchDetail' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationBatch' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AutomationBatch' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -8663,7 +8773,7 @@ export const AutomationItemDetail_AutomationItemFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationItemDetail_AutomationItem' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationItem' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AutomationItem' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -8726,7 +8836,7 @@ export const AutomationItemList_AutomationItemFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationItemList_AutomationItem' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationItem' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AutomationItem' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -8774,7 +8884,7 @@ export const AutomationDetailFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationDetail' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomation' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Automation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -8887,7 +8997,7 @@ export const AutomationsBaseFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationsBase' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomation' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Automation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -9917,8 +10027,8 @@ export const FileStatusLabels_FileFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'manifest' },
@@ -9932,8 +10042,9 @@ export const FileStatusLabels_FileFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
@@ -9975,7 +10086,6 @@ export const FileInfoBox_FileFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
           {
             kind: 'Field',
@@ -9994,6 +10104,25 @@ export const FileInfoBox_FileFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'origin' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'creationDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastModifiedDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'author' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'extractions' },
@@ -10001,21 +10130,25 @@ export const FileInfoBox_FileFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'usage' },
+                  name: { kind: 'Name', value: 'storageStats' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractedBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentBytes' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'activeExtractions' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastReconcile' } },
                     ],
                   },
@@ -10057,8 +10190,9 @@ export const FileInfo_FilesFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
@@ -10103,7 +10237,6 @@ export const FileMenu_FileFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
           {
             kind: 'Field',
@@ -10122,6 +10255,25 @@ export const FileMenu_FileFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'origin' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'creationDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastModifiedDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'author' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'extractions' },
@@ -10129,21 +10281,25 @@ export const FileMenu_FileFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'usage' },
+                  name: { kind: 'Name', value: 'storageStats' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractedBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentBytes' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'activeExtractions' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastReconcile' } },
                     ],
                   },
@@ -10180,8 +10336,9 @@ export const FileMenu_FileFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
@@ -10246,7 +10403,6 @@ export const FileCaptionCard_FileFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
           {
             kind: 'Field',
@@ -10265,6 +10421,25 @@ export const FileCaptionCard_FileFragmentDoc = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'origin' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'creationDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastModifiedDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'author' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'extractions' },
@@ -10272,21 +10447,25 @@ export const FileCaptionCard_FileFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'usage' },
+                  name: { kind: 'Name', value: 'storageStats' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractedBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentBytes' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'activeExtractions' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastReconcile' } },
                     ],
                   },
@@ -10323,8 +10502,9 @@ export const FileCaptionCard_FileFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
@@ -10342,8 +10522,8 @@ export const FileCaptionCard_FileFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'manifest' },
@@ -10357,8 +10537,9 @@ export const FileCaptionCard_FileFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
@@ -10451,7 +10632,6 @@ export const AiLibraryFile_FilesTableFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
@@ -10464,11 +10644,25 @@ export const AiLibraryFile_FilesTableFragmentDoc = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'originalContentHash' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'originalUpdatedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'origin' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'creationDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastModifiedDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'author' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'extractions' },
@@ -10476,22 +10670,26 @@ export const AiLibraryFile_FilesTableFragmentDoc = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'usage' },
+                  name: { kind: 'Name', value: 'storageStats' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentBytes' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastReconcile' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'activeExtractions' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractions' } },
                     ],
                   },
                 },
@@ -15260,7 +15458,7 @@ export const GetAutomationBatchesDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationBatchDetail' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationBatch' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AutomationBatch' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -15322,7 +15520,7 @@ export const GetAutomationItemDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationItemDetail_AutomationItem' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationItem' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AutomationItem' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -15471,7 +15669,7 @@ export const GetAutomationItemsDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationItemList_AutomationItem' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationItem' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AutomationItem' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -15551,7 +15749,7 @@ export const GetAutomationDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationDetail' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomation' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Automation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -15685,7 +15883,7 @@ export const GetAutomationsDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationsBase' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomation' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Automation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -15703,7 +15901,7 @@ export const GetAutomationsDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AutomationMenu_Automation' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomation' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Automation' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -15762,10 +15960,7 @@ export const CreateAutomationDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationInput' } },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AutomationInput' } } },
         },
       ],
       selectionSet: {
@@ -15925,10 +16120,7 @@ export const UpdateAutomationDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAutomationInput' } },
-          },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'AutomationInput' } } },
         },
       ],
       selectionSet: {
@@ -17361,7 +17553,7 @@ export const GetExtractionDocument = {
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'extractedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extracted' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'hasFragments' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fragmentCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
@@ -17372,7 +17564,7 @@ export const GetExtractionDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'filename' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
                     ],
                   },
@@ -17621,28 +17813,17 @@ export const GetFileDocument = {
               selections: [
                 { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FileCaptionCard_File' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'docPath' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'lastUpdate' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
-                    ],
-                  },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'manifest' },
@@ -17658,11 +17839,28 @@ export const GetFileDocument = {
                           kind: 'SelectionSet',
                           selections: [
                             { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                           ],
                         },
                       },
+                    ],
+                  },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'lastUpdate' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'message' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updateType' } },
                     ],
                   },
                 },
@@ -17680,8 +17878,8 @@ export const GetFileDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'manifest' },
@@ -17695,8 +17893,9 @@ export const GetFileDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
@@ -17733,7 +17932,6 @@ export const GetFileDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
           {
             kind: 'Field',
@@ -17752,6 +17950,25 @@ export const GetFileDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'origin' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'creationDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastModifiedDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'author' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'extractions' },
@@ -17759,21 +17976,25 @@ export const GetFileDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'usage' },
+                  name: { kind: 'Name', value: 'storageStats' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractedBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentBytes' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'activeExtractions' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastReconcile' } },
                     ],
                   },
@@ -17810,8 +18031,9 @@ export const GetFileDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
@@ -17970,7 +18192,6 @@ export const EmbeddingsTableDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
           { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
           { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'uploadedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
@@ -17983,11 +18204,25 @@ export const EmbeddingsTableDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'originalContentHash' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'originalUpdatedAt' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'origin' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'creationDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastModifiedDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'author' } },
+                    ],
+                  },
+                },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'extractions' },
@@ -17995,22 +18230,26 @@ export const EmbeddingsTableDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionHash' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
                     ],
                   },
                 },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'usage' },
+                  name: { kind: 'Name', value: 'storageStats' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentBytes' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'lastReconcile' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'activeExtractions' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractions' } },
                     ],
                   },
                 },
@@ -18237,7 +18476,7 @@ export const ProcessingRequestsDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
+                name: { kind: 'Name', value: 'documentId' },
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
               },
               {
@@ -18290,24 +18529,30 @@ export const ProcessingRequestsDocument = {
                             },
                             {
                               kind: 'InlineFragment',
-                              typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'ExtractFileRequest' } },
+                              typeCondition: {
+                                kind: 'NamedType',
+                                name: { kind: 'Name', value: 'ExtractDocumentRequest' },
+                              },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
                                 ],
                               },
                             },
                             {
                               kind: 'InlineFragment',
-                              typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'EmbedFileRequest' } },
+                              typeCondition: {
+                                kind: 'NamedType',
+                                name: { kind: 'Name', value: 'EmbedDocumentRequest' },
+                              },
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelProvider' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
@@ -18321,7 +18566,7 @@ export const ProcessingRequestsDocument = {
                                 kind: 'SelectionSet',
                                 selections: [
                                   { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
                                   { kind: 'Field', name: { kind: 'Name', value: 'fragment' } },
                                 ],
                               },
@@ -19690,7 +19935,7 @@ export const GetItemDetailDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'extractions' },
@@ -22002,15 +22247,21 @@ export const GetWorkspaceDocument = {
                     kind: 'SelectionSet',
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'usage' },
+                        name: { kind: 'Name', value: 'storageStats' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'extractionBytes' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'attachmentBytes' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'physicalFiles' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'extractions' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'lastReconcile' } },
                           ],
                         },
                       },
@@ -22164,11 +22415,7 @@ export const CreateWorkspaceDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
-              ],
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } }],
             },
           },
         ],

@@ -1,7 +1,7 @@
 import { prisma } from '@george-ai/app-database'
 import { canAdminWorkspaceOrThrow, canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
+import { list as lst } from '@george-ai/app-domain'
 
-import { createListItemsForSource } from './../../domain'
 import { builder } from './../builder'
 
 console.log('Setting up: AiList mutations')
@@ -170,7 +170,7 @@ builder.mutationField('addListSource', (t) =>
       }
 
       // Create list items for all files in the library based on extraction strategy
-      await createListItemsForSource(newSource.id)
+      await lst.createItemsForSource(newSource.id)
 
       return newSource
     },

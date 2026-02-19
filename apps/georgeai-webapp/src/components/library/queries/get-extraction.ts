@@ -26,13 +26,13 @@ const getExtraction = createServerFn({ method: 'GET' })
           extraction(fileId: $fileId, libraryId: $libraryId, extractionMethod: $extractionMethod) {
             version
             extractionMethod
-            extractedAt
+            extracted
             hasFragments
             fragmentCount
             sourceHash
             attachments {
               size
-              filename
+              fileName
               mimeType
             }
           }

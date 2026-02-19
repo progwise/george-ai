@@ -1,9 +1,8 @@
 import { ModelProvider } from '@george-ai/app-commons'
 import { Prisma, prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
+import { ValidatedFieldSchema, getEnrichmentTaskInputMetadata, getListFiltersWhere } from '@george-ai/app-domain'
 
-import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
-import { getListFiltersWhere } from '../../domain/list'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
 import { logger } from '../common'
@@ -196,7 +195,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         success: fieldValidationSuccess,
         data: validatedField,
         error: fieldValidationError,
-      } = getFieldEnrichmentValidationSchema().safeParse(fieldForValidation)
+      } = ValidatedFieldSchema.safeParse(fieldForValidation)
 
       if (!fieldValidationSuccess) {
         throw new Error(
