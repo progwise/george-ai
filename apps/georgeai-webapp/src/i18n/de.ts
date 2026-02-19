@@ -179,6 +179,7 @@ export default {
     createDialogDescription: 'Erstellen Sie eine neue Automatisierung, um Daten in ein externes System zu exportieren.',
     createDialogTitle: 'Automatisierung erstellen',
     createError: 'Automatisierung konnte nicht erstellt werden: {message}',
+    createNew: 'Automatisierung erstellen',
     createSuccess: 'Automatisierung erfolgreich erstellt',
     delete: 'Lösche Automatisierung',
     deleteDialogConfirmation:
@@ -608,6 +609,7 @@ export default {
     addNewButton: 'Neue Bibliothek',
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
     addSingleFile: 'Füge 1 Datei hinzu',
+    createNew: 'Bibliothek erstellen',
     deleteDialogConfirmation: '{name} wird gelöscht. Dies kann nicht rückgängig gemacht werden.',
     deleteDialogTitle: 'Bibliothek {name} löschen',
     deleteError: 'Fehler beim Löschen der Bibliothek: {message}',
@@ -686,6 +688,7 @@ export default {
     createDialogTitle: 'Neue Liste',
     createError: 'Fehler beim Erstellen der Liste: {message}',
     createListButtonText: 'Erzeuge Liste',
+    createNew: 'Liste erstellen',
     createSuccess: 'Liste erfolgreich erstellt',
     delete: 'Löschen',
     deleteDialogConfirmation:

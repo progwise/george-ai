@@ -23,12 +23,21 @@ interface SidebarProps {
   user: UserFragment
   workspaceId: string | null
   isDrawerOpen: boolean
+  newLibraryDialogRef: React.RefObject<HTMLDialogElement | null>
+  newListDialogRef: React.RefObject<HTMLDialogElement | null>
+  newAutomationDialogRef: React.RefObject<HTMLDialogElement | null>
 }
 
-export function Sidebar({ user, workspaceId, isDrawerOpen }: SidebarProps) {
+export function Sidebar({
+  user,
+  workspaceId,
+  isDrawerOpen,
+  newLibraryDialogRef,
+  newListDialogRef,
+  newAutomationDialogRef,
+}: SidebarProps) {
   const { t } = useTranslation()
   const membersDialogRef = useRef<HTMLDialogElement>(null)
-
   const {
     data: { aiLibraries },
   } = useSuspenseQuery(getLibrariesQueryOptions())
@@ -47,70 +56,59 @@ export function Sidebar({ user, workspaceId, isDrawerOpen }: SidebarProps) {
 
   return (
     <div className="group/sidebar drawer-side z-60 transition-all duration-200 ease-in is-drawer-close:overflow-visible">
-      <label htmlFor="sidebar" aria-label="sidebar" className="drawer-overlay"></label>
+      <label htmlFor="sidebar" aria-label="sidebar" className="drawer-overlay" />
       <label
         className="fixed top-0 left-0 flex min-h-full flex-col bg-base-200 is-drawer-close:w-14 is-drawer-close:cursor-w-resize is-drawer-open:w-64"
         htmlFor={!isDrawerOpen ? 'sidebar' : ''}
       >
-        <label
-          htmlFor="sidebar"
-          aria-label={sidebarToggleTooltip}
-          className="tooltip btn absolute tooltip-bottom inset-y-2 right-2 z-10 btn-square rounded-lg bg-base-200 btn-ghost is-drawer-close:invisible is-drawer-close:tooltip-right is-drawer-close:group-hover/sidebar:visible is-drawer-open:pointer-events-auto is-drawer-open:hover:cursor-w-resize"
-          data-tip={sidebarToggleTooltip}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            strokeWidth="2"
-            fill="none"
-            stroke="currentColor"
-            className="my-1.5 inline-block size-6.5"
-          >
-            <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-            <path d="M9 4v16"></path>
-            <path d="M14 10l2 2l-2 2"></path>
-          </svg>
-        </label>
-        <div className="absolute inset-y-2 is-drawer-open:pointer-events-auto">
-          <Link to="/">
-            <BowlerLogoIcon className="absolute inset-y-2 left-4 size-6" />
-            <span className="absolute inset-x-12 inset-y-2.5 font-extrabold is-drawer-close:hidden">George</span>
+        <div className="relative flex h-12 shrink-0 items-center px-4.5">
+          <Link to="/" className="flex items-center gap-2">
+            <BowlerLogoIcon className="size-5 shrink-0" />
+            <span className="font-extrabold is-drawer-close:hidden">George</span>
           </Link>
+
+          <label
+            htmlFor="sidebar"
+            aria-label={sidebarToggleTooltip}
+            className="tooltip btn absolute tooltip-bottom top-1/2 right-0 z-10 btn-square -translate-y-1/2 rounded-lg bg-base-200 btn-ghost is-drawer-close:invisible is-drawer-close:tooltip-right is-drawer-close:right-2 is-drawer-close:group-hover/sidebar:visible is-drawer-open:pointer-events-auto is-drawer-open:hover:cursor-w-resize"
+            data-tip={sidebarToggleTooltip}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              strokeWidth="2"
+              fill="none"
+              stroke="currentColor"
+              className="inline-block size-5"
+            >
+              <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+              <path d="M9 4v16" />
+              <path d="M14 10l2 2l-2 2" />
+            </svg>
+          </label>
         </div>
 
-        <ul className="menu absolute inset-y-14 w-full grow lg:menu-vertical is-drawer-open:pointer-events-auto">
-          <li>
-            <button
-              type="button"
-              onClick={() => membersDialogRef.current?.showModal()}
-              className="rounded-lg transition-colors hover:animate-pulse is-drawer-close:tooltip is-drawer-close:tooltip-right"
-              data-tip={t('workspace.members.title')}
-              aria-label={t('workspace.members.title')}
-            >
-              <UsersIcon className="my-1.5 inline-block size-4" />
-              <span className="whitespace-nowrap is-drawer-close:hidden">{t('workspace.members.title')}</span>
-            </button>
-          </li>
-
+        <ul className="flex flex-col is-drawer-open:pointer-events-auto">
           <li className="pointer-events-none">
-            <div className="divider my-0" />
+            <div className="divider my-0 px-2" />
           </li>
 
           <ListSidebarCollapsibleMenu
-            icon={<LibraryIcon className="my-1.5 size-4" />}
+            icon={<LibraryIcon className="size-4 shrink-0" />}
             label={t('sidebar.libraries')}
             items={aiLibraries}
             isDrawerOpen={isDrawerOpen}
             to="/libraries"
             groupName="libraries"
+            newItemDialogRef={newLibraryDialogRef}
             renderItemLink={(lib) => (
               <Link
                 to="/libraries/$libraryId"
                 params={{ libraryId: lib.id }}
                 activeProps={{ className: 'bg-accent/40' }}
-                className="block rounded-lg px-4 py-2"
+                className="block rounded-lg px-4 py-2 text-sm"
               >
                 {lib.name}
               </Link>
@@ -118,18 +116,19 @@ export function Sidebar({ user, workspaceId, isDrawerOpen }: SidebarProps) {
           />
 
           <ListSidebarCollapsibleMenu
-            icon={<ListViewIcon className="my-1.5 size-4" />}
+            icon={<ListViewIcon className="size-4 shrink-0" />}
             label={t('sidebar.lists')}
             items={aiLists}
             isDrawerOpen={isDrawerOpen}
             to="/lists"
             groupName="lists"
+            newItemDialogRef={newListDialogRef}
             renderItemLink={(list) => (
               <Link
                 to="/lists/$listId"
                 params={{ listId: list.id }}
-                activeProps={{ className: 'bg-accent/40' }}
-                className="block rounded-lg px-4 py-2"
+                activeProps={{ className: 'bg-accent/40' }} //div to active tailwind
+                className="block rounded-lg px-4 py-2 text-sm"
               >
                 {list.name}
               </Link>
@@ -137,18 +136,19 @@ export function Sidebar({ user, workspaceId, isDrawerOpen }: SidebarProps) {
           />
 
           <ListSidebarCollapsibleMenu
-            icon={<LinkIcon className="my-1.5 size-4" />}
+            icon={<LinkIcon className="size-4 shrink-0" />}
             label={t('sidebar.automations')}
             items={automations}
             isDrawerOpen={isDrawerOpen}
             to="/automations"
             groupName="automations"
+            newItemDialogRef={newAutomationDialogRef}
             renderItemLink={(automation) => (
               <Link
                 to="/automations/$automationId"
                 params={{ automationId: automation.id }}
                 activeProps={{ className: 'bg-accent/40' }}
-                className="block rounded-lg px-4 py-2"
+                className="block rounded-lg px-4 py-2 text-sm"
               >
                 {automation.name}
               </Link>
@@ -158,19 +158,32 @@ export function Sidebar({ user, workspaceId, isDrawerOpen }: SidebarProps) {
           <li>
             <SidebarNavigationLink
               to="/conversations"
-              icon={<ConversationIcon className="my-1.5 inline-block size-4" />}
+              icon={<ConversationIcon className="inline-block size-4 shrink-0" />}
               label={t('sidebar.conversations')}
             />
           </li>
           <li>
             <SidebarNavigationLink
               to="/assistants"
-              icon={<UserIcon className="my-1.5 inline-block size-4" />}
+              icon={<UserIcon className="inline-block size-4 shrink-0" />}
               label={t('sidebar.assistants')}
             />
           </li>
+
           <li className="pointer-events-none">
-            <div className="divider my-0" />
+            <div className="divider my-0 px-2" />
+          </li>
+          <li>
+            <button
+              type="button"
+              onClick={() => membersDialogRef.current?.showModal()}
+              className="flex w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-5 hover:animate-pulse"
+              data-tip={t('workspace.members.title')}
+              aria-label={t('workspace.members.title')}
+            >
+              <UsersIcon className="size-4 shrink-0" />
+              <span className="text-sm whitespace-nowrap is-drawer-close:hidden">{t('workspace.members.title')}</span>
+            </button>
           </li>
         </ul>
       </label>

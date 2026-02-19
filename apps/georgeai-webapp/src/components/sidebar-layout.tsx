@@ -1,8 +1,11 @@
 import { Outlet } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { UserFragment } from '../gql/graphql'
+import { NewAutomationDialog } from './automations/new-automation-dialog'
+import { NewLibraryDialog } from './library/new-library-dialog'
+import { NewListDialog } from './lists/new-list-dialog'
 import { Sidebar } from './sidebar'
 import TopNavigation from './top-navigation'
 
@@ -12,6 +15,9 @@ interface SidebarLayoutProps {
 }
 
 export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
+  const newLibraryDialogRef = useRef<HTMLDialogElement | null>(null)
+  const newListDialogRef = useRef<HTMLDialogElement | null>(null)
+  const newAutomationDialogRef = useRef<HTMLDialogElement | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   return (
@@ -34,7 +40,22 @@ export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
           <Outlet />
         </div>
       </div>
-      {user && <Sidebar user={user} workspaceId={workspaceId} isDrawerOpen={isDrawerOpen} />}
+      {user && (
+        <>
+          <Sidebar
+            user={user}
+            workspaceId={workspaceId}
+            isDrawerOpen={isDrawerOpen}
+            newLibraryDialogRef={newLibraryDialogRef}
+            newListDialogRef={newListDialogRef}
+            newAutomationDialogRef={newAutomationDialogRef}
+          />
+
+          <NewLibraryDialog ref={newLibraryDialogRef} />
+          <NewListDialog ref={newListDialogRef} />
+          <NewAutomationDialog ref={newAutomationDialogRef} />
+        </>
+      )}
     </div>
   )
 }

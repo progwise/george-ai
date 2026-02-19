@@ -34,7 +34,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-base-100 pt-32">
+    <div className="flex items-start justify-center bg-base-100 pt-32">
       <div className="max-w-md space-y-8 p-8 text-center">
         <div className="mx-auto flex flex-col items-center">
           <BowlerLogoIcon className="size-32" gradientColors={['#1d4ed8', '#d946ef']} />

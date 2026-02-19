@@ -50,21 +50,17 @@ export const LibraryMenu = ({ library }: LibraryMenuProps) => {
   if (!user) return null
   return (
     <div>
-      <ul className="menu menu-horizontal w-full rounded-box">
-        <li>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-            onClick={() => deleteDialogRef.current?.showModal()}
-            disabled={isPending}
-            title={t('libraries.deleteLibraryButton')}
-            data-tip={t('libraries.deleteLibrary', { name: library.name })}
-          >
-            <TrashIcon className="size-4" />
-            <span className="max-lg:hidden">{t('libraries.deleteLibraryButton')}</span>
-          </button>
-        </li>
-      </ul>
+      <button
+        type="button"
+        className="btn btn-ghost btn-sm btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+        onClick={() => deleteDialogRef.current?.showModal()}
+        disabled={isPending}
+        title={t('libraries.deleteLibraryButton')}
+        data-tip={t('libraries.deleteLibrary', { name: library.name })}
+      >
+        <TrashIcon className="size-4" />
+        <span className="max-lg:hidden">{t('libraries.deleteLibraryButton')}</span>
+      </button>
       <DialogForm
         ref={deleteDialogRef}
         title={t('libraries.deleteLibrary', { libraryName: library.name })}
