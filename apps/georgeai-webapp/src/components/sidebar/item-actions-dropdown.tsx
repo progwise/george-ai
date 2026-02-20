@@ -1,13 +1,13 @@
 import { useCallback, useId, useRef, useState } from 'react'
 
-import { useTranslation } from '../i18n/use-translation-hook'
-import { ClipboardIcon } from '../icons/clipboard-icon'
-import { TrashIcon } from '../icons/trash-icon'
-import { useAutomationActions } from './automations/use-automation-actions'
-import { DialogForm } from './dialog-form'
-import { toastSuccess } from './georgeToaster'
-import { useLibraryActions } from './library/use-library-actions'
-import { useListActions } from './lists/use-list-actions'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { ClipboardIcon } from '../../icons/clipboard-icon'
+import { TrashIcon } from '../../icons/trash-icon'
+import { useAutomationActions } from '../automations/use-automation-actions'
+import { DialogForm } from '../dialog-form'
+import { toastSuccess } from '../georgeToaster'
+import { useLibraryActions } from '../library/use-library-actions'
+import { useListActions } from '../lists/use-list-actions'
 
 interface ItemActionsDropdownProps {
   item: { id: string; name: string }
@@ -85,7 +85,7 @@ export const ItemActionsDropdown = ({ item, groupName }: ItemActionsDropdownProp
           <button
             type="button"
             onClick={copyItemLink}
-            className="flex w-full cursor-pointer items-center gap-1 rounded-lg px-3 py-1.5 text-sm btn-ghost hover:bg-base-200"
+            className="btn w-full justify-start rounded-lg px-3 py-1.5 font-medium btn-ghost hover:bg-base-200"
           >
             <ClipboardIcon />
             {t('sidebar.copyItemLink')}
@@ -99,7 +99,7 @@ export const ItemActionsDropdown = ({ item, groupName }: ItemActionsDropdownProp
               setIsOpen(!isOpen)
             }}
             disabled={isPending}
-            className="flex w-full cursor-pointer items-center gap-1 rounded-lg px-3 py-1.5 text-error btn-ghost hover:bg-error/20"
+            className="btn w-full justify-start rounded-lg px-3 py-1.5 font-medium text-error btn-ghost hover:bg-error/20"
           >
             <TrashIcon />
             {t('sidebar.deleteItem')}

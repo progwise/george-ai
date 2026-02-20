@@ -2,12 +2,12 @@ import { Outlet } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { UserFragment } from '../gql/graphql'
-import { NewAutomationDialog } from './automations/new-automation-dialog'
-import { NewLibraryDialog } from './library/new-library-dialog'
-import { NewListDialog } from './lists/new-list-dialog'
+import { UserFragment } from '../../gql/graphql'
+import { NewAutomationDialog } from '../automations/new-automation-dialog'
+import { NewLibraryDialog } from '../library/new-library-dialog'
+import { NewListDialog } from '../lists/new-list-dialog'
+import TopNavigation from '../top-navigation'
 import { Sidebar } from './sidebar'
-import TopNavigation from './top-navigation'
 
 interface SidebarLayoutProps {
   user: UserFragment | null

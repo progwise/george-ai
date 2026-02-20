@@ -1,71 +1,34 @@
 import { Link } from '@tanstack/react-router'
 import { ReactNode } from 'react'
 
-import { useTranslation } from '../i18n/use-translation-hook'
-import { PlusIcon } from '../icons/plus-icon'
-import { FileRoutesByTo } from '../routeTree.gen'
+import { useTranslation } from '../../i18n/use-translation-hook'
+import { ChevronDownIcon } from '../../icons/chevron-down-icon'
+import { FileRoutesByTo } from '../../routeTree.gen'
+import { SidebarCreateNewItemButton } from './sidebar-create-new-item-button.tsx'
+import { SidebarNavItems } from './sidebar-nav-item'
+import { SidebarNavigationLink } from './sidebar-navigation-link'
 
-interface CreateNewItemButtonProps {
-  newDialogRef: React.RefObject<HTMLDialogElement | null>
-  createNewItemTooltip: string
-  hoverClass: string
-}
-
-const CreateNewItemButton = ({ newDialogRef, createNewItemTooltip, hoverClass }: CreateNewItemButtonProps) => (
-  <button
-    type="button"
-    onClick={(e) => {
-      e.stopPropagation()
-      newDialogRef.current?.showModal()
-    }}
-    className={`tooltip btn right-2 ml-auto btn-circle shrink-0 opacity-0 btn-ghost transition-opacity btn-xs [&::before]:text-xs ${hoverClass}`}
-    data-tip={createNewItemTooltip}
-  >
-    <PlusIcon className="size-4" />
-  </button>
-)
-
-interface SidebarNavigationLinkProps {
-  to: keyof FileRoutesByTo
-  icon: ReactNode
-  label: string
-}
-
-export const SidebarNavigationLink = ({ to, icon, label }: SidebarNavigationLinkProps) => (
-  <Link
-    to={to}
-    className="mx-1 flex h-9 items-center gap-2 rounded-lg text-sm transition-colors is-drawer-close:tooltip is-drawer-close:tooltip-right"
-    data-tip={label}
-    inactiveProps={{ className: 'hover:animate-pulse' }}
-    activeProps={{ className: 'bg-accent/40' }}
-    activeOptions={{ exact: false }}
-  >
-    <div className="shrink-0 pl-4">{icon}</div>
-    <span className="is-drawer-close:hidden">{label}</span>
-  </Link>
-)
-
-interface ListSidebarCollapsibleMenuProps {
+interface SidebarNavGroupProps {
   icon: ReactNode
   label: string
   items: Array<{ id: string; name: string }>
   isDrawerOpen: boolean
   to: keyof FileRoutesByTo
-  renderItemLink: (item: { id: string; name: string }) => ReactNode
   groupName: 'libraries' | 'lists' | 'automations'
   newItemDialogRef: React.RefObject<HTMLDialogElement | null>
+  getLink: (item: { id: string; name: string }) => { to: string; params: Record<string, string> }
 }
 
-export const ListSidebarCollapsibleMenu = ({
+export const SidebarNavGroup = ({
   icon,
   label,
   items,
   isDrawerOpen,
   to,
-  renderItemLink,
   groupName,
-  newItemDialogRef: newDialogRef,
-}: ListSidebarCollapsibleMenuProps) => {
+  newItemDialogRef,
+  getLink,
+}: SidebarNavGroupProps) => {
   const { t } = useTranslation()
 
   const createNewItemTooltip = t(`${groupName}.createNew`)
@@ -97,17 +60,18 @@ export const ListSidebarCollapsibleMenu = ({
                 }}
               >
                 {icon}
-                {label}
-                <CreateNewItemButton
-                  newDialogRef={newDialogRef}
-                  createNewItemTooltip={createNewItemTooltip} // next fix
+                <span className="flex items-center gap-0.75">
+                  {label}
+                  <ChevronDownIcon className="size-2.5 shrink-0 -rotate-90 in-[.collapse-open]:rotate-0" />
+                </span>
+                <SidebarCreateNewItemButton
+                  newItemDialogRef={newItemDialogRef}
+                  createNewItemTooltip={createNewItemTooltip}
                   hoverClass={hoverClass}
                 />
               </div>
               <div className="collapse-content p-0">
-                {items.map((item) => (
-                  <div key={item.id}>{renderItemLink(item)}</div>
-                ))}
+                <SidebarNavItems items={items} groupName={groupName} getLink={getLink} />
               </div>
             </div>
           ) : (
@@ -123,8 +87,8 @@ export const ListSidebarCollapsibleMenu = ({
                 </span>
               </Link>
 
-              <CreateNewItemButton
-                newDialogRef={newDialogRef}
+              <SidebarCreateNewItemButton
+                newItemDialogRef={newItemDialogRef}
                 createNewItemTooltip={createNewItemTooltip}
                 hoverClass={hoverClass}
               />
@@ -143,9 +107,7 @@ export const ListSidebarCollapsibleMenu = ({
                     e.preventDefault()
                   }}
                 >
-                  {items.map((item) => (
-                    <li key={item.id}>{renderItemLink(item)}</li>
-                  ))}
+                  <SidebarNavItems items={items} groupName={groupName} getLink={getLink} />
                 </ul>
               </div>
             ) : (
