@@ -101,7 +101,7 @@ export const SidebarNavGroup = ({
               <div className="relative text-sm">
                 <SidebarNavigationLink to={to} icon={icon} label="" />
                 <ul
-                  className={`invisible absolute -top-1.5 left-15 min-w-96 cursor-default rounded-box bg-base-200 p-1 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
+                  className={`invisible absolute -top-0.5 left-15 min-w-96 cursor-default rounded-box bg-base-200 p-1 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
                   onClick={(e) => {
                     e.stopPropagation()
                     e.preventDefault()

@@ -62,7 +62,7 @@ export const ItemActionsDropdown = ({ item, groupName }: ItemActionsDropdownProp
         popoverTarget={popoverId}
         tabIndex={0}
         type="button"
-        className="btn mr-1 btn-circle scale-80 border-none btn-ghost btn-sm"
+        className={`btn mr-1 btn-circle scale-80 border-none btn-ghost btn-sm group-hover:opacity-100 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
         style={{ anchorName: anchorId } as React.CSSProperties}
       >
         <span className="size-4">…</span>
@@ -80,6 +80,7 @@ export const ItemActionsDropdown = ({ item, groupName }: ItemActionsDropdownProp
             left: 'calc(anchor(left) - 12px)',
           } as React.CSSProperties
         }
+        onToggle={(e) => setIsOpen(e.newState === 'open')}
       >
         <li>
           <button

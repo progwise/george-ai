@@ -13,7 +13,7 @@ export function SidebarNavItems({ items, groupName, getLink }: SidebarNavItemsPr
       {items.map((item) => (
         <div
           key={item.id}
-          className="flex flex-row items-center rounded-lg py-0 pl-3 hover:bg-base-300 has-[a[data-status='active']]:bg-accent/40"
+          className="group flex flex-row items-center rounded-lg py-0 pl-3 hover:bg-base-300 has-[a[data-status='active']]:bg-accent/40"
         >
           <Link {...getLink(item)} className="block h-8 grow content-center">
             {item.name}
