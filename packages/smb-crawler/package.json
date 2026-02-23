@@ -15,7 +15,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "eventsource": "^3.0.2"
+    "eventsource": "^4.1.0"
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
