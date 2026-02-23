@@ -18,14 +18,14 @@
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
-    "dotenv": "^16.4.5",
+    "dotenv": "^17.3.1",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.44.1",
     "vitest": "^3.1.1"
   },
   "dependencies": {
-    "@qdrant/js-client-rest": "^1.16.2",
-    "zod": "^3.23.8"
+    "@qdrant/js-client-rest": "^1.17.0",
+    "zod": "^4.3.6"
   }
 }
