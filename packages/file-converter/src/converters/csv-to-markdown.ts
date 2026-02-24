@@ -49,9 +49,14 @@ function generateRowMarkdown(headers: string[], row: string[], rowNumber: number
   for (let i = 0; i < headers.length; i++) {
     const header = headers[i] || `Column ${i + 1}`
     const value = row[i] || ''
-
+    if (value.trim() === '') {
+      continue
+    }
     // Simple format: "Header: value" - no sub-sections
-    lines.push(`**${header}:** ${value}`)
+    lines.push(`**${header}:**`)
+    lines.push(`\`\`\``)
+    lines.push(`${value}`)
+    lines.push(`\`\`\``)
   }
 
   return lines.join('\n')
