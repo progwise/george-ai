@@ -1,2 +1,2 @@
 export { getKeycloakConfigQueryOptions } from './get-keycloak-config'
-export { getUserQueryOptions } from './get-user'
+export { currentUserQueryOptions } from './current-user'

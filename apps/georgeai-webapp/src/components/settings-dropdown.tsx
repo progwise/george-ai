@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { JSX } from 'react'
 
 import { useAuth } from '../auth'
+import { CurrentUserFragment } from '../gql/graphql'
 import { useTheme } from '../hooks/use-theme'
 import { useLanguage } from '../i18n/use-language-hook'
 import { useTranslation } from '../i18n/use-translation-hook'
@@ -12,21 +13,13 @@ import SunIcon from '../icons/sun-icon'
 import SystemIcon from '../icons/system-icon'
 import { UserAvatar } from './user-avatar'
 
-interface User {
-  id: string
-  username: string
-  name?: string | null
-  isAdmin: boolean
-  avatarUrl?: string | null
-}
-
 interface SettingsDropdownProps {
-  user: User | null
+  user?: CurrentUserFragment | null
 }
 
 export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element => {
   const { t } = useTranslation()
-  const { logout, isReady } = useAuth()
+  const { logout, login, isReady } = useAuth()
   const { language, setLanguage } = useLanguage()
   const [theme, setTheme] = useTheme()
 
@@ -89,9 +82,9 @@ export const SettingsDropdown = ({ user }: SettingsDropdownProps): JSX.Element =
         {isReady && !user && (
           <>
             <li>
-              <Link to="/login" className="grid-cols-[1fr_min-content]">
+              <button type="button" role="link" className="grid-cols-[1fr_min-content]" onClick={() => login()}>
                 {t('actions.signIn')}
-              </Link>
+              </button>
             </li>
             <div className="divider m-0" />
           </>

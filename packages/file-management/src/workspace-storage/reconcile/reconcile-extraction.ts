@@ -25,7 +25,7 @@ export async function reconcileExtraction(identifier: ExtractionIdentifier): Pro
       extractionFileCount: folderStats.fileCount,
       physicalBytes: folderStats.diskSize,
       physicalFileCount: folderStats.fileCount,
-      lastReconcile: new Date().toISOString(),
+      lastReconcile: new Date(),
     },
   })
 }

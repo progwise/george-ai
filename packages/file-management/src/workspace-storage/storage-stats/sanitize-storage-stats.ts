@@ -8,6 +8,6 @@ export function sanitizeStorageStats(storageStats: StorageStats): StorageStats {
     extractionFileCount: Math.max(0, storageStats.extractionFileCount),
     attachmentFileCount: Math.max(0, storageStats.attachmentFileCount),
     physicalFileCount: Math.max(0, storageStats.physicalFileCount),
-    lastUpdate: new Date().toISOString(),
+    lastUpdate: new Date(),
   }
 }

@@ -8,7 +8,6 @@ import { backendRequest } from '../../../server-functions/backend'
 graphql(`
   fragment ListsBase on AiList {
     id
-    ownerId
     createdAt
     updatedAt
   }

@@ -10,7 +10,7 @@ export function ensureFolderOnce(path: string): Promise<void> {
   }
   const promise = mkdir(path, { recursive: true })
     .then(() => {
-      logger.info('Directory ensured to exist', { path, process: process.pid })
+      logger.debug('Directory ensured to exist', { path, process: process.pid })
     })
     .catch((error) => {
       logger.error('Error ensuring directory exists', { path, error, process: process.pid })

@@ -1,10 +1,16 @@
-import { getEntryOrThrow } from '../entry'
-import { DocumentManifest } from '../schema'
+import { getEntry, getEntryOrThrow } from '../entry'
+import { DocumentIdentifier, DocumentManifest } from '../schema'
 
 export async function getDocument(
-  workspaceId: string,
-  args: { libraryId: string; documentId: string },
+  identifier: Omit<DocumentIdentifier, 'type' | 'version'>,
+): Promise<DocumentManifest | null> {
+  const manifest = await getEntry({ ...identifier, type: 'document', version: 1 })
+  return manifest
+}
+
+export async function getDocumentOrThrow(
+  identifier: Omit<DocumentIdentifier, 'type' | 'version'>,
 ): Promise<DocumentManifest> {
-  const manifest = await getEntryOrThrow({ workspaceId, ...args, version: 1, type: 'document' })
+  const manifest = await getEntryOrThrow({ ...identifier, type: 'document', version: 1 })
   return manifest
 }

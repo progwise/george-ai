@@ -1,6 +1,6 @@
 import { createReadStream } from 'fs'
 
-import { document, extraction, library, workspace } from '@george-ai/file-management'
+import { document, extraction, getDocumentOrThrow, library, workspace } from '@george-ai/file-management'
 import { getTestAssetLocalPath } from '@george-ai/test-utils/src/test-files'
 
 import { transformToMarkdown } from './transform-to-markdown'
@@ -25,11 +25,12 @@ describe.sequential('Excel to Markdown', async () => {
       mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       uri: 'legacy-uri',
     })
-    await document.writeSource(TEST_WORKSPACE_ID, {
+    const { ack } = await document.writeSource(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_EXCEL_FILE_ID,
       stream,
     })
+    await ack()
   })
 
   afterAll(async () => {
@@ -37,10 +38,13 @@ describe.sequential('Excel to Markdown', async () => {
   })
 
   it('should transform Excel to Markdown', async () => {
-    await transformToMarkdown({
+    const document = await getDocumentOrThrow({
       workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_EXCEL_FILE_ID,
+    })
+    await transformToMarkdown({
+      document,
       timeoutSignal: new AbortController().signal,
       options: {
         extractionMethod: 'excelExtraction',
@@ -49,7 +53,8 @@ describe.sequential('Excel to Markdown', async () => {
   })
 
   it('should have the Excel extraction in the file', async () => {
-    const fileInfo = await document.get(TEST_WORKSPACE_ID, {
+    const fileInfo = await document.get({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_EXCEL_FILE_ID,
     })
@@ -71,7 +76,7 @@ describe.sequential('Excel to Markdown', async () => {
   })
 
   it('should read the Markdown extraction summary', async () => {
-    const extractionReadStream = await extraction.read(TEST_WORKSPACE_ID, {
+    const { stream: extractionReadStream } = await extraction.read(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_EXCEL_FILE_ID,
       extractionMethod: 'excelExtraction',
@@ -84,6 +89,8 @@ describe.sequential('Excel to Markdown', async () => {
       chunks.push(chunk)
     }
     const extractionContent = chunks.join('\n')
+
+    console.log('Extraction Content:\n', extractionContent)
 
     // output.md now contains a summary, row data is in fragments
     expect(extractionContent).toContain('Excel Extraction Summary')

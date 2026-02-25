@@ -1,6 +1,8 @@
 pnpm-lock.yaml
 .output
 .uploads
+.test-uploads
+.storage
 .turbo
 .posgres-data*
 .typesense-data

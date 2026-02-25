@@ -27,19 +27,14 @@ model User {
   isAdmin                    Boolean                     @default(false)
   avatarUrl                  String?
   defaultWorkspaceId         String
-  assistants                 AiAssistant[]
-  conversations              AiConversation[]
   conversationInvitation     AiConversationInvitation[]
   conversationParticipations AiConversationParticipant[]
-  libraries                  AiLibrary[]
-  crawlerRuns                AiLibraryCrawlerRun[]
-  lists                      AiList[]
-  modelUsageLogs             AiModelUsage[]
-  apiKeys                    ApiKey[]
   profile                    UserProfile?
   defaultWorkspace           Workspace                   @relation("DefaultWorkspace", fields: [defaultWorkspaceId], references: [id], onDelete: Restrict)
   workspaceMemberships       WorkspaceMember[]
   workspaceInvitations       WorkspaceInvitation[]
+  apiKeys                    ApiKey[]
+  aiConversations            AiConversation[]
 
   @@index([defaultWorkspaceId])
 }
@@ -52,8 +47,6 @@ model UserProfile {
   email            String
   firstName        String?
   lastName         String?
-  freeMessages     Int       @default(20)
-  freeStorage      Int       @default(100000)
   business         String?
   position         String?
   userId           String    @unique
@@ -68,7 +61,7 @@ model Workspace {
   updatedAt       DateTime                   @updatedAt
   name            String
   slug            String                     @unique
-  aiProviders     AiServiceProvider[]
+  providers       AiServiceProvider[]
   languageModels  AiLanguageModel[]
   libraries       AiLibrary[]
   assistants      AiAssistant[]
@@ -80,6 +73,7 @@ model Workspace {
   connectorTypes  AiConnectorTypeWorkspace[]
   connectors      AiConnector[]
   automations     AiAutomation[]
+  apiKeys         ApiKey[]
 }
 
 model WorkspaceMember {
@@ -137,12 +131,10 @@ model AiAssistant {
   name                       String
   description                String?
   url                        String?
-  ownerId                    String
   workspaceId                String
   iconUrl                    String?
   languageModelId            String?
   languageModel              AiLanguageModel?            @relation("LanguageModel", fields: [languageModelId], references: [id], onDelete: Restrict)
-  owner                      User                        @relation(fields: [ownerId], references: [id])
   workspace                  Workspace                   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   baseCases                  AiAssistantBaseCase[]
   euActAnswers               AiAssistantEUActAnswers[]
@@ -183,9 +175,7 @@ model AiLibrary {
   name                    String
   description             String?
   url                     String?
-  apiToken                String?
   lastProcessed           DateTime?
-  ownerId                 String
   workspaceId             String
   isPublic                Boolean            @default(true)
   fileConverterOptions    String?
@@ -197,7 +187,6 @@ model AiLibrary {
   embeddingModel          AiLanguageModel?   @relation("EmbeddingModel", fields: [embeddingModelId], references: [id], onDelete: Restrict)
   ocrModel                AiLanguageModel?   @relation("OcrModel", fields: [ocrModelId], references: [id], onDelete: Restrict)
   extractionModel         AiLanguageModel?   @relation("ExtractionModel", fields: [extractionModelId], references: [id], onDelete: Restrict)
-  owner                   User               @relation(fields: [ownerId], references: [id])
   workspace               Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   crawlers                AiLibraryCrawler[]
   files                   AiLibraryFile[]
@@ -205,7 +194,6 @@ model AiLibrary {
   usages                  AiLibraryUsage[]
   listSources             AiListSource[]
   modelUsageLogs          AiModelUsage[]
-  apiKeys                 ApiKey[]
 
   @@index([workspaceId])
 }
@@ -285,12 +273,10 @@ model AiLibraryCrawlerRun {
   startedAt     DateTime          @default(now())
   endedAt       DateTime?
   success       Boolean?
-  runByUserId   String?
   runByCronJob  Boolean           @default(false)
   errorMessage  String?
   stoppedByUser DateTime?
   crawler       AiLibraryCrawler  @relation(fields: [crawlerId], references: [id], onDelete: Cascade)
-  runBy         User?             @relation(fields: [runByUserId], references: [id])
   updates       AiLibraryUpdate[]
 }
 
@@ -332,13 +318,11 @@ model AiLibraryUpdate {
 
 model AiList {
   id              String             @id @default(cuid())
-  ownerId         String
   workspaceId     String
   name            String
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   enrichmentTasks AiEnrichmentTask[]
-  owner           User               @relation(fields: [ownerId], references: [id])
   workspace       Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   fields          AiListField[]
   sources         AiListSource[]
@@ -466,8 +450,8 @@ model AiConversation {
   createdAt               DateTime                    @default(now())
   updatedAt               DateTime                    @updatedAt
   ownerId                 String
+  owner                   User                        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   workspaceId             String
-  owner                   User                        @relation(fields: [ownerId], references: [id])
   workspace               Workspace                   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   conversationInvitations AiConversationInvitation[]
   messages                AiConversationMessage[]
@@ -520,17 +504,17 @@ model AiConversationInvitation {
 }
 
 model ApiKey {
-  id         String    @id @default(cuid())
-  name       String
-  keyHash    String    @unique
-  libraryId  String
-  userId     String
-  createdAt  DateTime  @default(now())
-  lastUsedAt DateTime?
-  library    AiLibrary @relation(fields: [libraryId], references: [id], onDelete: Cascade)
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String    @id @default(cuid())
+  name        String
+  userId      String
+  keyHash     String    @unique
+  workspaceId String
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([libraryId])
+  @@index([workspaceId])
 }
 
 model AiLanguageModel {
@@ -563,7 +547,6 @@ model AiModelUsage {
   id           String          @id @default(cuid())
   createdAt    DateTime        @default(now())
   modelId      String
-  userId       String?
   libraryId    String?
   assistantId  String?
   listId       String?
@@ -576,9 +559,7 @@ model AiModelUsage {
   library      AiLibrary?      @relation(fields: [libraryId], references: [id])
   list         AiList?         @relation(fields: [listId], references: [id])
   model        AiLanguageModel @relation(fields: [modelId], references: [id])
-  user         User?           @relation(fields: [userId], references: [id])
 
-  @@index([userId, createdAt])
   @@index([modelId, createdAt])
   @@index([libraryId, createdAt])
   @@index([createdAt])

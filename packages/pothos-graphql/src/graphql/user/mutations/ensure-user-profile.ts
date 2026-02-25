@@ -28,8 +28,6 @@ builder.mutationField('ensureUserProfile', (t) =>
       return await prisma.userProfile.create({
         data: {
           userId: user.id,
-          freeMessages: 20,
-          freeStorage: 100000,
           email: user.email,
           firstName: user.given_name || '',
           lastName: user.family_name || '',

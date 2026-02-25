@@ -17,7 +17,7 @@ export const subscribeModelCalls = async <E extends ModelCall>(parameters: {
       try {
         const decoded = new TextDecoder().decode(payload)
         const event = ModelCallSchema.parse(JSON.parse(decoded)) as E
-        const healtyService = await providerHealth.getProviderInstanceForDirectCall({
+        const healtyService = await providerHealth.getProviderInstance({
           workspaceId: event.workspaceId,
           modelProvider: event.provider,
           modelName: event.modelName,

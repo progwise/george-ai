@@ -108,7 +108,7 @@ describe.sequential('Create and read extractions with attachments', () => {
       type: 'extraction',
       extractionMethod: 'textExtraction',
     }
-    const attachmentReadStream = await readAttachment(extractionIdentifier, 'attachment.txt')
+    const { stream: attachmentReadStream } = await readAttachment(extractionIdentifier, 'attachment.txt')
 
     const attachmentChunks: Buffer[] = []
     for await (const chunk of attachmentReadStream!) {
@@ -164,7 +164,7 @@ describe.sequential('Create and read extractions with attachments', () => {
 
     const attachmentContents: string[] = []
     for (const attachmentFileName of ['attachment1.txt', 'attachment2.txt', 'attachment3.txt']) {
-      const attachmentReadStream = await readAttachment(extractionIdentifier, attachmentFileName)
+      const { stream: attachmentReadStream } = await readAttachment(extractionIdentifier, attachmentFileName)
 
       const chunks: Buffer[] = []
       for await (const chunk of attachmentReadStream!) {

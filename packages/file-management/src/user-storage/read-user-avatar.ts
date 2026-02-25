@@ -1,7 +1,7 @@
 import { Readable } from 'node:stream'
 
 import { getFilePath, getFileStats } from '../file-system'
-import { logger } from './common'
+import { logger } from './commons'
 import { getUserAvatarNames } from './get-user-avatar-names'
 import { getUserPath } from './get-user-path'
 import { readUserFile } from './read-user-file'

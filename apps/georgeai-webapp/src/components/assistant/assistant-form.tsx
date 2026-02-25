@@ -20,7 +20,6 @@ graphql(`
     name
     iconUrl
     description
-    ownerId
     languageModel {
       id
       provider

@@ -11,6 +11,11 @@ export async function deleteLibrary(workspaceId: string, options: { libraryId: s
 
   try {
     await prisma.$transaction(async (tx) => {
+      await tx.aiLibraryFile.deleteMany({
+        where: {
+          libraryId,
+        },
+      })
       await tx.aiLibrary.deleteMany({
         where: {
           workspaceId,

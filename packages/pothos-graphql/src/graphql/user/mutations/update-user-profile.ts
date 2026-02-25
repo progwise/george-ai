@@ -36,8 +36,6 @@ builder.mutationField('updateUserProfile', (t) =>
         where: { id: profileId },
         data: {
           ...input,
-          freeMessages: input.freeMessages ?? existingProfile.freeMessages,
-          freeStorage: input.freeStorage ?? existingProfile.freeStorage,
         },
       })
     },

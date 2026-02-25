@@ -4,7 +4,7 @@ import { logger } from './commons'
 import { existsFile } from './exists-file'
 
 export function getFilePath(...pathParts: string[]): string {
-  return path.join(...pathParts)
+  return path.resolve(...pathParts)
 }
 
 export async function getFilePathOrThrow(pathParts: string[], errorMessage?: string): Promise<string> {

@@ -73,14 +73,14 @@ describe.sequential('Basic storage tests', () => {
       libraryId: TEST_LIBRARY_ID,
     })
     expect(libraryManifest).toBeDefined()
-    expect(libraryManifest!.storageStats.physicalFileCount).toBe(2)
+    expect(libraryManifest!.storageStats.physicalFileCount).toBe(2) // 1 for library manifest + 1 for document manifest
     expect(libraryManifest!.storageStats.physicalBytes).toBeGreaterThan(0)
   })
 
   it('Should have updated workspace usage after adding a document', async () => {
     const libraryManifest = await getWorkspace(TEST_WORKSPACE_ID)
     expect(libraryManifest).toBeDefined()
-    expect(libraryManifest!.storageStats.physicalFileCount).toBe(2)
+    expect(libraryManifest!.storageStats.physicalFileCount).toBe(3) // 1 for workspace manifest + 1 for library manifest + 1 for document manifest
     expect(libraryManifest!.storageStats.physicalBytes).toBeGreaterThan(0)
   })
 
@@ -103,7 +103,7 @@ describe.sequential('Basic storage tests', () => {
     // await workspaceStorage.reconcile(TEST_WORKSPACE_ID)
     const workspaceManifest = await getWorkspace(TEST_WORKSPACE_ID)
     expect(workspaceManifest).toBeDefined()
-    expect(workspaceManifest!.storageStats.physicalFileCount).toBe(3)
+    expect(workspaceManifest!.storageStats.physicalFileCount).toBe(4) // 1 for workspace manifest + 1 for library manifest + 1 for document manifest + 1 for source file
     expect(workspaceManifest!.storageStats.physicalBytes).toBeGreaterThan(0)
   })
 

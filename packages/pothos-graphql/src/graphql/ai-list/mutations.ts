@@ -23,14 +23,14 @@ builder.mutationField('createList', (t) =>
       const workspaceId = context.workspaceId
       await canWriteWorkspaceOrThrow(workspaceId, context.session.user.id)
       const existingList = await prisma.aiList.findFirst({
-        where: { ownerId: context.session.user.id, name: data.name, workspaceId: context.workspaceId },
+        where: { name: data.name, workspaceId: context.workspaceId },
       })
       if (existingList) {
         throw new Error(`List for current user with name ${data.name} already exists`)
       }
       const newList = await prisma.aiList.create({
         ...query,
-        data: { name: data.name, ownerId: context.session.user.id, workspaceId: context.workspaceId },
+        data: { name: data.name, workspaceId: context.workspaceId },
       })
       return newList
     },

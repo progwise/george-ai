@@ -10,7 +10,6 @@ const aiLibraryDetailQueryDocument = graphql(`
   query aiLibraryDetail($libraryId: String!) {
     library(libraryId: $libraryId) {
       id
-
       ...AiLibraryBase
       ...AiLibraryForm_Library
       manifest {

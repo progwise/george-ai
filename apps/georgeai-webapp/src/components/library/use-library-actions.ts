@@ -7,7 +7,6 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { logger } from './common'
 import {
-  getApiKeysQueryOptions,
   getFileChunksQueryOptions,
   getFilesQueryOptions,
   getLibrariesQueryOptions,
@@ -19,11 +18,9 @@ import {
   deleteLibraryFilesFn,
   deleteLibraryFn,
   dropAllLibraryFilesFn,
-  generateApiKeyFn,
   prepareDesktopFileUploadsFn,
-  processFileFn,
-  processFilesFn,
-  revokeApiKeyFn,
+  processDocumentFn,
+  processDocumentsFn,
   updateLibraryFn,
 } from './server-functions'
 
@@ -72,7 +69,7 @@ export const useLibraryActions = (libraryId: string) => {
     mutationFn: () => deleteLibraryFn({ data: libraryId }),
     onSuccess: async (response, variables) => {
       logger.debug('deleteLibraryMutation success', { response, variables })
-      toastSuccess(t('libraries.deleteSuccess', { name: response.deleteLibrary.name }))
+      toastSuccess(t('libraries.deleteSuccess'))
     },
     onError: (error, variables) => {
       logger.error('deleteLibraryMutation', { error, variables })
@@ -87,35 +84,9 @@ export const useLibraryActions = (libraryId: string) => {
     },
   })
 
-  const generateApiKeyMutation = useMutation({
-    mutationFn: (name: string) => generateApiKeyFn({ data: { libraryId, name } }),
-    onSuccess: (data, variables) => {
-      logger.debug('generateApiKeyMutation success', { data, variables })
-      toastSuccess(t('apiKeys.generateSuccess'))
-      queryClient.invalidateQueries(getApiKeysQueryOptions(libraryId))
-    },
-    onError: (error, variables) => {
-      logger.error('generateApiKeyMutation', { error, variables })
-      toastError(t('toasts.error', { error: error.message }))
-    },
-  })
-
-  const revokeApiKeyMutation = useMutation({
-    mutationFn: (id: string) => revokeApiKeyFn({ data: { id } }),
-    onSuccess: (data, variables) => {
-      logger.debug('revokeApiKeyMutation success', { data, variables })
-      toastSuccess(t('apiKeys.revokeSuccess'))
-      queryClient.invalidateQueries(getApiKeysQueryOptions(libraryId))
-    },
-    onError: (error, variables) => {
-      logger.error('revokeApiKeyMutation', { error, variables })
-      toastError(t('toasts.error', { error: error.message }))
-    },
-  })
-
-  const processFileMutation = useMutation({
-    mutationFn: (data: { requestType: ProcessingRequestType; libraryId: string; fileId: string }) =>
-      processFileFn({ data }),
+  const processDocumentMutation = useMutation({
+    mutationFn: (data: { requestType: ProcessingRequestType; libraryId: string; documentId: string }) =>
+      processDocumentFn({ data }),
     onSuccess: (_data, { requestType }) => {
       logger.debug('processFileMutation success', { requestType })
       toastSuccess(`${requestType} successfully triggered`)
@@ -126,20 +97,15 @@ export const useLibraryActions = (libraryId: string) => {
     },
   })
 
-  const processFilesMutation = useMutation({
-    mutationFn: (data: { requestType: ProcessingRequestType; libraryId: string; fileIds: string[] }) =>
-      processFilesFn({ data }),
+  const processDocumentsMutation = useMutation({
+    mutationFn: (data: { requestType: ProcessingRequestType; libraryId: string; documentIds: string[] }) =>
+      processDocumentsFn({ data }),
+    onSuccess: (_data, { requestType }) => {
+      toastSuccess(`${requestType} successfully triggered`)
+    },
     onError: (error, variables) => {
-      logger.error('Error processing files', { error, variables })
-      toastError(
-        `Error starting  ${variables.fileIds.length} processings: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      )
-    },
-    onSuccess: (_data, variables) => {
-      toastSuccess(`Successfully started ${variables.fileIds.length} file processings`)
-    },
-    onSettled: () => {
-      invalidateQueries()
+      logger.error('processFileMutation', { error, variables })
+      toastError(`Failed to trigger processing: ${error.message}`)
     },
   })
 
@@ -182,8 +148,9 @@ export const useLibraryActions = (libraryId: string) => {
   })
 
   const { mutate: prepareDesktopFileUploadsMutate, isPending: prepareDesktopFilesIsPending } = useMutation({
-    mutationFn: (files: { name: string; type: string; size: number; lastModified: Date; originUri: string }[]) =>
-      prepareDesktopFileUploadsFn({ data: { libraryId, files } }),
+    mutationFn: (
+      files: { name: string; mimeType: string; size: number; modificationDate: Date; originUri: string }[],
+    ) => prepareDesktopFileUploadsFn({ data: { libraryId, files } }),
     onError: (error) => {
       const errorMessage =
         error instanceof Error ? error.message : t('errors.prepareFileUploads', { error: 'Unknown error' })
@@ -212,10 +179,8 @@ export const useLibraryActions = (libraryId: string) => {
   return {
     updateLibrary: updateLibraryMutation.mutate,
     deleteLibrary: deleteLibraryMutation.mutate,
-    generateApiKey: generateApiKeyMutation.mutate,
-    revokeApiKey: revokeApiKeyMutation.mutate,
-    processFile: processFileMutation.mutate,
-    processFiles: processFilesMutation.mutate,
+    processDocument: processDocumentMutation.mutate,
+    processDocuments: processDocumentsMutation.mutate,
     deleteFile: deleteFileMutation.mutate,
     deleteFiles: deleteFilesMutation.mutate,
     dropAllFiles: dropFilesMutation.mutate,
@@ -224,10 +189,7 @@ export const useLibraryActions = (libraryId: string) => {
     isPending:
       updateLibraryMutation.isPending ||
       deleteLibraryMutation.isPending ||
-      generateApiKeyMutation.isPending ||
-      revokeApiKeyMutation.isPending ||
-      processFileMutation.isPending ||
-      processFilesMutation.isPending ||
+      processDocumentMutation.isPending ||
       deleteFileMutation.isPending ||
       deleteFilesMutation.isPending ||
       dropFilesMutation.isPending ||

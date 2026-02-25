@@ -21,7 +21,6 @@ import { getAssistantQueryOptions } from './get-assistant'
 graphql(`
   fragment AssistantLibraries_Assistant on AiAssistant {
     id
-    ownerId
   }
 `)
 

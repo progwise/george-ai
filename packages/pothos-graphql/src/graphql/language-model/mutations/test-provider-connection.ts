@@ -72,7 +72,7 @@ builder.mutationField('testProviderConnection', (t) =>
         }
       }
 
-      const testResult = await modelProvider.directCall(request)
+      const testResult = await modelProvider.callProviderInstance(request)
 
       return {
         success: true,

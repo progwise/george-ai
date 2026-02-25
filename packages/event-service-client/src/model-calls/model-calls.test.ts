@@ -1,5 +1,5 @@
 import { EmbeddingCall, EmbeddingResponse, ModelCall, ModelResponse } from '.'
-import { initializeEventServiceClient, providerHealth } from '..'
+import { isEventServiceClientInitialized, providerHealth } from '..'
 import { deleteModelCallConsumer, ensureModelCallConsumer } from './consumers'
 import { publishProviderCallEvent } from './publish'
 import { directModelCall, respondDirectModelCall } from './request'
@@ -40,8 +40,8 @@ describe
     }
 
     beforeAll(async () => {
-      await initializeEventServiceClient()
-      await providerHealth.writeProviderInstanceHealth(TEST_PROVIDER_INSTANCE_HEALTH)
+      await isEventServiceClientInitialized()
+      await providerHealth.writeProviderInstance(TEST_PROVIDER_INSTANCE_HEALTH)
     })
 
     afterAll(async () => {
@@ -120,7 +120,7 @@ describe
             throw new Error('Received event for wrong workspace')
           }
           console.log('Handling direct model call event:', { event })
-          const healtyService = await providerHealth.getProviderInstanceForDirectCall({
+          const healtyService = await providerHealth.getProviderInstance({
             workspaceId: TEST_WORKSPACE_ID,
             modelProvider: 'ollama',
             modelName: TEST_CONFIG.ollama.embeddingModelName!,

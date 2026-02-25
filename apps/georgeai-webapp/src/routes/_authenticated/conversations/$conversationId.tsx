@@ -9,7 +9,7 @@ import { ConversationParticipantsDialogButton } from '../../../components/conver
 import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
 import { getConversationQueryOptions } from '../../../components/conversation/get-conversation'
 import { MenuIcon } from '../../../icons/menu-icon'
-import { getProfileQueryOptions, getUsersQueryOptions } from '../../../server-functions/users'
+import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/conversations/$conversationId')({
   component: RouteComponent,
@@ -29,7 +29,6 @@ function RouteComponent() {
     data: { aiAssistants },
   } = useSuspenseQuery(getAiAssistantsQueryOptions())
   const { data: conversation } = useSuspenseQuery(getConversationQueryOptions(conversationId))
-  const { data: profile } = useSuspenseQuery(getProfileQueryOptions())
 
   return (
     <div className="drawer-content flex flex-col">
@@ -57,7 +56,7 @@ function RouteComponent() {
 
       <div className="flex h-full flex-col">
         <ConversationHistory conversation={conversation} userId={user.id} />
-        <ConversationForm conversation={conversation} user={user} profile={profile ?? undefined} />
+        <ConversationForm conversation={conversation} user={user} />
       </div>
     </div>
   )

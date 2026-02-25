@@ -1,8 +1,11 @@
 import { eventClient } from '../client'
 import { getEventSubject, logger } from './common'
-import { ProcessingRequest, ProcessingStatus } from './schema'
+import { EmbedDocumentRequest, EnrichItemRequest, ExtractDocumentRequest, ProcessingStatus } from './schema'
 
-export async function publishProcessingRequest(event: ProcessingRequest, timeoutMs?: number) {
+export async function publishProcessingRequest(
+  event: ExtractDocumentRequest | EmbedDocumentRequest | EnrichItemRequest,
+  timeoutMs?: number,
+) {
   const subject = getEventSubject({ ...event, eventType: 'request' })
   const payload = new TextEncoder().encode(JSON.stringify(event))
   logger.debug('Publishing request event', { subject, event })

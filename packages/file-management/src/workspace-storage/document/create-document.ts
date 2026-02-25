@@ -36,15 +36,15 @@ export async function createDocument(
     version: 1,
     documentId: identifier.documentId,
     name: args.name,
-    created: new Date().toISOString(),
+    created: new Date(),
     storageStats: StorageStatsSchema.parse({}),
     mimeType: args.mimeType,
     creator: args.creator,
     extractions: [],
     origin: {
       uri: args.uri,
-      creationDate: args.creationDate?.toISOString(),
-      lastModifiedDate: args.lastModifiedDate?.toISOString(),
+      creationDate: args.creationDate,
+      lastModifiedDate: args.lastModifiedDate,
       author: args.creator,
       hash: args.originHash,
     },
@@ -54,11 +54,11 @@ export async function createDocument(
     type: 'document',
   }
 
-  await createEntry(documentManifest)
+  const savedDocumentManifest = await createEntry(documentManifest)
 
   await updateStats(libraryManifest, {
-    stats: documentManifest.storageStats,
+    stats: savedDocumentManifest.storageStats,
     operation: 'add',
   })
-  return documentManifest
+  return savedDocumentManifest
 }

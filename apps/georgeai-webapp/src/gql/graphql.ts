@@ -143,7 +143,6 @@ export type AiAssistant = {
   id: Scalars['ID']['output']
   languageModel?: Maybe<AiLanguageModel>
   name: Scalars['String']['output']
-  ownerId: Scalars['ID']['output']
   updatedAt?: Maybe<Scalars['DateTime']['output']>
   url?: Maybe<Scalars['String']['output']>
 }
@@ -458,8 +457,6 @@ export type AiLibraryCrawlerRun = {
   errorMessage?: Maybe<Scalars['String']['output']>
   filteredUpdatesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
-  runBy?: Maybe<User>
-  runByUserId?: Maybe<Scalars['ID']['output']>
   startedAt: Scalars['DateTime']['output']
   stoppedByUser?: Maybe<Scalars['DateTime']['output']>
   success?: Maybe<Scalars['Boolean']['output']>
@@ -552,8 +549,6 @@ export type AiList = {
   fields: Array<AiListField>
   id: Scalars['ID']['output']
   name: Scalars['String']['output']
-  owner: User
-  ownerId: Scalars['String']['output']
   sources: Array<AiListSource>
   updatedAt?: Maybe<Scalars['DateTime']['output']>
 }
@@ -788,11 +783,11 @@ export type ApiKey = {
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
   lastUsedAt?: Maybe<Scalars['DateTime']['output']>
-  library: AiLibrary
-  libraryId: Scalars['String']['output']
   name: Scalars['String']['output']
   user: User
   userId: Scalars['String']['output']
+  workspace: Workspace
+  workspaceId: Scalars['String']['output']
 }
 
 export type ApiKeyWithSecret = {
@@ -800,8 +795,9 @@ export type ApiKeyWithSecret = {
   createdAt: Scalars['DateTime']['output']
   id: Scalars['ID']['output']
   key: Scalars['String']['output']
-  libraryId: Scalars['String']['output']
   name: Scalars['String']['output']
+  userId: Scalars['String']['output']
+  workspaceId: Scalars['String']['output']
 }
 
 export type AssistantParticipant = AiConversationParticipant & {
@@ -1456,6 +1452,12 @@ export type ListItemsQueryResult = {
   unfilteredCount: Scalars['Int']['output']
 }
 
+export type LoginResult = {
+  __typename?: 'LoginResult'
+  avatarUrl?: Maybe<Scalars['String']['output']>
+  userId?: Maybe<Scalars['String']['output']>
+}
+
 export type ManagedUser = {
   __typename?: 'ManagedUser'
   activationDate?: Maybe<Scalars['DateTime']['output']>
@@ -1551,7 +1553,7 @@ export type Mutation = {
   deleteConnector: Scalars['Boolean']['output']
   deleteFile: AiLibraryFile
   deleteFiles: Scalars['Int']['output']
-  deleteLibrary: AiLibrary
+  deleteLibrary: Scalars['Boolean']['output']
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
   deleteModelProvider: Scalars['Boolean']['output']
@@ -1565,11 +1567,10 @@ export type Mutation = {
   inviteWorkspaceMember: WorkspaceInvitation
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveWorkspace: Scalars['Boolean']['output']
-  login: User
+  login: LoginResult
   migrateWorkspace?: Maybe<Scalars['Boolean']['output']>
-  prepareUpload: AiLibraryFile
-  processFile: ProcessFileResult
-  processFiles: ProcessFilesResult
+  prepareUpload: PrepareUploadResult
+  processDocument: ProcessDocumentResult
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeListField: AiListField
@@ -1598,6 +1599,7 @@ export type Mutation = {
   toggleModelProvider: AiServiceProvider
   triggerAutomation: TriggerAutomationResult
   triggerAutomationItem: TriggerAutomationResult
+  triggerExtraction: TriggerExtractionResult
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibraryCrawler: AiLibraryCrawler
@@ -1718,7 +1720,8 @@ export type MutationCreateEnrichmentTasksArgs = {
 }
 
 export type MutationCreateLibraryArgs = {
-  data: LibraryInput
+  description?: InputMaybe<Scalars['String']['input']>
+  name: Scalars['String']['input']
 }
 
 export type MutationCreateListArgs = {
@@ -1804,7 +1807,6 @@ export type MutationEnsureUserProfileArgs = {
 }
 
 export type MutationGenerateApiKeyArgs = {
-  libraryId: Scalars['String']['input']
   name: Scalars['String']['input']
 }
 
@@ -1830,17 +1832,13 @@ export type MutationLoginArgs = {
 }
 
 export type MutationPrepareUploadArgs = {
-  data: PrepareUploadInput
-}
-
-export type MutationProcessFileArgs = {
-  fileId: Scalars['String']['input']
+  documentId?: InputMaybe<Scalars['String']['input']>
+  input: PrepareUploadInput
   libraryId: Scalars['String']['input']
-  requestType: ProcessingRequestType
 }
 
-export type MutationProcessFilesArgs = {
-  fileIds: Array<Scalars['String']['input']>
+export type MutationProcessDocumentArgs = {
+  documentId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
   requestType: ProcessingRequestType
 }
@@ -1954,6 +1952,12 @@ export type MutationTriggerAutomationItemArgs = {
   automationItemId: Scalars['ID']['input']
 }
 
+export type MutationTriggerExtractionArgs = {
+  documentId: Scalars['String']['input']
+  extractionMethod: ExtractionMethod
+  libraryId: Scalars['String']['input']
+}
+
 export type MutationUnhideMessageArgs = {
   messageId: Scalars['String']['input']
 }
@@ -2041,21 +2045,23 @@ export type MutationValidateSharePointConnectionArgs = {
 }
 
 export type PrepareUploadInput = {
-  libraryId: Scalars['String']['input']
   mimeType: Scalars['String']['input']
+  modificationDate?: InputMaybe<Scalars['DateTime']['input']>
   name: Scalars['String']['input']
-  originModificationDate: Scalars['DateTime']['input']
   originUri: Scalars['String']['input']
-  size: Scalars['Int']['input']
+  size?: InputMaybe<Scalars['Int']['input']>
 }
 
-export type ProcessFileResult = {
-  __typename?: 'ProcessFileResult'
-  success?: Maybe<Scalars['Boolean']['output']>
+export type PrepareUploadResult = {
+  __typename?: 'PrepareUploadResult'
+  documentId: Scalars['String']['output']
+  libraryId: Scalars['String']['output']
+  uploadId: Scalars['String']['output']
+  workspaceId: Scalars['String']['output']
 }
 
-export type ProcessFilesResult = {
-  __typename?: 'ProcessFilesResult'
+export type ProcessDocumentResult = {
+  __typename?: 'ProcessDocumentResult'
   success?: Maybe<Scalars['Boolean']['output']>
 }
 
@@ -2146,6 +2152,7 @@ export type Query = {
   connectorTypes: Array<ConnectorTypeInfo>
   connectors: Array<AiConnector>
   countFiles: Scalars['Int']['output']
+  currentUser: User
   embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
   extraction?: Maybe<ExtractionManifest>
   file: AiLibraryFile
@@ -2168,6 +2175,7 @@ export type Query = {
   users: Array<User>
   vectorStore: VectorStore
   version?: Maybe<Scalars['String']['output']>
+  workers: Array<WorkerEntry>
   workspace: Workspace
   workspaceConnectorTypes: Array<AiConnectorTypeWorkspace>
   workspaceInvitation: WorkspaceInvitation
@@ -2271,10 +2279,6 @@ export type QueryAiModelUsageStatsArgs = {
   modelId?: InputMaybe<Scalars['String']['input']>
   startDate?: InputMaybe<Scalars['DateTime']['input']>
   usageType?: InputMaybe<Scalars['String']['input']>
-}
-
-export type QueryApiKeysArgs = {
-  libraryId: Scalars['String']['input']
 }
 
 export type QueryAutomationArgs = {
@@ -2577,6 +2581,11 @@ export type TriggerAutomationResult = {
   success: Scalars['Boolean']['output']
 }
 
+export type TriggerExtractionResult = {
+  __typename?: 'TriggerExtractionResult'
+  success: Scalars['Boolean']['output']
+}
+
 export type UpdateAiLanguageModelInput = {
   adminNotes?: InputMaybe<Scalars['String']['input']>
   enabled: Scalars['Boolean']['input']
@@ -2590,6 +2599,7 @@ export type UpdateStats = {
 
 export type User = {
   __typename?: 'User'
+  apiKeyCount: Scalars['Int']['output']
   avatarUrl?: Maybe<Scalars['String']['output']>
   createdAt: Scalars['DateTime']['output']
   defaultWorkspaceId: Scalars['ID']['output']
@@ -2615,14 +2625,10 @@ export type UserProfile = {
   email: Scalars['String']['output']
   expiresAt?: Maybe<Scalars['DateTime']['output']>
   firstName?: Maybe<Scalars['String']['output']>
-  freeMessages: Scalars['Int']['output']
-  freeStorage: Scalars['Int']['output']
   id: Scalars['ID']['output']
   lastName?: Maybe<Scalars['String']['output']>
   position?: Maybe<Scalars['String']['output']>
   updatedAt: Scalars['DateTime']['output']
-  usedMessages?: Maybe<Scalars['Int']['output']>
-  usedStorage?: Maybe<Scalars['BigInt']['output']>
   userId: Scalars['ID']['output']
 }
 
@@ -2657,9 +2663,17 @@ export type VectorStore = {
   warnings?: Maybe<Array<Scalars['String']['output']>>
 }
 
+export type WorkerEntry = {
+  __typename?: 'WorkerEntry'
+  lastHeartbeat?: Maybe<Scalars['String']['output']>
+  workerId?: Maybe<Scalars['String']['output']>
+  workerType?: Maybe<WorkerType>
+}
+
 export enum WorkerType {
   AiHealthManagement = 'AI_HEALTH_MANAGEMENT',
   AiProviderCalling = 'AI_PROVIDER_CALLING',
+  WorkerRegistry = 'WORKER_REGISTRY',
   WorkspaceProcessing = 'WORKSPACE_PROCESSING',
 }
 
@@ -2951,34 +2965,42 @@ export enum __DirectiveLocation {
   InputFieldDefinition = 'INPUT_FIELD_DEFINITION',
 }
 
+export type CurrentUserFragment = {
+  __typename?: 'User'
+  id: string
+  name?: string | null
+  username: string
+  email: string
+  avatarUrl?: string | null
+  isAdmin: boolean
+  defaultWorkspaceId: string
+  lastLogin?: string | null
+}
+
+export type CurrentUserQueryVariables = Exact<{ [key: string]: never }>
+
+export type CurrentUserQuery = {
+  __typename?: 'Query'
+  currentUser: {
+    __typename?: 'User'
+    id: string
+    name?: string | null
+    username: string
+    email: string
+    avatarUrl?: string | null
+    isAdmin: boolean
+    defaultWorkspaceId: string
+    lastLogin?: string | null
+  }
+}
+
 export type LoginMutationVariables = Exact<{
   jwtToken: Scalars['String']['input']
 }>
 
 export type LoginMutation = {
   __typename?: 'Mutation'
-  login: {
-    __typename?: 'User'
-    id: string
-    username: string
-    name?: string | null
-    createdAt: string
-    email: string
-    given_name?: string | null
-    family_name?: string | null
-    avatarUrl?: string | null
-    isAdmin: boolean
-    defaultWorkspaceId: string
-    profile?: {
-      __typename?: 'UserProfile'
-      firstName?: string | null
-      lastName?: string | null
-      business?: string | null
-      position?: string | null
-      confirmationDate?: string | null
-      activationDate?: string | null
-    } | null
-  }
+  login: { __typename?: 'LoginResult'; userId?: string | null; avatarUrl?: string | null }
 }
 
 export type EditModelButton_LanguageModelFragment = {
@@ -3253,6 +3275,18 @@ export type GetAiServiceProvidersQuery = {
     vramGb?: number | null
     createdBy?: string | null
     updatedBy?: string | null
+  }>
+}
+
+export type WorkersQueryVariables = Exact<{ [key: string]: never }>
+
+export type WorkersQuery = {
+  __typename?: 'Query'
+  workers: Array<{
+    __typename?: 'WorkerEntry'
+    workerId?: string | null
+    workerType?: WorkerType | null
+    lastHeartbeat?: string | null
   }>
 }
 
@@ -3692,7 +3726,6 @@ export type AssistantForm_AssistantFragment = {
   name: string
   iconUrl?: string | null
   description?: string | null
-  ownerId: string
   updatedAt?: string | null
   languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
 }
@@ -3707,7 +3740,7 @@ export type UpdateAssistantMutation = {
   updateAiAssistant?: { __typename?: 'AiAssistant'; id: string } | null
 }
 
-export type AssistantLibraries_AssistantFragment = { __typename?: 'AiAssistant'; id: string; ownerId: string }
+export type AssistantLibraries_AssistantFragment = { __typename?: 'AiAssistant'; id: string }
 
 export type AssistantLibraries_LibraryUsageFragment = {
   __typename?: 'AiLibraryUsage'
@@ -3771,7 +3804,6 @@ export type AiAssistantDetailsQuery = {
     name: string
     iconUrl?: string | null
     description?: string | null
-    ownerId: string
     updatedAt?: string | null
     languageModel?: { __typename?: 'AiLanguageModel'; id: string; provider: string; name: string } | null
     baseCases: Array<{
@@ -3799,7 +3831,6 @@ export type AssistantBaseFragment = {
   description?: string | null
   iconUrl?: string | null
   updatedAt?: string | null
-  ownerId: string
 }
 
 export type AiAssistantCardsQueryVariables = Exact<{ [key: string]: never }>
@@ -3813,7 +3844,6 @@ export type AiAssistantCardsQuery = {
     description?: string | null
     iconUrl?: string | null
     updatedAt?: string | null
-    ownerId: string
   }>
 }
 
@@ -4309,8 +4339,8 @@ export type ConversationParticipants_AssistantFragment = { __typename?: 'AiAssis
 
 export type ConversationSelector_ConversationFragment = {
   __typename?: 'AiConversation'
-  id: string
   ownerId: string
+  id: string
   createdAt: string
   updatedAt?: string | null
   owner: { __typename?: 'User'; id: string; name?: string | null }
@@ -4505,10 +4535,8 @@ export type CrawlerRuns_CrawlerRunsTableFragment = {
   success?: boolean | null
   stoppedByUser?: string | null
   errorMessage?: string | null
-  runByUserId?: string | null
   crawler: { __typename?: 'AiLibraryCrawler'; id: string; libraryId: string; uri: string; uriType: CrawlerUriType }
   updateStats: Array<{ __typename?: 'UpdateStats'; updateType?: string | null; count?: number | null }>
-  runBy?: { __typename?: 'User'; id: string; name?: string | null; email: string } | null
 }
 
 export type SelectedCrawler_CrawlerUpdateDialogFragment = {
@@ -4612,7 +4640,6 @@ export type GetCrawlerRunQuery = {
     success?: boolean | null
     stoppedByUser?: string | null
     errorMessage?: string | null
-    runByUserId?: string | null
     updatesCount: number
     filteredUpdatesCount: number
     updateStats: Array<{ __typename?: 'UpdateStats'; updateType?: string | null; count?: number | null }>
@@ -4660,10 +4687,8 @@ export type GetCrawlerRunsQuery = {
       success?: boolean | null
       stoppedByUser?: string | null
       errorMessage?: string | null
-      runByUserId?: string | null
       crawler: { __typename?: 'AiLibraryCrawler'; id: string; uri: string; uriType: CrawlerUriType; libraryId: string }
       updateStats: Array<{ __typename?: 'UpdateStats'; updateType?: string | null; count?: number | null }>
-      runBy?: { __typename?: 'User'; id: string; name?: string | null; email: string } | null
     }>
   }
 }
@@ -5072,22 +5097,6 @@ export type AiLibraryForm_LibraryFragment = {
 
 export type LibraryMenu_AiLibraryFragment = { __typename?: 'AiLibrary'; id: string; name: string; filesCount: number }
 
-export type GetApiKeysQueryVariables = Exact<{
-  libraryId: Scalars['String']['input']
-}>
-
-export type GetApiKeysQuery = {
-  __typename?: 'Query'
-  apiKeys: Array<{
-    __typename?: 'ApiKey'
-    id: string
-    name: string
-    createdAt: string
-    lastUsedAt?: string | null
-    libraryId: string
-  }>
-}
-
 export type GetExtractionQueryVariables = Exact<{
   fileId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
@@ -5488,22 +5497,22 @@ export type DeleteLibraryMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
 
-export type DeleteLibraryMutation = {
-  __typename?: 'Mutation'
-  deleteLibrary: { __typename?: 'AiLibrary'; id: string; name: string; filesCount: number }
-}
+export type DeleteLibraryMutation = { __typename?: 'Mutation'; deleteLibrary: boolean }
 
 export type PrepareDesktopFileMutationVariables = Exact<{
-  file: PrepareUploadInput
+  libraryId: Scalars['String']['input']
+  documentId?: InputMaybe<Scalars['String']['input']>
+  input: PrepareUploadInput
 }>
 
 export type PrepareDesktopFileMutation = {
   __typename?: 'Mutation'
   prepareUpload: {
-    __typename?: 'AiLibraryFile'
-    id: string
+    __typename?: 'PrepareUploadResult'
+    workspaceId: string
     libraryId: string
-    library: { __typename?: 'AiLibrary'; workspaceId: string }
+    documentId: string
+    uploadId: string
   }
 }
 
@@ -5514,25 +5523,9 @@ export type CancelFileUploadMutationVariables = Exact<{
 
 export type CancelFileUploadMutation = { __typename?: 'Mutation'; cancelUpload: boolean }
 
-export type GenerateApiKeyMutationVariables = Exact<{
-  libraryId: Scalars['String']['input']
-  name: Scalars['String']['input']
-}>
-
-export type GenerateApiKeyMutation = {
-  __typename?: 'Mutation'
-  generateApiKey: {
-    __typename?: 'ApiKeyWithSecret'
-    id: string
-    name: string
-    key: string
-    libraryId: string
-    createdAt: string
-  }
-}
-
 export type CreateLibraryMutationVariables = Exact<{
-  data: LibraryInput
+  name: Scalars['String']['input']
+  description?: InputMaybe<Scalars['String']['input']>
 }>
 
 export type CreateLibraryMutation = {
@@ -5540,33 +5533,44 @@ export type CreateLibraryMutation = {
   createLibrary?: { __typename?: 'AiLibrary'; id: string; name: string } | null
 }
 
-export type ProcessFileMutationVariables = Exact<{
-  requestType: ProcessingRequestType
+export type PrepareDocumentUploadMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
+  documentId?: InputMaybe<Scalars['String']['input']>
+  input: PrepareUploadInput
 }>
 
-export type ProcessFileMutation = {
+export type PrepareDocumentUploadMutation = {
   __typename?: 'Mutation'
-  processFile: { __typename?: 'ProcessFileResult'; success?: boolean | null }
+  prepareUpload: {
+    __typename?: 'PrepareUploadResult'
+    workspaceId: string
+    libraryId: string
+    documentId: string
+    uploadId: string
+  }
 }
 
-export type ProcessFilesMutationVariables = Exact<{
+export type ProcessDocumentMutationVariables = Exact<{
   requestType: ProcessingRequestType
   libraryId: Scalars['String']['input']
-  fileIds: Array<Scalars['String']['input']> | Scalars['String']['input']
+  documentId: Scalars['String']['input']
 }>
 
-export type ProcessFilesMutation = {
+export type ProcessDocumentMutation = {
   __typename?: 'Mutation'
-  processFiles: { __typename?: 'ProcessFilesResult'; success?: boolean | null }
+  processDocument: { __typename?: 'ProcessDocumentResult'; success?: boolean | null }
 }
 
-export type RevokeApiKeyMutationVariables = Exact<{
-  id: Scalars['String']['input']
+export type TriggerExtractionMutationVariables = Exact<{
+  extractionMethod: ExtractionMethod
+  libraryId: Scalars['String']['input']
+  documentId: Scalars['String']['input']
 }>
 
-export type RevokeApiKeyMutation = { __typename?: 'Mutation'; revokeApiKey: boolean }
+export type TriggerExtractionMutation = {
+  __typename?: 'Mutation'
+  triggerExtraction: { __typename?: 'TriggerExtractionResult'; success: boolean }
+}
 
 export type ChangeLibraryMutationVariables = Exact<{
   id: Scalars['String']['input']
@@ -5589,13 +5593,21 @@ export type ChangeLibraryMutation = {
   }
 }
 
-export type PrepareFileMutationVariables = Exact<{
-  file: PrepareUploadInput
+export type PrepareGoogleDriveFileMutationVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  documentId?: InputMaybe<Scalars['String']['input']>
+  input: PrepareUploadInput
 }>
 
-export type PrepareFileMutation = {
+export type PrepareGoogleDriveFileMutation = {
   __typename?: 'Mutation'
-  prepareUpload: { __typename?: 'AiLibraryFile'; id: string }
+  prepareUpload: {
+    __typename?: 'PrepareUploadResult'
+    workspaceId: string
+    libraryId: string
+    documentId: string
+    uploadId: string
+  }
 }
 
 export type LibraryUpdatesListQueryVariables = Exact<{
@@ -5700,7 +5712,6 @@ export type ListEditForm_ListFragment = {
   __typename?: 'AiList'
   id: string
   name: string
-  ownerId: string
   createdAt: string
   updatedAt?: string | null
 }
@@ -6028,7 +6039,7 @@ export type ListFieldsTable_FieldFragment = {
   contextFullContents: Array<{ __typename?: 'AiListFieldContext'; id: string; maxContentTokens?: number | null }>
 }
 
-export type ListMenu_AiListFragment = { __typename?: 'AiList'; id: string; name: string; ownerId: string }
+export type ListMenu_AiListFragment = { __typename?: 'AiList'; id: string; name: string }
 
 export type ListMenu_AiListsFragment = { __typename?: 'AiList'; id: string; name: string }
 
@@ -6250,7 +6261,6 @@ export type GetListQuery = {
   aiList: {
     __typename?: 'AiList'
     id: string
-    ownerId: string
     createdAt: string
     updatedAt?: string | null
     name: string
@@ -6303,26 +6313,13 @@ export type GetListQuery = {
   }
 }
 
-export type ListsBaseFragment = {
-  __typename?: 'AiList'
-  id: string
-  ownerId: string
-  createdAt: string
-  updatedAt?: string | null
-}
+export type ListsBaseFragment = { __typename?: 'AiList'; id: string; createdAt: string; updatedAt?: string | null }
 
 export type GetUserListsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetUserListsQuery = {
   __typename?: 'Query'
-  aiLists: Array<{
-    __typename?: 'AiList'
-    id: string
-    ownerId: string
-    createdAt: string
-    updatedAt?: string | null
-    name: string
-  }>
+  aiLists: Array<{ __typename?: 'AiList'; id: string; createdAt: string; updatedAt?: string | null; name: string }>
 }
 
 export type AddListFieldMutationVariables = Exact<{
@@ -6638,10 +6635,6 @@ export type UserProfileForm_UserProfileFragment = {
   email: string
   firstName?: string | null
   lastName?: string | null
-  freeMessages: number
-  usedMessages?: number | null
-  freeStorage: number
-  usedStorage?: any | null
   createdAt: string
   updatedAt: string
   confirmationDate?: string | null
@@ -6659,6 +6652,20 @@ export type SaveUserProfileMutationVariables = Exact<{
 export type SaveUserProfileMutation = {
   __typename?: 'Mutation'
   updateUserProfile?: { __typename?: 'UserProfile'; id: string } | null
+}
+
+export type GetApiKeysQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetApiKeysQuery = {
+  __typename?: 'Query'
+  apiKeys: Array<{
+    __typename?: 'ApiKey'
+    id: string
+    name: string
+    createdAt: string
+    lastUsedAt?: string | null
+    workspaceId: string
+  }>
 }
 
 export type GetWorkspaceEmbeddingStatisticsQueryVariables = Exact<{
@@ -6933,6 +6940,22 @@ export type DeleteWorkspaceMutationVariables = Exact<{ [key: string]: never }>
 
 export type DeleteWorkspaceMutation = { __typename?: 'Mutation'; deleteWorkspace: boolean }
 
+export type GenerateApiKeyMutationVariables = Exact<{
+  name: Scalars['String']['input']
+}>
+
+export type GenerateApiKeyMutation = {
+  __typename?: 'Mutation'
+  generateApiKey: {
+    __typename?: 'ApiKeyWithSecret'
+    id: string
+    name: string
+    key: string
+    workspaceId: string
+    createdAt: string
+  }
+}
+
 export type InviteWorkspaceMemberMutationVariables = Exact<{
   workspaceId: Scalars['ID']['input']
   email: Scalars['String']['input']
@@ -6973,6 +6996,12 @@ export type RemoveWorkspaceMemberMutation = {
   }
 }
 
+export type RevokeApiKeyMutationVariables = Exact<{
+  id: Scalars['String']['input']
+}>
+
+export type RevokeApiKeyMutation = { __typename?: 'Mutation'; revokeApiKey: boolean }
+
 export type RevokeWorkspaceInvitationMutationVariables = Exact<{
   invitationId: Scalars['ID']['input']
 }>
@@ -7007,10 +7036,6 @@ export type UserProfileQuery = {
     email: string
     firstName?: string | null
     lastName?: string | null
-    freeMessages: number
-    usedMessages?: number | null
-    freeStorage: number
-    usedStorage?: any | null
     createdAt: string
     updatedAt: string
     activationDate?: string | null
@@ -7891,10 +7916,6 @@ export type UserProfileFragment = {
   lastName?: string | null
   business?: string | null
   position?: string | null
-  freeMessages: number
-  usedMessages?: number | null
-  freeStorage: number
-  usedStorage?: any | null
   createdAt: string
   updatedAt: string
   confirmationDate?: string | null
@@ -7915,10 +7936,6 @@ export type GetUserProfileQuery = {
     lastName?: string | null
     business?: string | null
     position?: string | null
-    freeMessages: number
-    usedMessages?: number | null
-    freeStorage: number
-    usedStorage?: any | null
     createdAt: string
     updatedAt: string
     confirmationDate?: string | null
@@ -7975,10 +7992,6 @@ export type AdminUserByIdQuery = {
       id: string
       userId: string
       email: string
-      freeMessages: number
-      usedMessages?: number | null
-      freeStorage: number
-      usedStorage?: any | null
       createdAt: string
       updatedAt: string
       expiresAt?: string | null
@@ -7986,6 +7999,29 @@ export type AdminUserByIdQuery = {
   } | null
 }
 
+export const CurrentUserFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CurrentUser' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'defaultWorkspaceId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastLogin' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CurrentUserFragment, unknown>
 export const EditModelButton_LanguageModelFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -8601,7 +8637,6 @@ export const AssistantForm_AssistantFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'languageModel' },
@@ -8627,13 +8662,7 @@ export const AssistantLibraries_AssistantFragmentDoc = {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AssistantLibraries_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-        ],
-      },
+      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
     },
   ],
 } as unknown as DocumentNode<AssistantLibraries_AssistantFragment, unknown>
@@ -8699,7 +8728,6 @@ export const AssistantBaseFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
         ],
       },
     },
@@ -9108,6 +9136,7 @@ export const ConversationSelector_ConversationFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationBase' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'owner' },
@@ -9787,19 +9816,6 @@ export const CrawlerRuns_CrawlerRunsTableFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'stoppedByUser' } },
           { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'runByUserId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'runBy' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
-              ],
-            },
-          },
         ],
       },
     },
@@ -10881,7 +10897,6 @@ export const ListEditForm_ListFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -12190,7 +12205,6 @@ export const ListMenu_AiListFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
         ],
       },
     },
@@ -12263,7 +12277,6 @@ export const ListsBaseFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -12286,10 +12299,6 @@ export const UserProfileForm_UserProfileFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
@@ -12860,10 +12869,6 @@ export const UserProfileFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'business' } },
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
@@ -12874,6 +12879,47 @@ export const UserProfileFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<UserProfileFragment, unknown>
+export const CurrentUserDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'currentUser' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'currentUser' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'CurrentUser' } }],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'CurrentUser' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'defaultWorkspaceId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'lastLogin' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CurrentUserQuery, CurrentUserQueryVariables>
 export const LoginDocument = {
   kind: 'Document',
   definitions: [
@@ -12903,41 +12949,9 @@ export const LoginDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'User' } }],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'User' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'username' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'email' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'given_name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'family_name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'defaultWorkspaceId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'profile' },
-            selectionSet: {
-              kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'business' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'activationDate' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
               ],
             },
           },
@@ -13730,6 +13744,33 @@ export const GetAiServiceProvidersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetAiServiceProvidersQuery, GetAiServiceProvidersQueryVariables>
+export const WorkersDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'workers' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workers' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'workerId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'workerType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastHeartbeat' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WorkersQuery, WorkersQueryVariables>
 export const StartQueueWorkerDocument = {
   kind: 'Document',
   definitions: [
@@ -15269,7 +15310,6 @@ export const AiAssistantDetailsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'languageModel' },
@@ -15302,13 +15342,7 @@ export const AiAssistantDetailsDocument = {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'AssistantLibraries_Assistant' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiAssistant' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
-        ],
-      },
+      selectionSet: { kind: 'SelectionSet', selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }] },
     },
     {
       kind: 'FragmentDefinition',
@@ -15394,7 +15428,6 @@ export const AiAssistantCardsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
           { kind: 'Field', name: { kind: 'Name', value: 'iconUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
         ],
       },
     },
@@ -16640,6 +16673,7 @@ export const GetUserConversationsDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ConversationBase' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           {
             kind: 'Field',
             name: { kind: 'Name', value: 'owner' },
@@ -16759,7 +16793,6 @@ export const GetCrawlerRunDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'success' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'stoppedByUser' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'runByUserId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'updatesCount' } },
                 {
                   kind: 'Field',
@@ -16972,19 +17005,6 @@ export const GetCrawlerRunsDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'success' } },
           { kind: 'Field', name: { kind: 'Name', value: 'stoppedByUser' } },
           { kind: 'Field', name: { kind: 'Name', value: 'errorMessage' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'runByUserId' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'runBy' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'email' } },
-              ],
-            },
-          },
         ],
       },
     },
@@ -17458,49 +17478,6 @@ export const UpdateAiLibraryCrawlerDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateAiLibraryCrawlerMutation, UpdateAiLibraryCrawlerMutationVariables>
-export const GetApiKeysDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetApiKeys' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'apiKeys' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'lastUsedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetApiKeysQuery, GetApiKeysQueryVariables>
 export const GetExtractionDocument = {
   kind: 'Document',
   definitions: [
@@ -18851,14 +18828,6 @@ export const DeleteLibraryDocument = {
                 value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
             ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
-              ],
-            },
           },
         ],
       },
@@ -18875,7 +18844,17 @@ export const PrepareDesktopFileDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
           type: {
             kind: 'NonNullType',
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'PrepareUploadInput' } },
@@ -18891,23 +18870,27 @@ export const PrepareDesktopFileDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'documentId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'library' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [{ kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } }],
-                  },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadId' } },
               ],
             },
           },
@@ -18959,59 +18942,6 @@ export const CancelFileUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<CancelFileUploadMutation, CancelFileUploadMutationVariables>
-export const GenerateApiKeyDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'GenerateApiKey' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'generateApiKey' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'name' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'key' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GenerateApiKeyMutation, GenerateApiKeyMutationVariables>
 export const CreateLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -19022,8 +18952,13 @@ export const CreateLibraryDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'LibraryInput' } } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'description' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
       ],
       selectionSet: {
@@ -19035,8 +18970,13 @@ export const CreateLibraryDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+                name: { kind: 'Name', value: 'name' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'description' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'description' } },
               },
             ],
             selectionSet: {
@@ -19052,13 +18992,78 @@ export const CreateLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<CreateLibraryMutation, CreateLibraryMutationVariables>
-export const ProcessFileDocument = {
+export const PrepareDocumentUploadDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'processFile' },
+      name: { kind: 'Name', value: 'prepareDocumentUpload' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'PrepareUploadInput' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'prepareUpload' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'documentId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PrepareDocumentUploadMutation, PrepareDocumentUploadMutationVariables>
+export const ProcessDocumentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'processDocument' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -19075,7 +19080,7 @@ export const ProcessFileDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -19084,7 +19089,7 @@ export const ProcessFileDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'processFile' },
+            name: { kind: 'Name', value: 'processDocument' },
             arguments: [
               {
                 kind: 'Argument',
@@ -19098,8 +19103,8 @@ export const ProcessFileDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+                name: { kind: 'Name', value: 'documentId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
               },
             ],
             selectionSet: {
@@ -19111,22 +19116,19 @@ export const ProcessFileDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<ProcessFileMutation, ProcessFileMutationVariables>
-export const ProcessFilesDocument = {
+} as unknown as DocumentNode<ProcessDocumentMutation, ProcessDocumentMutationVariables>
+export const TriggerExtractionDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'processFiles' },
+      name: { kind: 'Name', value: 'triggerExtraction' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'extractionMethod' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ExtractionMethod' } } },
         },
         {
           kind: 'VariableDefinition',
@@ -19135,14 +19137,8 @@ export const ProcessFilesDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
-          type: {
-            kind: 'NonNullType',
-            type: {
-              kind: 'ListType',
-              type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-            },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -19150,12 +19146,12 @@ export const ProcessFilesDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'processFiles' },
+            name: { kind: 'Name', value: 'triggerExtraction' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'requestType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+                name: { kind: 'Name', value: 'extractionMethod' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'extractionMethod' } },
               },
               {
                 kind: 'Argument',
@@ -19164,8 +19160,8 @@ export const ProcessFilesDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileIds' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
+                name: { kind: 'Name', value: 'documentId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
               },
             ],
             selectionSet: {
@@ -19177,40 +19173,7 @@ export const ProcessFilesDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<ProcessFilesMutation, ProcessFilesMutationVariables>
-export const RevokeApiKeyDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'RevokeApiKey' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'revokeApiKey' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-            ],
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>
+} as unknown as DocumentNode<TriggerExtractionMutation, TriggerExtractionMutationVariables>
 export const ChangeLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -19299,17 +19262,27 @@ export const ChangeLibraryDocument = {
     },
   ],
 } as unknown as DocumentNode<ChangeLibraryMutation, ChangeLibraryMutationVariables>
-export const PrepareFileDocument = {
+export const PrepareGoogleDriveFileDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'prepareFile' },
+      name: { kind: 'Name', value: 'prepareGoogleDriveFile' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
           type: {
             kind: 'NonNullType',
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'PrepareUploadInput' } },
@@ -19325,20 +19298,35 @@ export const PrepareFileDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'file' } },
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'documentId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'input' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'id' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'uploadId' } },
+              ],
             },
           },
         ],
       },
     },
   ],
-} as unknown as DocumentNode<PrepareFileMutation, PrepareFileMutationVariables>
+} as unknown as DocumentNode<PrepareGoogleDriveFileMutation, PrepareGoogleDriveFileMutationVariables>
 export const LibraryUpdatesListDocument = {
   kind: 'Document',
   definitions: [
@@ -20368,7 +20356,6 @@ export const GetListDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -20383,7 +20370,6 @@ export const GetListDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -20464,7 +20450,6 @@ export const GetListDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
         ],
       },
     },
@@ -20528,7 +20513,6 @@ export const GetUserListsDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'ownerId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -21722,6 +21706,35 @@ export const SaveUserProfileDocument = {
     },
   ],
 } as unknown as DocumentNode<SaveUserProfileMutation, SaveUserProfileMutationVariables>
+export const GetApiKeysDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetApiKeys' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'apiKeys' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastUsedAt' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetApiKeysQuery, GetApiKeysQueryVariables>
 export const GetWorkspaceEmbeddingStatisticsDocument = {
   kind: 'Document',
   definitions: [
@@ -22437,6 +22450,49 @@ export const DeleteWorkspaceDocument = {
     },
   ],
 } as unknown as DocumentNode<DeleteWorkspaceMutation, DeleteWorkspaceMutationVariables>
+export const GenerateApiKeyDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'GenerateApiKey' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'generateApiKey' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'name' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'name' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'key' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GenerateApiKeyMutation, GenerateApiKeyMutationVariables>
 export const InviteWorkspaceMemberDocument = {
   kind: 'Document',
   definitions: [
@@ -22597,6 +22653,39 @@ export const RemoveWorkspaceMemberDocument = {
     },
   ],
 } as unknown as DocumentNode<RemoveWorkspaceMemberMutation, RemoveWorkspaceMemberMutationVariables>
+export const RevokeApiKeyDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'RevokeApiKey' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'revokeApiKey' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<RevokeApiKeyMutation, RevokeApiKeyMutationVariables>
 export const RevokeWorkspaceInvitationDocument = {
   kind: 'Document',
   definitions: [
@@ -22739,10 +22828,6 @@ export const UserProfileDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
@@ -23675,10 +23760,6 @@ export const GetUserProfileDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'business' } },
           { kind: 'Field', name: { kind: 'Name', value: 'position' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },
@@ -23867,10 +23948,6 @@ export const AdminUserByIdDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           { kind: 'Field', name: { kind: 'Name', value: 'firstName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastName' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedMessages' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'freeStorage' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'usedStorage' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'confirmationDate' } },

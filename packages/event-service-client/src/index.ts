@@ -1,66 +1,29 @@
 import { logger } from './common'
-import { initializeModelCallsStream } from './model-calls'
-import { initializeProviderHealthBucket } from './provider-health'
-import { initializeWorkerRegistryBucket } from './worker-registry'
-import { initializeWorkspaceConfigBucket } from './workspace-config'
-import { initializeWorkspaceProcessingStream } from './workspace-processing'
-import { initializeWorkspaceUsageStream } from './workspace-usage'
-
-export const initializeEventServiceClient = async () =>
-  Promise.all([
-    initializeModelCallsStream().catch((error) => {
-      logger.error('Error initializing provider calls stream:', error)
-      throw error
-    }),
-    initializeProviderHealthBucket().catch((error) => {
-      logger.error('Error initializing provider health bucket:', error)
-      throw error
-    }),
-    initializeWorkerRegistryBucket().catch((error) => {
-      logger.error('Error initializing worker registry bucket:', error)
-      throw error
-    }),
-    initializeWorkspaceConfigBucket().catch((error) => {
-      logger.error('Error initializing management stream:', error)
-      throw error
-    }),
-    initializeWorkspaceProcessingStream().catch((error) => {
-      logger.error('Error initializing workspace processing stream:', error)
-      throw error
-    }),
-    initializeWorkspaceUsageStream().catch((error) => {
-      logger.error('Error initializing usage stream:', error)
-      throw error
-    }),
-  ])
-    .then((result) => {
-      logger.info('Event Service Client initialized successfully')
-      return result
-    })
-    .catch((error) => {
-      logger.error('Error initializing Event Service Client:', error)
-      throw error
-    })
-
-await initializeEventServiceClient()
+import { initializeOnce } from './initialize'
 
 export { default as modelProvider } from './model-provider'
-export type * from './model-provider'
+export * from './model-provider'
 
 export { default as modelCalls } from './model-calls'
-export type * from './model-calls'
+export * from './model-calls'
 
 export { default as providerHealth } from './provider-health'
-export type * from './provider-health'
+export * from './provider-health'
 
 export { default as workerRegistry } from './worker-registry'
-export type * from './worker-registry'
+export * from './worker-registry'
 
 export { default as workspaceConfig } from './workspace-config'
-export type * from './workspace-config'
+export * from './workspace-config'
 
 export { default as workspaceProcessing } from './workspace-processing'
-export type * from './workspace-processing'
+export * from './workspace-processing'
 
 export { default as workspaceUsage } from './workspace-usage'
-export type * from './workspace-usage'
+export * from './workspace-usage'
+
+initializeOnce().catch((error) => {
+  logger.error('Error initializing Event Service Client:', error)
+})
+
+export { isInitialized as isEventServiceClientInitialized } from './initialize'

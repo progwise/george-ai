@@ -1,56 +1,55 @@
-import { GraphQLError } from 'graphql/error'
-
-import { prisma } from '@george-ai/app-database'
-import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
+import { canWriteWorkspaceOrThrow, prepareUpload } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
-import { logger } from '../../common'
 
 builder.mutationField('prepareUpload', (t) =>
-  t.withAuth({ isLoggedIn: true }).prismaField({
-    type: 'AiLibraryFile',
+  t.withAuth({ isLoggedIn: true }).field({
+    type: builder.simpleObject('PrepareUploadResult', {
+      fields: (t) => ({
+        workspaceId: t.string({ nullable: false }),
+        libraryId: t.string({ nullable: false }),
+        documentId: t.string({ nullable: false }),
+        uploadId: t.string({ nullable: false }),
+      }),
+    }),
     args: {
-      data: t.arg({
+      libraryId: t.arg.string({ required: true }),
+      documentId: t.arg.string({ required: false }),
+      input: t.arg({
         type: builder.inputType('PrepareUploadInput', {
           fields: (t) => ({
             name: t.string({ required: true }),
             originUri: t.string({ required: true }),
             mimeType: t.string({ required: true }),
-            libraryId: t.string({ required: true }),
-            size: t.int({ required: true }),
-            originModificationDate: t.field({ type: 'DateTime', required: true }),
+            size: t.int({ required: false }),
+            modificationDate: t.field({ type: 'DateTime', required: false }),
           }),
         }),
         required: true,
       }),
     },
     nullable: false,
-    resolve: async (query, _source, { data }, { workspaceId, session }) => {
+    resolve: async (_source, args, { workspaceId, session }) => {
       await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
-      try {
-        return await prisma.aiLibraryFile.upsert({
-          ...query,
-          where: { libraryId_originUri: { libraryId: data.libraryId, originUri: data.originUri } },
-          create: {
-            name: data.name,
-            originUri: data.originUri,
-            mimeType: data.mimeType,
-            size: data.size,
-            originModificationDate: data.originModificationDate,
-            libraryId: data.libraryId,
-          },
-          update: {
-            name: data.name,
-            mimeType: data.mimeType,
-            size: data.size,
-            originModificationDate: data.originModificationDate,
-          },
-        })
-      } catch (error) {
-        logger.error('Error preparing file upload', { error, data, userId: session.user.id, workspaceId })
-        throw new GraphQLError(
-          'Error preparing file upload: ' + (error instanceof Error ? error.message : 'Unknown error'),
-        )
+
+      const { name, originUri, mimeType, size, modificationDate } = args.input
+
+      const { uploadId, documentId } = await prepareUpload({
+        workspaceId,
+        libraryId: args.libraryId,
+        documentId: args.documentId,
+        originUri: originUri,
+        mimeType,
+        name,
+        size,
+        modificationDate,
+      })
+
+      return {
+        workspaceId,
+        libraryId: args.libraryId,
+        documentId,
+        uploadId,
       }
     },
   }),

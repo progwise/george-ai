@@ -1,3 +1,5 @@
+import { getConfigValue } from '@george-ai/app-commons'
+
 import { fs, logger } from '../commons'
 import { entryExists } from '../entry/entry-exists'
 import { createLibrary } from '../library'
@@ -37,7 +39,7 @@ export async function migrateLegacyLibrary(
     await createLibrary(workspaceId, { libraryId, name: libraryName })
   }
 
-  const legacyLibraryDir = fs.getFolderPath(fs.getRootPath(), libraryId)
+  const legacyLibraryDir = fs.getFolderPath(getConfigValue('STORAGE_PATH_LEGACY_LIBRARIES'), libraryId)
   const legacyFiles = await fs.listFolders(legacyLibraryDir)
 
   for (const entry of legacyFiles) {

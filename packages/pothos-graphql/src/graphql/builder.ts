@@ -3,8 +3,9 @@ import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
+import { getConfigValue } from '@george-ai/app-commons'
 import { type PothosTypes, Prisma, getDatamodel, prisma } from '@george-ai/app-database'
-import { Context, LoggedInContext, getConfig } from '@george-ai/app-domain'
+import { Context, LoggedInContext } from '@george-ai/app-domain'
 
 import { GeorgeEnumTypes, GeorgeInputTypes, GeorgeInterfaceTypes, GeorgeObjectTypes } from './common'
 
@@ -51,7 +52,7 @@ const builder = new SchemaBuilder<{
     dmmf: getDatamodel(),
     exposeDescriptions: true,
     filterConnectionTotalCount: true,
-    onUnusedQuery: getConfig('IS_PRODUCTION') ? null : 'warn',
+    onUnusedQuery: getConfigValue('IS_PRODUCTION') ? null : 'warn',
   },
   scopeAuth: {
     authScopes: async (context) => {

@@ -21,7 +21,7 @@ export async function createWorkspace(
     version: 1,
     workspaceId,
     name,
-    created: new Date().toISOString(),
+    created: new Date(),
     storageStats: StorageStatsSchema.parse({}),
     attachments: [],
     creator,

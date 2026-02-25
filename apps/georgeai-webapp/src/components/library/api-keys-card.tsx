@@ -4,19 +4,15 @@ import { useRef } from 'react'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { ClientDate } from '../client-date'
+import { getApiKeysQueryOptions } from '../workspace/queries'
 import { ApiKeyGenerationModal } from './api-key-generation-modal'
 import { ApiKeyRevokeButton } from './api-key-revoke-button'
-import { getApiKeysQueryOptions } from './queries/get-api-keys'
 
-export interface ApiKeysCardProps {
-  libraryId: string
-}
-
-export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
+export const ApiKeysCard = () => {
   const { t } = useTranslation()
   const createDialogRef = useRef<HTMLDialogElement>(null)
 
-  const { data: apiKeys } = useSuspenseQuery(getApiKeysQueryOptions(libraryId))
+  const { data: apiKeys } = useSuspenseQuery(getApiKeysQueryOptions())
 
   return (
     <>
@@ -56,7 +52,7 @@ export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
                       <ClientDate date={key.lastUsedAt} fallback={t('apiKeys.never')} />
                     </td>
                     <td className="text-sm">
-                      <ApiKeyRevokeButton libraryId={libraryId} apiKey={key} />
+                      <ApiKeyRevokeButton apiKey={key} />
                     </td>
                   </tr>
                 ))}
@@ -66,7 +62,7 @@ export const ApiKeysCard = ({ libraryId }: ApiKeysCardProps) => {
         )}
       </div>
 
-      <ApiKeyGenerationModal ref={createDialogRef} libraryId={libraryId} />
+      <ApiKeyGenerationModal ref={createDialogRef} />
     </>
   )
 }

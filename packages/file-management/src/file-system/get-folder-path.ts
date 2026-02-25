@@ -4,7 +4,7 @@ import { logger } from './commons'
 import { existsFolder } from './exists-folder'
 
 export function getFolderPath(...pathParts: string[]): string {
-  return path.join(...pathParts)
+  return path.resolve(...pathParts)
 }
 
 export async function getFolderPathOrThrow(pathParts: string[], errorMessage?: string): Promise<string> {

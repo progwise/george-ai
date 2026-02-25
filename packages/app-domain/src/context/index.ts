@@ -8,7 +8,7 @@ export type AuthUser = Partial<Omit<User, 'id' | 'email' | 'username'>> & {
 
 export interface ApiKeyAuth {
   userId: string
-  libraryId: string
+  workspaceId: string
   apiKeyId: string
 }
 

@@ -3,12 +3,12 @@ import { twMerge } from 'tailwind-merge'
 
 import { formatBytes } from '@george-ai/web-utils'
 
-import { UserFragment } from '../../gql/graphql'
+import { CurrentUserFragment } from '../../gql/graphql'
 import { MigrateWorkspaceDialog } from './migrate-workspace-dialog'
 import { useWorkspace } from './use-workspace'
 
 interface WorkspaceStatusCardProps {
-  user: UserFragment
+  user: CurrentUserFragment
 }
 
 export function WorkspaceStatusCard({ user }: WorkspaceStatusCardProps) {

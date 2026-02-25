@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream'
 
-import { ALLOWED_AVATAR_EXTENSIONS } from './common'
+import { ALLOWED_AVATAR_EXTENSIONS } from './commons'
 import { getUserAvatarName } from './get-user-avatar-name'
 import { writeUserFile } from './write-user-file'
 

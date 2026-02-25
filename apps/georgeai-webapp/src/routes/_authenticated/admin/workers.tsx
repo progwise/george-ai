@@ -1,8 +1,10 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
+import { getWorkerEntriesQueryOptions } from '../../../components/admin/queries'
 import { ManageWorkersMenu } from '../../../components/admin/workers/manage-workers-menu'
 import { getWorkspaceProcessStatisticsQueryOptions } from '../../../components/workspace/queries'
+import { WorkerType } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CpuIcon } from '../../../icons/cpu-icon'
 import { ProcessingIcon } from '../../../icons/processing-icon'
@@ -16,6 +18,7 @@ export const Route = createFileRoute('/_authenticated/admin/workers')({
       context.queryClient.ensureQueryData(
         getWorkspaceProcessStatisticsQueryOptions({ workspaceId: context.workspaceId }),
       ),
+      context.queryClient.ensureQueryData(getWorkerEntriesQueryOptions()),
     ])
   },
 })
@@ -27,6 +30,11 @@ function RouteComponent() {
   const { data: processStatistics } = useSuspenseQuery({
     ...getWorkspaceProcessStatisticsQueryOptions({ workspaceId }),
     refetchInterval: 5000, // Override refetch interval for auto-refresh
+  })
+
+  const { data: workerEntries } = useSuspenseQuery({
+    ...getWorkerEntriesQueryOptions(),
+    refetchInterval: 7000, // Override refetch interval for auto-refresh
   })
 
   // Helper to format time ago
@@ -43,15 +51,44 @@ function RouteComponent() {
 
   const now = new Date()
 
-  const workers = [
-    { healthy: true, lastHeartbeatAt: new Date().toISOString(), workerId: 'worker-1', workerType: 'type-A' },
-    {
-      healthy: false,
-      lastHeartbeatAt: new Date(now.getTime() - 600000).toISOString(),
-      workerId: 'worker-2',
-      workerType: 'type-B',
-    },
-  ] // Dummy data for workers
+  const groupedWorkerEntries = workerEntries.reduce((acc, entry) => {
+    const key = entry.workerId || 'unknown'
+    if (!acc.has(key)) {
+      acc.set(key, [])
+    }
+    acc.get(key)!.push({
+      workerType: entry.workerType,
+      lastHeartBeat: entry.lastHeartbeat ? new Date(entry.lastHeartbeat) : null,
+    })
+    return acc
+  }, new Map<string, Array<{ workerType?: WorkerType | null; lastHeartBeat?: Date | null }>>())
+
+  const workers = Array.from(groupedWorkerEntries.entries()).map(([workerId, entries]) => {
+    const healthy = entries.some(
+      (entry) => entry.lastHeartBeat && now.getTime() - entry.lastHeartBeat.getTime() < 60000,
+    )
+    const lastHeartbeatAt = entries
+      .map((entry) => entry.lastHeartBeat)
+      .filter((date): date is Date => date !== undefined && date !== null)
+      .sort((a, b) => b.getTime() - a.getTime())[0]
+
+    return {
+      workerId,
+      healthy,
+      entries,
+      lastHeartbeatAt,
+    }
+  })
+
+  // const workers = [
+  //   { healthy: true, lastHeartbeatAt: new Date().toISOString(), workerId: 'worker-1', workerType: 'type-A' },
+  //   {
+  //     healthy: false,
+  //     lastHeartbeatAt: new Date(now.getTime() - 600000).toISOString(),
+  //     workerId: 'worker-2',
+  //     workerType: 'type-B',
+  //   },
+  // ] // Dummy data for workers
   const totalWorkers = workers.length
 
   return (
@@ -135,7 +172,7 @@ function RouteComponent() {
                       </td>
                       <td>
                         <div className="text-sm">
-                          <div>{formatTimeAgo(worker.lastHeartbeatAt)}</div>
+                          <div>{formatTimeAgo(worker.lastHeartbeatAt.toISOString())}</div>
                           <div className="text-xs text-base-content/60">
                             {new Date(worker.lastHeartbeatAt).toLocaleString()}
                           </div>
@@ -144,7 +181,14 @@ function RouteComponent() {
                       <td>
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <div className="badge badge-sm badge-primary">{worker.workerType}</div>
+                            {worker.entries.map((entry) => (
+                              <div
+                                key={`${worker.workerId}_${entry.workerType}_${entry.lastHeartBeat}`}
+                                className="badge badge-sm badge-primary"
+                              >
+                                {`${entry.workerType} (${entry.lastHeartBeat ? `${formatTimeAgo(entry.lastHeartBeat.toISOString())}` : ''})`}
+                              </div>
+                            ))}
                           </div>
                         </div>
                       </td>

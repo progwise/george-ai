@@ -144,7 +144,7 @@ export async function createExtractionWriter(extractionManifest: ExtractionManif
             physicalFileCount: 2 + attachments.length + fragmentResults.length, // 1 for output.md, 1 for manifest, 1 per fragment, 1 per attachment
             attachmentBytes: totalAttachmentBytes,
             attachmentFileCount: attachments.length,
-            lastUpdate: new Date().toISOString(),
+            lastUpdate: new Date(),
           },
           fragmentCount: fragmentResults.length,
           attachments,
@@ -156,16 +156,21 @@ export async function createExtractionWriter(extractionManifest: ExtractionManif
 
         await saveEntry(manifest)
 
-        documentManifest.extractions.push({
+        const extractions = documentManifest.extractions.filter((e) => e.extractionMethod !== manifest.extractionMethod)
+
+        extractions.push({
           extractionMethod: manifest.extractionMethod,
           sourceHash: manifest.sourceHash,
-          created: new Date().toISOString(),
+          created: new Date(),
         })
 
-        await updateStats(documentManifest, {
-          stats: manifest.storageStats,
-          operation: 'add',
-        })
+        await updateStats(
+          { ...documentManifest, extractions },
+          {
+            stats: manifest.storageStats,
+            operation: 'add',
+          },
+        )
 
         return manifest
       } catch (error) {

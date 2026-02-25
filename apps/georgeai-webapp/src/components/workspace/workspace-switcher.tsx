@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-import { UserFragment } from '../../gql/graphql'
+import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { FolderPlusIcon } from '../../icons/folder-plus'
 import { TrashIcon } from '../../icons/trash-icon'
@@ -10,7 +10,7 @@ import { DeleteWorkspaceDialog } from './delete-workspace-dialog'
 import { WorkspaceMembersDialog } from './members/workspace-members-dialog'
 import { useWorkspace } from './use-workspace'
 
-export const WorkspaceSwitcher = ({ user }: { user: UserFragment }) => {
+export const WorkspaceSwitcher = ({ user }: { user: CurrentUserFragment }) => {
   const { t } = useTranslation()
   const { workspaces, currentWorkspace, setWorkspace, validate, isLoading, isDefaultWorkspace, currentUserRole } =
     useWorkspace(user)

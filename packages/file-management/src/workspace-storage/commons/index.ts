@@ -1,6 +1,7 @@
+import { getConfigValue } from '@george-ai/app-commons'
+
 import fs from '../../file-system'
 import { logger } from './commons'
-import { WORKSPACES_FOLDER_NAME } from './constants'
 
 export * from './constants'
 export * from './commons'
@@ -8,7 +9,7 @@ export * from './uri'
 
 export { fs }
 
-export const workspaceStorageRoot = fs.getFolderPath(fs.getRootPath(), WORKSPACES_FOLDER_NAME)
+const workspaceStorageRoot = getConfigValue('STORAGE_PATH_WORKSPACES')
 
 fs.ensureFolderOnce(workspaceStorageRoot).catch((error) => {
   logger.error('Error ensuring workspace storage root directory exists', {

@@ -1,7 +1,7 @@
 import { Readable } from 'node:stream'
 
 import { getFilePath, readFile } from '../file-system'
-import { logger } from './common'
+import { logger } from './commons'
 import { getUserPath } from './get-user-path'
 
 export async function readUserFile(

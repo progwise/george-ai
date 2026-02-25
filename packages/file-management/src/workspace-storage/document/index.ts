@@ -1,8 +1,8 @@
 import { calculateSourceHash } from './calculate-source-hash'
 import { createDocument } from './create-document'
 import { deleteDocument, deleteDocumentEx } from './delete-document'
-import { exists } from './exists'
-import { getDocument } from './get-document'
+import { existsDocument } from './exists-document'
+import { getDocument, getDocumentOrThrow } from './get-document'
 import { getSourcePath } from './get-source-path'
 import { getSourceSize } from './get-source-size'
 import { readSource, readSourceEx } from './read-source'
@@ -14,12 +14,13 @@ export default {
   create: createDocument,
   delete: deleteDocumentEx,
   get: getDocument,
+  getOrThrow: getDocumentOrThrow,
   getSourcePath,
   getSourceSize,
   save: saveDocument,
   readSource: readSourceEx,
   writeSource: writeSourceEx,
-  exists,
+  existsDocument,
 }
 
 export {
@@ -27,7 +28,9 @@ export {
   createDocument,
   deleteDocument,
   deleteDocumentEx,
+  existsDocument,
   getDocument,
+  getDocumentOrThrow,
   getSourcePath,
   getSourceSize,
   readSource,

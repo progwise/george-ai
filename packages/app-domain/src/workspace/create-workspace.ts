@@ -7,12 +7,17 @@ import { vectorStore } from '@george-ai/vector-store'
 import { DomainError } from '../error'
 import { logger } from './common'
 
-export async function createWorkspace(params: { name: string; slug: string; userId?: string }): Promise<{
+export async function createWorkspace(params: {
+  name: string
+  slug: string
+  workspaceId?: string
+  userId?: string
+}): Promise<{
   workspaceId: string
   slug: string
 }> {
   const { name, slug, userId } = params
-  logger.info('Creating workspace', params)
+  logger.debug('Creating workspace', params)
 
   try {
     const slugSchema = z.string().regex(/^[a-z0-9-]+$/)
@@ -23,6 +28,7 @@ export async function createWorkspace(params: { name: string; slug: string; user
           id: true,
         },
         data: {
+          id: params.workspaceId,
           name,
           slug: validatedSlug,
           createdAt: new Date(),

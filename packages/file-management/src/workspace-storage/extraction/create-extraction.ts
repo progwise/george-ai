@@ -24,7 +24,7 @@ export async function createExtraction(
     version: 1,
     storageStats: StorageStatsSchema.parse({}),
     attachments: [],
-    created: new Date().toISOString(),
+    created: new Date(),
     type: 'extraction',
   }
 

@@ -1,39 +1,35 @@
 import { prisma } from '@george-ai/app-database'
-import { library } from '@george-ai/file-management'
+import { library as lib } from '@george-ai/file-management'
 
 import { logger } from './common'
 
 export async function createLibrary(
   workspaceId: string,
-  params: { name: string; userId: string },
+  params: { name: string; description?: string },
 ): Promise<{ libraryId: string }> {
-  const { name, userId } = params
-  logger.info('Creating library', { workspaceId, name })
+  const { name, description } = params
+  logger.debug('Creating library', { workspaceId, name, description })
 
-  try {
-    const result = await prisma.$transaction(async (tx) => {
-      const library = await tx.aiLibrary.create({
-        select: {
-          id: true,
-        },
-        data: {
-          workspaceId,
-          name,
-          createdAt: new Date(),
-          ownerId: userId,
-        },
-      })
-      return library
+  const result = await prisma.$transaction(async (tx) => {
+    const library = await tx.aiLibrary.create({
+      select: {
+        id: true,
+      },
+      data: {
+        workspaceId,
+        name,
+        description,
+        createdAt: new Date(),
+      },
     })
 
-    await library.create(workspaceId, { libraryId: result.id, name })
-    logger.info('Library created in storage', { workspaceId, libraryId: result.id, name })
+    const manifest = await lib.create(workspaceId, { libraryId: library.id, name })
+    return { library, manifest }
+  })
 
-    return {
-      libraryId: result.id,
-    }
-  } catch (error) {
-    logger.error('Error creating library', { error, workspaceId, name })
-    throw error
+  logger.debug('Library created', { workspaceId, result })
+
+  return {
+    libraryId: result.library.id,
   }
 }

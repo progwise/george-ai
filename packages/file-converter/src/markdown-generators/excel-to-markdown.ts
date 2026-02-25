@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs'
 import { Readable } from 'stream'
 
-import { document, extraction } from '@george-ai/file-management'
+import { extraction, readSource } from '@george-ai/file-management'
 
 import { FileConverterParameters, logger } from './common'
 
@@ -78,19 +78,11 @@ function rowToMarkdown(headers: string[], cells: string[], sheetName: string, ro
 export async function excelToMarkdown(parameters: FileConverterParameters) {
   logger.debug('[Excel Converter] Starting streaming conversion', parameters)
 
-  const { workspaceId, libraryId, documentId, timeoutSignal } = parameters
+  const { document, timeoutSignal } = parameters
 
-  const fileManifest = await document.get(workspaceId, {
-    libraryId,
-    documentId,
-  })
+  const { stream: readStream } = await readSource(document)
 
-  const { stream: readStream } = await document.readSource(workspaceId, {
-    libraryId,
-    documentId,
-  })
-
-  const extractionWriter = await extraction.create(fileManifest, 'excelExtraction')
+  const extractionWriter = await extraction.create(document, 'excelExtraction')
 
   const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader(readStream, {
     sharedStrings: 'cache',

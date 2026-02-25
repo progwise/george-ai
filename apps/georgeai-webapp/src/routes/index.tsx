@@ -1,5 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
+import { logger } from '../common'
 import { WorkspaceDashboardTabs } from '../components/workspace/workspace-dashboard-tabs'
 import { WorkspaceModelProviderCards } from '../components/workspace/workspace-model-provider-cards'
 import { WorkspaceQueueCards } from '../components/workspace/workspace-queue-cards'
@@ -43,4 +44,8 @@ export const Route = createFileRoute('/')({
     }
   },
   component: Home,
+
+  onError: ({ error }) => {
+    logger.error('Error in / route', { error })
+  },
 })

@@ -1,4 +1,4 @@
-import { WorkspaceConfig, initializeEventServiceClient, workspaceConfig } from '..'
+import { WorkspaceConfig, isEventServiceClientInitialized, workspaceConfig } from '..'
 
 describe('event-service-client workspace tests', () => {
   const TEST_WORKSPACE_ID = `test-workspace-123_${Date.now()}`
@@ -6,7 +6,7 @@ describe('event-service-client workspace tests', () => {
 
   beforeAll(async () => {
     // Ensure workspace is clean before tests
-    await initializeEventServiceClient()
+    await isEventServiceClientInitialized()
   })
 
   afterAll(async () => {
@@ -125,16 +125,18 @@ describe('event-service-client workspace tests', () => {
   })
 
   it('should watch for workspace config changes', async () => {
+    const TEST_WATCH_WORKSPACE_ID = `test-watch-workspace-${Date.now()}`
     const changes: Array<{ operation: 'create' | 'update' | 'delete'; value: WorkspaceConfig | null }> = []
+
     const stopWatching = await workspaceConfig.watchWorkspaceConfigs(async (change) => {
-      if (change.key.includes(TEST_WORKSPACE_ID)) {
+      if (change.key.includes(TEST_WATCH_WORKSPACE_ID)) {
         changes.push(change)
       }
     })
 
     const configEntry: WorkspaceConfig = {
       version: 1,
-      workspaceId: TEST_WORKSPACE_ID,
+      workspaceId: TEST_WATCH_WORKSPACE_ID,
       providerInstances: [],
       languageModels: [],
       lastUpdate: new Date().toISOString(),
@@ -159,19 +161,28 @@ describe('event-service-client workspace tests', () => {
     }
     await workspaceConfig.writeWorkspaceConfig(updatedConfigEntry)
 
-    await workspaceConfig.deleteWorkspaceConfig(TEST_WORKSPACE_ID)
+    await workspaceConfig.deleteWorkspaceConfig(TEST_WATCH_WORKSPACE_ID)
 
     // Allow some time for the watch handler to be called
-    await new Promise((resolve) => setTimeout(resolve, 500))
+    await new Promise((resolve) => {
+      let tries = 0
+      const interval = setInterval(() => {
+        if (changes.length >= 3 || tries > 20) {
+          clearInterval(interval)
+          resolve(true)
+        }
+        tries++
+      }, 50)
+    })
 
-    const relevantChanges = changes.slice(-3) // Get the last 3 changes related to our test workspace
-    expect(relevantChanges[0].operation).toBe('update')
-    expect(relevantChanges[0].value).toEqual(configEntry)
-    expect(relevantChanges[1].operation).toBe('update')
-    expect(relevantChanges[1].value).toEqual(updatedConfigEntry)
-    expect(relevantChanges[2].operation).toBe('delete')
-    expect(relevantChanges[2].value).toBeNull()
+    expect(changes.length).toBe(3)
+    expect(changes[0].operation).toBe('update')
+    expect(changes[0].value).toEqual(configEntry)
+    expect(changes[1].operation).toBe('update')
+    expect(changes[1].value).toEqual(updatedConfigEntry)
+    expect(changes[2].operation).toBe('delete')
+    expect(changes[2].value).toBeNull()
 
     await stopWatching()
-  })
+  }, 30000)
 })

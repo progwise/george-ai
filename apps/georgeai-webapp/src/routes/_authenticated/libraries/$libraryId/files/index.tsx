@@ -44,7 +44,7 @@ function RouteComponent() {
   const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   return (
-    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
+    <div className="grid size-full grid-rows-[auto_1fr] gap-2 bg-base-100">
       <div>
         <div className="align-text-top text-xs text-nowrap text-primary italic">
           {showArchived

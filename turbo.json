@@ -34,7 +34,13 @@
         "SMTP_USER",
         "SMTP_PASSWORD",
         "SMTP_FROM",
-        "SMTP_TEST_RECIPIENT"
+        "SMTP_TEST_RECIPIENT",
+        "STORAGE_PATH_WORKSPACES",
+        "STORAGE_PATH_WORKSPACES_BACKUP",
+        "STORAGE_PATH_ASSISTANTS",
+        "STORAGE_PATH_USERS",
+        "STORAGE_PATH_CREDENTIALS",
+        "STORAGE_PATH_LEGACY_LIBRARIES"
       ]
     },
     "lint": {
@@ -45,13 +51,13 @@
       "persistent": true
     },
     "typecheck": {
-      "dependsOn": []
+      "dependsOn": ["^typecheck"]
     },
     "prisma:generate": {
-      "dependsOn": []
+      "cache": false
     },
     "prisma:migrate": {
-      "dependsOn": []
+      "cache": false
     }
   }
 }

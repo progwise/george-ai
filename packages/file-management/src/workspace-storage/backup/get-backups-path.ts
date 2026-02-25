@@ -1,10 +1,11 @@
+import { getConfigValue } from '@george-ai/app-commons'
+
 import { fs } from '../commons'
 import {
   ATTACHMENTS_BACKUP_FOLDER_NAME,
   DOCUMENTS_BACKUP_FOLDER_NAME,
   EXTRACTIONS_BACKUP_FOLDER_NAME,
   LIBRARIES_BACKUP_FOLDER_NAME,
-  WORKSPACES_BACKUP_FOLDER_NAME,
 } from '../commons'
 import { getEntryPath } from '../entry'
 import { DocumentIdentifier, ExtractionIdentifier, LibraryIdentifier, WorkspaceIdentifier } from '../schema'
@@ -25,7 +26,7 @@ export const getBackupsPath = (
 }
 
 export const getWorkspaceBackupsPath = (): string => {
-  return fs.getFolderPath(fs.getRootPath(), WORKSPACES_BACKUP_FOLDER_NAME)
+  return fs.getFolderPath(getConfigValue('STORAGE_PATH_WORKSPACES_BACKUP'))
 }
 
 export const getLibraryBackupsPath = (args: { workspaceId: string }): string => {

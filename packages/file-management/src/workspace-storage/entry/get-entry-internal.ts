@@ -31,8 +31,6 @@ export async function getEntryInternal(
     const raw = await readFile(manifestPath, 'utf-8')
     const parsed = JSON.parse(raw)
 
-    logger.debug('Parsed manifest JSON successfully', { id, manifestPath, parsed: JSON.stringify(parsed, null, 2) })
-
     // Backwards compatibility: if created or updated fields are missing but createdAt or updatedAt fields exist, use them as fallback
     // TODO: Cleanup this backwards compatibility code after a few releases
     if (!parsed.created && !!parsed.createdAt) {
@@ -61,13 +59,39 @@ export async function getEntryInternal(
 
     switch (id.type) {
       case 'workspace':
-        return WorkspaceManifestSchema.parse({ ...parsed, ...id })
+        return WorkspaceManifestSchema.parse({
+          ...parsed,
+          workspaceId: id.workspaceId,
+          type: 'workspace',
+          version: parsed.version || 1,
+        })
       case 'library':
-        return LibraryManifestSchema.parse({ ...parsed, ...id })
+        return LibraryManifestSchema.parse({
+          ...parsed,
+          workspaceId: id.workspaceId,
+          libraryId: id.libraryId,
+          type: 'library',
+          version: parsed.version || 1,
+        })
       case 'document':
-        return DocumentManifestSchema.parse({ ...parsed, ...id })
+        return DocumentManifestSchema.parse({
+          ...parsed,
+          workspaceId: id.workspaceId,
+          libraryId: id.libraryId,
+          documentId: id.documentId,
+          type: 'document',
+          version: parsed.version || 1,
+        })
       case 'extraction':
-        return ExtractionManifestSchema.parse({ ...parsed, ...id })
+        return ExtractionManifestSchema.parse({
+          ...parsed,
+          workspaceId: id.workspaceId,
+          libraryId: id.libraryId,
+          documentId: id.documentId,
+          extractionMethod: id.extractionMethod,
+          type: 'extraction',
+          version: parsed.version || 1,
+        })
     }
   } catch (error) {
     if (error instanceof z.ZodError) {

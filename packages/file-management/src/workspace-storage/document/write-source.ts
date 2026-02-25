@@ -31,11 +31,12 @@ export async function writeSource(
   const libraryManifest = await getEntryOrThrow({ ...identifier, type: 'library' })
   const documentManifest = await getEntryOrThrow(identifier)
 
-  const sourceSize = await getSourceSize(identifier)
-  if (sourceSize.diskSize > 0) {
-    logger.warn('Overwriting non-empty source file', { ...identifier, sourceSize })
+  const oldSourceSize = await getSourceSize(identifier)
+  if (oldSourceSize.diskSize > 0) {
+    logger.warn('Overwriting non-empty source file', { ...identifier, oldSourceSize })
   }
 
+  // TODO: Use the new stashing
   const sourceFilePath = getSourcePath(identifier)
   const temporaryFileSuffix = `.tmp-${Date.now()}`
   const temporarySourceFilePath = `${sourceFilePath}${temporaryFileSuffix}`
@@ -63,13 +64,13 @@ export async function writeSource(
   const newDocumentManifest: DocumentManifest = {
     ...documentManifest,
     version: 1,
-    updated: new Date().toISOString(),
+    updated: new Date(),
     sourceHash: finalHash,
     storageStats: {
       ...documentManifest.storageStats,
-      physicalBytes: documentManifest.storageStats.physicalBytes - sourceSize.diskSize + byteCount,
-      physicalFileCount: documentManifest.storageStats.physicalFileCount - (sourceSize.diskSize > 0 ? 1 : 0) + 1,
-      lastUpdate: new Date().toISOString(),
+      physicalBytes: documentManifest.storageStats.physicalBytes - oldSourceSize.diskSize + byteCount,
+      physicalFileCount: documentManifest.storageStats.physicalFileCount - (oldSourceSize.diskSize > 0 ? 1 : 0) + 1,
+      lastUpdate: new Date(),
     },
   }
 
@@ -78,15 +79,14 @@ export async function writeSource(
 
   const ack = async () => {
     try {
-      const [saveResult, ,] = await Promise.all([
-        saveEntry(newDocumentManifest),
-        rename(temporarySourceFilePath, sourceFilePath),
-        updateStats(libraryManifest, {
-          stats: storageStatsDifference,
-          operation: 'add',
-        }),
-      ])
-      return saveResult
+      await rename(temporarySourceFilePath, sourceFilePath)
+      await saveEntry(newDocumentManifest)
+
+      await updateStats(libraryManifest, {
+        stats: storageStatsDifference,
+        operation: 'add',
+      })
+      return newDocumentManifest
     } catch (error) {
       logger.error('Error in ack for writeSource', { ...identifier, error })
       try {

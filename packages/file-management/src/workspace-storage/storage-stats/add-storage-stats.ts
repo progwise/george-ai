@@ -9,6 +9,6 @@ export function addStorageStats(summands: StorageStats[]): StorageStats {
     extractionFileCount: summands.reduce((acc, usage) => acc + usage.extractionFileCount, 0),
     attachmentFileCount: summands.reduce((acc, usage) => acc + usage.attachmentFileCount, 0),
     physicalFileCount: summands.reduce((acc, usage) => acc + usage.physicalFileCount, 0),
-    lastUpdate: new Date().toISOString(),
+    lastUpdate: new Date(),
   }
 }

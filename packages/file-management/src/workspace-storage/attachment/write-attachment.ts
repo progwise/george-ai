@@ -47,7 +47,7 @@ export async function writeAttachment(
     fileName: attachmentFileName,
     mimeType,
     size,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
     version: 1,
   }
   const parentEntry = await getEntry(identifier)

@@ -70,7 +70,7 @@ export async function reconcileDocument(identifier: DocumentIdentifier): Promise
       ),
       physicalBytes: documentStats.diskSize,
       physicalFileCount: documentStats.fileCount,
-      lastReconcile: new Date().toISOString(),
+      lastReconcile: new Date(),
     },
   }
 

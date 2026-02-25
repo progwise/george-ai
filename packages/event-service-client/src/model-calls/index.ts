@@ -7,7 +7,7 @@ import { ChatCompletionCall, ChatCompletionResponse, EmbeddingCall, EmbeddingRes
 import { ModelResponse } from './schema'
 import { subscribeModelCalls } from './subscribe'
 
-export const initializeModelCallsStream = async () => {
+export const ensureModelCallsStream = async () => {
   await eventClient.ensureWorkerStream({
     streamName: MODEL_CALLS_STREAM_NAME,
     description: `Events for AI service provider calls`,

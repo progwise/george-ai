@@ -12,7 +12,7 @@ export const publishProviderCallEvent = async (event: ModelCall) => {
     timeoutMs: 30000,
   })
 
-  logger.info('Published provider call event', { subject, streamName, msgId, inbox })
+  logger.debug('Published provider call event', { subject, streamName, msgId, inbox })
 
   return { subject, inbox, msgId, streamName }
 }
@@ -27,7 +27,7 @@ export const publishProviderResponseEvent = async (event: ModelCall) => {
     timeoutMs: 30000,
   })
 
-  logger.info('Published provider response event', { subject, streamName, msgId, inbox })
+  logger.debug('Published provider response event', { subject, streamName, msgId, inbox })
 
   return { subject, inbox, msgId, streamName }
 }

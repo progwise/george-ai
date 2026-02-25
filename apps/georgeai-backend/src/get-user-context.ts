@@ -1,9 +1,7 @@
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 
-import { Context, apiKey, user, workspace } from '@george-ai/app-domain'
-
-import { logger } from './common'
+import { Context, apiKey, user } from '@george-ai/app-domain'
 
 interface TokenProvider {
   jwtToken?: string | null
@@ -12,10 +10,6 @@ interface TokenProvider {
 }
 
 export const getUserContextFromExpressRequest = async (request: Request): Promise<Context> => {
-  logger.debug('Extracting user context from Express request', {
-    headers: request.headers,
-    url: request.url,
-  })
   return getUserContext(() => ({
     jwtToken: request.headers['x-user-jwt']?.toString() || request.cookies['keycloak-token'] || null,
     bearerToken: request.headers['authorization']?.toString().startsWith('Bearer ')
@@ -74,7 +68,7 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
       const userInformation = await user.getUser({ userId: apiKeyResult.userId })
       if (userInformation) {
         // For API keys, get workspace from the associated library
-        const workspaceId = await workspace.getWorkspaceId({ libraryId: apiKeyResult.libraryId })
+        const workspaceId = apiKeyResult.workspaceId
 
         if (workspaceId) {
           // SECURITY: Verify user is a member of the library's workspace

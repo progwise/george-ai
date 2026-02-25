@@ -1,12 +1,12 @@
 import { useMemo } from 'react'
 
-import { UserFragment } from '../../gql/graphql'
+import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DialogForm } from '../dialog-form'
 import { useWorkspace } from './use-workspace'
 
 interface DeleteWorkspaceDialogProps {
-  user: UserFragment
+  user: CurrentUserFragment
   ref: React.RefObject<HTMLDialogElement | null>
 }
 

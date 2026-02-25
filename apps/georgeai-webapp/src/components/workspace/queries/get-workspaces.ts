@@ -22,7 +22,7 @@ const workspacesQueryDocument = graphql(`
 `)
 
 const getWorkspaces = createServerFn({ method: 'GET' }).handler(async () => {
-  const { workspaces } = await backendRequest(workspacesQueryDocument, {})
+  const { workspaces } = await backendRequest(workspacesQueryDocument)
   return workspaces
 })
 

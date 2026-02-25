@@ -1,3 +1,5 @@
+import { getConfigValue } from '@george-ai/app-commons'
+
 import { fs } from '../commons'
 import {
   ATTACHMENTS_FOLDER_NAME,
@@ -5,7 +7,6 @@ import {
   EXTRACTIONS_FOLDER_NAME,
   FRAGMENTS_FOLDER_NAME,
   LIBRARIES_FOLDER_NAME,
-  WORKSPACES_FOLDER_NAME,
   logger,
 } from '../commons'
 import { DocumentIdentifier, ExtractionIdentifier, LibraryIdentifier, WorkspaceIdentifier } from '../schema'
@@ -69,7 +70,7 @@ export const getAttachmentsPathOrThrow = async (
 }
 
 export const getWorkspacePath = (identifier: { workspaceId: string }): string => {
-  return fs.getFolderPath(fs.getRootPath(), WORKSPACES_FOLDER_NAME, identifier.workspaceId)
+  return fs.getFolderPath(getConfigValue('STORAGE_PATH_WORKSPACES'), identifier.workspaceId)
 }
 
 export const getLibrariesPath = (identifier: { workspaceId: string }): string => {

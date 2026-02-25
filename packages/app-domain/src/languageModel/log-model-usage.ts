@@ -2,7 +2,7 @@ import { prisma } from '@george-ai/app-database'
 
 export interface ModelUsageContext {
   modelId?: string
-  userId?: string
+  workspaceId?: string
   libraryId?: string
   assistantId?: string
   listId?: string
@@ -30,8 +30,8 @@ export async function logModelUsage(context: ModelUsageContext): Promise<void> {
     await prisma.$transaction([
       prisma.aiModelUsage.create({
         data: {
+          // workspaceId: context.workspaceId,
           modelId: context.modelId,
-          userId: context.userId,
           libraryId: context.libraryId,
           assistantId: context.assistantId,
           listId: context.listId,

@@ -22,7 +22,7 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
         libraryId: z.string().min(1),
         files: z.array(
           z.object({
-            id: z.string(),
+            id: z.string().optional(),
             name: z.string(),
             size: z.number(),
             mimeType: z.string(),
@@ -34,14 +34,14 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
       })
       .parse(data),
   )
-  .handler(async (ctx) => {
-    const processFiles = ctx.data.files.map(async (file) => {
+  .handler(async ({ data }) => {
+    const processFiles = data.files.map(async (file) => {
       let isPdfExport = true
       const googleDownloadResponse = await fetch(
         `https://www.googleapis.com/drive/v3/files/${file.id}/export?mimeType=application%2Fpdf`,
         {
           headers: {
-            Authorization: `Bearer ${ctx.data.access_token}`,
+            Authorization: `Bearer ${data.access_token}`,
           },
         },
       ).then(async (response) => {
@@ -53,7 +53,7 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
         return await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&source=downloadUrl`, {
           method: 'GET',
           headers: {
-            Authorization: `Bearer ${ctx.data.access_token}`,
+            Authorization: `Bearer ${data.access_token}`,
           },
         })
       })
@@ -69,27 +69,29 @@ export const uploadGoogleDriveFiles = createServerFn({ method: 'POST' })
 
       const response = await backendRequest(
         graphql(`
-          mutation prepareFile($file: PrepareUploadInput!) {
-            prepareUpload(data: $file) {
-              id
+          mutation prepareGoogleDriveFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {
+            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {
+              workspaceId
+              libraryId
+              documentId
+              uploadId
             }
           }
         `),
         {
-          file: {
-            // Add .pdf extension if exported as PDF and name doesn't already have it
+          libraryId: data.libraryId,
+          documentId: file.id,
+          input: {
             name: isPdfExport && !file.name.toLowerCase().endsWith('.pdf') ? `${file.name}.pdf` : file.name,
             originUri: `https://drive.google.com/file/d/${file.id}/view`,
             mimeType: isPdfExport ? 'application/pdf' : getMimeTypeFromFileName(file.name),
-            libraryId: ctx.data.libraryId,
             size: file.size || blob.size,
-            // Use the file's modification date from Google Drive, fallback to now
-            originModificationDate: file.modifiedTime || new Date().toISOString(),
+            modifiedTime: file.modifiedTime,
           },
         },
       )
 
-      const uploadResponse = await backendUpload(blob, response.prepareUpload.id)
+      const uploadResponse = await backendUpload(blob, response.prepareUpload.documentId)
 
       if (!uploadResponse.ok) {
         throw new Error(`Failed to upload file: ${file.name} (ID: ${file.id})`)

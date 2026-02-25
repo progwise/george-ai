@@ -102,10 +102,6 @@ graphql(`
     lastName
     business
     position
-    freeMessages
-    usedMessages
-    freeStorage
-    usedStorage
     createdAt
     updatedAt
     confirmationDate

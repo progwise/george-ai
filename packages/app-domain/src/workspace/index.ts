@@ -1,6 +1,7 @@
 import { SYSTEM_WORKSPACE_ID } from './common'
 import { createWorkspace } from './create-workspace'
 import { deleteWorkspace } from './delete-workspace'
+import { ensureSystemWorkspace } from './ensureSystemWorkspace'
 import { getWorkspaceId } from './get-workspace-id'
 import { getWorkspaceManifest } from './get-workspace-manifest'
 import { getWorkspaceProviders } from './get-workspace-providers'
@@ -10,18 +11,20 @@ import { INVITATION_EXPIRY_DAYS, sendWorkspaceInvitationEmail } from './send-inv
 export default {
   createWorkspace,
   deleteWorkspace,
+  ensureSystemWorkspace,
   migrateWorkspace,
   getWorkspaceId,
   getWorkspaceManifest,
   getWorkspaceProviders,
-  SYSTEM_WORKSPACE_ID,
   sendWorkspaceInvitationEmail,
   INVITATION_EXPIRY_DAYS,
+  SYSTEM_WORKSPACE_ID,
 }
 
 export {
   createWorkspace,
   deleteWorkspace,
+  ensureSystemWorkspace,
   migrateWorkspace,
   getWorkspaceId,
   getWorkspaceManifest,

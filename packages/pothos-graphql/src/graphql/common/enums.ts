@@ -1,4 +1,9 @@
-import { EMBEDDING_STATUS, EXTRACTION_METHODS, PROCESSING_REQUEST_TYPES } from '@george-ai/app-commons'
+import {
+  EMBEDDING_STATUS,
+  EXTRACTION_METHODS,
+  PROCESSING_REQUEST_TYPES,
+  PROVIDER_HEALTH_STATUS,
+} from '@george-ai/app-commons'
 import {
   CRAWLER_URI_TYPES,
   LIST_FIELD_CONTEXT_TYPES,
@@ -6,7 +11,7 @@ import {
   LIST_FIELD_SOURCE_TYPES,
   LIST_FIELD_TYPES,
 } from '@george-ai/app-domain'
-import { modelCalls, providerHealth, workerRegistry, workspaceProcessing } from '@george-ai/event-service-client'
+import { modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
 
 import { builder } from '../builder'
 
@@ -49,7 +54,7 @@ builder.enumType('ModelCallType', {
 })
 
 builder.enumType('ProviderHealthStatus', {
-  values: providerHealth.HEALTH_STATUS,
+  values: PROVIDER_HEALTH_STATUS,
 })
 
 builder.enumType('ProcessingRequestType', {
@@ -58,8 +63,4 @@ builder.enumType('ProcessingRequestType', {
 
 builder.enumType('SortOrder', {
   values: ['asc', 'desc'],
-})
-
-builder.enumType('WorkerType', {
-  values: workerRegistry.WORKER_TYPES,
 })

@@ -32,7 +32,7 @@ builder.mutationField('syncModels', (t) =>
       })
       const discoveredModels = await Promise.all(
         providers.map(async (provider) =>
-          modelProvider.directCall({
+          modelProvider.callProviderInstance({
             workspaceId,
             callType: 'discoverModels',
             providerId: provider.id,

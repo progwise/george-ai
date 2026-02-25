@@ -51,7 +51,7 @@ export async function reconcileWorkspace(identifier: WorkspaceIdentifier): Promi
       ),
       physicalBytes: workspaceDirStats.diskSize,
       physicalFileCount: workspaceDirStats.fileCount,
-      lastReconcile: new Date().toISOString(),
+      lastReconcile: new Date(),
     },
   }
 

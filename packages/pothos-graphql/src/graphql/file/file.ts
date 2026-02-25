@@ -1,5 +1,5 @@
 import { prisma } from '@george-ai/app-database'
-import { getAvailableMethodsForMimeType } from '@george-ai/file-converter'
+import { getExtractionMethods } from '@george-ai/app-domain'
 import { document } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
@@ -32,10 +32,7 @@ builder.prismaObject('AiLibraryFile', {
       type: 'DocumentManifest',
       nullable: true,
       resolve: async (file, _args, { workspaceId }) => {
-        const fileManifest = await document.get(workspaceId, {
-          libraryId: file.libraryId,
-          documentId: file.id,
-        })
+        const fileManifest = await document.get({ workspaceId, libraryId: file.libraryId, documentId: file.id })
         return fileManifest
       },
     }),
@@ -43,8 +40,8 @@ builder.prismaObject('AiLibraryFile', {
       type: ['ExtractionMethod'],
       nullable: { list: false, items: false },
       resolve: (file) => {
-        const supportedMethods = getAvailableMethodsForMimeType(file.mimeType)
-        return supportedMethods.map((method) => method.extractionMethod)
+        const supportedMethods = getExtractionMethods({ mimeType: file.mimeType })
+        return supportedMethods
       },
     }),
     crawler: t.relation('crawledByCrawler', { nullable: true }),

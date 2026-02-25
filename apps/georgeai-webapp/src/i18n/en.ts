@@ -516,6 +516,14 @@ export default {
     unexpectedError: 'An unexpected error occurred',
     uploadedFileIsMissing: 'The uploaded file is missing.',
   },
+  extractionMethods: {
+    default: 'Default Extraction',
+    pdfExtraction: 'PDF Extraction',
+    textExtraction: 'Text Extraction',
+    excelExtraction: 'Excel Extraction',
+    ocr: 'OCR Extraction',
+    text: 'Text Extraction',
+  },
   files: {
     activeFilesForLibrary: '{count} Active files in library',
     allFilesForLibrary: '{count} Total files in library',

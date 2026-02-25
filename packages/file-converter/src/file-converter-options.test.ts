@@ -6,7 +6,6 @@ describe('fileConverterOptions', () => {
 
     const methodNames = methods.map((m) => m.extractionMethod)
     expect(methodNames).toContain('pdfExtraction')
-    expect(methodNames).toContain('textExtraction')
   })
   it('returns empty array for unsupported MIME type', () => {
     const methods = getAvailableMethodsForMimeType('application/unknown')
@@ -18,7 +17,7 @@ describe('fileConverterOptions', () => {
   })
   it('is text extraction available for application/pdf', () => {
     const isAvailable = isMethodAvailableForMimeType('textExtraction', 'application/pdf')
-    expect(isAvailable).toBe(true)
+    expect(isAvailable).toBe(false)
   })
   it('is pdfExtraction available for application/pdf', () => {
     const isAvailable = isMethodAvailableForMimeType('pdfExtraction', 'application/pdf')

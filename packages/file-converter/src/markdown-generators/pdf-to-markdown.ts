@@ -2,7 +2,7 @@ import { createRequire } from 'node:module'
 import { Readable } from 'node:stream'
 import { GlobalWorkerOptions, OPS, getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 
-import { ExtractionWriter, document, extraction } from '@george-ai/file-management'
+import { ExtractionWriter, extraction, readSource } from '@george-ai/file-management'
 
 import { PDF_LAYOUT } from '../constants'
 import { FileConverterParameters, logger } from './common'
@@ -29,29 +29,21 @@ async function streamToBuffer(stream: Readable): Promise<Buffer> {
 
 // Advanced PDF to Markdown converter that preserves layout and structure
 export async function pdfToMarkdown(parameters: FileConverterParameters) {
-  const { workspaceId, libraryId, documentId, timeoutSignal } = parameters
-  logger.debug('Starting PDF conversion', { workspaceId, libraryId, documentId })
+  const { document, timeoutSignal } = parameters
+  logger.debug('Starting PDF conversion', { document })
 
-  const fileManifest = await document.get(workspaceId, {
-    libraryId,
-    documentId,
-  })
+  const { stream: sourceStream } = await readSource(document)
 
-  const { stream: sourceStream } = await document.readSource(workspaceId, {
-    libraryId,
-    documentId,
-  })
-
-  const extractionWriter = await extraction.create(fileManifest, 'pdfExtraction')
+  const extractionWriter = await extraction.create(document, 'pdfExtraction')
 
   try {
     await extractFromPDF(sourceStream, timeoutSignal, extractionWriter)
     const result = await extractionWriter.ack()
-    logger.debug('PDF conversion completed', { workspaceId, libraryId, documentId })
+    logger.debug('PDF conversion completed', { document })
     return result
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    logger.error('PDF conversion failed', { error: errorMessage, workspaceId, libraryId, documentId })
+    logger.error('PDF conversion failed', { error: errorMessage, document })
     await extractionWriter.nack(error instanceof Error ? error : undefined)
     throw error
   }

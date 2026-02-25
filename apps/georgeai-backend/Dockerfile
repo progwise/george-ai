@@ -28,12 +28,13 @@ WORKDIR /app
 
 COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY packages/app-commons/package.json ./packages/app-commons/
-COPY packages/app-database/package.json ./packages/app-database/
-COPY packages/app-domain/package.json ./packages/app-domain/
+COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 COPY packages/ai-act/package.json ./packages/ai-act/
 COPY packages/ai-service-client/package.json ./packages/ai-service-client/
 COPY packages/api-crawler/package.json ./packages/api-crawler/
+COPY packages/app-domain/package.json ./packages/app-domain/
+COPY packages/app-commons/package.json ./packages/app-commons/
+COPY packages/app-database/package.json ./packages/app-database/
 COPY packages/app-domain/package.json ./packages/app-domain/
 COPY packages/connector-types/package.json ./packages/connector-types/
 COPY packages/event-service-client/package.json ./packages/event-service-client/
@@ -47,7 +48,6 @@ COPY packages/pothos-graphql/package.json ./packages/pothos-graphql/
 COPY packages/smb-crawler-client/package.json ./packages/smb-crawler-client/
 COPY packages/vector-store/package.json ./packages/vector-store/
 COPY packages/web-utils/package.json ./packages/web-utils/
-COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 
 RUN pnpm i --frozen-lockfile
 
@@ -55,12 +55,12 @@ RUN pnpm i --frozen-lockfile
 COPY LICENSE ./
 
 # Copy only the source files for packages that backend depends on
-COPY packages/app-commons ./packages/app-commons
-COPY packages/app-database ./packages/app-database
-COPY packages/app-domain ./packages/app-domain
+COPY apps/georgeai-backend ./apps/georgeai-backend
 COPY packages/ai-act ./packages/ai-act
 COPY packages/ai-service-client ./packages/ai-service-client
 COPY packages/api-crawler ./packages/api-crawler
+COPY packages/app-commons ./packages/app-commons
+COPY packages/app-database ./packages/app-database
 COPY packages/app-domain ./packages/app-domain
 COPY packages/connector-types ./packages/connector-types
 COPY packages/event-service-client ./packages/event-service-client
@@ -74,7 +74,6 @@ COPY packages/pothos-graphql ./packages/pothos-graphql
 COPY packages/smb-crawler-client ./packages/smb-crawler-client
 COPY packages/vector-store ./packages/vector-store
 COPY packages/web-utils ./packages/web-utils
-COPY apps/georgeai-backend ./apps/georgeai-backend
 
 # ARG here to avoid cache invalidation of dependency layers when only commit SHA changes
 ARG GIT_COMMIT_SHA

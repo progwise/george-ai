@@ -30,8 +30,6 @@ builder.prismaObject('AiList', {
     id: t.exposeID('id', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
-    ownerId: t.exposeString('ownerId', { nullable: false }),
-    owner: t.relation('owner', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
     fields: t.relation('fields', { nullable: false, query: { orderBy: { order: 'asc' } } }),
     sources: t.relation('sources', { nullable: false }),
@@ -64,10 +62,7 @@ builder.prismaObject('AiListItem', {
           where: { id: item.fileId },
           select: { libraryId: true },
         })
-        return document.get(workspaceId, {
-          libraryId: sourceFile.libraryId,
-          documentId: item.fileId,
-        })
+        return document.get({ workspaceId, libraryId: sourceFile.libraryId, documentId: item.fileId })
       },
     }),
     extractionInfo: t.withAuth({ isLoggedIn: true }).field({

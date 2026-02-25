@@ -29,12 +29,30 @@ function shouldLog(messageLevel: LogLevel): boolean {
   return LOG_LEVELS[messageLevel] <= LOG_LEVELS[currentLevel]
 }
 
+const RED = '\x1b[31m'
+const RESET = '\x1b[0m'
+const YELLOW = '\x1b[33m'
+const BLUE = '\x1b[34m'
+const CYAN = '\x1b[36m'
+const DIM = '\x1b[2m'
+
 /**
  * Format log message with timestamp and level
  */
 function formatMessage(level: LogLevel, context: string, message: string): string {
   const timestamp = new Date().toISOString()
-  return `[${timestamp}] [${level}] [${context}] ${message}`
+  switch (level) {
+    case 'ERROR':
+      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${RED}[${level}] [${context}]${RESET} ${message}`
+    case 'WARN':
+      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${YELLOW}[${level}] [${context}]${RESET} ${message}`
+    case 'INFO':
+      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${BLUE}[${level}] [${context}]${RESET} ${message}`
+    case 'DEBUG':
+      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${DIM}[${level}] [${context}]${RESET} ${message}`
+    default:
+      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${CYAN}[${level}] [${context}]${RESET} ${message}`
+  }
 }
 
 /**

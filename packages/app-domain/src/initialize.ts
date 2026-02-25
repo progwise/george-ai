@@ -3,13 +3,29 @@ import { prisma } from '@george-ai/app-database'
 import { WorkspaceConfig, workspaceConfig } from '@george-ai/event-service-client'
 
 import { logger } from './common'
+import { ensureSystemWorkspace } from './workspace'
 
-export const initializeAppDomain = async () => {
+let initializeOncePromise: Promise<void> | null = null
+
+export function initializeOnce(): Promise<void> {
+  if (initializeOncePromise) {
+    return initializeOncePromise
+  }
+  initializeOncePromise = initializeAppDomain()
+  return initializeOncePromise
+}
+
+const initializeAppDomain = async () => {
+  if (initializeOncePromise) {
+    return initializeOncePromise
+  }
+  await ensureSystemWorkspace()
+
   const workspaces = await prisma.workspace.findMany({
     select: {
       id: true,
       name: true,
-      aiProviders: { where: { enabled: true } },
+      providers: { where: { enabled: true } },
       languageModels: { where: { enabled: true } },
     },
   })
@@ -19,7 +35,7 @@ export const initializeAppDomain = async () => {
       logger.info(`Found workspace for initialization: ${workspace.id} - ${workspace.name}`)
       const entry: WorkspaceConfig = {
         workspaceId: workspace.id,
-        providerInstances: workspace.aiProviders.map((provider) => ({
+        providerInstances: workspace.providers.map((provider) => ({
           version: 1,
           id: provider.id,
           modelProvider: getModelProvider(provider.provider),

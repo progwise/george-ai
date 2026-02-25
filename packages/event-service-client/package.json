@@ -14,7 +14,8 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:debug": "LOG_LEVEL=debug vitest run"
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",

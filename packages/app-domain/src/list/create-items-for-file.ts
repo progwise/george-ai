@@ -31,10 +31,7 @@ export async function createItemsForFile({
     return 0
   }
 
-  const file = await document.get(workspaceId, {
-    libraryId,
-    documentId: fileId,
-  })
+  const file = await document.get({ workspaceId, libraryId, documentId: fileId })
 
   if (!file) {
     logger.warn(`File not found when creating list items`, { workspaceId, libraryId, fileId })

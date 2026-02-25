@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 
 import { dateString } from '@george-ai/app-commons'
 
-import { ManagedUserFragment, UserFragment } from '../../../gql/graphql'
+import { CurrentUserFragment, ManagedUserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
@@ -16,7 +16,7 @@ export const UserTable = ({
   onChange,
 }: {
   users: ManagedUserFragment[]
-  currentUser: UserFragment
+  currentUser: CurrentUserFragment
   onChange: () => void
 }) => {
   const { t, language } = useTranslation()

@@ -1,20 +1,21 @@
+import { useRouteContext } from '@tanstack/react-router'
 import { useRef } from 'react'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { TrashIcon } from '../../icons/trash-icon'
-import { useLibraryActions } from './use-library-actions'
+import { useWorkspace } from '../workspace'
 
 interface ApiKeyRevokeButtonProps {
-  libraryId: string
   apiKey: { id: string; name: string }
 }
 
 export const ApiKeyRevokeButton = (props: ApiKeyRevokeButtonProps) => {
+  const { user } = useRouteContext({ from: '/_authenticated' })
   const ref = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
-  const { libraryId, apiKey } = props
+  const { apiKey } = props
 
-  const { revokeApiKey, isPending } = useLibraryActions(libraryId)
+  const { revokeApiKey, isPending } = useWorkspace(user)
 
   return (
     <>

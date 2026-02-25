@@ -43,8 +43,8 @@ const workspaceQueryDocument = graphql(`
 const getWorkspace = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => z.object({ workspaceId: z.string() }).parse(data))
   .handler(async ({ data }) => {
-    const { workspace } = await backendRequest(workspaceQueryDocument, data)
-    return workspace
+    const workspaceResult = await backendRequest(workspaceQueryDocument, data)
+    return workspaceResult.workspace
   })
 
 export const getWorkspaceQueryOptions = (parameters: { workspaceId: string }) =>

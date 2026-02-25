@@ -37,7 +37,6 @@ describe('API Key Tests', () => {
         id: TEST_LIBRARY_ID,
         name: 'Test Library',
         workspaceId: TEST_WORKSPACE_ID,
-        ownerId: TEST_USER_ID,
       },
     })
   })
@@ -59,13 +58,13 @@ describe('API Key Tests', () => {
     await prisma.apiKey.create({
       data: {
         id: `api_key:${Date.now()}`,
+        workspaceId: TEST_WORKSPACE_ID,
         userId: TEST_USER_ID,
-        libraryId: TEST_LIBRARY_ID,
         name: 'Test API Key',
         keyHash: generated.keyHash,
       },
     })
-    const isValid = await apiKey.validateApiKey({ apiKey: generated.key, libraryId: TEST_LIBRARY_ID })
-    expect(isValid).toEqual({ userId: TEST_USER_ID, libraryId: TEST_LIBRARY_ID, apiKeyId: expect.any(String) })
+    const isValid = await apiKey.validateApiKey({ apiKey: generated.key, workspaceId: TEST_WORKSPACE_ID })
+    expect(isValid).toEqual({ userId: TEST_USER_ID, workspaceId: TEST_WORKSPACE_ID, apiKeyId: expect.any(String) })
   })
 })

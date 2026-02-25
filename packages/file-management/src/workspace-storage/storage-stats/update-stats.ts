@@ -1,3 +1,4 @@
+import { logger } from '../commons'
 import { getEntryOrThrow, saveEntry } from '../entry'
 import { DocumentManifest, ExtractionManifest, LibraryManifest, StorageStats, WorkspaceManifest } from '../schema'
 import { addStorageStats } from './add-storage-stats'
@@ -22,50 +23,42 @@ export async function updateStats(
         : subtractStorageStats(oldStats, stats),
   )
 
-  const savePromises: Promise<unknown>[] = []
+  logger.debug('Updating storage stats for entry', {
+    type: manifest.type,
+    id:
+      manifest.type === 'workspace'
+        ? manifest.workspaceId
+        : manifest.type === 'library'
+          ? manifest.libraryId
+          : manifest.type === 'document'
+            ? manifest.documentId
+            : `${manifest.documentId}-${manifest.extractionMethod}`,
+    oldStats,
+    stats,
+    newStats,
+    operation,
+  })
 
-  savePromises.push(
-    saveEntry({
-      ...manifest,
-      storageStats: newStats,
-    }),
-  )
+  await saveEntry({ ...manifest, storageStats: newStats })
 
   switch (manifest.type) {
     case 'extraction':
       {
         const fileManifest = await getEntryOrThrow({ ...manifest, type: 'document' })
-        savePromises.push(
-          saveEntry({
-            ...fileManifest,
-            storageStats: newStats,
-          }),
-        )
+        await updateStats(fileManifest, parameters)
       }
       break
     case 'document':
       {
         const libraryManifest = await getEntryOrThrow({ ...manifest, type: 'library' })
-        savePromises.push(
-          saveEntry({
-            ...libraryManifest,
-            storageStats: newStats,
-          }),
-        )
+        await updateStats(libraryManifest, parameters)
       }
       break
     case 'library':
       {
         const workspaceManifest = await getEntryOrThrow({ ...manifest, type: 'workspace' })
-        savePromises.push(
-          saveEntry({
-            ...workspaceManifest,
-            storageStats: newStats,
-          }),
-        )
+        await updateStats(workspaceManifest, parameters)
       }
       break
   }
-
-  await Promise.all(savePromises)
 }

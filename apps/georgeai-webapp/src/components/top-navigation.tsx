@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { ReactNode, useCallback, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { UserFragment } from '../gql/graphql'
+import { CurrentUserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { BowlerLogoIcon } from '../icons/bowler-logo-icon'
 import { FileRoutesByTo } from '../routeTree.gen'
@@ -28,8 +28,8 @@ const TopNavigationLink = ({ to, children }: TopNavigationLinkProps) => (
 )
 
 interface TopNavigationProps {
-  user: UserFragment | null
-  workspaceId: string | null
+  user?: CurrentUserFragment | null
+  workspaceId?: string | null
 }
 
 export default function TopNavigation({ user }: TopNavigationProps) {

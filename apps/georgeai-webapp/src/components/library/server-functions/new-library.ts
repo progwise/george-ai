@@ -17,18 +17,16 @@ export const createNewLibraryFn = createServerFn({ method: 'POST' })
     const data = await ctx.data
     return await backendRequest(
       graphql(`
-        mutation createLibrary($data: LibraryInput!) {
-          createLibrary(data: $data) {
+        mutation createLibrary($name: String!, $description: String) {
+          createLibrary(name: $name, description: $description) {
             id
             name
           }
         }
       `),
       {
-        data: {
-          name: data.name,
-          description: data.description,
-        },
+        name: data.name,
+        description: data.description,
       },
     )
   })

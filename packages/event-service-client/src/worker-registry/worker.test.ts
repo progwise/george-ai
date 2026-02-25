@@ -1,4 +1,4 @@
-import { initializeEventServiceClient } from '..'
+import { isEventServiceClientInitialized } from '..'
 import { default as workerRegistry } from './index'
 
 describe.sequential('event-service-client worker tests', () => {
@@ -7,10 +7,9 @@ describe.sequential('event-service-client worker tests', () => {
 
   beforeAll(async () => {
     // Ensure workspace is clean before tests
-    await initializeEventServiceClient()
+    await isEventServiceClientInitialized()
 
-    const entries = await workerRegistry.getAllWorkerRegistryEntries()
-    console.log('Existing worker registry entries deleted before test', { entries })
+    const entries = await workerRegistry.getWorker()
     await Promise.all(entries.map((entry) => workerRegistry.deleteWorker(entry.workerId)))
   })
 
@@ -19,7 +18,7 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should signup', async () => {
-    const entries = await workerRegistry.signup({
+    const entries = await workerRegistry.signupWorker({
       workerId: TEST_WORKER_IDS[0],
     })
     expect(entries.length).toBeGreaterThan(0)
@@ -29,7 +28,7 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should get worker that does not exist', async () => {
-    const retrievedEntry = await workerRegistry.getWorkerRegistryEntry({
+    const retrievedEntry = await workerRegistry.getWorkerEntry({
       workerId: 'non-existent-worker-id',
       workerType: 'AI_HEALTH_MANAGEMENT',
     })
@@ -37,7 +36,7 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should get worker that was just created', async () => {
-    const retrievedEntry = await workerRegistry.getWorkerRegistryEntry({
+    const retrievedEntry = await workerRegistry.getWorkerEntry({
       workerId: TEST_WORKER_IDS[0],
       workerType: 'AI_HEALTH_MANAGEMENT',
     })
@@ -48,7 +47,7 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should update worker heartbeat', async () => {
-    const beforeUpdate = await workerRegistry.getWorkerRegistryEntry({
+    const beforeUpdate = await workerRegistry.getWorkerEntry({
       workerId: TEST_WORKER_IDS[0],
       workerType: 'AI_HEALTH_MANAGEMENT',
     })
@@ -63,7 +62,7 @@ describe.sequential('event-service-client worker tests', () => {
       workerType: 'AI_HEALTH_MANAGEMENT',
     })
 
-    const afterUpdate = await workerRegistry.getWorkerRegistryEntry({
+    const afterUpdate = await workerRegistry.getWorkerEntry({
       workerId: TEST_WORKER_IDS[0],
       workerType: 'AI_HEALTH_MANAGEMENT',
     })
@@ -74,7 +73,7 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should signup another worker', async () => {
-    const entries = await workerRegistry.signup({
+    const entries = await workerRegistry.signupWorker({
       workerId: TEST_WORKER_IDS[1],
     })
 
@@ -87,7 +86,7 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should signup a third worker without AI_HEALTH_MANAGEMENT', async () => {
-    const entries = await workerRegistry.signup({
+    const entries = await workerRegistry.signupWorker({
       workerId: TEST_WORKER_IDS[2],
     })
 
@@ -101,7 +100,7 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should get all worker registry entries', async () => {
-    const allEntries = await workerRegistry.getAllWorkerRegistryEntries()
+    const allEntries = await workerRegistry.getWorker()
     const healthManagementWorkerEntries = allEntries.filter((entry) => entry.workerType === 'AI_HEALTH_MANAGEMENT')
     const workspaceProcessingEntries = allEntries.filter((entry) => entry.workerType === 'WORKSPACE_PROCESSING')
     const providerCallEntries = allEntries.filter((entry) => entry.workerType === 'AI_PROVIDER_CALLING')
@@ -116,7 +115,7 @@ describe.sequential('event-service-client worker tests', () => {
   test('should delete worker', async () => {
     await workerRegistry.deleteWorker(TEST_WORKER_IDS[1])
 
-    const retrievedEntries = await workerRegistry.getWorkerRegistryEntries({
+    const retrievedEntries = await workerRegistry.getWorker({
       workerId: TEST_WORKER_IDS[1],
     })
 
@@ -124,15 +123,15 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('Should return the correct available slots', async () => {
-    const slotsBefore = await workerRegistry.getAvailableSlots()
+    const slotsBefore = await workerRegistry.availableWorkerSlots()
 
     // Sign up a new worker which should take the last AI_HEALTH_MANAGEMENT slot
-    const entries = await workerRegistry.signup({
+    const entries = await workerRegistry.signupWorker({
       workerId: TEST_WORKER_IDS[3],
     })
     const healthManagementEntry = entries.find((entry) => entry.workerType === 'AI_HEALTH_MANAGEMENT')
 
-    const slotsAfter = await workerRegistry.getAvailableSlots()
+    const slotsAfter = await workerRegistry.availableWorkerSlots()
     if (healthManagementEntry) {
       expect(slotsAfter['AI_HEALTH_MANAGEMENT']).toBe(slotsBefore['AI_HEALTH_MANAGEMENT'] - 1)
     } else {
@@ -143,7 +142,7 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should register a new worker type for existing worker', async () => {
-    const newEntry = await workerRegistry.register({
+    const newEntry = await workerRegistry.registerWorker({
       workerId: TEST_WORKER_IDS[4],
       workerType: 'WORKSPACE_PROCESSING',
     })
@@ -154,12 +153,12 @@ describe.sequential('event-service-client worker tests', () => {
   })
 
   test('should not register a worker if already registered', async () => {
-    const firstEntry = await workerRegistry.register({
+    const firstEntry = await workerRegistry.registerWorker({
       workerId: TEST_WORKER_IDS[5],
       workerType: 'WORKSPACE_PROCESSING',
     })
 
-    const secondEntry = await workerRegistry.register({
+    const secondEntry = await workerRegistry.registerWorker({
       workerId: TEST_WORKER_IDS[5],
       workerType: 'WORKSPACE_PROCESSING',
     })
@@ -172,14 +171,14 @@ describe.sequential('event-service-client worker tests', () => {
 
   test('should register a worker that was previously deleted', async () => {
     const workerId = TEST_WORKER_IDS[6]
-    await workerRegistry.register({
+    await workerRegistry.registerWorker({
       workerId,
       workerType: 'WORKSPACE_PROCESSING',
     })
 
     await workerRegistry.deleteWorker(workerId)
 
-    const newEntry = await workerRegistry.register({
+    const newEntry = await workerRegistry.registerWorker({
       workerId,
       workerType: 'WORKSPACE_PROCESSING',
     })
@@ -193,7 +192,7 @@ describe.sequential('event-service-client worker tests', () => {
     await expect(() =>
       Promise.all(
         Array.from({ length: 3 }, (_, i) =>
-          workerRegistry.register({
+          workerRegistry.registerWorker({
             workerId: TEST_WORKER_IDS[7 + i],
             workerType: 'AI_HEALTH_MANAGEMENT',
           }),

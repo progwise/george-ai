@@ -3,6 +3,7 @@ import z from 'zod'
 import { EXTRACTION_METHODS } from '@george-ai/app-commons'
 
 import { BaseManifestSchema } from './base-manifest-schema'
+import { DateTimeSchema } from './common'
 
 export const ExtractionManifestSchema = BaseManifestSchema.extend({
   type: z.literal('extraction'),
@@ -10,6 +11,6 @@ export const ExtractionManifestSchema = BaseManifestSchema.extend({
   documentId: z.string().min(3),
   extractionMethod: z.enum(EXTRACTION_METHODS),
   sourceHash: z.string(),
-  extracted: z.string().datetime().optional(),
+  extracted: DateTimeSchema.optional(),
   fragmentCount: z.number().int().nonnegative().optional(),
 })

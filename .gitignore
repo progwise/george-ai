@@ -25,6 +25,7 @@ venv
 .astro
 .nats-data
 .qdrant-data
+.storage
 .test-uploads
 .uploads
 *.pdf

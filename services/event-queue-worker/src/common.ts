@@ -1,7 +1,16 @@
-import { createLogger } from '@george-ai/app-commons'
+import { WorkerType, createLogger } from '@george-ai/app-commons'
 
-export const WORKSPACE_IDS = process.env.WORKSPACE_IDS || '*'
 export const WORKER_ID = `event-queue-worker-${process.pid}`
 
-const logger = createLogger('Event Queue Worker')
+const logger = createLogger('event-queue-worker')
 export { logger }
+
+export const subscriptions = new Map<
+  WorkerType | 'WORKER_REGISTRY',
+  {
+    startedAt: Date
+    processedEvents: number
+    lastProcessedTimestamp: number
+    cleanupFunction: () => Promise<void>
+  }
+>()

@@ -1,10 +1,9 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-import { getConfig } from '../config'
-import { logger } from './common'
+import { getConfigValue } from '@george-ai/app-commons'
 
-const CREDENTIALS_DIR = path.resolve(getConfig('CRAWLER_CREDENTIALS_DIR'))
+import { logger } from './common'
 
 async function ensureDirectoryExists(dirPath: string, mode: number = 0o755): Promise<void> {
   try {
@@ -15,14 +14,14 @@ async function ensureDirectoryExists(dirPath: string, mode: number = 0o755): Pro
 }
 
 function getCredentialsFile(crawlerId: string): string {
-  return path.join(CREDENTIALS_DIR, `${crawlerId}.txt`)
+  return path.join(getConfigValue('STORAGE_PATH_CREDENTIALS'), `${crawlerId}.txt`)
 }
 
 export async function storeCrawlerCredentials(
   crawlerId: string,
   values: Record<string, string | null>,
 ): Promise<string> {
-  await ensureDirectoryExists(CREDENTIALS_DIR, 0o700)
+  await ensureDirectoryExists(getConfigValue('STORAGE_PATH_CREDENTIALS'), 0o700)
   const credFile = getCredentialsFile(crawlerId)
 
   // Store the cookies in a simple text file

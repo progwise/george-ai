@@ -1,6 +1,4 @@
-import { createLogger } from '@george-ai/app-commons'
-
-import { WorkerType } from './schema'
+import { WorkerType, createLogger } from '@george-ai/app-commons'
 
 export const logger = createLogger('event-service-client:worker-registry')
 export const WORKER_REGISTRY_BUCKET_NAME = 'worker-registry'

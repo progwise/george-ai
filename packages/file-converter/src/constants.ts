@@ -21,11 +21,16 @@ export const SUPPORTED_MIME_TYPES = [
   'text/x-markdown',
   'application/csv',
   'application/json',
+  'application/jsonl',
   'application/xhtml+xml',
   'application/xml',
   'application/javascript',
   'text/html',
   'message/rfc822', // Email files (.eml)
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/tiff', // Common image formats for OCR
 ] as const
 
 export type SupportedMimeType = (typeof SUPPORTED_MIME_TYPES)[number]

@@ -15,7 +15,16 @@ export const ExtractionMethods: Record<
   textExtraction: {
     name: 'Text Extraction',
     description: 'Extract plain text content',
-    supportedMimeTypes: ['text/plain', 'text/markdown', 'text/x-markdown', 'application/pdf'],
+    supportedMimeTypes: [
+      'text/plain',
+      'text/markdown',
+      'text/html',
+      'text/csv',
+      'text/x-markdown',
+      'application/csv',
+      'application/json',
+      'application/jsonl',
+    ],
   },
   pdfExtraction: {
     name: 'PDF Extraction',
@@ -55,25 +64,12 @@ export const ExtractionMethods: Record<
     description: 'Not used for new extractions',
     supportedMimeTypes: [],
   },
+  imageExtraction: {
+    name: 'Image Extraction',
+    description: 'Extract text content from image files using OCR',
+    supportedMimeTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/tiff'],
+  },
 } as const
-
-/**
- * Check if an extraction method supports a specific MIME type
- */
-export const isMethodAvailableForMimeType = (
-  extractionMethod: ExtractionMethod,
-  mimeType: string | null | undefined,
-): boolean => {
-  if (!mimeType) {
-    return false // No MIME type provided
-  }
-  const typedMimeType = SUPPORTED_MIME_TYPES.find((mt) => mt.toLowerCase() === mimeType.toLowerCase())
-  if (typedMimeType === undefined) {
-    return false // MIME type not supported at all
-  }
-  const methodConfig = ExtractionMethods[extractionMethod]
-  return methodConfig.supportedMimeTypes.includes(typedMimeType)
-}
 
 /**
  * Get all extraction methods available for a specific MIME type
@@ -97,6 +93,24 @@ export const getAvailableMethodsForMimeType = (
       name: config.name,
       description: config.description,
     }))
+}
+
+/**
+ * Check if an extraction method supports a specific MIME type
+ */
+export const isMethodAvailableForMimeType = (
+  extractionMethod: ExtractionMethod,
+  mimeType: string | null | undefined,
+): boolean => {
+  if (!mimeType) {
+    return false // No MIME type provided
+  }
+  const typedMimeType = SUPPORTED_MIME_TYPES.find((mt) => mt.toLowerCase() === mimeType.toLowerCase())
+  if (typedMimeType === undefined) {
+    return false // MIME type not supported at all
+  }
+  const methodConfig = ExtractionMethods[extractionMethod]
+  return methodConfig.supportedMimeTypes.includes(typedMimeType)
 }
 
 export const FileConverterOptionsSchema = z.object({

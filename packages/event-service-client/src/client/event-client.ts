@@ -91,23 +91,29 @@ export interface EventClient {
 
   ensureBucket(params: { name: string; options?: { ttlMs?: number; history?: number } }): Promise<void>
 
-  put(params: { bucketName: string; key: string; value: Uint8Array<ArrayBufferLike> }): Promise<void>
+  putBucketEntry(params: { bucketName: string; key: string; value: Uint8Array<ArrayBufferLike> }): Promise<void>
 
-  get(params: { bucketName: string; key: string }): Promise<Uint8Array<ArrayBufferLike> | null>
+  getBucketEntry(params: { bucketName: string; key: string }): Promise<Uint8Array<ArrayBufferLike> | null>
 
-  watch(params: {
+  getBucketStatus(params: { bucketName: string }): Promise<{
+    valueCount: number
+    maxEntriesPerKey: number
+    ttlMs: number
+  }>
+
+  watchBucket(params: {
     bucketName: string
     key: string
     handler: (handlerParams: {
       key: string
-      operation: 'create' | 'update' | 'delete'
+      operation: 'update' | 'delete'
       value: Uint8Array<ArrayBufferLike> | null
     }) => Promise<void>
   }): Promise<() => Promise<void>>
 
-  delete(params: { bucketName: string; key: string }): Promise<void>
+  deleteBucketEntry(params: { bucketName: string; key: string }): Promise<void>
 
-  getKeys(params: { bucketName: string; filter?: string; limit?: number }): Promise<string[]>
+  getBucketKeys(params: { bucketName: string; filter?: string; limit?: number }): Promise<string[]>
   /**
    * Disconnect from event service
    */

@@ -1,6 +1,6 @@
 import { createReadStream } from 'fs'
 
-import { document, extraction, library, workspace } from '@george-ai/file-management'
+import { document, extraction, getDocumentOrThrow, library, workspace } from '@george-ai/file-management'
 import { getTestAssetLocalPath } from '@george-ai/test-utils/src/test-files'
 
 import { transformToMarkdown } from './transform-to-markdown'
@@ -25,11 +25,12 @@ describe.sequential('PDF to Markdown', async () => {
       mimeType: 'application/pdf',
       uri: 'legacy-uri',
     })
-    await document.writeSource(TEST_WORKSPACE_ID, {
+    const { ack } = await document.writeSource(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_PDF_FILE_ID,
       stream,
     })
+    await ack()
   })
 
   afterAll(async () => {
@@ -37,10 +38,13 @@ describe.sequential('PDF to Markdown', async () => {
   })
 
   it('should transform PDF to Markdown', async () => {
-    await transformToMarkdown({
+    const document = await getDocumentOrThrow({
       workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_PDF_FILE_ID,
+    })
+    await transformToMarkdown({
+      document,
       timeoutSignal: new AbortController().signal,
       options: {
         extractionMethod: 'pdfExtraction',
@@ -49,7 +53,8 @@ describe.sequential('PDF to Markdown', async () => {
   })
 
   it('should have the PDF extraction in the file', async () => {
-    const fileInfo = await document.get(TEST_WORKSPACE_ID, {
+    const fileInfo = await document.get({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_PDF_FILE_ID,
     })
@@ -70,7 +75,7 @@ describe.sequential('PDF to Markdown', async () => {
   })
 
   it('should read the Markdown extraction', async () => {
-    const extractionReadStream = await extraction.read(TEST_WORKSPACE_ID, {
+    const { stream: extractionReadStream } = await extraction.read(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_PDF_FILE_ID,
       extractionMethod: 'pdfExtraction',

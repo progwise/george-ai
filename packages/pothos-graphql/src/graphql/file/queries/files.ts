@@ -22,8 +22,7 @@ const responseType = builder
       items: t.withAuth({ isLoggedIn: true }).prismaField({
         type: ['AiLibraryFile'],
         nullable: false,
-        resolve: async (query, { input }, _args, { workspaceId, session }) => {
-          await canReadWorkspaceOrThrow(workspaceId, session.user.id)
+        resolve: async (query, { input }) => {
           return prisma.aiLibraryFile.findMany({
             ...query,
             where: {

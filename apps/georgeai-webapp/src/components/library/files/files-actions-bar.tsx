@@ -47,9 +47,9 @@ export const FilesActionsBar = ({
     prepareDesktopFileUploads(
       files.map((file) => ({
         name: file.name,
-        type: file.type,
+        mimeType: file.type,
         size: file.size,
-        lastModified: new Date(file.lastModified),
+        modificationDate: new Date(file.lastModified),
         originUri: file.webkitRelativePath || file.name,
       })),
       {
@@ -127,6 +127,7 @@ export const FilesActionsBar = ({
       </ul>
       {preparedUploadFiles.length > 0 && (
         <FileUploadProgressDialog
+          dialogRef={fileUploadProgressDialogRef}
           libraryId={libraryId}
           preparedUploadFiles={preparedUploadFiles}
           onClose={() => setPreparedUploadFiles([])}

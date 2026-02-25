@@ -4,6 +4,7 @@ import { getCookie } from '@tanstack/react-start/server'
 import request, { RequestDocument, Variables } from 'graphql-request'
 
 import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../auth'
+import { logger } from '../common'
 import { WORKSPACE_COOKIE_NAME } from '../components/workspace/server-functions/workspace-cookie'
 import { BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
 import { graphql } from '../gql'
@@ -31,7 +32,7 @@ async function backendRequest<T, V extends Variables = Variables>(
     return await request(BACKEND_URL + '/graphql', document, variables, headers)
   } catch (error) {
     // Extract clean GraphQL error messages from response.errors
-    if (error && typeof error === 'object' && 'response' in error) {
+    if (typeof error === 'object' && 'response' in error) {
       const response = error.response as { errors?: Array<{ message: string }> }
       if (response.errors && response.errors.length > 0) {
         const errorMessages = response.errors.map((e) => e.message).join('\n')
@@ -39,6 +40,7 @@ async function backendRequest<T, V extends Variables = Variables>(
       }
     }
     // Re-throw original error if it's not a GraphQL error
+    logger.error('Error during backend GraphQL request', { error, document, variables })
     throw error
   }
 }

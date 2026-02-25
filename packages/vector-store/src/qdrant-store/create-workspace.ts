@@ -11,7 +11,7 @@ const ensurePayloadIndex = async (
   const existingIndexes = collectionInfo.payload_schema || {}
 
   if (existingIndexes[fieldName]) {
-    logger.info(`Index for field already exists. Skipping.`, { collectionName, fieldName })
+    logger.debug(`Index for field already exists. Skipping.`, { collectionName, fieldName })
     return
   }
 

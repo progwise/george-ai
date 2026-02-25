@@ -3,6 +3,7 @@ import { zodValidator } from '@tanstack/zod-adapter'
 import { z } from 'zod'
 
 import { useAuth } from '../auth'
+import { logger } from '../common'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { BowlerLogoIcon } from '../icons/bowler-logo-icon'
 
@@ -19,6 +20,8 @@ export const Route = createFileRoute('/login')({
       throw redirect({
         to: search.redirect ?? '/',
       })
+    } else {
+      context.queryClient.clear()
     }
   },
 })
@@ -26,6 +29,7 @@ export const Route = createFileRoute('/login')({
 function RouteComponent() {
   const { login, isReady } = useAuth()
   const { t } = useTranslation()
+  logger.info('Login route rendered...')
 
   const handleLogin = () => {
     if (isReady) {

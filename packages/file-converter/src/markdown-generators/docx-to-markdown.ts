@@ -1,7 +1,7 @@
 import mammoth from 'mammoth'
 import { Readable } from 'stream'
 
-import { document, extraction } from '@george-ai/file-management'
+import { extraction, readSource } from '@george-ai/file-management'
 
 import { FileConverterParameters, logger } from './common'
 
@@ -38,17 +38,9 @@ function getExtensionFromMimeType(mimeType: string): string {
 export async function docxToMarkdown(parameters: FileConverterParameters) {
   logger.debug('[DOCX Converter] Starting conversion', parameters)
 
-  const { workspaceId, libraryId, documentId } = parameters
+  const { document, timeoutSignal } = parameters
 
-  const fileManifest = await document.get(workspaceId, {
-    libraryId,
-    documentId,
-  })
-
-  const { stream: readStream } = await document.readSource(workspaceId, {
-    libraryId,
-    documentId,
-  })
+  const { stream: readStream } = await readSource(document)
 
   // Mammoth only accepts path, buffer, or file - not streams
   const buffer = await streamToBuffer(readStream)
@@ -78,7 +70,8 @@ export async function docxToMarkdown(parameters: FileConverterParameters) {
   // @ts-expect-error - convertToMarkdown exists but not in type definitions
   const result = await mammoth.convertToMarkdown({ buffer }, { convertImage })
 
-  const extractionWriter = await extraction.create(fileManifest, 'docxExtraction')
+  timeoutSignal.throwIfAborted()
+  const extractionWriter = await extraction.create(document, 'docxExtraction')
 
   try {
     await extractionWriter.write(result.value)

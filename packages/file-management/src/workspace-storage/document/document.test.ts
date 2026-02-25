@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 
 import { StorageStats, library as lib, workspace as ws } from '..'
 import { createDocument } from './create-document'
-import { getDocument } from './get-document'
+import { getDocument, getDocumentOrThrow } from './get-document'
 import { writeSource } from './write-source'
 
 describe.sequential('Document storage tests', () => {
@@ -61,7 +61,8 @@ describe.sequential('Document storage tests', () => {
   })
 
   it('Should get the created document manifest', async () => {
-    const documentManifest = await getDocument(TEST_WORKSPACE_ID, {
+    const documentManifest = await getDocument({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_DOCUMENT_ID,
     })
@@ -76,7 +77,8 @@ describe.sequential('Document storage tests', () => {
     let document_usage_before_write: StorageStats
     let document_usage_after_write: StorageStats
     it('Should upload a source file', async () => {
-      const documentManifest = await getDocument(TEST_WORKSPACE_ID, {
+      const documentManifest = await getDocumentOrThrow({
+        workspaceId: TEST_WORKSPACE_ID,
         libraryId: TEST_LIBRARY_ID,
         documentId: TEST_DOCUMENT_ID,
       })
@@ -88,13 +90,16 @@ describe.sequential('Document storage tests', () => {
     })
 
     it('Should have updated manifest after uploading source file', async () => {
-      const documentManifest = await getDocument(TEST_WORKSPACE_ID, {
+      const documentManifest = await getDocument({
+        workspaceId: TEST_WORKSPACE_ID,
         libraryId: TEST_LIBRARY_ID,
         documentId: TEST_DOCUMENT_ID,
       })
       document_usage_after_write = documentManifest!.storageStats
       expect(documentManifest).toBeDefined()
       expect(documentManifest!.sourceHash).toBeDefined()
+      expect(documentManifest!.storageStats.physicalFileCount).toBeGreaterThanOrEqual(2) // At least manifest + source file
+      expect(documentManifest!.storageStats.physicalBytes).toBeGreaterThanOrEqual(3) // Should have some content
     })
 
     it('Should have increased document usage', () => {

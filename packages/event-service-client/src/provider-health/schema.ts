@@ -1,7 +1,8 @@
 import z from 'zod'
 
+import { PROVIDER_HEALTH_STATUS } from '@george-ai/app-commons'
+
 import { ModelProviderInstanceSchema } from '../model-provider/schema'
-import { HEALTH_STATUS } from './common'
 
 export const ProviderHealthSchema = z.object({
   version: z.literal(1),
@@ -12,7 +13,7 @@ export const ProviderHealthSchema = z.object({
   processorUsagePercent: z.number().optional(),
   loadedModelNames: z.array(z.string()).optional(),
   availableModelNames: z.array(z.string()).optional(),
-  status: z.enum(HEALTH_STATUS),
+  status: z.enum(PROVIDER_HEALTH_STATUS),
   timestamp: z.string(), // ISO date string
 })
 

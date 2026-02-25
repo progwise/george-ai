@@ -1,7 +1,7 @@
 import { invalidateWorkspace } from '@george-ai/ai-service-client'
-import { encryptValue } from '@george-ai/app-commons'
+import { encryptValue, getConfigValue } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
-import { canAdminWorkspaceOrThrow, getConfig } from '@george-ai/app-domain'
+import { canAdminWorkspaceOrThrow } from '@george-ai/app-domain'
 import { ModelProviderInstance } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
@@ -50,8 +50,8 @@ builder.mutationField('restoreDefaultProviders', (t) =>
       const workspaceId = context.workspaceId
       const providersToCreate: Array<Omit<ModelProviderInstance, 'id'>> = []
 
-      const apiKey = getConfig('OPENAI_API_KEY')
-      const baseUrl = getConfig('OPENAI_BASE_URL')
+      const apiKey = getConfigValue('OPENAI_API_KEY')
+      const baseUrl = getConfigValue('OPENAI_BASE_URL')
       // Import OpenAI if configured
       if (apiKey) {
         providersToCreate.push({
@@ -63,7 +63,7 @@ builder.mutationField('restoreDefaultProviders', (t) =>
       }
 
       // Import all configured Ollama instances
-      for (const instance of getConfig('OLLAMA_INSTANCES')) {
+      for (const instance of getConfigValue('OLLAMA_INSTANCES')) {
         providersToCreate.push({
           modelProvider: 'ollama',
           name: instance.name,

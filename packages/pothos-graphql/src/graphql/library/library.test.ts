@@ -1,4 +1,5 @@
 import { prisma } from '@george-ai/app-database'
+import { createWorkspace } from '@george-ai/app-domain'
 import { TestUser, graphql, testYoga } from '@george-ai/test-utils'
 
 import { schema } from '../..'
@@ -15,14 +16,11 @@ describe('GraphQL Library Tests', () => {
   let TEST_ADMIN_USER: TestUser
 
   beforeAll(async () => {
-    await prisma.workspace.create({
-      data: {
-        id: TEST_WORKSPACE_ID,
-        name: 'Test Workspace for AI Library',
-        slug: `test-workspace-ai-library-${now}`,
-      },
+    await createWorkspace({
+      workspaceId: TEST_WORKSPACE_ID,
+      name: 'Test Workspace for AI Library',
+      slug: `test-workspace-ai-library-${now}`,
     })
-
     await prisma.user.create({
       data: {
         id: TEST_OWNER_USER_ID,
@@ -73,17 +71,17 @@ describe('GraphQL Library Tests', () => {
   })
 
   afterAll(async () => {
+    await prisma.user.deleteMany({ where: { id: { in: [TEST_USER_ID, TEST_ADMIN_USER_ID] } } }).catch(() => {
+      /* Ignore errors during cleanup */
+    })
     // Teardown code if needed
     await prisma.aiLibrary
       .deleteMany({
-        where: { ownerId: { in: [TEST_USER_ID, TEST_ADMIN_USER_ID] } },
+        where: { workspaceId: TEST_WORKSPACE_ID },
       })
       .catch(() => {
         /* Ignore errors during cleanup */
       })
-    await prisma.user.deleteMany({ where: { id: { in: [TEST_USER_ID, TEST_ADMIN_USER_ID] } } }).catch(() => {
-      /* Ignore errors during cleanup */
-    })
     await prisma.workspace.delete({ where: { id: TEST_WORKSPACE_ID } }).catch(() => {
       /* Ignore errors during cleanup */
     })
@@ -91,8 +89,8 @@ describe('GraphQL Library Tests', () => {
 
   it('Cannot create library without write access', async () => {
     const document = graphql(`
-      mutation createLibrary($data: LibraryInput!) {
-        createLibrary(data: $data) {
+      mutation createLibrary($name: String!, $description: String) {
+        createLibrary(name: $name, description: $description) {
           id
           name
         }
@@ -100,9 +98,7 @@ describe('GraphQL Library Tests', () => {
     `)
     const result = await executeGraphQL(document, {
       variables: {
-        data: {
-          name: 'Test AI Library',
-        },
+        name: 'Test AI Library',
       },
       context: {
         session: {
@@ -118,8 +114,8 @@ describe('GraphQL Library Tests', () => {
 
   it('Can create library with write access', async () => {
     const document = graphql(`
-      mutation createLibrary($data: LibraryInput!) {
-        createLibrary(data: $data) {
+      mutation createLibrary($name: String!, $description: String) {
+        createLibrary(name: $name, description: $description) {
           id
           name
         }
@@ -127,9 +123,7 @@ describe('GraphQL Library Tests', () => {
     `)
     const executionResult = await executeGraphQL(document, {
       variables: {
-        data: {
-          name: 'Test AI Library',
-        },
+        name: 'Test AI Library',
       },
       context: {
         session: {

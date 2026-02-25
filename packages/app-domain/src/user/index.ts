@@ -1,12 +1,8 @@
-import {
-  extractAvatarFromToken,
-  getPreferredAvatarUrl,
-  isProviderAvatar,
-  shouldUpdateAvatarFromProvider,
-} from './avatar-provider'
+import { extractAvatarFromToken, isProviderAvatar } from './avatar'
 import { checkUser } from './check-user'
 import { createUser } from './create-user'
 import { createUserAvatar } from './create-user-avatar'
+import { deleteUser } from './delete-user'
 import { deleteUserAvatar } from './delete-user-avatar'
 import { getUser } from './get-user'
 import { getUserProfile } from './get-user-profile'
@@ -24,8 +20,7 @@ export {
   isProviderAvatar,
   getWorkspaceMembership,
   extractAvatarFromToken,
-  getPreferredAvatarUrl,
-  shouldUpdateAvatarFromProvider,
+  deleteUser,
   deleteUserAvatar,
 }
 
@@ -40,7 +35,6 @@ export default {
   createUserAvatar,
   isProviderAvatar,
   extractAvatarFromToken,
-  getPreferredAvatarUrl,
-  shouldUpdateAvatarFromProvider,
+  deleteUser,
   deleteUserAvatar,
 }

@@ -3,28 +3,28 @@ import bcrypt from 'bcrypt'
 import { prisma } from '@george-ai/app-database'
 
 export interface ApiKeyValidationResult {
-  userId: string
-  libraryId: string
+  workspaceId: string
   apiKeyId: string
+  userId: string
 }
 
 export async function validateApiKey(parameters: {
   apiKey: string
-  libraryId?: string
+  workspaceId?: string
 }): Promise<ApiKeyValidationResult | null> {
-  const { apiKey, libraryId } = parameters
+  const { apiKey, workspaceId } = parameters
   if (!apiKey || apiKey.length === 0) {
     return null
   }
 
   // Find all API keys (we need to check hashes)
   const apiKeys = await prisma.apiKey.findMany({
-    where: libraryId ? { libraryId } : undefined,
+    where: workspaceId ? { workspaceId } : undefined,
     select: {
       id: true,
-      keyHash: true,
       userId: true,
-      libraryId: true,
+      keyHash: true,
+      workspaceId: true,
     },
   })
 
@@ -34,7 +34,7 @@ export async function validateApiKey(parameters: {
 
     if (isValid) {
       // If libraryId was provided, verify it matches
-      if (libraryId && key.libraryId !== libraryId) {
+      if (workspaceId && key.workspaceId !== workspaceId) {
         return null
       }
 
@@ -46,7 +46,7 @@ export async function validateApiKey(parameters: {
 
       return {
         userId: key.userId,
-        libraryId: key.libraryId,
+        workspaceId: key.workspaceId,
         apiKeyId: key.id,
       }
     }

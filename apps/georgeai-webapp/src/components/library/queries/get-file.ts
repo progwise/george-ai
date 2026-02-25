@@ -1,3 +1,4 @@
+import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
@@ -5,7 +6,7 @@ import { graphql } from '../../../gql'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
-const getFile = createServerFn({ method: 'GET' })
+const getFileFn = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) =>
     z
       .object({
@@ -59,7 +60,12 @@ const getFile = createServerFn({ method: 'GET' })
     return result.file
   })
 
-export const getFileQueryOptions = (parameters: { fileId: string; libraryId: string }) => ({
-  queryKey: [queryKeys.File, parameters],
-  queryFn: () => getFile({ data: parameters }),
-})
+export const getFileQueryOptions = (parameters: { fileId: string; libraryId: string }) => {
+  if (parameters.fileId === 'attachments') {
+    throw new Error('Attachments are not supported for getFile query')
+  }
+  return queryOptions({
+    queryKey: [queryKeys.File, parameters],
+    queryFn: () => getFileFn({ data: parameters }),
+  })
+}

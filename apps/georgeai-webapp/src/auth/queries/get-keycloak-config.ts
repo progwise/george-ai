@@ -1,6 +1,7 @@
 import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 
+import { logger } from '../../common'
 import { KEYCLOAK_CLIENT_ID, KEYCLOAK_REALM, KEYCLOAK_URL } from '../../constants'
 import { queryKeys } from '../../query-keys'
 
@@ -13,6 +14,10 @@ const getKeycloakConfigFn = createServerFn({ method: 'GET' }).handler(() => {
   if (!keycloakConfig.url || !keycloakConfig.realm || !keycloakConfig.clientId) {
     throw new Error('Keycloak config is not complete: ' + JSON.stringify(keycloakConfig))
   }
+
+  logger.debug('Keycloak config fetched successfully', {
+    maskedConfig: { ...keycloakConfig, url: '***', realm: '***', clientId: '***' },
+  })
   return keycloakConfig
 })
 

@@ -29,4 +29,5 @@ export const getWorkspaceEmbeddingStatisticsQueryOptions = (parameters: { worksp
     queryKey: [queryKeys.EmbeddingStatistics, { ...parameters }],
     queryFn: () =>
       !parameters.workspaceId ? [] : getWorkspaceEmbeddingStatistics({ data: { workspaceId: parameters.workspaceId } }),
+    enabled: !!parameters.workspaceId,
   })

@@ -1,6 +1,8 @@
 import { promises } from 'node:fs'
 import path from 'node:path'
 
+import { getConfigValue } from '@george-ai/app-commons'
+
 import { BackupInfo, backup, restore } from '../backup'
 import { fs, getLegacyUri, logger } from '../commons'
 import { calculateSourceHash, getSourcePath } from '../document'
@@ -23,7 +25,10 @@ export async function migrateLegacyDocument(workspaceId: string, legacyFileInfo:
     type: 'document',
   }
 
-  const legacyFileDir = await fs.getFolderPathOrThrow([libraryId, fileId], 'Legacy file directory does not exist')
+  const legacyFileDir = await fs.getFolderPathOrThrow(
+    [getConfigValue('STORAGE_PATH_LEGACY_LIBRARIES'), libraryId, fileId],
+    'Legacy file directory does not exist',
+  )
 
   const targetDir = getEntryPath(documentIdentifier)
   const existsTargetDir = await fs.existsFolder(targetDir)
@@ -97,15 +102,15 @@ export async function migrateLegacyDocument(workspaceId: string, legacyFileInfo:
       version: 1,
       documentId: fileId,
       name: legacyFileInfo.name,
-      created: sourceFileInfo.birthtime.toISOString(),
-      updated: new Date().toISOString(),
+      created: sourceFileInfo.birthtime,
+      updated: new Date(),
       creator: legacyFileInfo.crawledByCrawlerId ? `legacy crawler:${legacyFileInfo.crawledByCrawlerId}` : 'legacy',
       mimeType: legacyFileInfo.mimeType,
       sourceHash,
       extractions: [],
       storageStats: {
         physicalBytes: sourceFileInfo.size,
-        lastUpdate: new Date().toISOString(),
+        lastUpdate: new Date(),
         extractionBytes: 0,
         attachmentBytes: 0,
         extractionFileCount: 0,
@@ -115,9 +120,13 @@ export async function migrateLegacyDocument(workspaceId: string, legacyFileInfo:
       origin: {
         uri: legacyFileInfo.originUri || getLegacyUri({ libraryId, fileId }),
         author: 'legacy migration',
-        creationDate: legacyFileInfo.originModificationDate || undefined,
+        creationDate: legacyFileInfo.originModificationDate
+          ? new Date(legacyFileInfo.originModificationDate)
+          : undefined,
         hash: legacyFileInfo.originFileHash || undefined,
-        lastModifiedDate: legacyFileInfo.originModificationDate || undefined,
+        lastModifiedDate: legacyFileInfo.originModificationDate
+          ? new Date(legacyFileInfo.originModificationDate)
+          : undefined,
       },
       workspaceId,
       attachments: [],

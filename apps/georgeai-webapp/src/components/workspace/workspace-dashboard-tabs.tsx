@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
 import { useWorkspace } from '.'
-import { UserFragment } from '../../gql/graphql'
+import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { AssistantNewDialog } from '../assistant/assistant-new-dialog'
@@ -17,7 +17,7 @@ import { getListsQueryOptions } from '../lists/queries'
 
 type TabType = 'libraries' | 'lists' | 'conversations' | 'assistants'
 
-export const WorkspaceDashboardTabs = ({ user }: { user: UserFragment }) => {
+export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) => {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabType>('libraries')
 
@@ -175,9 +175,6 @@ export const WorkspaceDashboardTabs = ({ user }: { user: UserFragment }) => {
                         className="flex items-center justify-between rounded-sm p-3 transition-colors hover:bg-base-200"
                       >
                         <span className="truncate font-medium">{list.name}</span>
-                        <span className="text-sm text-base-content/50">
-                          {list.ownerId === user.id ? t('dashboard.status.owned') : t('dashboard.status.shared')}
-                        </span>
                       </Link>
                     </li>
                   ))}

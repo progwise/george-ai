@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { UserFragment } from '../../../gql/graphql'
+import { CurrentUserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ClientDate } from '../../client-date'
 import { DialogForm } from '../../dialog-form'
@@ -10,7 +10,7 @@ import { useWorkspace } from '../use-workspace'
 import { InviteMemberDialog } from './invite-member-dialog'
 
 interface WorkspaceMembersPanelProps {
-  user: UserFragment
+  user: CurrentUserFragment
   onLeaveSuccess?: () => void
 }
 

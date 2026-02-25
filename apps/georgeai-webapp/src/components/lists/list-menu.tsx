@@ -16,7 +16,6 @@ graphql(`
   fragment ListMenu_AiList on AiList {
     id
     name
-    ownerId
   }
 `)
 

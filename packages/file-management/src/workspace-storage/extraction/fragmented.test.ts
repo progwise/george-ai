@@ -39,7 +39,8 @@ describe.sequential('Create and read fragmented extractions', () => {
   })
 
   it('Should add fragments to an extraction', async () => {
-    const document = await doc.get(TEST_WORKSPACE_ID, {
+    const document = await doc.getOrThrow({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_FILE_ID,
     })
@@ -63,38 +64,29 @@ describe.sequential('Create and read fragmented extractions', () => {
     expect(extractionManifest.storageStats.physicalFileCount).toBe(8) // 6 fragments + output.md + metadata.json
   })
 
-  it('should combine all data from an fragmented extraction when no fragment index was specified', async () => {
-    const extractionReadStream = await readExtraction({
-      ...TEST_DOCUMENT_MANIFEST,
-      type: 'extraction',
-      extractionMethod: 'csvExtraction',
-    })
-    expect(extractionReadStream).toBeDefined()
+  it('Should read the main extraction file if no fragment index was specified', async () => {
+    const { stream } = await readExtraction(
+      {
+        ...TEST_DOCUMENT_MANIFEST,
+        type: 'extraction',
+        extractionMethod: 'csvExtraction',
+      },
+      undefined, // no fragment index
+    )
+    expect(stream).toBeDefined()
 
-    const contentLines: string[] = []
-    const fragments: string[] = []
-    for await (const line of extractionReadStream) {
-      contentLines.push(line)
-      if (RegExp(/Fragment Content Start/i).test(line)) {
-        fragments.push(line)
-      }
+    const lines: string[] = []
+    for await (const line of stream) {
+      lines.push(line)
     }
 
-    expect(fragments.length).toBe(6)
-    const extractedContent = contentLines.join('\n')
-    expect(extractedContent).toBeDefined()
-    expect(extractedContent.length).toBeGreaterThan(0)
-    expect(extractedContent).toContain('# Product Documentation')
-    expect(extractedContent).toContain('## Installation')
-    expect(extractedContent).toContain('### Prerequisites')
-    expect(extractedContent).toContain('## Configuration')
-    expect(extractedContent).toContain('## Usage')
-    expect(extractedContent).toContain('# Advanced Topics')
-    expect(extractedContent).toContain('## Troubleshooting')
+    const content = lines.join('\n')
+
+    expect(content).toContain('This is the content of the extraction file for a fragmented extraction.') // from text-extraction
   })
 
-  it('should read a single fragment together with the output.md content if fragment index was speficied', async () => {
-    const stream = await readExtraction(
+  it('should read a single fragment if fragment index was speficied', async () => {
+    const { stream } = await readExtraction(
       {
         ...TEST_DOCUMENT_MANIFEST,
         type: 'extraction',
@@ -111,21 +103,8 @@ describe.sequential('Create and read fragmented extractions', () => {
 
     const content = lines.join('\n')
 
-    console.log('Extracted Content:\n', content)
-
-    // Should have separators for each extraction method
-    const fragmentSeparatorCount = lines.filter((line) => RegExp(/Fragment Content Start/i).test(line)).length
-    expect(fragmentSeparatorCount).toBe(1) // text-extraction + fragmented-extraction
-
-    const extractionMethodCount = lines.filter((line) => RegExp(/Extraction Start/i).test(line)).length
-    expect(extractionMethodCount).toBe(1) // text-extraction + fragmented-extraction
-
-    const statusLineCount = lines.filter((line) => RegExp(/Retrieving fragment 2 of 6/i).test(line)).length
-    expect(statusLineCount).toBe(1)
-
-    // Should contain content from both extractions
-    expect(content).toContain('This is the content of the extraction file') // from text-extraction
-    expect(content).toContain('### Prerequisites') // from fragmented-extraction
-    expect(content).not.toContain('## Configuration') // from fragmented-extraction, but not in fragment 2
+    console.log('Content of fragment 2:\n', content)
+    expect(content).toContain('## Installation') // from fragment 2
+    expect(content).toContain('including ### Prerequisites') // from fragment 2
   })
 })

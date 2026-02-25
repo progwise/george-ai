@@ -35,4 +35,5 @@ export const getWorkspaceVectorStoreQueryOptions = (parameters: { workspaceId?: 
   queryOptions({
     queryKey: [queryKeys.WorkspaceVectorStore, parameters],
     queryFn: () => (!parameters.workspaceId ? null : getWorkspaceVectorStore({ data: parameters })),
+    enabled: !!parameters.workspaceId,
   })

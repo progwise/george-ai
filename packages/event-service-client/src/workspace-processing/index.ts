@@ -8,7 +8,7 @@ import { ProcessingEventSchemas, ProcessingRequestSchema } from './schema'
 import { getWorkspaceProcessStatistics, getWorkspaceStatistics } from './statistics'
 import { subscribeEvent } from './subscribe'
 
-export const initializeWorkspaceProcessingStream = async () => {
+export const ensureWorkspaceProcessingStream = async () => {
   await eventClient.ensureWorkerStream({
     streamName: WORKSPACE_STREAM_NAME,
     description: `Events for workspace processings like embed, extract, enrich`,
@@ -23,6 +23,25 @@ export type * from './statistics'
 export type * from './controller'
 
 export default {
+  stopProcessing,
+  startProcessing,
+  processingStatus,
+  deleteWorkspace,
+  ensureWorkspaceConsumer,
+  ensureWorkspaceConsumers,
+  publishProcessingRequest,
+  publishProcessingStatus,
+  subscribeEvent,
+  getEventSubject,
+  getRequests,
+  getWorkspaceProcessStatistics,
+  getWorkspaceStatistics,
+  ProcessingEventSchemas,
+  ProcessingRequestSchema,
+  EVENT_PROCESSING_STATUS,
+}
+
+export {
   stopProcessing,
   startProcessing,
   processingStatus,

@@ -7,7 +7,7 @@ export async function updateLibrary(identifier: LibraryIdentifier, args: { name:
   const updatedManifest: LibraryManifest = {
     ...existingManifest,
     name: args.name,
-    updated: new Date().toISOString(),
+    updated: new Date(),
   }
   await saveEntry(updatedManifest)
 }

@@ -39,7 +39,7 @@ export async function saveDocument(
     select: { id: true },
   })
 
-  let manifest = await document.get(workspaceId, { libraryId: params.libraryId, documentId: file.id })
+  let manifest = await document.get({ workspaceId, libraryId: params.libraryId, documentId: file.id })
 
   if (!manifest) {
     manifest = await document.create(workspaceId, {

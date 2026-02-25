@@ -10,11 +10,7 @@ export const deleteLibraryFn = createServerFn({ method: 'GET' })
     return await backendRequest(
       graphql(`
         mutation deleteLibrary($libraryId: String!) {
-          deleteLibrary(libraryId: $libraryId) {
-            id
-            name
-            filesCount
-          }
+          deleteLibrary(libraryId: $libraryId)
         }
       `),
       { libraryId: ctx.data },

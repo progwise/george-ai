@@ -9,7 +9,8 @@ const ApiKeyWithSecret = builder.simpleObject('ApiKeyWithSecret', {
     id: t.id({ nullable: false }),
     name: t.string({ nullable: false }),
     key: t.string({ nullable: false }),
-    libraryId: t.string({ nullable: false }),
+    workspaceId: t.string({ nullable: false }),
+    userId: t.string({ nullable: false }),
     createdAt: t.field({ type: 'DateTime', nullable: false }),
   }),
 })
@@ -19,12 +20,11 @@ builder.mutationField('generateApiKey', (t) =>
     type: ApiKeyWithSecret,
     nullable: false,
     args: {
-      libraryId: t.arg.string({ required: true }),
       name: t.arg.string({ required: true }),
     },
-    resolve: async (_source, { libraryId, name }, context) => {
-      // Check if user has access to this library
-      await canAdminWorkspaceOrThrow(libraryId, context.session.user.id)
+    resolve: async (_source, { name }, { workspaceId, session }) => {
+      // Check if user has access to this workspace
+      await canAdminWorkspaceOrThrow(workspaceId, session.user.id)
 
       // Generate a random API key (32 bytes = 64 hex characters)
       const newKey = await apiKey.generateKey()
@@ -34,8 +34,8 @@ builder.mutationField('generateApiKey', (t) =>
         data: {
           name,
           keyHash: newKey.keyHash,
-          libraryId,
-          userId: context.session.user.id,
+          workspaceId,
+          userId: session.user.id,
         },
       })
 
@@ -44,7 +44,8 @@ builder.mutationField('generateApiKey', (t) =>
         id: apiKeyRecord.id,
         name: apiKeyRecord.name,
         key: newKey.key, // Plain text key
-        libraryId: apiKeyRecord.libraryId,
+        workspaceId: apiKeyRecord.workspaceId,
+        userId: apiKeyRecord.userId,
         createdAt: apiKeyRecord.createdAt,
       }
     },
@@ -60,10 +61,10 @@ builder.mutationField('revokeApiKey', (t) =>
     },
     resolve: async (_source, { id }, context) => {
       await canAdminWorkspaceOrThrow(context.workspaceId, context.session.user.id)
-      // Get the API key to check library access
+      // Get the API key to check workspace access
       const apiKey = await prisma.apiKey.findUnique({
         where: { id },
-        select: { libraryId: true },
+        select: { workspaceId: true },
       })
 
       if (!apiKey) {

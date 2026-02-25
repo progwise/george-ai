@@ -2,8 +2,12 @@ import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-c
 import { createLogger } from '@george-ai/app-commons'
 import { Prisma, prisma } from '@george-ai/app-database'
 import { languageModel } from '@george-ai/app-domain'
-import { EnrichmentMetadata, substituteTemplate, validateEnrichmentTask } from '@george-ai/app-domain'
-import { extraction } from '@george-ai/file-management'
+import {
+  EnrichmentMetadata,
+  readActiveExtractions,
+  substituteTemplate,
+  validateEnrichmentTask,
+} from '@george-ai/app-domain'
 import { fetchPageAsMarkdown } from '@george-ai/html-crawler-client'
 import { getSimilarChunks } from '@george-ai/langchain-chat'
 
@@ -243,11 +247,16 @@ CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.
       // Process full content context sources
       if (metadata.input.contextFullContent) {
         try {
-          const markdownReader = await extraction.read(workspaceId, {
-            libraryId: metadata.input.libraryId,
-            documentId: metadata.input.fileId,
-            fragment: metadata.input.fragment || undefined,
-          })
+          const markdownReader = await readActiveExtractions(
+            {
+              version: 1,
+              type: 'document',
+              workspaceId,
+              libraryId: metadata.input.libraryId,
+              documentId: metadata.input.fileId,
+            },
+            metadata.input.fragment || undefined,
+          )
 
           const maxTokens = metadata.input.contextFullContent.maxContentTokens || 3000
           const maxChars = maxTokens * 4 // Rough estimate: 1 token ≈ 4 characters

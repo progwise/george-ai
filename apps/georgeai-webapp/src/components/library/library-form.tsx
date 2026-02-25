@@ -357,7 +357,8 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
         <div className="card mt-4 border border-base-300 bg-base-100 shadow-md">
           <div className="card-body">
             <h2 className="card-title text-base-content/80">{t('apiKeys.title')}</h2>
-            <ApiKeysCard libraryId={library.id} />
+            {/* API Keys Management should move to workspaces */}
+            <ApiKeysCard />
           </div>
         </div>
       </div>

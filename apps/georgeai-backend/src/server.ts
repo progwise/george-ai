@@ -5,29 +5,19 @@ import cors from 'cors'
 import express from 'express'
 import { createYoga } from 'graphql-yoga'
 
+import { getConfigReport } from '@george-ai/app-commons'
 import { schema } from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistant-icon-middleware'
 import { logger } from './common'
 import { conversationMessagesSSE } from './conversation-messages-sse'
 import { getUserContext } from './get-user-context'
-import { handleGetFile } from './handle-get-file'
-import { handlePostUpload } from './handle-post-upload'
+import { handleFileGet } from './handle-file-get'
+import { handleUploadPost } from './handle-upload-post'
 import { userAvatarMiddleware } from './user-avatar-middleware'
 
-logger.info('Starting GeorgeAI GraphQL server...')
-
-logger.info(`
-  Environment: ${process.env.NODE_ENV || 'development'}
-  GraphQL API Key: ${process.env.GRAPHQL_API_KEY ? '******' : 'not set'}
-  GraphQL Endpoint: ${process.env.GRAPHQL_ENDPOINT || '/graphql'}
-  Server Port: ${process.env.PORT || 3003}
-  Assistant Icon Path: ${process.env.ASSISTANT_ICON_PATH || '/assistant-icon'}
-  Avatar Path: ${process.env.AVATAR_PATH || '/avatar'}
-  Data Upload Path: ${process.env.DATA_UPLOAD_PATH || '/upload'}
-  OLLAMA_BASE_URL: ${process.env.OLLAMA_BASE_URL || 'not set'}
-  OPENAI_API_KEY: ${process.env.OPENAI_API_KEY ? '******' : 'not set'}
-  `)
+logger.info('*** Starting GeorgeAi backend server ***')
+logger.info(`\n${getConfigReport()}\n`)
 
 const yoga = createYoga({
   schema,
@@ -74,8 +64,8 @@ app.use(cookieParser())
 app.use(express.static('public'))
 app.use('/assistant-icon', assistantIconMiddleware)
 app.use('/avatar', userAvatarMiddleware)
-app.post('/upload', handlePostUpload)
-app.get('/library-files/:libraryId/:fileId', handleGetFile)
+app.post('/upload', handleUploadPost)
+app.get('/library-files/:libraryId/:fileId', handleFileGet)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
 
 // Only check API key or user JWT for /graphql POST requests
@@ -127,7 +117,7 @@ server.on('error', (error: NodeJS.ErrnoException) => {
 
 // Graceful shutdown handlers
 const shutdown = async (signal: string) => {
-  logger.info(`${signal} received, shutting down gracefully`)
+  logger.info('*** Shutting down GeorgeAi backend server ***', { signal })
 
   // Close server first to stop accepting new connections
   server.close(() => {

@@ -2,12 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useMemo } from 'react'
 
-import { UserFragment } from '../../gql/graphql'
+import { logger } from '../../common'
+import { CurrentUserFragment } from '../../gql/graphql'
 import { useLocalstorage } from '../../hooks/use-local-storage'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { toastError, toastSuccess } from '../georgeToaster'
 import {
+  getApiKeysQueryOptions,
   getWorkspaceEmbeddingStatisticsQueryOptions,
   getWorkspaceInvitationsQueryOptions,
   getWorkspaceMembersQueryOptions,
@@ -19,10 +21,12 @@ import { getWorkspaceQueryOptions } from './queries/get-workspace'
 import {
   createWorkspaceFn,
   deleteWorkspaceFn,
+  generateApiKeyFn,
   inviteWorkspaceMemberFn,
   leaveWorkspaceFn,
   migrateWorkspaceFn,
   removeWorkspaceMemberFn,
+  revokeApiKeyFn,
   revokeWorkspaceInvitationFn,
   setWorkspaceCookie,
   updateWorkspaceMemberRoleFn,
@@ -30,29 +34,41 @@ import {
 
 const WORKSPACE_KEY = 'selectedWorkspaceId'
 
-export const useWorkspace = (user: UserFragment) => {
+export const useWorkspace = (user: CurrentUserFragment) => {
   const navigate = useNavigate()
 
   const queryClient = useQueryClient()
   const { t } = useTranslation()
+
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useQuery(getWorkspacesQueryOptions())
 
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useLocalstorage<string>(WORKSPACE_KEY)
 
-  const { data: embeddingStatistics, isLoading: isLoadingEmbeddingStatistics } = useQuery(
-    getWorkspaceEmbeddingStatisticsQueryOptions({ workspaceId: selectedWorkspaceId }),
-  )
-
-  const { data: vectorStore, isLoading: isLoadingVectorStore } = useQuery(
-    getWorkspaceVectorStoreQueryOptions({ workspaceId: selectedWorkspaceId }),
-  )
-
-  const { data: processStatistics, isLoading: isLoadingProcessStatistics } = useQuery(
-    getWorkspaceProcessStatisticsQueryOptions({ workspaceId: selectedWorkspaceId }),
-  )
+  if (workspaces && selectedWorkspaceId) {
+    const workspaceExists = workspaces?.items?.some((w) => w.id === selectedWorkspaceId)
+    if (!workspaceExists) {
+      logger.warn('Selected workspace not found, resetting to default', {
+        selectedWorkspaceId,
+        userDefault: user.defaultWorkspaceId,
+      })
+      setSelectedWorkspaceId(user.defaultWorkspaceId)
+    }
+  }
 
   const { data: currentWorkspace, isLoading: isLoadingCurrentWorkspace } = useQuery(
     getWorkspaceQueryOptions({ workspaceId: selectedWorkspaceId || user.defaultWorkspaceId }),
+  )
+
+  const { data: embeddingStatistics, isLoading: isLoadingEmbeddingStatistics } = useQuery(
+    getWorkspaceEmbeddingStatisticsQueryOptions({ workspaceId: currentWorkspace?.id }),
+  )
+
+  const { data: vectorStore, isLoading: isLoadingVectorStore } = useQuery(
+    getWorkspaceVectorStoreQueryOptions({ workspaceId: currentWorkspace?.id }),
+  )
+
+  const { data: processStatistics, isLoading: isLoadingProcessStatistics } = useQuery(
+    getWorkspaceProcessStatisticsQueryOptions({ workspaceId: currentWorkspace?.id }),
   )
 
   const migrationStatus = useMemo(() => {
@@ -263,6 +279,28 @@ export const useWorkspace = (user: UserFragment) => {
     })
   }
 
+  const generateApiKeyMutation = useMutation({
+    mutationFn: (name: string) => generateApiKeyFn({ data: { name } }),
+    onSuccess: () => {
+      toastSuccess(t('apiKeys.generateSuccess'))
+      queryClient.invalidateQueries(getApiKeysQueryOptions())
+    },
+    onError: (error) => {
+      toastError(t('toasts.error', { error: error.message }))
+    },
+  })
+
+  const revokeApiKeyMutation = useMutation({
+    mutationFn: (id: string) => revokeApiKeyFn({ data: { id } }),
+    onSuccess: () => {
+      toastSuccess(t('apiKeys.revokeSuccess'))
+      queryClient.invalidateQueries(getApiKeysQueryOptions())
+    },
+    onError: (error) => {
+      toastError(t('toasts.error', { error: error.message }))
+    },
+  })
+
   return {
     migrationStatus,
     workspaces: workspaces,
@@ -270,6 +308,7 @@ export const useWorkspace = (user: UserFragment) => {
     processStatistics,
     currentWorkspace,
     currentWorkspaceId: currentWorkspace?.id || null,
+    generateApiKey: generateApiKeyMutation.mutate,
     isDefaultWorkspace,
     setWorkspace,
     members,
@@ -280,6 +319,7 @@ export const useWorkspace = (user: UserFragment) => {
     inviteMember: inviteMutation.mutate,
     leaveWorkspace: leaveWorkspaceMutation.mutate,
     removeMember: removeMemberMutation.mutate,
+    revokeApiKey: revokeApiKeyMutation.mutate,
     revokeInvitation: revokeInvitationMutation.mutate,
     updateRole: updateRoleMutation.mutate,
     migrateWorkspace: migrateWorkspaceMutation.mutate,
@@ -302,6 +342,8 @@ export const useWorkspace = (user: UserFragment) => {
       inviteMutation.isPending ||
       deleteWorkspaceMutation.isPending ||
       migrateWorkspaceMutation.isPending ||
-      createWorkspaceMutation.isPending,
+      createWorkspaceMutation.isPending ||
+      revokeApiKeyMutation.isPending ||
+      generateApiKeyMutation.isPending,
   }
 }

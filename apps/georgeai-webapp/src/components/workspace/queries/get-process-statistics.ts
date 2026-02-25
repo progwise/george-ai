@@ -31,4 +31,5 @@ export const getWorkspaceProcessStatisticsQueryOptions = (parameters: { workspac
   queryOptions({
     queryKey: [queryKeys.EventProcessingStatistics, parameters],
     queryFn: () => (!parameters.workspaceId ? [] : getWorkspaceProcessStatistics({ data: parameters })),
+    enabled: !!parameters.workspaceId,
   })

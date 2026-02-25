@@ -1,4 +1,5 @@
-import { directCall, respondDirectCall } from './request'
+import { callProviderInstance } from './call-provider-instance'
+import { respondProviderInstanceCalls } from './respond-provider-instance-calls'
 import { DiscoverModelsResponse, ProviderRequest, RequestDiscoverModels } from './schema'
 
 describe.sequential('Provider Calls', () => {
@@ -20,7 +21,7 @@ describe.sequential('Provider Calls', () => {
   afterAll(async () => {})
 
   it('Should call model discovery and receive an error because no one is subscribed', async () => {
-    const response = await directCall(TEST_MODEL_DISCOVERY_REQUEST).catch((error) => {
+    const response = await callProviderInstance(TEST_MODEL_DISCOVERY_REQUEST).catch((error) => {
       expect(error).toBeDefined()
       expect(error.message).toContain('No responders available for subject')
     })
@@ -29,7 +30,7 @@ describe.sequential('Provider Calls', () => {
 
   it('Should successfully call model discovery and receive a response', async () => {
     const receivedRequests: ProviderRequest[] = []
-    const cleanup = await respondDirectCall({
+    const cleanup = await respondProviderInstanceCalls({
       workspaceId: TEST_WORKSPACE_ID,
       providerId: 'test-id',
       callType: 'discoverModels',
@@ -61,7 +62,7 @@ describe.sequential('Provider Calls', () => {
       },
     })
 
-    const response = await directCall(TEST_MODEL_DISCOVERY_REQUEST)
+    const response = await callProviderInstance(TEST_MODEL_DISCOVERY_REQUEST)
     expect(response).toBeDefined()
     expect(response.version).toBe(1)
     expect(response.provider).toEqual({

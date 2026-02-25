@@ -2,7 +2,7 @@ import { parse } from 'csv-parse'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 
-import { document, extraction } from '@george-ai/file-management'
+import { extraction, readSource } from '@george-ai/file-management'
 
 import { FileConverterParameters, logger } from './common'
 
@@ -29,19 +29,11 @@ function rowToMarkdown(headers: string[], row: string[], rowNumber: number): str
 export async function csvToMarkdown(parameters: FileConverterParameters) {
   logger.debug('[CSV Converter] Starting streaming conversion', parameters)
 
-  const { workspaceId, libraryId, documentId } = parameters
+  const { document, timeoutSignal } = parameters
 
-  const { stream: readFileStream } = await document.readSource(workspaceId, {
-    libraryId,
-    documentId,
-  })
+  const { stream: readFileStream } = await readSource(document)
 
-  const fileManifest = await document.get(workspaceId, {
-    libraryId,
-    documentId,
-  })
-
-  const extractionWriter = await extraction.create(fileManifest, 'csvExtraction')
+  const extractionWriter = await extraction.create(document, 'csvExtraction')
 
   const csvParser = parse({
     bom: true,
@@ -57,6 +49,7 @@ export async function csvToMarkdown(parameters: FileConverterParameters) {
 
   try {
     for await (const row of csvParser) {
+      timeoutSignal.throwIfAborted()
       if (rowNumber === 0) {
         headers = row as string[]
         logger.debug(`[CSV Converter] Headers: ${headers.join(', ')}`)

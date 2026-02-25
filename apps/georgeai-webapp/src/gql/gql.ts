@@ -15,7 +15,9 @@ import * as types from './graphql'
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-  '\n      mutation login($jwtToken: String!) {\n        login(jwtToken: $jwtToken) {\n          ...User\n        }\n      }\n    ': typeof types.LoginDocument
+  '\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n': typeof types.CurrentUserFragmentDoc
+  '\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ': typeof types.CurrentUserDocument
+  '\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ': typeof types.LoginDocument
   '\n  fragment EditModelButton_LanguageModel on AiLanguageModel {\n    id\n    provider\n    name\n    adminNotes\n    enabled\n  }\n': typeof types.EditModelButton_LanguageModelFragmentDoc
   '\n        query GetAiLanguageModels(\n          $skip: Int = 0\n          $take: Int = 20\n          $providers: [ModelProvider!]\n          $canDoEmbedding: Boolean\n          $canDoChatCompletion: Boolean\n          $canDoVision: Boolean\n          $canDoFunctionCalling: Boolean\n          $onlyUsed: Boolean = false\n          $showDisabled: Boolean = false\n        ) {\n          models(\n            skip: $skip\n            take: $take\n            providers: $providers\n            canDoEmbedding: $canDoEmbedding\n            canDoChatCompletion: $canDoChatCompletion\n            canDoVision: $canDoVision\n            canDoFunctionCalling: $canDoFunctionCalling\n            onlyUsed: $onlyUsed\n            showDisabled: $showDisabled\n          ) {\n            skip\n            take\n            count\n            enabledCount\n            disabledCount\n            providerCapabilities {\n              provider\n              modelCount\n              enabledCount\n              disabledCount\n              embeddingCount\n              chatCount\n              visionCount\n              functionCount\n            }\n            items {\n              id\n              name\n              provider\n              canDoEmbedding\n              canDoChatCompletion\n              canDoVision\n              canDoFunctionCalling\n              enabled\n              adminNotes\n              lastUsedAt\n              createdAt\n              librariesUsingAsEmbedding {\n                id\n                name\n              }\n              assistantsUsingAsChat {\n                id\n                name\n              }\n              listFieldsUsing {\n                id\n                list {\n                  id\n                  name\n                }\n              }\n            }\n          }\n        }\n      ': typeof types.GetAiLanguageModelsDocument
   '\n        query GetUsageStats($startDate: DateTime, $endDate: DateTime) {\n          aiModelUsageStats(startDate: $startDate, endDate: $endDate) {\n            totalRequests\n            totalTokensInput\n            totalTokensOutput\n            totalDurationMs\n            avgTokensInput\n            avgTokensOutput\n            avgDurationMs\n          }\n        }\n      ': typeof types.GetUsageStatsDocument
@@ -31,6 +33,7 @@ type Documents = {
   '\n        mutation testConnectorConnection($id: ID!) {\n          testConnectorConnection(id: $id) {\n            success\n            message\n            details\n          }\n        }\n      ': typeof types.TestConnectorConnectionDocument
   '\n        mutation updateConnector($id: ID!, $data: AiConnectorInput!) {\n          updateConnector(id: $id, data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ': typeof types.UpdateConnectorDocument
   '\n  query GetAiServiceProviders($enabled: Boolean) {\n    modelProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n': typeof types.GetAiServiceProvidersDocument
+  '\n      query workers {\n        workers {\n          workerId\n          workerType\n          lastHeartbeat\n        }\n      }\n    ': typeof types.WorkersDocument
   '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n': typeof types.StartQueueWorkerDocument
   '\n  mutation StopQueueWorker($queueType: QueueType!) {\n    stopQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n': typeof types.StopQueueWorkerDocument
   '\n  fragment QueueSystemStatus_ManagementPanel on QueueSystemStatus {\n    allWorkersRunning\n    totalPendingTasks\n    totalProcessingTasks\n    totalFailedTasks\n    lastUpdated\n    queues {\n      queueType\n      isRunning\n      pendingTasks\n      processingTasks\n      failedTasks\n      completedTasks\n      lastProcessedAt\n    }\n  }\n': typeof types.QueueSystemStatus_ManagementPanelFragmentDoc
@@ -56,9 +59,9 @@ type Documents = {
   '\n        mutation upsertAiBaseCases($assistantId: String!, $baseCases: [AiBaseCaseInputType!]!) {\n          upsertAiBaseCases(assistantId: $assistantId, baseCases: $baseCases) {\n            id\n            sequence\n            condition\n            instruction\n          }\n        }\n      ': typeof types.UpsertAiBaseCasesDocument
   '\n  fragment AssistantBasecaseForm_Assistant on AiAssistant {\n    id\n    baseCases {\n      id\n      sequence\n      condition\n      instruction\n    }\n  }\n': typeof types.AssistantBasecaseForm_AssistantFragmentDoc
   '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteAiAssistantDocument
-  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
+  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n': typeof types.AssistantForm_AssistantFragmentDoc
   '\n        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {\n          updateAiAssistant(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateAssistantDocument
-  '\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n    ownerId\n  }\n': typeof types.AssistantLibraries_AssistantFragmentDoc
+  '\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n  }\n': typeof types.AssistantLibraries_AssistantFragmentDoc
   '\n  fragment AssistantLibraries_LibraryUsage on AiLibraryUsage {\n    id\n    assistantId\n    libraryId\n    usedFor\n    library {\n      id\n      name\n    }\n  }\n': typeof types.AssistantLibraries_LibraryUsageFragmentDoc
   '\n        mutation addLibraryUsage($assistantId: String!, $libraryId: String!) {\n          addLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ': typeof types.AddLibraryUsageDocument
   '\n        mutation removeLibraryUsage($assistantId: String!, $libraryId: String!) {\n          removeLibraryUsage(assistantId: $assistantId, libraryId: $libraryId) {\n            id\n          }\n        }\n      ': typeof types.RemoveLibraryUsageDocument
@@ -66,7 +69,7 @@ type Documents = {
   '\n        mutation createAiAssistant($name: String!) {\n          createAiAssistant(name: $name) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateAiAssistantDocument
   '\n  fragment AssistantSelector_Assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.AssistantSelector_AssistantFragmentDoc
   '\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n': typeof types.AiAssistantDetailsDocument
-  '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n    ownerId\n  }\n': typeof types.AssistantBaseFragmentDoc
+  '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n  }\n': typeof types.AssistantBaseFragmentDoc
   '\n  query aiAssistantCards {\n    aiAssistants {\n      ...AssistantBase\n    }\n  }\n': typeof types.AiAssistantCardsDocument
   '\n  fragment AutomationMenu_Automation on Automation {\n    id\n    name\n  }\n': typeof types.AutomationMenu_AutomationFragmentDoc
   '\n  fragment AutomationMenu_Automations on Automation {\n    id\n    name\n  }\n': typeof types.AutomationMenu_AutomationsFragmentDoc
@@ -96,19 +99,19 @@ type Documents = {
   '\n  fragment ConversationParticipantsDialogButton_Assistant on AiAssistant {\n    id\n    name\n  }\n': typeof types.ConversationParticipantsDialogButton_AssistantFragmentDoc
   '\n  fragment ConversationParticipants_Conversation on AiConversation {\n    ...ConversationBase\n    participants {\n      __typename\n      id\n      name\n      userId\n      assistantId\n      ... on HumanParticipant {\n        user {\n          avatarUrl\n          username\n        }\n      }\n      ... on AssistantParticipant {\n        assistant {\n          iconUrl\n          updatedAt\n        }\n      }\n    }\n    ...ConversationParticipantsDialogButton_Conversation\n  }\n': typeof types.ConversationParticipants_ConversationFragmentDoc
   '\n  fragment ConversationParticipants_Assistant on AiAssistant {\n    ...ConversationParticipantsDialogButton_Assistant\n  }\n': typeof types.ConversationParticipants_AssistantFragmentDoc
-  '\n  fragment ConversationSelector_Conversation on AiConversation {\n    ...ConversationBase\n    owner {\n      id\n      name\n    }\n    assistants {\n      id\n      name\n    }\n  }\n': typeof types.ConversationSelector_ConversationFragmentDoc
+  '\n  fragment ConversationSelector_Conversation on AiConversation {\n    ...ConversationBase\n    ownerId\n    owner {\n      id\n      name\n    }\n    assistants {\n      id\n      name\n    }\n  }\n': typeof types.ConversationSelector_ConversationFragmentDoc
   '\n  fragment ConversationDelete_Conversation on AiConversation {\n    ...ConversationBase\n    assistants {\n      name\n    }\n    participants {\n      id\n      userId\n    }\n  }\n': typeof types.ConversationDelete_ConversationFragmentDoc
   '\n  fragment ConversationDetail on AiConversation {\n    ...ConversationParticipants_Conversation\n    ...ConversationDelete_Conversation\n    ...ConversationHistory_Conversation\n    ...ConversationForm_Conversation\n    ...ConversationParticipantsDialogButton_Conversation\n  }\n': typeof types.ConversationDetailFragmentDoc
   '\n  query getConversation($conversationId: String!) {\n    aiConversation(conversationId: $conversationId) {\n      ...ConversationDetail\n    }\n  }\n': typeof types.GetConversationDocument
   '\n  fragment ConversationBase on AiConversation {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ConversationBaseFragmentDoc
   '\n  query getUserConversations {\n    aiConversations {\n      id\n      ...ConversationSelector_Conversation\n    }\n  }\n': typeof types.GetUserConversationsDocument
   '\n  fragment CrawlerForm_Crawler on AiLibraryCrawler {\n    id\n    libraryId\n    uri\n    uriType\n    maxDepth\n    maxPages\n    includePatterns\n    excludePatterns\n    maxFileSize\n    minFileSize\n    allowedMimeTypes\n    crawlerConfig\n    cronJob {\n      id\n      active\n      hour\n      minute\n      monday\n      tuesday\n      wednesday\n      thursday\n      friday\n      saturday\n      sunday\n    }\n  }\n': typeof types.CrawlerForm_CrawlerFragmentDoc
-  '\n  fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {\n    id\n    crawlerId\n    crawler {\n      id\n      libraryId\n      uri\n      uriType\n    }\n    updateStats {\n      updateType\n      count\n    }\n    startedAt\n    endedAt\n    success\n    stoppedByUser\n    errorMessage\n    runByUserId\n    runBy {\n      id\n      name\n      email\n    }\n  }\n': typeof types.CrawlerRuns_CrawlerRunsTableFragmentDoc
+  '\n  fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {\n    id\n    crawlerId\n    crawler {\n      id\n      libraryId\n      uri\n      uriType\n    }\n    updateStats {\n      updateType\n      count\n    }\n    startedAt\n    endedAt\n    success\n    stoppedByUser\n    errorMessage\n  }\n': typeof types.CrawlerRuns_CrawlerRunsTableFragmentDoc
   '\n  fragment SelectedCrawler_CrawlerUpdateDialog on AiLibraryCrawler {\n    id\n    uri\n    uriType\n    maxDepth\n    maxPages\n    isRunning\n    ...CrawlerForm_Crawler\n    libraryId\n  }\n': typeof types.SelectedCrawler_CrawlerUpdateDialogFragmentDoc
   '\n  fragment SelectedCrawler_CrawlersMenu on AiLibraryCrawler {\n    id\n    uri\n    uriType\n    isRunning\n    ...CrawlerForm_Crawler\n  }\n': typeof types.SelectedCrawler_CrawlersMenuFragmentDoc
   '\n  fragment Crawlers_CrawlersMenu on AiLibraryCrawler {\n    id\n    uri\n    uriType\n    isRunning\n  }\n': typeof types.Crawlers_CrawlersMenuFragmentDoc
   '\n      query GetApiCrawlerTemplates {\n        apiCrawlerTemplates {\n          id\n          name\n          description\n          config\n        }\n      }\n    ': typeof types.GetApiCrawlerTemplatesDocument
-  '\n        query GetCrawlerRun(\n          $libraryId: String!\n          $crawlerRunId: String!\n          $skipUpdates: Int!\n          $takeUpdates: Int!\n          $updateTypeFilter: [String!]\n        ) {\n          aiLibraryCrawlerRun(libraryId: $libraryId, crawlerRunId: $crawlerRunId) {\n            id\n            startedAt\n            endedAt\n            success\n            stoppedByUser\n            errorMessage\n            runByUserId\n            updatesCount\n            filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)\n            updateStats {\n              updateType\n              count\n            }\n            updates(take: $takeUpdates, skip: $skipUpdates, updateTypeFilter: $updateTypeFilter) {\n              id\n              createdAt\n              message\n              updateType\n              filePath\n              fileName\n              fileSize\n              filterType\n              filterValue\n              file {\n                id\n                name\n                originUri\n                mimeType\n                size\n              }\n            }\n          }\n        }\n      ': typeof types.GetCrawlerRunDocument
+  '\n        query GetCrawlerRun(\n          $libraryId: String!\n          $crawlerRunId: String!\n          $skipUpdates: Int!\n          $takeUpdates: Int!\n          $updateTypeFilter: [String!]\n        ) {\n          aiLibraryCrawlerRun(libraryId: $libraryId, crawlerRunId: $crawlerRunId) {\n            id\n            startedAt\n            endedAt\n            success\n            stoppedByUser\n            errorMessage\n            updatesCount\n            filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)\n            updateStats {\n              updateType\n              count\n            }\n            updates(take: $takeUpdates, skip: $skipUpdates, updateTypeFilter: $updateTypeFilter) {\n              id\n              createdAt\n              message\n              updateType\n              filePath\n              fileName\n              fileSize\n              filterType\n              filterValue\n              file {\n                id\n                name\n                originUri\n                mimeType\n                size\n              }\n            }\n          }\n        }\n      ': typeof types.GetCrawlerRunDocument
   '\n        query GetCrawlerRuns($libraryId: String!, $crawlerId: String, $skip: Int!, $take: Int!) {\n          aiLibraryCrawlerRuns(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            count\n            runs {\n              id\n              crawlerId\n              crawler {\n                id\n                uri\n                uriType\n              }\n              startedAt\n              endedAt\n              success\n              ...CrawlerRuns_CrawlerRunsTable\n            }\n          }\n        }\n      ': typeof types.GetCrawlerRunsDocument
   '\n        query GetCrawler($libraryId: String!, $crawlerId: String!) {\n          aiLibraryCrawler(libraryId: $libraryId, crawlerId: $crawlerId) {\n            ...CrawlerForm_Crawler\n            id\n            libraryId\n            uri\n            uriType\n            isRunning\n            lastRun {\n              id\n              startedAt\n              endedAt\n              success\n              errorMessage\n            }\n            filesCount\n            runCount\n            maxDepth\n            maxPages\n            cronJob {\n              id\n              active\n              hour\n              minute\n              monday\n              tuesday\n              wednesday\n              thursday\n              friday\n              saturday\n              sunday\n            }\n          }\n        }\n      ': typeof types.GetCrawlerDocument
   '\n        query CrawlerTable($libraryId: String!) {\n          library(libraryId: $libraryId) {\n            crawlers {\n              ...Crawlers_CrawlersMenu\n            }\n          }\n        }\n      ': typeof types.CrawlerTableDocument
@@ -129,7 +132,6 @@ type Documents = {
   '\n  fragment AiLibraryFile_FilesTable on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    dropError\n    createdAt\n    originModificationDate\n    archivedAt\n    chunkCount\n    manifest {\n      version\n      documentId\n      name\n      mimeType\n      sourceHash\n      created\n      origin {\n        uri\n        hash\n        creationDate\n        lastModifiedDate\n        author\n      }\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n      storageStats {\n        extractionBytes\n        attachmentBytes\n        physicalBytes\n        extractionFileCount\n        physicalFileCount\n        attachmentFileCount\n        lastUpdate\n        lastReconcile\n      }\n    }\n  }\n': typeof types.AiLibraryFile_FilesTableFragmentDoc
   '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n      provider\n    }\n    ocrModel {\n      id\n      name\n      provider\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n  }\n': typeof types.LibraryMenu_AiLibraryFragmentDoc
-  '\n  query GetApiKeys($libraryId: String!) {\n    apiKeys(libraryId: $libraryId) {\n      id\n      name\n      createdAt\n      lastUsedAt\n      libraryId\n    }\n  }\n': typeof types.GetApiKeysDocument
   '\n        query getExtraction($fileId: String!, $libraryId: String!, $extractionMethod: ExtractionMethod) {\n          extraction(fileId: $fileId, libraryId: $libraryId, extractionMethod: $extractionMethod) {\n            version\n            extractionMethod\n            extracted\n            hasFragments\n            fragmentCount\n            sourceHash\n            attachments {\n              size\n              fileName\n              mimeType\n            }\n          }\n        }\n      ': typeof types.GetExtractionDocument
   '\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              filename\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ': typeof types.GetFileChunksDocument
   '\n        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {\n          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {\n            id\n            distance\n            chunk\n            filename\n            fileId\n            extractionMethod\n            content\n            embeddingModelNames\n            fragment\n          }\n        }\n      ': typeof types.GetSimilarChunksDocument
@@ -137,30 +139,29 @@ type Documents = {
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20, $showArchived: Boolean = false) {\n          files(libraryId: $libraryId, skip: $skip, take: $take, showArchived: $showArchived) {\n            totalCount\n            archivedCount\n            items {\n              manifest {\n                version\n              }\n              ...AiLibraryFile_FilesTable\n            }\n          }\n        }\n      ': typeof types.EmbeddingsTableDocument
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    filesCount\n    createdAt\n    updatedAt\n  }\n': typeof types.AiLibraryBaseFragmentDoc
   '\n  query aiLibraries {\n    libraries {\n      totalCount\n      items {\n        id\n        name\n        createdAt\n        updatedAt\n        ...AiLibraryBase\n      }\n    }\n  }\n': typeof types.AiLibrariesDocument
-  '\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n': typeof types.AiLibraryDetailDocument
+  '\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n': typeof types.AiLibraryDetailDocument
   '\n  query ProcessingRequests(\n    $requestType: ProcessingRequestType\n    $libraryId: String\n    $fileId: String\n    $startSequence: Int\n    $take: Int\n  ) {\n    processingRequests(\n      requestType: $requestType\n      libraryId: $libraryId\n      documentId: $fileId\n      startSequence: $startSequence\n      take: $take\n    ) {\n      totalCount\n      lastSequence\n      items {\n        id\n        subject\n        deliveryCount\n        error\n        rawText\n        request {\n          __typename\n          version\n          workspaceId\n          requestType\n          settings {\n            key\n            value\n          }\n          ... on ExtractDocumentRequest {\n            libraryId\n            documentId\n            extractionMethod\n          }\n          ... on EmbedDocumentRequest {\n            libraryId\n            documentId\n            extractionMethod\n            embeddingModelProvider\n            embeddingModelName\n          }\n          ... on EnrichItemRequest {\n            libraryId\n            documentId\n            fragment\n          }\n        }\n      }\n    }\n  }\n': typeof types.ProcessingRequestsDocument
   '\n        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {\n          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {\n            hitCount\n            results {\n              id\n              libraryId\n              fileId\n              filename\n              extractionMethod\n              chunk\n              content\n              ...LibraryQueryResult_FileChunk\n            }\n          }\n        }\n      ': typeof types.QueryLibraryFilesDocument
   '\n  fragment LibraryQueryResult_FileChunk on FileChunk {\n    id\n    libraryId\n    fileId\n    filename\n    extractionMethod\n    chunk\n    fragment\n    content\n  }\n': typeof types.LibraryQueryResult_FileChunkFragmentDoc
   '\n        mutation clearLibraryFiles($libraryId: String!) {\n          clearFiles(libraryId: $libraryId)\n        }\n      ': typeof types.ClearLibraryFilesDocument
   '\n        mutation deleteLibraryFile($libraryId: String!, $fileId: String!) {\n          deleteFile(libraryId: $libraryId, fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteLibraryFileDocument
   '\n        mutation deleteLibraryFiles($libraryId: String!, $fileIds: [ID!]!) {\n          deleteFiles(libraryId: $libraryId, fileIds: $fileIds)\n        }\n      ': typeof types.DeleteLibraryFilesDocument
-  '\n        mutation deleteLibrary($libraryId: String!) {\n          deleteLibrary(libraryId: $libraryId) {\n            id\n            name\n            filesCount\n          }\n        }\n      ': typeof types.DeleteLibraryDocument
-  '\n          mutation prepareDesktopFile($file: PrepareUploadInput!) {\n            prepareUpload(data: $file) {\n              id\n              libraryId\n              library {\n                workspaceId\n              }\n            }\n          }\n        ': typeof types.PrepareDesktopFileDocument
+  '\n        mutation deleteLibrary($libraryId: String!) {\n          deleteLibrary(libraryId: $libraryId)\n        }\n      ': typeof types.DeleteLibraryDocument
+  '\n          mutation prepareDesktopFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ': typeof types.PrepareDesktopFileDocument
   '\n        mutation cancelFileUpload($libraryId: String!, $fileId: String!) {\n          cancelUpload(libraryId: $libraryId, fileId: $fileId)\n        }\n      ': typeof types.CancelFileUploadDocument
-  '\n  mutation GenerateApiKey($libraryId: String!, $name: String!) {\n    generateApiKey(libraryId: $libraryId, name: $name) {\n      id\n      name\n      key\n      libraryId\n      createdAt\n    }\n  }\n': typeof types.GenerateApiKeyDocument
-  '\n        mutation createLibrary($data: LibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateLibraryDocument
-  '\n        mutation processFile($requestType: ProcessingRequestType!, $libraryId: String!, $fileId: String!) {\n          processFile(requestType: $requestType, libraryId: $libraryId, fileId: $fileId) {\n            success\n          }\n        }\n      ': typeof types.ProcessFileDocument
-  '\n        mutation processFiles($requestType: ProcessingRequestType!, $libraryId: String!, $fileIds: [String!]!) {\n          processFiles(requestType: $requestType, libraryId: $libraryId, fileIds: $fileIds) {\n            success\n          }\n        }\n      ': typeof types.ProcessFilesDocument
-  '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': typeof types.RevokeApiKeyDocument
+  '\n        mutation createLibrary($name: String!, $description: String) {\n          createLibrary(name: $name, description: $description) {\n            id\n            name\n          }\n        }\n      ': typeof types.CreateLibraryDocument
+  '\n        mutation prepareDocumentUpload($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n          prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n            workspaceId\n            libraryId\n            documentId\n            uploadId\n          }\n        }\n      ': typeof types.PrepareDocumentUploadDocument
+  '\n  mutation processDocument($requestType: ProcessingRequestType!, $libraryId: String!, $documentId: String!) {\n    processDocument(requestType: $requestType, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n': typeof types.ProcessDocumentDocument
+  '\n  mutation triggerExtraction($extractionMethod: ExtractionMethod!, $libraryId: String!, $documentId: String!) {\n    triggerExtraction(extractionMethod: $extractionMethod, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n': typeof types.TriggerExtractionDocument
   '\n  mutation changeLibrary($id: String!, $data: LibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n': typeof types.ChangeLibraryDocument
-  '\n          mutation prepareFile($file: PrepareUploadInput!) {\n            prepareUpload(data: $file) {\n              id\n            }\n          }\n        ': typeof types.PrepareFileDocument
+  '\n          mutation prepareGoogleDriveFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ': typeof types.PrepareGoogleDriveFileDocument
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
   '\n  fragment FullContent_FullContents on AiListFieldContext {\n    id\n    maxContentTokens\n  }\n': typeof types.FullContent_FullContentsFragmentDoc
   '\n  fragment ReferencedFields_FieldReferences on AiListFieldContext {\n    id\n    contextFieldId\n    contextField {\n      id\n      name\n      type\n      sourceType\n    }\n  }\n': typeof types.ReferencedFields_FieldReferencesFragmentDoc
   '\n  fragment SimilarContent_VectorSearches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n': typeof types.SimilarContent_VectorSearchesFragmentDoc
   '\n  fragment WebFetch_WebFetches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n': typeof types.WebFetch_WebFetchesFragmentDoc
-  '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
+  '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    createdAt\n    updatedAt\n  }\n': typeof types.ListEditForm_ListFragmentDoc
   '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    itemId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    processingData {\n      input {\n        fileId\n        fileName\n        libraryId\n        libraryName\n        aiModelProvider\n        aiModelName\n        aiGenerationPrompt\n        contextFields {\n          fieldId\n          fieldName\n          value\n          errorMessage\n        }\n        dataType\n        libraryEmbeddingModel\n      }\n      output {\n        similarChunks {\n          id\n          fileName\n          fileId\n          text\n          distance\n        }\n        webFetchResults {\n          url\n          content\n        }\n        fullContent {\n          fileName\n          content\n        }\n        messages {\n          role\n          content\n        }\n        aiInstance\n        enrichedValue\n        issues\n      }\n    }\n    error\n    field {\n      id\n      name\n    }\n    item {\n      id\n      file {\n        id\n        name\n        library {\n          id\n          name\n        }\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n': typeof types.EnrichmentAccordionItem_EnrichmentFragmentDoc
   '\n  fragment EnrichmentSidePanel_FieldValue on FieldValueResult {\n    fieldId\n    fieldName\n    fieldType\n    displayValue\n    enrichmentErrorMessage\n    failedEnrichmentValue\n    queueStatus\n  }\n': typeof types.EnrichmentSidePanel_FieldValueFragmentDoc
   '\n  fragment EnrichmentSidePanel_Origin on ListItemResult {\n    id\n    name\n    libraryId\n    libraryName\n  }\n': typeof types.EnrichmentSidePanel_OriginFragmentDoc
@@ -174,7 +175,7 @@ type Documents = {
   '\n  fragment ListFilesTable_FilesQueryResult on ListItemsQueryResult {\n    count\n    take\n    skip\n    items {\n      id\n      origin {\n        id\n        type\n        name\n        libraryId\n        libraryName\n      }\n      values {\n        fieldId\n        fieldName\n        fieldType\n        displayValue\n        enrichmentErrorMessage\n        failedEnrichmentValue\n        queueStatus\n      }\n    }\n  }\n': typeof types.ListFilesTable_FilesQueryResultFragmentDoc
   '\n  fragment ListFieldsTable_List on AiList {\n    id\n    fields {\n      ...ListFieldsTable_Field\n    }\n    ...FieldModal_List\n  }\n': typeof types.ListFieldsTable_ListFragmentDoc
   '\n  fragment ListFieldsTable_Field on AiListField {\n    listId\n    processingItemsCount\n    pendingItemsCount\n    id\n    sourceType\n    fileProperty\n    ...FieldModal_Field\n  }\n': typeof types.ListFieldsTable_FieldFragmentDoc
-  '\n  fragment ListMenu_AiList on AiList {\n    id\n    name\n    ownerId\n  }\n': typeof types.ListMenu_AiListFragmentDoc
+  '\n  fragment ListMenu_AiList on AiList {\n    id\n    name\n  }\n': typeof types.ListMenu_AiListFragmentDoc
   '\n  fragment ListMenu_AiLists on AiList {\n    id\n    name\n  }\n': typeof types.ListMenu_AiListsFragmentDoc
   '\n  fragment ListSourcesManager_List on AiList {\n    id\n    name\n    sources {\n      id\n      libraryId\n      library {\n        id\n        name\n      }\n    }\n  }\n': typeof types.ListSourcesManager_ListFragmentDoc
   '\n        query getContentQueries($listId: String, $libraryId: String) {\n          aiContentQueries(listId: $listId, libraryId: $libraryId) {\n            id\n            fieldId\n            fieldName\n            listId\n            listName\n            contentQuery\n          }\n        }\n      ': typeof types.GetContentQueriesDocument
@@ -183,7 +184,7 @@ type Documents = {
   '\n        query getItemDetail($itemId: String!) {\n          aiListItem(id: $itemId) {\n            id\n            itemName\n            chunkCount\n            fragment\n            extractionMethod\n            fileId\n            file {\n              id\n              name\n              libraryId\n            }\n            fileInfo {\n              name\n              extractions {\n                extractionMethod\n              }\n            }\n            extractionInfo {\n              fragmentCount\n              hasFragments\n            }\n          }\n        }\n      ': typeof types.GetItemDetailDocument
   '\n        query getListItems(\n          $listId: String!\n          $skip: Int!\n          $take: Int!\n          $sorting: [AiListSortingInput!]\n          $fieldIds: [String!]!\n          $filters: [AiListFilterInput!]!\n          $selectedItemId: String\n        ) {\n          aiListItems(\n            listId: $listId\n            fieldIds: $fieldIds\n            filters: $filters\n            skip: $skip\n            take: $take\n            sorting: $sorting\n            selectedItemId: $selectedItemId\n          ) {\n            unfilteredCount\n            count\n            ...ListFilesTable_FilesQueryResult\n          }\n        }\n      ': typeof types.GetListItemsDocument
   '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n            ...ListFieldsTableMenu_AiList\n            ...ListMenu_AiList\n            fields {\n              ...ListFieldsTableFilters_AiListField\n              ...ListFieldSettings_Field\n            }\n          }\n        }\n      ': typeof types.GetListDocument
-  '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n': typeof types.ListsBaseFragmentDoc
+  '\n  fragment ListsBase on AiList {\n    id\n    createdAt\n    updatedAt\n  }\n': typeof types.ListsBaseFragmentDoc
   '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListMenu_AiLists\n        }\n      }\n    ': typeof types.GetUserListsDocument
   '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            languageModel {\n              name\n            }\n          }\n        }\n      ': typeof types.AddListFieldDocument
   '\n        mutation addListSource($listId: String!, $data: AiListSourceInput!) {\n          addListSource(listId: $listId, data: $data) {\n            id\n            libraryId\n            library {\n              id\n              name\n            }\n          }\n        }\n      ': typeof types.AddListSourceDocument
@@ -203,8 +204,9 @@ type Documents = {
   '\n        mutation updateList($id: String!, $data: AiListInput!) {\n          updateList(id: $id, data: $data) {\n            id\n          }\n        }\n      ': typeof types.UpdateListDocument
   '\n  fragment ListFieldSettings_Field on AiListField {\n    id\n    order\n    ...ListFieldsTable_Field\n  }\n': typeof types.ListFieldSettings_FieldFragmentDoc
   '\n  query aiLanguageModelsWithSearch(\n    $skip: Int\n    $take: Int\n    $search: String\n    $canDoEmbedding: Boolean\n    $canDoChatCompletion: Boolean\n    $canDoVision: Boolean\n  ) {\n    models(\n      skip: $skip\n      take: $take\n      search: $search\n      canDoEmbedding: $canDoEmbedding\n      canDoChatCompletion: $canDoChatCompletion\n      canDoVision: $canDoVision\n    ) {\n      skip\n      take\n      count\n      items {\n        id\n        name\n        provider\n      }\n    }\n  }\n': typeof types.AiLanguageModelsWithSearchDocument
-  '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n': typeof types.UserProfileForm_UserProfileFragmentDoc
+  '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n': typeof types.UserProfileForm_UserProfileFragmentDoc
   '\n        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ': typeof types.SaveUserProfileDocument
+  '\n  query GetApiKeys {\n    apiKeys {\n      id\n      name\n      createdAt\n      lastUsedAt\n      workspaceId\n    }\n  }\n': typeof types.GetApiKeysDocument
   '\n        query GetWorkspaceEmbeddingStatistics($workspaceId: String!) {\n          embeddingStatistics(workspaceId: $workspaceId) {\n            extractionMethod\n            modelName\n            chunkCount\n          }\n        }\n      ': typeof types.GetWorkspaceEmbeddingStatisticsDocument
   '\n        query GetModelProviderStatus {\n          modelProviderStatus {\n            instances {\n              name\n              url\n              type\n              isOnline\n              version\n              runningModels {\n                name\n                size\n                expiresAt\n                activeRequests\n              }\n              availableModels {\n                name\n                size\n                capabilities\n                family\n                parameterSize\n              }\n              totalVram\n              usedVram\n              modelQueues {\n                modelName\n                queueLength\n                maxConcurrency\n                estimatedRequestSize\n              }\n            }\n            totalInstances\n            availableInstances\n            healthyInstances\n            totalMemory\n            totalUsedMemory\n            totalMaxConcurrency\n            totalQueueLength\n          }\n        }\n      ': typeof types.GetModelProviderStatusDocument
   '\n        query GetWorkspaceProcessStatistics($workspaceId: String!) {\n          workspaceProcessStatistics(workspaceId: $workspaceId) {\n            requestType\n            totalMessages\n            processedMessages\n            pendingMessages\n          }\n        }\n      ': typeof types.GetWorkspaceProcessStatisticsDocument
@@ -219,10 +221,12 @@ type Documents = {
   '\n  mutation AcceptWorkspaceInvitation($invitationId: ID!) {\n    acceptWorkspaceInvitation(invitationId: $invitationId) {\n      id\n      workspace {\n        id\n        name\n      }\n    }\n  }\n': typeof types.AcceptWorkspaceInvitationDocument
   '\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      workspaceId\n    }\n  }\n': typeof types.CreateWorkspaceDocument
   '\n  mutation DeleteWorkspace {\n    deleteWorkspace\n  }\n': typeof types.DeleteWorkspaceDocument
+  '\n  mutation GenerateApiKey($name: String!) {\n    generateApiKey(name: $name) {\n      id\n      name\n      key\n      workspaceId\n      createdAt\n    }\n  }\n': typeof types.GenerateApiKeyDocument
   '\n  mutation InviteWorkspaceMember($workspaceId: ID!, $email: String!) {\n    inviteWorkspaceMember(workspaceId: $workspaceId, email: $email) {\n      id\n      email\n      createdAt\n      expiresAt\n    }\n  }\n': typeof types.InviteWorkspaceMemberDocument
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n': typeof types.LeaveWorkspaceDocument
   '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n': typeof types.MigrateWorkspaceDocument
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n': typeof types.RemoveWorkspaceMemberDocument
+  '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': typeof types.RevokeApiKeyDocument
   '\n  mutation RevokeWorkspaceInvitation($invitationId: ID!) {\n    revokeWorkspaceInvitation(invitationId: $invitationId)\n  }\n': typeof types.RevokeWorkspaceInvitationDocument
   '\n        mutation UpdateWorkspaceMemberRole($workspaceId: ID!, $userId: ID!, $role: WorkspaceRole!) {\n          changeWorkspaceMembership(workspaceId: $workspaceId, userId: $userId, role: $role) {\n            id\n            role\n            user {\n              id\n              name\n              email\n            }\n          }\n        }\n      ': typeof types.UpdateWorkspaceMemberRoleDocument
   '\n  query userProfile {\n    userProfile {\n      id\n      confirmationDate\n      ...UserProfileForm_UserProfile\n    }\n  }\n': typeof types.UserProfileDocument
@@ -241,14 +245,18 @@ type Documents = {
   '\n  query users {\n    users {\n      ...User\n    }\n  }\n': typeof types.UsersDocument
   '\n        mutation sendConfirmationMail($confirmationUrl: String!, $activationUrl: String!) {\n          sendConfirmationMail(confirmationUrl: $confirmationUrl, activationUrl: $activationUrl)\n        }\n      ': typeof types.SendConfirmationMailDocument
   '\n        mutation confirmUserProfile($profileId: String!) {\n          confirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ': typeof types.ConfirmUserProfileDocument
-  '\n  fragment UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    business\n    position\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n  }\n': typeof types.UserProfileFragmentDoc
+  '\n  fragment UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    business\n    position\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n  }\n': typeof types.UserProfileFragmentDoc
   '\n      query getUserProfile {\n        userProfile {\n          ...UserProfile\n        }\n      }\n    ': typeof types.GetUserProfileDocument
   '\n        mutation updateUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ': typeof types.UpdateUserProfileDocument
   '\n        mutation activateUserProfile($profileId: String!) {\n          activateUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ': typeof types.ActivateUserProfileDocument
   '\n  query adminUserById($email: String!) {\n    user(email: $email) {\n      ...User\n      profile {\n        ...UserProfileForm_UserProfile\n      }\n    }\n  }\n': typeof types.AdminUserByIdDocument
 }
 const documents: Documents = {
-  '\n      mutation login($jwtToken: String!) {\n        login(jwtToken: $jwtToken) {\n          ...User\n        }\n      }\n    ':
+  '\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n':
+    types.CurrentUserFragmentDoc,
+  '\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ':
+    types.CurrentUserDocument,
+  '\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ':
     types.LoginDocument,
   '\n  fragment EditModelButton_LanguageModel on AiLanguageModel {\n    id\n    provider\n    name\n    adminNotes\n    enabled\n  }\n':
     types.EditModelButton_LanguageModelFragmentDoc,
@@ -280,6 +288,8 @@ const documents: Documents = {
     types.UpdateConnectorDocument,
   '\n  query GetAiServiceProviders($enabled: Boolean) {\n    modelProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n':
     types.GetAiServiceProvidersDocument,
+  '\n      query workers {\n        workers {\n          workerId\n          workerType\n          lastHeartbeat\n        }\n      }\n    ':
+    types.WorkersDocument,
   '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n':
     types.StartQueueWorkerDocument,
   '\n  mutation StopQueueWorker($queueType: QueueType!) {\n    stopQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n':
@@ -330,11 +340,11 @@ const documents: Documents = {
     types.AssistantBasecaseForm_AssistantFragmentDoc,
   '\n        mutation deleteAiAssistant($assistantId: String!) {\n          deleteAiAssistant(assistantId: $assistantId) {\n            id\n            name\n          }\n        }\n      ':
     types.DeleteAiAssistantDocument,
-  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n':
+  '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n':
     types.AssistantForm_AssistantFragmentDoc,
   '\n        mutation updateAssistant($id: String!, $data: AiAssistantInput!) {\n          updateAiAssistant(id: $id, data: $data) {\n            id\n          }\n        }\n      ':
     types.UpdateAssistantDocument,
-  '\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n    ownerId\n  }\n':
+  '\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n  }\n':
     types.AssistantLibraries_AssistantFragmentDoc,
   '\n  fragment AssistantLibraries_LibraryUsage on AiLibraryUsage {\n    id\n    assistantId\n    libraryId\n    usedFor\n    library {\n      id\n      name\n    }\n  }\n':
     types.AssistantLibraries_LibraryUsageFragmentDoc,
@@ -350,7 +360,7 @@ const documents: Documents = {
     types.AssistantSelector_AssistantFragmentDoc,
   '\n  query aiAssistantDetails($assistantId: String!) {\n    aiAssistant(assistantId: $assistantId) {\n      ...AssistantForm_Assistant\n      ...AssistantSelector_Assistant\n      ...AssistantLibraries_Assistant\n      ...AssistantBasecaseForm_Assistant\n    }\n    aiLibraryUsage(assistantId: $assistantId) {\n      ...AssistantLibraries_LibraryUsage\n    }\n  }\n':
     types.AiAssistantDetailsDocument,
-  '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n    ownerId\n  }\n':
+  '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n  }\n':
     types.AssistantBaseFragmentDoc,
   '\n  query aiAssistantCards {\n    aiAssistants {\n      ...AssistantBase\n    }\n  }\n':
     types.AiAssistantCardsDocument,
@@ -410,7 +420,7 @@ const documents: Documents = {
     types.ConversationParticipants_ConversationFragmentDoc,
   '\n  fragment ConversationParticipants_Assistant on AiAssistant {\n    ...ConversationParticipantsDialogButton_Assistant\n  }\n':
     types.ConversationParticipants_AssistantFragmentDoc,
-  '\n  fragment ConversationSelector_Conversation on AiConversation {\n    ...ConversationBase\n    owner {\n      id\n      name\n    }\n    assistants {\n      id\n      name\n    }\n  }\n':
+  '\n  fragment ConversationSelector_Conversation on AiConversation {\n    ...ConversationBase\n    ownerId\n    owner {\n      id\n      name\n    }\n    assistants {\n      id\n      name\n    }\n  }\n':
     types.ConversationSelector_ConversationFragmentDoc,
   '\n  fragment ConversationDelete_Conversation on AiConversation {\n    ...ConversationBase\n    assistants {\n      name\n    }\n    participants {\n      id\n      userId\n    }\n  }\n':
     types.ConversationDelete_ConversationFragmentDoc,
@@ -424,7 +434,7 @@ const documents: Documents = {
     types.GetUserConversationsDocument,
   '\n  fragment CrawlerForm_Crawler on AiLibraryCrawler {\n    id\n    libraryId\n    uri\n    uriType\n    maxDepth\n    maxPages\n    includePatterns\n    excludePatterns\n    maxFileSize\n    minFileSize\n    allowedMimeTypes\n    crawlerConfig\n    cronJob {\n      id\n      active\n      hour\n      minute\n      monday\n      tuesday\n      wednesday\n      thursday\n      friday\n      saturday\n      sunday\n    }\n  }\n':
     types.CrawlerForm_CrawlerFragmentDoc,
-  '\n  fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {\n    id\n    crawlerId\n    crawler {\n      id\n      libraryId\n      uri\n      uriType\n    }\n    updateStats {\n      updateType\n      count\n    }\n    startedAt\n    endedAt\n    success\n    stoppedByUser\n    errorMessage\n    runByUserId\n    runBy {\n      id\n      name\n      email\n    }\n  }\n':
+  '\n  fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {\n    id\n    crawlerId\n    crawler {\n      id\n      libraryId\n      uri\n      uriType\n    }\n    updateStats {\n      updateType\n      count\n    }\n    startedAt\n    endedAt\n    success\n    stoppedByUser\n    errorMessage\n  }\n':
     types.CrawlerRuns_CrawlerRunsTableFragmentDoc,
   '\n  fragment SelectedCrawler_CrawlerUpdateDialog on AiLibraryCrawler {\n    id\n    uri\n    uriType\n    maxDepth\n    maxPages\n    isRunning\n    ...CrawlerForm_Crawler\n    libraryId\n  }\n':
     types.SelectedCrawler_CrawlerUpdateDialogFragmentDoc,
@@ -434,7 +444,7 @@ const documents: Documents = {
     types.Crawlers_CrawlersMenuFragmentDoc,
   '\n      query GetApiCrawlerTemplates {\n        apiCrawlerTemplates {\n          id\n          name\n          description\n          config\n        }\n      }\n    ':
     types.GetApiCrawlerTemplatesDocument,
-  '\n        query GetCrawlerRun(\n          $libraryId: String!\n          $crawlerRunId: String!\n          $skipUpdates: Int!\n          $takeUpdates: Int!\n          $updateTypeFilter: [String!]\n        ) {\n          aiLibraryCrawlerRun(libraryId: $libraryId, crawlerRunId: $crawlerRunId) {\n            id\n            startedAt\n            endedAt\n            success\n            stoppedByUser\n            errorMessage\n            runByUserId\n            updatesCount\n            filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)\n            updateStats {\n              updateType\n              count\n            }\n            updates(take: $takeUpdates, skip: $skipUpdates, updateTypeFilter: $updateTypeFilter) {\n              id\n              createdAt\n              message\n              updateType\n              filePath\n              fileName\n              fileSize\n              filterType\n              filterValue\n              file {\n                id\n                name\n                originUri\n                mimeType\n                size\n              }\n            }\n          }\n        }\n      ':
+  '\n        query GetCrawlerRun(\n          $libraryId: String!\n          $crawlerRunId: String!\n          $skipUpdates: Int!\n          $takeUpdates: Int!\n          $updateTypeFilter: [String!]\n        ) {\n          aiLibraryCrawlerRun(libraryId: $libraryId, crawlerRunId: $crawlerRunId) {\n            id\n            startedAt\n            endedAt\n            success\n            stoppedByUser\n            errorMessage\n            updatesCount\n            filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)\n            updateStats {\n              updateType\n              count\n            }\n            updates(take: $takeUpdates, skip: $skipUpdates, updateTypeFilter: $updateTypeFilter) {\n              id\n              createdAt\n              message\n              updateType\n              filePath\n              fileName\n              fileSize\n              filterType\n              filterValue\n              file {\n                id\n                name\n                originUri\n                mimeType\n                size\n              }\n            }\n          }\n        }\n      ':
     types.GetCrawlerRunDocument,
   '\n        query GetCrawlerRuns($libraryId: String!, $crawlerId: String, $skip: Int!, $take: Int!) {\n          aiLibraryCrawlerRuns(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            count\n            runs {\n              id\n              crawlerId\n              crawler {\n                id\n                uri\n                uriType\n              }\n              startedAt\n              endedAt\n              success\n              ...CrawlerRuns_CrawlerRunsTable\n            }\n          }\n        }\n      ':
     types.GetCrawlerRunsDocument,
@@ -476,8 +486,6 @@ const documents: Documents = {
     types.AiLibraryForm_LibraryFragmentDoc,
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n  }\n':
     types.LibraryMenu_AiLibraryFragmentDoc,
-  '\n  query GetApiKeys($libraryId: String!) {\n    apiKeys(libraryId: $libraryId) {\n      id\n      name\n      createdAt\n      lastUsedAt\n      libraryId\n    }\n  }\n':
-    types.GetApiKeysDocument,
   '\n        query getExtraction($fileId: String!, $libraryId: String!, $extractionMethod: ExtractionMethod) {\n          extraction(fileId: $fileId, libraryId: $libraryId, extractionMethod: $extractionMethod) {\n            version\n            extractionMethod\n            extracted\n            hasFragments\n            fragmentCount\n            sourceHash\n            attachments {\n              size\n              fileName\n              mimeType\n            }\n          }\n        }\n      ':
     types.GetExtractionDocument,
   '\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              filename\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ':
@@ -492,7 +500,7 @@ const documents: Documents = {
     types.AiLibraryBaseFragmentDoc,
   '\n  query aiLibraries {\n    libraries {\n      totalCount\n      items {\n        id\n        name\n        createdAt\n        updatedAt\n        ...AiLibraryBase\n      }\n    }\n  }\n':
     types.AiLibrariesDocument,
-  '\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n':
+  '\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n':
     types.AiLibraryDetailDocument,
   '\n  query ProcessingRequests(\n    $requestType: ProcessingRequestType\n    $libraryId: String\n    $fileId: String\n    $startSequence: Int\n    $take: Int\n  ) {\n    processingRequests(\n      requestType: $requestType\n      libraryId: $libraryId\n      documentId: $fileId\n      startSequence: $startSequence\n      take: $take\n    ) {\n      totalCount\n      lastSequence\n      items {\n        id\n        subject\n        deliveryCount\n        error\n        rawText\n        request {\n          __typename\n          version\n          workspaceId\n          requestType\n          settings {\n            key\n            value\n          }\n          ... on ExtractDocumentRequest {\n            libraryId\n            documentId\n            extractionMethod\n          }\n          ... on EmbedDocumentRequest {\n            libraryId\n            documentId\n            extractionMethod\n            embeddingModelProvider\n            embeddingModelName\n          }\n          ... on EnrichItemRequest {\n            libraryId\n            documentId\n            fragment\n          }\n        }\n      }\n    }\n  }\n':
     types.ProcessingRequestsDocument,
@@ -506,25 +514,24 @@ const documents: Documents = {
     types.DeleteLibraryFileDocument,
   '\n        mutation deleteLibraryFiles($libraryId: String!, $fileIds: [ID!]!) {\n          deleteFiles(libraryId: $libraryId, fileIds: $fileIds)\n        }\n      ':
     types.DeleteLibraryFilesDocument,
-  '\n        mutation deleteLibrary($libraryId: String!) {\n          deleteLibrary(libraryId: $libraryId) {\n            id\n            name\n            filesCount\n          }\n        }\n      ':
+  '\n        mutation deleteLibrary($libraryId: String!) {\n          deleteLibrary(libraryId: $libraryId)\n        }\n      ':
     types.DeleteLibraryDocument,
-  '\n          mutation prepareDesktopFile($file: PrepareUploadInput!) {\n            prepareUpload(data: $file) {\n              id\n              libraryId\n              library {\n                workspaceId\n              }\n            }\n          }\n        ':
+  '\n          mutation prepareDesktopFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ':
     types.PrepareDesktopFileDocument,
   '\n        mutation cancelFileUpload($libraryId: String!, $fileId: String!) {\n          cancelUpload(libraryId: $libraryId, fileId: $fileId)\n        }\n      ':
     types.CancelFileUploadDocument,
-  '\n  mutation GenerateApiKey($libraryId: String!, $name: String!) {\n    generateApiKey(libraryId: $libraryId, name: $name) {\n      id\n      name\n      key\n      libraryId\n      createdAt\n    }\n  }\n':
-    types.GenerateApiKeyDocument,
-  '\n        mutation createLibrary($data: LibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ':
+  '\n        mutation createLibrary($name: String!, $description: String) {\n          createLibrary(name: $name, description: $description) {\n            id\n            name\n          }\n        }\n      ':
     types.CreateLibraryDocument,
-  '\n        mutation processFile($requestType: ProcessingRequestType!, $libraryId: String!, $fileId: String!) {\n          processFile(requestType: $requestType, libraryId: $libraryId, fileId: $fileId) {\n            success\n          }\n        }\n      ':
-    types.ProcessFileDocument,
-  '\n        mutation processFiles($requestType: ProcessingRequestType!, $libraryId: String!, $fileIds: [String!]!) {\n          processFiles(requestType: $requestType, libraryId: $libraryId, fileIds: $fileIds) {\n            success\n          }\n        }\n      ':
-    types.ProcessFilesDocument,
-  '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': types.RevokeApiKeyDocument,
+  '\n        mutation prepareDocumentUpload($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n          prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n            workspaceId\n            libraryId\n            documentId\n            uploadId\n          }\n        }\n      ':
+    types.PrepareDocumentUploadDocument,
+  '\n  mutation processDocument($requestType: ProcessingRequestType!, $libraryId: String!, $documentId: String!) {\n    processDocument(requestType: $requestType, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n':
+    types.ProcessDocumentDocument,
+  '\n  mutation triggerExtraction($extractionMethod: ExtractionMethod!, $libraryId: String!, $documentId: String!) {\n    triggerExtraction(extractionMethod: $extractionMethod, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n':
+    types.TriggerExtractionDocument,
   '\n  mutation changeLibrary($id: String!, $data: LibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n':
     types.ChangeLibraryDocument,
-  '\n          mutation prepareFile($file: PrepareUploadInput!) {\n            prepareUpload(data: $file) {\n              id\n            }\n          }\n        ':
-    types.PrepareFileDocument,
+  '\n          mutation prepareGoogleDriveFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ':
+    types.PrepareGoogleDriveFileDocument,
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ':
     types.LibraryUpdatesListDocument,
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n':
@@ -537,7 +544,7 @@ const documents: Documents = {
     types.SimilarContent_VectorSearchesFragmentDoc,
   '\n  fragment WebFetch_WebFetches on AiListFieldContext {\n    id\n    contextQuery\n    maxContentTokens\n  }\n':
     types.WebFetch_WebFetchesFragmentDoc,
-  '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
+  '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    createdAt\n    updatedAt\n  }\n':
     types.ListEditForm_ListFragmentDoc,
   '\n  fragment EnrichmentAccordionItem_Enrichment on AiEnrichmentTask {\n    id\n    listId\n    itemId\n    fieldId\n    status\n    priority\n    requestedAt\n    startedAt\n    completedAt\n    metadata\n    processingData {\n      input {\n        fileId\n        fileName\n        libraryId\n        libraryName\n        aiModelProvider\n        aiModelName\n        aiGenerationPrompt\n        contextFields {\n          fieldId\n          fieldName\n          value\n          errorMessage\n        }\n        dataType\n        libraryEmbeddingModel\n      }\n      output {\n        similarChunks {\n          id\n          fileName\n          fileId\n          text\n          distance\n        }\n        webFetchResults {\n          url\n          content\n        }\n        fullContent {\n          fileName\n          content\n        }\n        messages {\n          role\n          content\n        }\n        aiInstance\n        enrichedValue\n        issues\n      }\n    }\n    error\n    field {\n      id\n      name\n    }\n    item {\n      id\n      file {\n        id\n        name\n        library {\n          id\n          name\n        }\n      }\n    }\n    list {\n      id\n      name\n    }\n  }\n':
     types.EnrichmentAccordionItem_EnrichmentFragmentDoc,
@@ -565,7 +572,7 @@ const documents: Documents = {
     types.ListFieldsTable_ListFragmentDoc,
   '\n  fragment ListFieldsTable_Field on AiListField {\n    listId\n    processingItemsCount\n    pendingItemsCount\n    id\n    sourceType\n    fileProperty\n    ...FieldModal_Field\n  }\n':
     types.ListFieldsTable_FieldFragmentDoc,
-  '\n  fragment ListMenu_AiList on AiList {\n    id\n    name\n    ownerId\n  }\n': types.ListMenu_AiListFragmentDoc,
+  '\n  fragment ListMenu_AiList on AiList {\n    id\n    name\n  }\n': types.ListMenu_AiListFragmentDoc,
   '\n  fragment ListMenu_AiLists on AiList {\n    id\n    name\n  }\n': types.ListMenu_AiListsFragmentDoc,
   '\n  fragment ListSourcesManager_List on AiList {\n    id\n    name\n    sources {\n      id\n      libraryId\n      library {\n        id\n        name\n      }\n    }\n  }\n':
     types.ListSourcesManager_ListFragmentDoc,
@@ -581,8 +588,7 @@ const documents: Documents = {
     types.GetListItemsDocument,
   '\n        query getList($listId: String!) {\n          aiList(id: $listId) {\n            ...ListsBase\n            ...ListEditForm_List\n            ...ListSourcesManager_List\n            ...ListFieldsTable_List\n            ...ListFieldsTableMenu_AiList\n            ...ListMenu_AiList\n            fields {\n              ...ListFieldsTableFilters_AiListField\n              ...ListFieldSettings_Field\n            }\n          }\n        }\n      ':
     types.GetListDocument,
-  '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n':
-    types.ListsBaseFragmentDoc,
+  '\n  fragment ListsBase on AiList {\n    id\n    createdAt\n    updatedAt\n  }\n': types.ListsBaseFragmentDoc,
   '\n      query getUserLists {\n        aiLists {\n          ...ListsBase\n          ...ListMenu_AiLists\n        }\n      }\n    ':
     types.GetUserListsDocument,
   '\n        mutation addListField($listId: String!, $data: AiListFieldInput!) {\n          addListField(listId: $listId, data: $data) {\n            id\n            name\n            type\n            order\n            sourceType\n            fileProperty\n            prompt\n            failureTerms\n            languageModel {\n              name\n            }\n          }\n        }\n      ':
@@ -621,10 +627,12 @@ const documents: Documents = {
     types.ListFieldSettings_FieldFragmentDoc,
   '\n  query aiLanguageModelsWithSearch(\n    $skip: Int\n    $take: Int\n    $search: String\n    $canDoEmbedding: Boolean\n    $canDoChatCompletion: Boolean\n    $canDoVision: Boolean\n  ) {\n    models(\n      skip: $skip\n      take: $take\n      search: $search\n      canDoEmbedding: $canDoEmbedding\n      canDoChatCompletion: $canDoChatCompletion\n      canDoVision: $canDoVision\n    ) {\n      skip\n      take\n      count\n      items {\n        id\n        name\n        provider\n      }\n    }\n  }\n':
     types.AiLanguageModelsWithSearchDocument,
-  '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n':
+  '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n':
     types.UserProfileForm_UserProfileFragmentDoc,
   '\n        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ':
     types.SaveUserProfileDocument,
+  '\n  query GetApiKeys {\n    apiKeys {\n      id\n      name\n      createdAt\n      lastUsedAt\n      workspaceId\n    }\n  }\n':
+    types.GetApiKeysDocument,
   '\n        query GetWorkspaceEmbeddingStatistics($workspaceId: String!) {\n          embeddingStatistics(workspaceId: $workspaceId) {\n            extractionMethod\n            modelName\n            chunkCount\n          }\n        }\n      ':
     types.GetWorkspaceEmbeddingStatisticsDocument,
   '\n        query GetModelProviderStatus {\n          modelProviderStatus {\n            instances {\n              name\n              url\n              type\n              isOnline\n              version\n              runningModels {\n                name\n                size\n                expiresAt\n                activeRequests\n              }\n              availableModels {\n                name\n                size\n                capabilities\n                family\n                parameterSize\n              }\n              totalVram\n              usedVram\n              modelQueues {\n                modelName\n                queueLength\n                maxConcurrency\n                estimatedRequestSize\n              }\n            }\n            totalInstances\n            availableInstances\n            healthyInstances\n            totalMemory\n            totalUsedMemory\n            totalMaxConcurrency\n            totalQueueLength\n          }\n        }\n      ':
@@ -652,6 +660,8 @@ const documents: Documents = {
   '\n  mutation CreateWorkspace($name: String!, $slug: String!) {\n    createWorkspace(name: $name, slug: $slug) {\n      workspaceId\n    }\n  }\n':
     types.CreateWorkspaceDocument,
   '\n  mutation DeleteWorkspace {\n    deleteWorkspace\n  }\n': types.DeleteWorkspaceDocument,
+  '\n  mutation GenerateApiKey($name: String!) {\n    generateApiKey(name: $name) {\n      id\n      name\n      key\n      workspaceId\n      createdAt\n    }\n  }\n':
+    types.GenerateApiKeyDocument,
   '\n  mutation InviteWorkspaceMember($workspaceId: ID!, $email: String!) {\n    inviteWorkspaceMember(workspaceId: $workspaceId, email: $email) {\n      id\n      email\n      createdAt\n      expiresAt\n    }\n  }\n':
     types.InviteWorkspaceMemberDocument,
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n':
@@ -659,6 +669,7 @@ const documents: Documents = {
   '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n': types.MigrateWorkspaceDocument,
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n':
     types.RemoveWorkspaceMemberDocument,
+  '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': types.RevokeApiKeyDocument,
   '\n  mutation RevokeWorkspaceInvitation($invitationId: ID!) {\n    revokeWorkspaceInvitation(invitationId: $invitationId)\n  }\n':
     types.RevokeWorkspaceInvitationDocument,
   '\n        mutation UpdateWorkspaceMemberRole($workspaceId: ID!, $userId: ID!, $role: WorkspaceRole!) {\n          changeWorkspaceMembership(workspaceId: $workspaceId, userId: $userId, role: $role) {\n            id\n            role\n            user {\n              id\n              name\n              email\n            }\n          }\n        }\n      ':
@@ -694,7 +705,7 @@ const documents: Documents = {
     types.SendConfirmationMailDocument,
   '\n        mutation confirmUserProfile($profileId: String!) {\n          confirmUserProfile(profileId: $profileId) {\n            id\n          }\n        }\n      ':
     types.ConfirmUserProfileDocument,
-  '\n  fragment UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    business\n    position\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n  }\n':
+  '\n  fragment UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    business\n    position\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n  }\n':
     types.UserProfileFragmentDoc,
   '\n      query getUserProfile {\n        userProfile {\n          ...UserProfile\n        }\n      }\n    ':
     types.GetUserProfileDocument,
@@ -724,8 +735,20 @@ export function graphql(source: string): unknown
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n      mutation login($jwtToken: String!) {\n        login(jwtToken: $jwtToken) {\n          ...User\n        }\n      }\n    ',
-): (typeof documents)['\n      mutation login($jwtToken: String!) {\n        login(jwtToken: $jwtToken) {\n          ...User\n        }\n      }\n    ']
+  source: '\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n',
+): (typeof documents)['\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ',
+): (typeof documents)['\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -816,6 +839,12 @@ export function graphql(
 export function graphql(
   source: '\n  query GetAiServiceProviders($enabled: Boolean) {\n    modelProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n',
 ): (typeof documents)['\n  query GetAiServiceProviders($enabled: Boolean) {\n    modelProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n      query workers {\n        workers {\n          workerId\n          workerType\n          lastHeartbeat\n        }\n      }\n    ',
+): (typeof documents)['\n      query workers {\n        workers {\n          workerId\n          workerType\n          lastHeartbeat\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -970,8 +999,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n',
-): (typeof documents)['\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    ownerId\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n']
+  source: '\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n',
+): (typeof documents)['\n  fragment AssistantForm_Assistant on AiAssistant {\n    id\n    name\n    iconUrl\n    description\n    languageModel {\n      id\n      provider\n      name\n    }\n    updatedAt\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -982,8 +1011,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n    ownerId\n  }\n',
-): (typeof documents)['\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n    ownerId\n  }\n']
+  source: '\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n  }\n',
+): (typeof documents)['\n  fragment AssistantLibraries_Assistant on AiAssistant {\n    id\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1030,8 +1059,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n    ownerId\n  }\n',
-): (typeof documents)['\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n    ownerId\n  }\n']
+  source: '\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n  }\n',
+): (typeof documents)['\n  fragment AssistantBase on AiAssistant {\n    id\n    name\n    description\n    iconUrl\n    updatedAt\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1210,8 +1239,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ConversationSelector_Conversation on AiConversation {\n    ...ConversationBase\n    owner {\n      id\n      name\n    }\n    assistants {\n      id\n      name\n    }\n  }\n',
-): (typeof documents)['\n  fragment ConversationSelector_Conversation on AiConversation {\n    ...ConversationBase\n    owner {\n      id\n      name\n    }\n    assistants {\n      id\n      name\n    }\n  }\n']
+  source: '\n  fragment ConversationSelector_Conversation on AiConversation {\n    ...ConversationBase\n    ownerId\n    owner {\n      id\n      name\n    }\n    assistants {\n      id\n      name\n    }\n  }\n',
+): (typeof documents)['\n  fragment ConversationSelector_Conversation on AiConversation {\n    ...ConversationBase\n    ownerId\n    owner {\n      id\n      name\n    }\n    assistants {\n      id\n      name\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1252,8 +1281,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {\n    id\n    crawlerId\n    crawler {\n      id\n      libraryId\n      uri\n      uriType\n    }\n    updateStats {\n      updateType\n      count\n    }\n    startedAt\n    endedAt\n    success\n    stoppedByUser\n    errorMessage\n    runByUserId\n    runBy {\n      id\n      name\n      email\n    }\n  }\n',
-): (typeof documents)['\n  fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {\n    id\n    crawlerId\n    crawler {\n      id\n      libraryId\n      uri\n      uriType\n    }\n    updateStats {\n      updateType\n      count\n    }\n    startedAt\n    endedAt\n    success\n    stoppedByUser\n    errorMessage\n    runByUserId\n    runBy {\n      id\n      name\n      email\n    }\n  }\n']
+  source: '\n  fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {\n    id\n    crawlerId\n    crawler {\n      id\n      libraryId\n      uri\n      uriType\n    }\n    updateStats {\n      updateType\n      count\n    }\n    startedAt\n    endedAt\n    success\n    stoppedByUser\n    errorMessage\n  }\n',
+): (typeof documents)['\n  fragment CrawlerRuns_CrawlerRunsTable on AiLibraryCrawlerRun {\n    id\n    crawlerId\n    crawler {\n      id\n      libraryId\n      uri\n      uriType\n    }\n    updateStats {\n      updateType\n      count\n    }\n    startedAt\n    endedAt\n    success\n    stoppedByUser\n    errorMessage\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1282,8 +1311,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query GetCrawlerRun(\n          $libraryId: String!\n          $crawlerRunId: String!\n          $skipUpdates: Int!\n          $takeUpdates: Int!\n          $updateTypeFilter: [String!]\n        ) {\n          aiLibraryCrawlerRun(libraryId: $libraryId, crawlerRunId: $crawlerRunId) {\n            id\n            startedAt\n            endedAt\n            success\n            stoppedByUser\n            errorMessage\n            runByUserId\n            updatesCount\n            filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)\n            updateStats {\n              updateType\n              count\n            }\n            updates(take: $takeUpdates, skip: $skipUpdates, updateTypeFilter: $updateTypeFilter) {\n              id\n              createdAt\n              message\n              updateType\n              filePath\n              fileName\n              fileSize\n              filterType\n              filterValue\n              file {\n                id\n                name\n                originUri\n                mimeType\n                size\n              }\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        query GetCrawlerRun(\n          $libraryId: String!\n          $crawlerRunId: String!\n          $skipUpdates: Int!\n          $takeUpdates: Int!\n          $updateTypeFilter: [String!]\n        ) {\n          aiLibraryCrawlerRun(libraryId: $libraryId, crawlerRunId: $crawlerRunId) {\n            id\n            startedAt\n            endedAt\n            success\n            stoppedByUser\n            errorMessage\n            runByUserId\n            updatesCount\n            filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)\n            updateStats {\n              updateType\n              count\n            }\n            updates(take: $takeUpdates, skip: $skipUpdates, updateTypeFilter: $updateTypeFilter) {\n              id\n              createdAt\n              message\n              updateType\n              filePath\n              fileName\n              fileSize\n              filterType\n              filterValue\n              file {\n                id\n                name\n                originUri\n                mimeType\n                size\n              }\n            }\n          }\n        }\n      ']
+  source: '\n        query GetCrawlerRun(\n          $libraryId: String!\n          $crawlerRunId: String!\n          $skipUpdates: Int!\n          $takeUpdates: Int!\n          $updateTypeFilter: [String!]\n        ) {\n          aiLibraryCrawlerRun(libraryId: $libraryId, crawlerRunId: $crawlerRunId) {\n            id\n            startedAt\n            endedAt\n            success\n            stoppedByUser\n            errorMessage\n            updatesCount\n            filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)\n            updateStats {\n              updateType\n              count\n            }\n            updates(take: $takeUpdates, skip: $skipUpdates, updateTypeFilter: $updateTypeFilter) {\n              id\n              createdAt\n              message\n              updateType\n              filePath\n              fileName\n              fileSize\n              filterType\n              filterValue\n              file {\n                id\n                name\n                originUri\n                mimeType\n                size\n              }\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetCrawlerRun(\n          $libraryId: String!\n          $crawlerRunId: String!\n          $skipUpdates: Int!\n          $takeUpdates: Int!\n          $updateTypeFilter: [String!]\n        ) {\n          aiLibraryCrawlerRun(libraryId: $libraryId, crawlerRunId: $crawlerRunId) {\n            id\n            startedAt\n            endedAt\n            success\n            stoppedByUser\n            errorMessage\n            updatesCount\n            filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)\n            updateStats {\n              updateType\n              count\n            }\n            updates(take: $takeUpdates, skip: $skipUpdates, updateTypeFilter: $updateTypeFilter) {\n              id\n              createdAt\n              message\n              updateType\n              filePath\n              fileName\n              fileSize\n              filterType\n              filterValue\n              file {\n                id\n                name\n                originUri\n                mimeType\n                size\n              }\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1408,12 +1437,6 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query GetApiKeys($libraryId: String!) {\n    apiKeys(libraryId: $libraryId) {\n      id\n      name\n      createdAt\n      lastUsedAt\n      libraryId\n    }\n  }\n',
-): (typeof documents)['\n  query GetApiKeys($libraryId: String!) {\n    apiKeys(libraryId: $libraryId) {\n      id\n      name\n      createdAt\n      lastUsedAt\n      libraryId\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n        query getExtraction($fileId: String!, $libraryId: String!, $extractionMethod: ExtractionMethod) {\n          extraction(fileId: $fileId, libraryId: $libraryId, extractionMethod: $extractionMethod) {\n            version\n            extractionMethod\n            extracted\n            hasFragments\n            fragmentCount\n            sourceHash\n            attachments {\n              size\n              fileName\n              mimeType\n            }\n          }\n        }\n      ',
 ): (typeof documents)['\n        query getExtraction($fileId: String!, $libraryId: String!, $extractionMethod: ExtractionMethod) {\n          extraction(fileId: $fileId, libraryId: $libraryId, extractionMethod: $extractionMethod) {\n            version\n            extractionMethod\n            extracted\n            hasFragments\n            fragmentCount\n            sourceHash\n            attachments {\n              size\n              fileName\n              mimeType\n            }\n          }\n        }\n      ']
 /**
@@ -1456,8 +1479,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n',
-): (typeof documents)['\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n']
+  source: '\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1498,14 +1521,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation deleteLibrary($libraryId: String!) {\n          deleteLibrary(libraryId: $libraryId) {\n            id\n            name\n            filesCount\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation deleteLibrary($libraryId: String!) {\n          deleteLibrary(libraryId: $libraryId) {\n            id\n            name\n            filesCount\n          }\n        }\n      ']
+  source: '\n        mutation deleteLibrary($libraryId: String!) {\n          deleteLibrary(libraryId: $libraryId)\n        }\n      ',
+): (typeof documents)['\n        mutation deleteLibrary($libraryId: String!) {\n          deleteLibrary(libraryId: $libraryId)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n          mutation prepareDesktopFile($file: PrepareUploadInput!) {\n            prepareUpload(data: $file) {\n              id\n              libraryId\n              library {\n                workspaceId\n              }\n            }\n          }\n        ',
-): (typeof documents)['\n          mutation prepareDesktopFile($file: PrepareUploadInput!) {\n            prepareUpload(data: $file) {\n              id\n              libraryId\n              library {\n                workspaceId\n              }\n            }\n          }\n        ']
+  source: '\n          mutation prepareDesktopFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation prepareDesktopFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1516,32 +1539,26 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation GenerateApiKey($libraryId: String!, $name: String!) {\n    generateApiKey(libraryId: $libraryId, name: $name) {\n      id\n      name\n      key\n      libraryId\n      createdAt\n    }\n  }\n',
-): (typeof documents)['\n  mutation GenerateApiKey($libraryId: String!, $name: String!) {\n    generateApiKey(libraryId: $libraryId, name: $name) {\n      id\n      name\n      key\n      libraryId\n      createdAt\n    }\n  }\n']
+  source: '\n        mutation createLibrary($name: String!, $description: String) {\n          createLibrary(name: $name, description: $description) {\n            id\n            name\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation createLibrary($name: String!, $description: String) {\n          createLibrary(name: $name, description: $description) {\n            id\n            name\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation createLibrary($data: LibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation createLibrary($data: LibraryInput!) {\n          createLibrary(data: $data) {\n            id\n            name\n          }\n        }\n      ']
+  source: '\n        mutation prepareDocumentUpload($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n          prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n            workspaceId\n            libraryId\n            documentId\n            uploadId\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation prepareDocumentUpload($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n          prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n            workspaceId\n            libraryId\n            documentId\n            uploadId\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation processFile($requestType: ProcessingRequestType!, $libraryId: String!, $fileId: String!) {\n          processFile(requestType: $requestType, libraryId: $libraryId, fileId: $fileId) {\n            success\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation processFile($requestType: ProcessingRequestType!, $libraryId: String!, $fileId: String!) {\n          processFile(requestType: $requestType, libraryId: $libraryId, fileId: $fileId) {\n            success\n          }\n        }\n      ']
+  source: '\n  mutation processDocument($requestType: ProcessingRequestType!, $libraryId: String!, $documentId: String!) {\n    processDocument(requestType: $requestType, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n',
+): (typeof documents)['\n  mutation processDocument($requestType: ProcessingRequestType!, $libraryId: String!, $documentId: String!) {\n    processDocument(requestType: $requestType, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation processFiles($requestType: ProcessingRequestType!, $libraryId: String!, $fileIds: [String!]!) {\n          processFiles(requestType: $requestType, libraryId: $libraryId, fileIds: $fileIds) {\n            success\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation processFiles($requestType: ProcessingRequestType!, $libraryId: String!, $fileIds: [String!]!) {\n          processFiles(requestType: $requestType, libraryId: $libraryId, fileIds: $fileIds) {\n            success\n          }\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n',
-): (typeof documents)['\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n']
+  source: '\n  mutation triggerExtraction($extractionMethod: ExtractionMethod!, $libraryId: String!, $documentId: String!) {\n    triggerExtraction(extractionMethod: $extractionMethod, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n',
+): (typeof documents)['\n  mutation triggerExtraction($extractionMethod: ExtractionMethod!, $libraryId: String!, $documentId: String!) {\n    triggerExtraction(extractionMethod: $extractionMethod, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1552,8 +1569,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n          mutation prepareFile($file: PrepareUploadInput!) {\n            prepareUpload(data: $file) {\n              id\n            }\n          }\n        ',
-): (typeof documents)['\n          mutation prepareFile($file: PrepareUploadInput!) {\n            prepareUpload(data: $file) {\n              id\n            }\n          }\n        ']
+  source: '\n          mutation prepareGoogleDriveFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation prepareGoogleDriveFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1594,8 +1611,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n',
-): (typeof documents)['\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    ownerId\n    createdAt\n    updatedAt\n  }\n']
+  source: '\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    createdAt\n    updatedAt\n  }\n',
+): (typeof documents)['\n  fragment ListEditForm_List on AiList {\n    id\n    name\n    createdAt\n    updatedAt\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1678,8 +1695,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ListMenu_AiList on AiList {\n    id\n    name\n    ownerId\n  }\n',
-): (typeof documents)['\n  fragment ListMenu_AiList on AiList {\n    id\n    name\n    ownerId\n  }\n']
+  source: '\n  fragment ListMenu_AiList on AiList {\n    id\n    name\n  }\n',
+): (typeof documents)['\n  fragment ListMenu_AiList on AiList {\n    id\n    name\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1732,8 +1749,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n',
-): (typeof documents)['\n  fragment ListsBase on AiList {\n    id\n    ownerId\n    createdAt\n    updatedAt\n  }\n']
+  source: '\n  fragment ListsBase on AiList {\n    id\n    createdAt\n    updatedAt\n  }\n',
+): (typeof documents)['\n  fragment ListsBase on AiList {\n    id\n    createdAt\n    updatedAt\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1852,14 +1869,20 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n',
-): (typeof documents)['\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n']
+  source: '\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n',
+): (typeof documents)['\n  fragment UserProfileForm_UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n    business\n    position\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
   source: '\n        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ',
 ): (typeof documents)['\n        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query GetApiKeys {\n    apiKeys {\n      id\n      name\n      createdAt\n      lastUsedAt\n      workspaceId\n    }\n  }\n',
+): (typeof documents)['\n  query GetApiKeys {\n    apiKeys {\n      id\n      name\n      createdAt\n      lastUsedAt\n      workspaceId\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1948,6 +1971,12 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  mutation GenerateApiKey($name: String!) {\n    generateApiKey(name: $name) {\n      id\n      name\n      key\n      workspaceId\n      createdAt\n    }\n  }\n',
+): (typeof documents)['\n  mutation GenerateApiKey($name: String!) {\n    generateApiKey(name: $name) {\n      id\n      name\n      key\n      workspaceId\n      createdAt\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  mutation InviteWorkspaceMember($workspaceId: ID!, $email: String!) {\n    inviteWorkspaceMember(workspaceId: $workspaceId, email: $email) {\n      id\n      email\n      createdAt\n      expiresAt\n    }\n  }\n',
 ): (typeof documents)['\n  mutation InviteWorkspaceMember($workspaceId: ID!, $email: String!) {\n    inviteWorkspaceMember(workspaceId: $workspaceId, email: $email) {\n      id\n      email\n      createdAt\n      expiresAt\n    }\n  }\n']
 /**
@@ -1968,6 +1997,12 @@ export function graphql(
 export function graphql(
   source: '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n',
 ): (typeof documents)['\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n',
+): (typeof documents)['\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -2080,8 +2115,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    business\n    position\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n  }\n',
-): (typeof documents)['\n  fragment UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    business\n    position\n    freeMessages\n    usedMessages\n    freeStorage\n    usedStorage\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n  }\n']
+  source: '\n  fragment UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    business\n    position\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n  }\n',
+): (typeof documents)['\n  fragment UserProfile on UserProfile {\n    id\n    userId\n    email\n    firstName\n    lastName\n    business\n    position\n    createdAt\n    updatedAt\n    confirmationDate\n    activationDate\n    expiresAt\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

@@ -1,5 +1,5 @@
 import { ProcessingReply, ProcessingRequest, ProcessingStatus, default as workspaceProcessing } from '.'
-import { initializeEventServiceClient } from '..'
+import { isEventServiceClientInitialized } from '..'
 import { EventType } from './common'
 
 describe.sequential('Workspace Trigger Event Lifecycle', () => {
@@ -16,7 +16,7 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
   beforeAll(async () => {
     // Ensure workspace is clean before tests
     // await workspaceProcessing.deleteWorkspace({ workspaceId: TEST_WORKSPACE_ID })
-    await initializeEventServiceClient()
+    await isEventServiceClientInitialized()
   })
 
   afterAll(async () => {

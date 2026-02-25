@@ -1,9 +1,9 @@
-import { getConfig } from '@george-ai/app-domain'
+import { getConfigValue } from '@george-ai/app-commons'
 
 import { builder } from '../builder'
 
 builder.queryField('version', (t) =>
   t.string({
-    resolve: () => getConfig('GIT_COMMIT_SHA'),
+    resolve: () => getConfigValue('GIT_COMMIT_SHA'),
   }),
 )

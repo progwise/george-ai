@@ -19,10 +19,7 @@ builder.queryField('extraction', (t) => {
     resolve: async (_source, { libraryId, fileId, extractionMethod }, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
       if (!extractionMethod) {
-        const file = await document.get(workspaceId, {
-          libraryId,
-          documentId: fileId,
-        })
+        const file = await document.get({ workspaceId, libraryId, documentId: fileId })
         if (!file?.extractions || file.extractions.length < 1) {
           logger.warn('File or Extraction not found when trying to resolve extraction', {
             workspaceId,
@@ -31,7 +28,18 @@ builder.queryField('extraction', (t) => {
           })
           return null
         }
-        extractionMethod = file.extractions[0].extractionMethod
+        const latestExtraction = file.extractions.sort((a, b) => b.created.getTime() - a.created.getTime())[0]
+
+        if (!latestExtraction?.extractionMethod) {
+          logger.warn('Latest extraction missing extractionMethod when trying to resolve extraction', {
+            workspaceId,
+            libraryId,
+            fileId,
+          })
+          return null
+        }
+
+        extractionMethod = latestExtraction.extractionMethod
       }
 
       const extraction = await ex.get(workspaceId, {

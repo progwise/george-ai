@@ -40,6 +40,7 @@
         },
         "files.watcherExclude": {
           "**/node_modules/**": true,
+          "**/.storage/**": true,
           "**/.uploads/**": true,
           "**/.smb-credentials/**": true,
           "**/.smb-mounts/**": true,
@@ -49,12 +50,14 @@
           "**/.typesense-data/**": true
         },
         "files.exclude": {
-          "**/.uploads/**": true
+          "**/.uploads/**": true,
+          "**/.storage/**": true
         },
         "search.exclude": {
           "**/node_modules": true,
           "**/.turbo": true,
           "**/dist": true,
+          "**/.storage": true,
           "**/.uploads": true,
           "**/.smb-mounts": true,
           "**/.typesense-data": true,
@@ -68,6 +71,7 @@
           "**/node_modules/**",
           "**/.hg/**",
           "**/.svn/**",
+          "**/.storage/**",
           "**/.uploads/**",
           "**/.smb-mounts/**",
           "**/.turbo/**",

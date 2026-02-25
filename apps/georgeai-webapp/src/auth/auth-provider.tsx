@@ -1,12 +1,12 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import Keycloak from 'keycloak-js'
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { toastError } from '../components/georgeToaster'
+import { toastError, toastSuccess } from '../components/georgeToaster'
 import { KEYCLOAK_TOKEN_COOKIE_NAME } from './common'
-import { getKeycloakConfigQueryOptions, getUserQueryOptions } from './queries'
-import { setKeycloakTokenFn } from './server-functions'
+import { getKeycloakConfigQueryOptions } from './queries'
+import { loginFn, logoutFn } from './server-functions'
 
 const isClientSide = typeof window !== 'undefined'
 
@@ -26,10 +26,17 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
-  const { refetch: refetchUserQuery } = useQuery(getUserQueryOptions())
   const keycloakRef = useRef<Keycloak | undefined>(undefined)
   const [isReady, setIsReady] = useState(false)
   const { data: keycloakConfig } = useQuery(getKeycloakConfigQueryOptions())
+
+  const { mutate: login } = useMutation({
+    mutationFn: (token: string | undefined) => loginFn({ data: { token } }),
+  })
+
+  const { mutate: logout } = useMutation({
+    mutationFn: () => logoutFn(),
+  })
 
   const updateTokenInCookie = useCallback(async () => {
     const tokenInCookie = document.cookie
@@ -44,17 +51,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return
     }
 
-    /**
-     * For some reason, the updated cookie is not immediately available when reloading the page (router.invalidate).
-     * Because of that, the user is not loaded after successful login.
-     * Using a server function to set the cookie and not using document.cookie = ... seams more reliable, same for waiting a bit.
-     */
-    await setKeycloakTokenFn({ data: { token: currentToken } })
-    await new Promise((resolve) => setTimeout(resolve, 100))
-
-    await refetchUserQuery()
+    await new Promise((resolve, reject) => {
+      login(currentToken, { onError: (error) => reject(error), onSettled: () => resolve(0) })
+    })
     await router.invalidate()
-  }, [refetchUserQuery, router])
+  }, [router, login])
 
   useEffect(() => {
     if (isClientSide && !keycloakRef.current?.didInitialize && keycloakConfig) {
@@ -90,19 +91,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const contextValue = useMemo(
     () => ({
-      login: async (redirectUri?: string): Promise<void> =>
-        isClientSide ? await keycloakRef.current?.login({ redirectUri }) : undefined,
+      login: async (redirectUri?: string): Promise<void> => {
+        if (isClientSide) {
+          keycloakRef.current?.login({ redirectUri })
+        }
+      },
       logout: async (): Promise<void> => {
         if (!isClientSide) {
           return
         }
 
-        await keycloakRef.current?.logout()
-        updateTokenInCookie()
+        // updateTokenInCookie()
+        logout(undefined, {
+          onError: (error) => {
+            toastError('Logout failed: ' + error)
+          },
+          onSuccess: async () => {
+            toastSuccess('Logged out successfully')
+            await keycloakRef.current?.logout()
+            await router.navigate({ to: '/login' })
+          },
+        })
       },
       isReady,
     }),
-    [updateTokenInCookie, isReady],
+    [isReady, logout, router],
   )
 
   return <AuthContext value={contextValue}>{children}</AuthContext>

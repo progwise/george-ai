@@ -1,8 +1,10 @@
 import { ExtractionMethod } from '@george-ai/app-commons'
 import { transformToMarkdown } from '@george-ai/file-converter'
-import { ExtractionManifest, document, library } from '@george-ai/file-management'
+import { ExtractionManifest, getDocument, getLibrary } from '@george-ai/file-management'
 
+import { logger } from '../common'
 import { DomainError } from '../error'
+import { fixMissingLibraryManifest } from '../library'
 
 export async function transform(
   workspaceId: string,
@@ -14,20 +16,20 @@ export async function transform(
 ): Promise<ExtractionManifest> {
   const { libraryId, documentId, extractionMethod } = parameters
 
-  const libraryManifest = await library.get(workspaceId, { libraryId })
+  const libraryManifest = await getLibrary(workspaceId, { libraryId })
   if (!libraryManifest) {
-    throw new DomainError('Library not found', 'document')
+    await fixMissingLibraryManifest(libraryId)
   }
 
-  const manifest = await document.get(workspaceId, { libraryId, documentId })
-  if (!manifest) {
+  const document = await getDocument({ workspaceId, libraryId, documentId })
+  if (!document) {
     throw new DomainError('Document not found', 'document')
   }
 
+  logger.info('Transforming', { workspaceId, parameters, document })
+
   return await transformToMarkdown({
-    workspaceId,
-    libraryId,
-    documentId,
+    document,
     timeoutSignal: new AbortController().signal,
     options: {
       extractionMethod,

@@ -1,18 +1,20 @@
 import { Readable } from 'stream'
 
 import {
+  ExtractionManifest,
   createDocument,
   createLibrary,
   createUser,
   createWorkspace,
+  deleteLibrary,
+  deleteUser,
   deleteWorkspace,
   getExtraction,
+  getWorkspaceManifest,
   prepareUpload,
-  uploadFile,
+  uploadDocumentSource,
 } from '@george-ai/app-domain'
 import { workspaceProcessing } from '@george-ai/event-service-client'
-
-import { main } from '.'
 
 describe.sequential('Should process action events', () => {
   let TEST_WORKSPACE_ID: string
@@ -21,7 +23,6 @@ describe.sequential('Should process action events', () => {
   let TEST_USER_ID: string
 
   beforeAll(async () => {
-    await main()
     const workspace = await createWorkspace({ name: 'Test Workspace', slug: 'slug' })
     TEST_WORKSPACE_ID = workspace.workspaceId
 
@@ -33,13 +34,14 @@ describe.sequential('Should process action events', () => {
     TEST_USER_ID = user.userId
     const library = await createLibrary(TEST_WORKSPACE_ID, {
       name: 'Test Library',
-      userId: TEST_USER_ID,
     })
     TEST_LIBRARY_ID = library.libraryId
     await workspaceProcessing.ensureWorkspaceConsumers({ workspaceId: TEST_WORKSPACE_ID })
   })
 
   afterAll(async () => {
+    await deleteLibrary(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID })
+    await deleteUser(TEST_USER_ID)
     await deleteWorkspace(TEST_WORKSPACE_ID)
   })
 
@@ -56,16 +58,18 @@ describe.sequential('Should process action events', () => {
   })
 
   it('...and I upload the file content', async () => {
-    const preparation = await prepareUpload(TEST_WORKSPACE_ID, {
+    const preparation = await prepareUpload({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
-      fileId: TEST_FILE_ID,
-      uploadUrl: 'test7upload',
+      name: 'test.txt',
+      mimeType: 'text/plain',
+      originUri: 'actions/test.txt',
     })
     expect(preparation).toBeDefined()
 
-    const result = await uploadFile(TEST_WORKSPACE_ID, {
+    const result = await uploadDocumentSource(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
-      fileId: TEST_FILE_ID,
+      documentId: TEST_FILE_ID,
       stream: Readable.from(['This is the content of the file.']),
     })
 
@@ -83,29 +87,40 @@ describe.sequential('Should process action events', () => {
     })
   })
 
+  it('And start the processing for the workspace...', async () => {
+    await workspaceProcessing.startProcessing({ workspaceId: TEST_WORKSPACE_ID, requestTypes: ['extractFile'] })
+  })
+
   it('I should see the status completed event for the extraction', async () => {
-    const maxWaitMs = 3000
-    const pollIntervalMs = 100
+    const maxWaitMs = 15000
+    const pollIntervalMs = 500
     let elapsed = 0
-    while (elapsed < maxWaitMs) {
-      const extraction = await getExtraction(TEST_WORKSPACE_ID, {
+    let extraction: ExtractionManifest | null = null
+    while (!extraction && elapsed < maxWaitMs) {
+      extraction = await getExtraction(TEST_WORKSPACE_ID, {
         libraryId: TEST_LIBRARY_ID,
         documentId: TEST_FILE_ID,
         extractionMethod: 'textExtraction',
       })
 
       if (extraction) {
-        expect(extraction).toBeDefined()
-        expect(extraction.extractionMethod).toBe('textExtraction')
-        expect(extraction.storageStats.extractionBytes).toBeGreaterThan(0)
-        return
+        continue
       }
 
       await new Promise((resolve) => setTimeout(resolve, pollIntervalMs))
       elapsed += pollIntervalMs
     }
+    expect(extraction).toBeDefined()
+    expect(extraction).not.toBeNull()
+    expect(extraction!.extractionMethod).toBe('textExtraction')
+    expect(extraction!.storageStats.physicalBytes).toBeGreaterThan(0)
+    expect(extraction!.storageStats.extractionBytes).toBeGreaterThan(0)
+  }, 20000)
 
-    // TODO: Fail the test if extraction is not found within the time limit
-    expect(true).toBe(true)
+  it('Should have updated the workspace storage stats accordingly', async () => {
+    const workspace = await getWorkspaceManifest(TEST_WORKSPACE_ID)
+    expect(workspace).toBeDefined()
+    expect(workspace!.storageStats.physicalBytes).toBeGreaterThan(0)
+    expect(workspace!.storageStats.extractionBytes).toBeGreaterThan(0)
   })
 })

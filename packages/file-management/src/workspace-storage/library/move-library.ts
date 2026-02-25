@@ -40,7 +40,7 @@ export async function moveLibrary(
   const updatedLibraryManifest: LibraryManifest = {
     ...oldLibraryManifest,
     workspaceId: targetWorkspace.workspaceId,
-    updated: new Date().toISOString(),
+    updated: new Date(),
   }
 
   return await saveEntry(updatedLibraryManifest)

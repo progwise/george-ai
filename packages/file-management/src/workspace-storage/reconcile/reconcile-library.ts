@@ -51,7 +51,7 @@ export async function reconcileLibrary(identifier: LibraryIdentifier): Promise<L
       ),
       physicalBytes: libDirStats.diskSize,
       physicalFileCount: libDirStats.fileCount,
-      lastReconcile: new Date().toISOString(),
+      lastReconcile: new Date(),
     },
   }
 

@@ -29,12 +29,6 @@ graphql(`
     success
     stoppedByUser
     errorMessage
-    runByUserId
-    runBy {
-      id
-      name
-      email
-    }
   }
 `)
 
@@ -112,7 +106,7 @@ export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_Cra
                 <td className="border-t px-4 py-2 align-top">
                   <div className="max-h-12 overflow-auto">{run.errorMessage || 'N/A'}</div>
                 </td>
-                <td className="border-t px-4 py-2 align-top">{run.runBy?.email || 'N/A'}</td>
+                <td className="border-t px-4 py-2 align-top">{'N/A'}</td>
               </tr>
               <tr className="hover:bg-base-300">
                 <th className="align-top hover:bg-base-300">

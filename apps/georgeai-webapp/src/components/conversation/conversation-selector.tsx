@@ -12,6 +12,7 @@ import { DeleteConversationsDialog } from './delete-conversations-dialog'
 graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
     ...ConversationBase
+    ownerId
     owner {
       id
       name

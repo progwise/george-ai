@@ -10,7 +10,6 @@ import { existsFolder } from './exists-folder'
 import { getFilePath, getFilePathOrThrow } from './get-file-path'
 import { getFileStats } from './get-file-stats'
 import { getFolderPath, getFolderPathOrThrow } from './get-folder-path'
-import { getRootPath } from './get-root-path'
 import { listFiles } from './list-files'
 import { listFolders } from './list-folders'
 import { getExtensionFromMimeType, lookupMimeType } from './mimetype'
@@ -34,7 +33,6 @@ export default {
   getFilePathOrThrow,
   getFolderPath,
   getFolderPathOrThrow,
-  getRootPath,
   listFiles,
   listFolders,
   ensureFolderOnce,
@@ -62,7 +60,6 @@ export {
   getFilePathOrThrow,
   getFolderPath,
   getFolderPathOrThrow,
-  getRootPath,
   listFiles,
   listFolders,
   ensureFolderOnce,

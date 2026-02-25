@@ -21,12 +21,14 @@ export interface FileUploadProgressDialogProps {
   libraryId: string
   preparedUploadFiles: PreparedUploadFile[]
   onClose?: () => void
+  dialogRef: React.RefObject<HTMLDialogElement | null>
 }
 
 export const FileUploadProgressDialog = ({
   libraryId,
   preparedUploadFiles,
   onClose,
+  dialogRef,
 }: FileUploadProgressDialogProps) => {
   const { now } = useNow()
   const { t } = useTranslation()
@@ -246,7 +248,7 @@ export const FileUploadProgressDialog = ({
       : t('texts.uploadingFiles')
 
   return (
-    <dialog className="modal" open={true}>
+    <dialog ref={dialogRef} className="modal" open={true}>
       <div className="modal-box">
         <h3 className="mb-2 text-lg font-bold">{dialogTitle}</h3>
         <ul className="space-y-2">

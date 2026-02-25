@@ -1,6 +1,6 @@
 import { twMerge } from 'tailwind-merge'
 
-import { UserFragment } from '../../gql/graphql'
+import { CurrentUserFragment } from '../../gql/graphql'
 import { CheckIcon } from '../../icons/check-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { RefreshIcon } from '../../icons/refresh-icon'
@@ -8,7 +8,7 @@ import { toastError } from '../georgeToaster'
 import { useWorkspace } from './use-workspace'
 
 interface MigrateWorkspaceDialogProps {
-  user: UserFragment
+  user: CurrentUserFragment
   onClose: () => void
 }
 
@@ -119,7 +119,9 @@ export function MigrateWorkspaceDialog({ user, onClose }: MigrateWorkspaceDialog
               <Icon className="size-6 shrink-0" />
               <div className="flex-1">
                 <h3 className="text-base font-bold">{title}</h3>
-                <p className="text-sm opacity-80">Workspace &quot;{currentWorkspace.name}&quot;</p>
+                <p className="text-sm opacity-80">
+                  Workspace &quot;{currentWorkspace?.name || 'no current workspace'}&quot;
+                </p>
               </div>
             </div>
 

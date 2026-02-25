@@ -97,7 +97,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
     return () => clearTimeout(timeout)
   }, [libraryId])
 
-  const { deleteFile, deleteFiles, processFile, processFiles, isPending } = useLibraryActions(libraryId)
+  const { deleteFile, deleteFiles, processDocument, processDocuments, isPending } = useLibraryActions(libraryId)
 
   const dropDialogRef = useRef<HTMLDialogElement>(null)
   const processDialogRef = useRef<HTMLDialogElement>(null)
@@ -139,18 +139,18 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
   }
 
   const handleExtractSelectedFiles = () => {
-    processFiles({
+    processDocuments({
       requestType: 'extractFile',
       libraryId,
-      fileIds: selectedFileIds,
+      documentIds: selectedFileIds,
     })
   }
 
   const handleEmbedSelectedFiles = () => {
-    processFiles({
+    processDocuments({
       requestType: 'embedFile',
       libraryId,
-      fileIds: selectedFileIds,
+      documentIds: selectedFileIds,
     })
   }
 
@@ -372,7 +372,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                         type="button"
                         className="tooltip btn tooltip-right btn-square btn-xs"
                         data-tip={t('actions.reprocess')}
-                        onClick={() => processFile({ requestType: 'embedFile', libraryId, fileId: file.id })}
+                        onClick={() => processDocument({ requestType: 'embedFile', libraryId, documentId: file.id })}
                       >
                         <ReprocessIcon className="size-4" />
                       </button>

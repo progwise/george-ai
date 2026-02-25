@@ -1,4 +1,4 @@
 import './start-processing'
 import './stop-processing'
-import './process-file'
-import './process-files'
+import './process-document'
+import './trigger-extraction'

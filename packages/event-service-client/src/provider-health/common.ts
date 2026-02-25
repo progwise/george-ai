@@ -9,7 +9,3 @@ export const getWildcardKey = (args: { workspaceId: string; modelProvider?: Mode
   args.modelProvider
     ? `workspace.${args.workspaceId}.provider.${args.modelProvider}.instance.*.health`
     : `workspace.${args.workspaceId}.provider.*.instance.*.health`
-
-export const HEALTH_STATUS = ['healthy', 'degraded', 'unhealthy'] as const
-
-export type HealthStatus = (typeof HEALTH_STATUS)[number]

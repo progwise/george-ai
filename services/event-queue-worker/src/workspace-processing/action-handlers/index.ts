@@ -10,8 +10,8 @@ import { embedFile } from './embed-file'
 import { enrichItem } from './enrich-item'
 import { extractFile } from './extract-file'
 
-export async function handleActionEvent(event: ProcessingRequest) {
-  logger.debug('Handling action event', { event })
+export async function handleProcessingEvent(event: ProcessingRequest) {
+  logger.debug('Handling processing event', { event })
   try {
     switch (event.requestType) {
       case 'embedFile':
@@ -24,11 +24,11 @@ export async function handleActionEvent(event: ProcessingRequest) {
         await enrichItem(event as EnrichItemRequest)
         break
       default:
-        throw new Error(`Unknown process request type`)
+        throw new Error(`Unknown processing request type`)
     }
-    logger.debug('Completed handling action event', { event })
+    logger.debug('Completed handling processing event', { event })
   } catch (error) {
-    logger.error('Error handling action event', { event, error })
+    logger.error('Error handling processing event', { event, error })
     throw error
   }
 }

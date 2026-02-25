@@ -5,7 +5,7 @@ import conversation from './conversation'
 import document from './document'
 import enrichment from './enrichment'
 import file from './file'
-import { initializeAppDomain } from './initialize'
+import { initializeOnce } from './initialize'
 import languageModel from './languageModel'
 import library from './library'
 import list from './list'
@@ -14,7 +14,7 @@ import subscriptions from './subscriptions'
 import user from './user'
 import workspace from './workspace'
 
-initializeAppDomain().catch((error) => {
+initializeOnce().catch((error) => {
   console.error('Error initializing app domain:', error)
 })
 
@@ -22,7 +22,6 @@ export * from './access-control'
 export * from './crawler'
 export * from './assistant'
 export * from './automation'
-export * from './config'
 export * from './context'
 export * from './conversation'
 export * from './document'
@@ -71,3 +70,10 @@ export {
   user,
   subscriptions,
 }
+
+export type {
+  ExtractionManifest,
+  WorkspaceManifest,
+  DocumentManifest,
+  LibraryManifest,
+} from '@george-ai/file-management'

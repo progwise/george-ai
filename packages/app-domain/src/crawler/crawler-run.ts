@@ -77,7 +77,7 @@ export const stopCrawler = async ({ crawlerId }: RunOptions) => {
   })
 }
 
-export const runCrawler = async ({ workspaceId, crawlerId, userId, runByCronJob }: RunOptions) => {
+export const runCrawler = async ({ workspaceId, crawlerId, runByCronJob }: RunOptions) => {
   const crawler = await prisma.aiLibraryCrawler.findUniqueOrThrow({
     where: { id: crawlerId },
     include: {
@@ -93,7 +93,7 @@ export const runCrawler = async ({ workspaceId, crawlerId, userId, runByCronJob 
   }
 
   const newRun = await prisma.aiLibraryCrawlerRun.create({
-    data: { crawlerId, startedAt: new Date(), runByUserId: userId, runByCronJob },
+    data: { crawlerId, startedAt: new Date(), runByCronJob },
   })
 
   startCrawling(workspaceId, crawler, newRun).catch(async (error) => {

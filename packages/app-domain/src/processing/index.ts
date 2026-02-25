@@ -1,5 +1,7 @@
-import { processFile } from './process-file'
-import { processFiles } from './process-files'
+import { processDocument } from './process-document'
 import { getProcessingSettings } from './processing-settings'
+import { triggerExtraction } from './trigger-extraction'
 
-export default { processFile, processFiles, getProcessingSettings }
+export default { processDocument, getProcessingSettings }
+
+export { processDocument, getProcessingSettings, triggerExtraction }

@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
-import { UserFragment } from '../../gql/graphql'
+import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { getModelProviderStatusQueryOptions } from './queries'
 import { useWorkspace } from './use-workspace'
 
 interface WorkspaceModelProviderCardsProps {
-  user: UserFragment
+  user: CurrentUserFragment
 }
 export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCardsProps) => {
   const { t } = useTranslation()

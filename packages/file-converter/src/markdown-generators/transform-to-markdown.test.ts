@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 
-import { document, extraction, library, workspace } from '@george-ai/file-management'
+import { document, extraction, getDocumentOrThrow, library, workspace } from '@george-ai/file-management'
 
 import { transformToMarkdown } from './transform-to-markdown'
 
@@ -23,23 +23,28 @@ describe.sequential('Convert to Markdown', () => {
       mimeType: 'text/plain',
       uri: 'legacy-uri',
     })
-    await document.writeSource(TEST_WORKSPACE_ID, {
+    const { ack } = await document.writeSource(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_TEXT_FILE_ID,
       stream: Readable.from([TEST_TEXT_CONTENT]),
     })
+    await ack()
   })
 
   afterAll(async () => {
-    await workspace.delete(TEST_WORKSPACE_ID)
+    //await workspace.delete(TEST_WORKSPACE_ID)
   })
 
   it('should convert text to Markdown', async () => {
-    // Perform the conversion
-    await transformToMarkdown({
+    const document = await getDocumentOrThrow({
       workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_TEXT_FILE_ID,
+    })
+
+    // Perform the conversion
+    await transformToMarkdown({
+      document,
       timeoutSignal: new AbortController().signal,
       options: {
         extractionMethod: 'textExtraction',
@@ -48,7 +53,8 @@ describe.sequential('Convert to Markdown', () => {
   })
 
   it('File should have the extraction', async () => {
-    const fileInfo = await document.get(TEST_WORKSPACE_ID, {
+    const fileInfo = await document.get({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_TEXT_FILE_ID,
     })
@@ -58,7 +64,7 @@ describe.sequential('Convert to Markdown', () => {
   })
 
   it('should read the Markdown extraction', async () => {
-    const extractionReadStream = await extraction.read(TEST_WORKSPACE_ID, {
+    const { stream: extractionReadStream } = await extraction.read(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_TEXT_FILE_ID,
       extractionMethod: 'textExtraction',

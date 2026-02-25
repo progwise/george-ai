@@ -6,6 +6,7 @@ export const EXTRACTION_METHODS = [
   'emlExtraction',
   'excelExtraction',
   'htmlExtraction',
+  'imageExtraction',
   'pdfExtraction',
   'textExtraction',
   'legacyExtraction',

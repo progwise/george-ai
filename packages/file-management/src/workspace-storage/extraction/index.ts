@@ -1,27 +1,26 @@
 import { ExtractionMethod } from '@george-ai/app-commons'
 
-import { DocumentIdentifier, ExtractionIdentifier } from '../schema'
 import { createExtraction } from './create-extraction'
 import { deleteExtraction } from './delete-extraction'
+import { ExtractionWriter } from './extraction.writer'
 import { getExtraction } from './get-extraction'
 import { readExtraction } from './read-extraction'
+import { writeExtraction } from './write-extraction'
 
-export { createExtraction, getExtraction, deleteExtraction, readExtraction }
+export { createExtraction, getExtraction, deleteExtraction, readExtraction, writeExtraction }
 
 export default {
   create: createExtraction,
-  get: getExtraction,
+  get: (
+    workspaceId: string,
+    parameters: { libraryId: string; documentId: string; extractionMethod: ExtractionMethod },
+  ) => getExtraction({ ...parameters, workspaceId, type: 'extraction', version: 1 }),
   delete: deleteExtraction,
   read: (
     workspaceId: string,
-    params: { libraryId: string; documentId: string; extractionMethod?: ExtractionMethod; fragment?: number },
-  ) => {
-    const identifier: DocumentIdentifier | ExtractionIdentifier = params.extractionMethod
-      ? { ...params, workspaceId, type: 'extraction', extractionMethod: params.extractionMethod, version: 1 }
-      : { ...params, workspaceId, type: 'document', version: 1 }
-
-    return readExtraction(identifier, params.fragment)
-  },
+    parameters: { libraryId: string; documentId: string; extractionMethod: ExtractionMethod; fragment?: number },
+  ) => readExtraction({ ...parameters, workspaceId, type: 'extraction', version: 1 }, parameters.fragment),
+  write: writeExtraction,
 }
 
-export type { ExtractionWriter } from './extraction.writer'
+export type { ExtractionWriter }

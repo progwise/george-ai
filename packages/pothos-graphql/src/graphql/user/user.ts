@@ -17,6 +17,7 @@ builder.prismaObject('User', {
     lastLogin: t.expose('lastLogin', { type: 'DateTime', nullable: true }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
+    apiKeyCount: t.relationCount('apiKeys', { nullable: false }),
     registered: t.field({
       type: 'Boolean',
       resolve: async (source) => {

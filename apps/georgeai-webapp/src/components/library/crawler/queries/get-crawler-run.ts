@@ -33,7 +33,6 @@ const getCrawlerRun = createServerFn({ method: 'GET' })
             success
             stoppedByUser
             errorMessage
-            runByUserId
             updatesCount
             filteredUpdatesCount(updateTypeFilter: $updateTypeFilter)
             updateStats {

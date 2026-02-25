@@ -333,12 +333,11 @@ export function ModelProviderInputSchema(): z.ZodObject<Properties<ModelProvider
 
 export function PrepareUploadInputSchema(): z.ZodObject<Properties<PrepareUploadInput>> {
   return z.object({
-    libraryId: z.string(),
     mimeType: z.string(),
+    modificationDate: z.string().nullish(),
     name: z.string(),
-    originModificationDate: z.string(),
     originUri: z.string(),
-    size: z.number(),
+    size: z.number().nullish(),
   })
 }
 

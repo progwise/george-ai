@@ -38,6 +38,12 @@ env:
   CRAWLER_CREDENTIALS_DIR: /tmp/crawler-credentials
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/george-ai-ci
+  STORAGE_PATH_WORKSPACES: /tmp/.storage/workspace-storage
+  STORAGE_PATH_WORKSPACES_BACKUP: /tmp/.storage/workspace-storage-backup
+  STORAGE_PATH_ASSISTANTS: /tmp/.storage/assistant-storage
+  STORAGE_PATH_USERS: /tmp/.storage/user-storage
+  STORAGE_PATH_CREDENTIALS: /tmp/.storage/credential-storage
+  STORAGE_PATH_LEGACY_LIBRARIES: /tmp/.uploads
 
 jobs:
   calculate-smb-test-hash:

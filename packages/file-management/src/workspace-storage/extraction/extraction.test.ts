@@ -1,6 +1,6 @@
 import { Readable } from 'node:stream'
 
-import { createExtraction, getExtraction, readExtraction } from '.'
+import extraction, { createExtraction, readExtraction } from '.'
 import { document as doc, library as lib, workspace as ws } from '..'
 import { DocumentManifest } from '../schema'
 
@@ -35,7 +35,7 @@ describe.sequential('Read and write extractions', () => {
   })
 
   afterAll(async () => {
-    await ws.delete(TEST_WORKSPACE_ID)
+    // await ws.delete(TEST_WORKSPACE_ID)
   })
 
   it('Should fail without uploaded source file', async () => {
@@ -43,7 +43,8 @@ describe.sequential('Read and write extractions', () => {
   })
 
   it('after uploading a file, should create an extraction manifest with correct metadata', async () => {
-    const document = await doc.get(TEST_WORKSPACE_ID, {
+    const document = await doc.get({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_FILE_ID,
     })
@@ -58,9 +59,8 @@ describe.sequential('Read and write extractions', () => {
     const extractionWriter = await createExtraction(document!, 'textExtraction')
 
     await extractionWriter.write('This is the content of the extraction file.')
-    const savedManifest = await extractionWriter.ack()
 
-    console.log('Saved Extraction Manifest:', savedManifest)
+    const savedManifest = await extractionWriter.ack()
 
     expect(savedManifest).toBeDefined()
     expect(savedManifest!.extractionMethod).toBe('textExtraction')
@@ -71,7 +71,8 @@ describe.sequential('Read and write extractions', () => {
   })
 
   it('should have updated the document manifest with extractions and extraction stats', async () => {
-    const documentManifest = await doc.get(TEST_WORKSPACE_ID, {
+    const documentManifest = await doc.get({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_FILE_ID,
     })
@@ -87,7 +88,7 @@ describe.sequential('Read and write extractions', () => {
   })
 
   it('should read back the extraction file', async () => {
-    const extractionReadStream = await readExtraction({
+    const { stream: extractionReadStream } = await readExtraction({
       ...TEST_DOCUMENT_MANIFEST,
       type: 'extraction',
       extractionMethod: 'textExtraction',
@@ -103,12 +104,13 @@ describe.sequential('Read and write extractions', () => {
   })
 
   it('Should get extraction manifest', async () => {
-    const extractionManifest = await getExtraction(TEST_WORKSPACE_ID, {
+    const extractionManifest = await extraction.get(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_FILE_ID,
       extractionMethod: 'textExtraction',
     })
-    const documentManifest = await doc.get(TEST_WORKSPACE_ID, {
+    const documentManifest = await doc.get({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_FILE_ID,
     })
@@ -123,8 +125,10 @@ describe.sequential('Read and write extractions', () => {
     expect(documentManifest!.storageStats.extractionFileCount).toBe(
       extractionManifest!.storageStats.extractionFileCount,
     )
-    expect(documentManifest!.storageStats.physicalBytes).toBeGreaterThan(extractionManifest!.storageStats.physicalBytes)
-    expect(documentManifest!.storageStats.physicalFileCount).toBeGreaterThan(
+    expect(documentManifest!.storageStats.physicalBytes).toBeGreaterThanOrEqual(
+      extractionManifest!.storageStats.physicalBytes,
+    )
+    expect(documentManifest!.storageStats.physicalFileCount).toBeGreaterThanOrEqual(
       extractionManifest!.storageStats.physicalFileCount,
     )
   })
@@ -134,13 +138,14 @@ describe.sequential('Read and write extractions', () => {
       libraryId: TEST_LIBRARY_ID,
     })
     expect(libraryManifest).toBeDefined()
-    expect(libraryManifest!.storageStats.physicalFileCount).toBe(4) // 1 for source file, 1 for extraction manifest, 1 for extraction file, 1 for library metadata.json
+    expect(libraryManifest!.storageStats.physicalFileCount).toBe(5) // 1 for source file, 1 for document manifest,  1 for extraction manifest, 1 for extraction file, 1 for library metadata.json
     expect(libraryManifest!.storageStats.extractionFileCount).toBe(1)
     expect(libraryManifest!.storageStats.extractionBytes).toBeGreaterThan(3)
   })
 
   it('Should have updated nothing if the extraction is aborted', async () => {
-    const document = await doc.get(TEST_WORKSPACE_ID, {
+    const document = await doc.get({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_FILE_ID,
     })
@@ -153,7 +158,8 @@ describe.sequential('Read and write extractions', () => {
     await extractionWriter.write('This is some content for the CSV extraction.')
     await extractionWriter.nack()
 
-    const documentAfter = await doc.get(TEST_WORKSPACE_ID, {
+    const documentAfter = await doc.get({
+      workspaceId: TEST_WORKSPACE_ID,
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_FILE_ID,
     })

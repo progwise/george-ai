@@ -76,7 +76,7 @@ builder.queryField('similarChunks', (t) =>
           const modelProvider = getModelProvider(library.embeddingModel.provider)
           const modelName = library.embeddingModel.name
 
-          const healthyProviderData = await providerHealth.getProviderInstanceForDirectCall({
+          const healthyProviderData = await providerHealth.getProviderInstance({
             workspaceId,
             modelProvider,
             modelName,

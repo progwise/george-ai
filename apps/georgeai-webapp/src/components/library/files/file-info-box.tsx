@@ -59,7 +59,7 @@ graphql(`
 const InfoField = ({ label, value }: { label: string; value: ReactNode }) => (
   <div>
     <div className="text-xs text-base-content/50">{label}</div>
-    <div className="text-sm">{value}</div>
+    <div className="overflow-auto text-sm">{value}</div>
   </div>
 )
 
@@ -70,12 +70,15 @@ interface FileInfoBoxProps {
 export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
   const { t } = useTranslation()
   return (
-    <div className="w-96 space-y-3 p-3">
+    <div className="w-96 space-y-3 p-3 opacity-100">
       <section>
         <h4 className="mb-2 text-xs font-semibold tracking-wide text-base-content/80 uppercase">{file.name}</h4>
 
         <div className="grid grid-cols-1 gap-x-4 gap-y-2">
           <InfoField label="Origin URI" value={file.originUri ?? '-'} />
+        </div>
+        <div className="grid grid-cols-1 gap-x-4 gap-y-2">
+          <InfoField label="Source hash" value={file.manifest?.sourceHash ?? '-'} />
         </div>
       </section>
       <div className="divider my-0" />
@@ -89,7 +92,6 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
       <div className="divider my-0" />
 
       <section>
-        <h4 className="mb-2 text-xs font-semibold tracking-wide text-base-content/50 uppercase">Usage</h4>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <InfoField label="Extractions" value={formatBytes(file.manifest?.storageStats.extractionBytes)} />
           <InfoField label="Chunks" value={file.chunkCount ?? '-'} />
@@ -99,7 +101,6 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
       <div className="divider my-0" />
 
       <section>
-        <h4 className="mb-2 text-xs font-semibold tracking-wide text-base-content/50 uppercase">Processing</h4>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <InfoField
             label="Extractions"
@@ -121,7 +122,6 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
       <div className="divider my-0" />
 
       <section>
-        <h4 className="mb-2 text-xs font-semibold tracking-wide text-base-content/50 uppercase">Dates</h4>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2">
           <InfoField label={t('labels.originModified')} value={<ClientDate date={file.originModificationDate} />} />
           <InfoField label="Created" value={<ClientDate date={file.createdAt} />} />
@@ -129,7 +129,6 @@ export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
             label="Origin last modified"
             value={file.manifest ? <ClientDate date={file.manifest.origin?.lastModifiedDate} /> : '-'}
           />
-          <InfoField label="Origin Uri" value={file.manifest ? <ClientDate date={file.manifest.origin?.uri} /> : '-'} />
           <InfoField label="Archived" value={file.archivedAt ? <ClientDate date={file.archivedAt} /> : '-'} />
         </div>
       </section>

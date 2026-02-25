@@ -5,14 +5,14 @@ import {
   workspaceProcessing,
 } from '@george-ai/event-service-client'
 
-import { WORKER_ID, logger } from '../common'
-import { handleActionEvent } from './action-handlers'
+import { WORKER_ID, logger, subscriptions } from '../common'
+import { handleProcessingEvent } from './action-handlers'
 import { handleStatusEvent } from './status-handlers'
 
 export async function startWorkspaceProcessing(): Promise<() => Promise<void>> {
   const cleanupFunctions = [] as Array<() => Promise<void>>
   try {
-    logger.info('starting workspace processing', { WORKER_ID })
+    logger.info('Starting workspace processing', { WORKER_ID })
     const heartbeatInterval = setInterval(async () => {
       try {
         await workerRegistry.updateWorkerHeartbeat({ workerId: WORKER_ID, workerType: 'WORKSPACE_PROCESSING' })
@@ -25,6 +25,18 @@ export async function startWorkspaceProcessing(): Promise<() => Promise<void>> {
     })
     const unsubscribeProcessEvents = await workspaceProcessing.subscribeEvent({
       handler: async ({ eventType, event }) => {
+        const subscription = subscriptions.get('WORKSPACE_PROCESSING')
+        if (!subscription) {
+          logger.error('No active subscription for WORKSPACE_PROCESSING, skipping processing', {
+            workerType: 'WORKSPACE_PROCESSING',
+            WORKER_ID,
+            eventType,
+            event,
+          })
+          return
+        }
+        subscription.lastProcessedTimestamp = Date.now()
+        subscription.processedEvents += 1
         logger.debug('Received workspace event', {
           event,
           WORKER_ID,
@@ -36,7 +48,7 @@ export async function startWorkspaceProcessing(): Promise<() => Promise<void>> {
             await handleStatusEvent(event as ProcessingStatus)
             return
           case 'request':
-            await handleActionEvent(event as ProcessingRequest)
+            await handleProcessingEvent(event as ProcessingRequest)
             break
           default:
             throw new Error(`Unknown event type: ${eventType}`)
@@ -49,7 +61,11 @@ export async function startWorkspaceProcessing(): Promise<() => Promise<void>> {
 
     logger.info('Workspace processing started successfully', { WORKER_ID, workerType: 'WORKSPACE_PROCESSING' })
     return async () => {
-      await Promise.all(cleanupFunctions.map((fn) => fn()))
+      await Promise.all(
+        cleanupFunctions.map((fn) =>
+          fn().catch((error) => logger.error('Error during cleanup in workspace processing:', { WORKER_ID, error })),
+        ),
+      )
     }
   } catch (error) {
     logger.error('Error starting workspace processing:', { WORKER_ID, error, workerType: 'WORKSPACE_PROCESSING' })

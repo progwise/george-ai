@@ -10,49 +10,51 @@ export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
   .inputValidator(
     (data: {
       libraryId: string
-      files: { name: string; type: string; size: number; lastModified: Date; originUri: string }[]
+      documentId?: string
+      files: { name: string; originUri: string; mimeType: string; size: number; modificationDate?: Date }[]
     }) =>
       z
         .object({
           libraryId: z.string().nonempty(),
+          documentId: z.string().optional(),
           files: z.array(
             z.object({
               name: z.string().nonempty(),
-              type: z.string().nonempty(),
-              size: z.number().nonnegative(),
-              lastModified: z.date(),
               originUri: z.string().nonempty(),
+              mimeType: z.string().nonempty(),
+              size: z.number().nonnegative().optional(),
+              modificationDate: z.date().optional(),
             }),
           ),
         })
         .parse(data),
   )
-  .handler(async (ctx) => {
+  .handler(async ({ data }) => {
     const token = getCookie('keycloak-token')
     if (!token) {
       throw new Error('User token not found in cookies')
     }
-    const processFiles = ctx.data.files.map(async (file) => {
+    const processFiles = data.files.map(async (file) => {
       const response = await backendRequest(
         graphql(`
-          mutation prepareDesktopFile($file: PrepareUploadInput!) {
-            prepareUpload(data: $file) {
-              id
+          mutation prepareDesktopFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {
+            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {
+              workspaceId
               libraryId
-              library {
-                workspaceId
-              }
+              documentId
+              uploadId
             }
           }
         `),
         {
-          file: {
+          libraryId: data.libraryId,
+          documentId: data.documentId,
+          input: {
             name: file.name,
             originUri: file.originUri,
-            mimeType: file.type || 'application/pdf',
-            libraryId: ctx.data.libraryId,
+            mimeType: file.mimeType,
             size: file.size,
-            originModificationDate: file.lastModified.toISOString(),
+            modificationDate: file.modificationDate,
           },
         },
       )
@@ -65,11 +67,11 @@ export const prepareDesktopFileUploadsFn = createServerFn({ method: 'POST' })
         method: 'POST',
         headers: [
           { name: 'Authorization', value: `ApiKey ${GRAPHQL_API_KEY}` },
-          { name: 'x-workspace-id', value: preparedFile.library.workspaceId },
-          { name: 'x-upload-token', value: `["${preparedFile.libraryId}","${preparedFile.id}"]` },
+          { name: 'x-workspace-id', value: preparedFile.workspaceId },
+          { name: 'x-upload-token', value: `["${preparedFile.libraryId}","${preparedFile.documentId}"]` },
           { name: 'x-user-jwt', value: token },
         ],
-        fileId: preparedFile.id,
+        fileId: preparedFile.documentId,
       }
     })
 

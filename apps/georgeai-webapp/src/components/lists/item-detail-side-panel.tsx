@@ -45,7 +45,7 @@ export const ItemDetailSidePanel = ({
 
   // Fetch markdown content from backend
   const {
-    content,
+    markdown: content,
     isLoading: isLoadingContent,
     progress,
     error,
@@ -53,7 +53,7 @@ export const ItemDetailSidePanel = ({
     url: backendPublicUrl && `${backendPublicUrl}/files/${libraryId}/${fileId}/items/${itemId}/content`,
   })
 
-  // Close on escape key
+  // Close on escape keypnpm type
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {

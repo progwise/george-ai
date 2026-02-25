@@ -6,7 +6,7 @@ import { subscribeUsageTrackingEvent } from './subscribers'
 
 let initialized = false
 
-export const initializeWorkspaceUsageStream = async () => {
+export const ensureWorkspaceUsageStream = async () => {
   await eventClient.ensureWorkerStream({
     streamName: USAGE_STREAM_NAME,
     description: `Events for usage reportings`,

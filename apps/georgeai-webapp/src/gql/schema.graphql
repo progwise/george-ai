@@ -125,7 +125,6 @@ type AiAssistant {
   id: ID!
   languageModel: AiLanguageModel
   name: String!
-  ownerId: ID!
   updatedAt: DateTime
   url: String
 }
@@ -422,8 +421,6 @@ type AiLibraryCrawlerRun {
   errorMessage: String
   filteredUpdatesCount(updateTypeFilter: [String!]): Int!
   id: ID!
-  runBy: User
-  runByUserId: ID
   startedAt: DateTime!
   stoppedByUser: DateTime
   success: Boolean
@@ -503,8 +500,6 @@ type AiList {
   fields: [AiListField!]!
   id: ID!
   name: String!
-  owner: User!
-  ownerId: String!
   sources: [AiListSource!]!
   updatedAt: DateTime
 }
@@ -733,19 +728,20 @@ type ApiKey {
   createdAt: DateTime!
   id: ID!
   lastUsedAt: DateTime
-  library: AiLibrary!
-  libraryId: String!
   name: String!
   user: User!
   userId: String!
+  workspace: Workspace!
+  workspaceId: String!
 }
 
 type ApiKeyWithSecret {
   createdAt: DateTime!
   id: ID!
   key: String!
-  libraryId: String!
   name: String!
+  userId: String!
+  workspaceId: String!
 }
 
 type AssistantParticipant implements AiConversationParticipant {
@@ -1398,6 +1394,11 @@ type ListItemsQueryResult {
   unfilteredCount: Int!
 }
 
+type LoginResult {
+  avatarUrl: String
+  userId: String
+}
+
 type ManagedUser {
   activationDate: DateTime
   avatarUrl: String
@@ -1514,7 +1515,7 @@ type Mutation {
     """
     onlyMissingValues: Boolean = true
   ): EnrichmentQueueTasksMutationResult!
-  createLibrary(data: LibraryInput!): AiLibrary
+  createLibrary(description: String, name: String!): AiLibrary
   createList(data: AiListInput!): AiList!
   createModelProvider(data: ModelProviderInput!): AiServiceProvider!
   createWorkspace(name: String!, slug: String!): CreateWorkspaceResult!
@@ -1526,7 +1527,7 @@ type Mutation {
   deleteConnector(id: ID!): Boolean!
   deleteFile(fileId: String!, libraryId: String!): AiLibraryFile!
   deleteFiles(fileIds: [ID!]!, libraryId: String!): Int!
-  deleteLibrary(libraryId: String!): AiLibrary!
+  deleteLibrary(libraryId: String!): Boolean!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
   deleteModelProvider(id: ID!): Boolean!
@@ -1549,30 +1550,22 @@ type Mutation {
   disableConnectorType(connectorType: String!): Boolean!
   enableConnectorType(connectorType: String!): AiConnectorTypeWorkspace!
   ensureUserProfile(userId: String!): UserProfile
-  generateApiKey(libraryId: String!, name: String!): ApiKeyWithSecret!
+  generateApiKey(name: String!): ApiKeyWithSecret!
   hideMessage(messageId: String!): AiConversationMessage
   inviteWorkspaceMember(email: String!, workspaceId: ID!): WorkspaceInvitation!
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveWorkspace(workspaceId: ID!): Boolean!
-  login(jwtToken: String!): User!
+  login(jwtToken: String!): LoginResult!
   migrateWorkspace: Boolean
-  prepareUpload(data: PrepareUploadInput!): AiLibraryFile!
-  processFile(
+  prepareUpload(documentId: String, input: PrepareUploadInput!, libraryId: String!): PrepareUploadResult!
+  processDocument(
     """
-    IDs of the files to process
+    IDs of the document to process
     """
-    fileId: String!
+    documentId: String!
     libraryId: String!
     requestType: ProcessingRequestType!
-  ): ProcessFileResult!
-  processFiles(
-    """
-    IDs of the files to process
-    """
-    fileIds: [String!]!
-    libraryId: String!
-    requestType: ProcessingRequestType!
-  ): ProcessFilesResult!
+  ): ProcessDocumentResult!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
@@ -1606,6 +1599,14 @@ type Mutation {
   toggleModelProvider(enabled: Boolean!, id: String!): AiServiceProvider!
   triggerAutomation(id: ID!): TriggerAutomationResult!
   triggerAutomationItem(automationItemId: ID!): TriggerAutomationResult!
+  triggerExtraction(
+    """
+    IDs of the document to process
+    """
+    documentId: String!
+    extractionMethod: ExtractionMethod!
+    libraryId: String!
+  ): TriggerExtractionResult!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibraryCrawler(
@@ -1630,19 +1631,21 @@ type Mutation {
 }
 
 input PrepareUploadInput {
-  libraryId: String!
   mimeType: String!
+  modificationDate: DateTime
   name: String!
-  originModificationDate: DateTime!
   originUri: String!
-  size: Int!
+  size: Int
 }
 
-type ProcessFileResult {
-  success: Boolean
+type PrepareUploadResult {
+  documentId: String!
+  libraryId: String!
+  uploadId: String!
+  workspaceId: String!
 }
 
-type ProcessFilesResult {
+type ProcessDocumentResult {
   success: Boolean
 }
 
@@ -1746,7 +1749,7 @@ type Query {
     usageType: String
   ): ModelUsageStats
   apiCrawlerTemplates: [ApiCrawlerTemplate!]!
-  apiKeys(libraryId: String!): [ApiKey!]!
+  apiKeys: [ApiKey!]!
   automation(id: ID!): Automation!
   automationBatches(automationId: ID!, skip: Int, take: Int): [AutomationBatch!]!
   automationItem(id: ID!): AutomationItem!
@@ -1764,6 +1767,7 @@ type Query {
   connectorTypes: [ConnectorTypeInfo!]!
   connectors(connectorType: String): [AiConnector!]!
   countFiles(libraryId: String!, namePrefix: String, originUriPrefix: String, showArchived: Boolean!): Int!
+  currentUser: User!
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
   extraction(extractionMethod: ExtractionMethod, fileId: String!, libraryId: String!): ExtractionManifest
   file(fileId: String!, libraryId: String!): AiLibraryFile!
@@ -1828,6 +1832,7 @@ type Query {
   users: [User!]!
   vectorStore(workspaceId: String!): VectorStore!
   version: String
+  workers: [WorkerEntry!]!
   workspace(workspaceId: String!): Workspace!
   workspaceConnectorTypes: [AiConnectorTypeWorkspace!]!
   workspaceInvitation(invitationId: ID!): WorkspaceInvitation!
@@ -1953,6 +1958,10 @@ type TriggerAutomationResult {
   success: Boolean!
 }
 
+type TriggerExtractionResult {
+  success: Boolean!
+}
+
 input UpdateAiLanguageModelInput {
   adminNotes: String
   enabled: Boolean!
@@ -1964,6 +1973,7 @@ type UpdateStats {
 }
 
 type User {
+  apiKeyCount: Int!
   avatarUrl: String
   createdAt: DateTime!
   defaultWorkspaceId: ID!
@@ -1988,14 +1998,10 @@ type UserProfile {
   email: String!
   expiresAt: DateTime
   firstName: String
-  freeMessages: Int!
-  freeStorage: Int!
   id: ID!
   lastName: String
   position: String
   updatedAt: DateTime!
-  usedMessages: Int
-  usedStorage: BigInt
   userId: ID!
 }
 
@@ -2028,9 +2034,16 @@ type VectorStore {
   warnings: [String!]
 }
 
+type WorkerEntry {
+  lastHeartbeat: String
+  workerId: String
+  workerType: WorkerType
+}
+
 enum WorkerType {
   AI_HEALTH_MANAGEMENT
   AI_PROVIDER_CALLING
+  WORKER_REGISTRY
   WORKSPACE_PROCESSING
 }
 

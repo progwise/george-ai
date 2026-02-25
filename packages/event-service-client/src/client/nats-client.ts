@@ -84,7 +84,7 @@ export class NatsClient implements EventClient {
     } else {
       const existingSubjects = existingStream.config.subjects.sort().join(',')
       const desiredSubjects = subjects.sort().join(',')
-      logger.info('Stream already exists', { streamName, existingSubjects, desiredSubjects, description })
+      logger.debug('Stream already exists', { streamName, existingSubjects, desiredSubjects, description })
 
       if (existingSubjects !== desiredSubjects) {
         logger.info('Stream subjects mismatch', {
@@ -339,7 +339,7 @@ export class NatsClient implements EventClient {
       logger.debug('Fetched consumers', { streamName, consumersCount: consumers.length })
       // Filter and randomize to prevent workers from all hitting the same consumer first
       const shuffledConsumers = consumers
-        .filter((c) => matchGlobPattern(c.name, consumerGlobPattern))
+        .filter((c) => matchGlobPattern(c.name, consumerGlobPattern) && !c.paused)
         .sort(() => Math.random() - 0.5)
 
       logger.debug('Processing consumers', { streamName, consumers: shuffledConsumers })
@@ -619,103 +619,7 @@ export class NatsClient implements EventClient {
     })
   }
 
-  async put(params: { bucketName: string; key: string; value: Uint8Array<ArrayBufferLike> }): Promise<void> {
-    if (!this.js) {
-      throw new Error('Not connected to NATS')
-    }
-
-    const { bucketName, key, value } = params
-
-    const kvBucket = await this.js.views.kv(bucketName)
-
-    await kvBucket.put(key, value)
-  }
-
-  async get(params: { bucketName: string; key: string }): Promise<Uint8Array<ArrayBufferLike> | null> {
-    if (!this.js) {
-      throw new Error('Not connected to NATS')
-    }
-
-    const { bucketName, key } = params
-
-    const kvBucket = await this.js.views.kv(bucketName)
-
-    const entry = await kvBucket.get(key).catch(() => null)
-    if (!entry) {
-      return null
-    }
-
-    return entry.value
-  }
-
-  async watch(params: {
-    bucketName: string
-    key: string
-    handler: (handlerParams: {
-      key: string
-      operation: 'create' | 'update' | 'delete'
-      value: Uint8Array<ArrayBufferLike>
-    }) => Promise<void>
-  }): Promise<() => Promise<void>> {
-    if (!this.js) {
-      throw new Error('Not connected to NATS')
-    }
-
-    const { bucketName, key, handler } = params
-
-    const kvBucket = await this.js.views.kv(bucketName)
-
-    const watcher = await kvBucket.watch({ key })
-
-    const processWatch = async () => {
-      for await (const entry of watcher) {
-        // 1. Initial State Sync
-        if ((entry.delta || 0) > 0) {
-          // This is part of the "History Catch-up"
-          if (entry.operation === 'DEL' || entry.operation === 'PURGE') {
-            // Ignore historical deletes during startup
-            continue
-          }
-        }
-        await handler({
-          key: entry.key,
-          operation: entry.operation === 'PUT' ? 'update' : 'delete',
-          value: entry.value,
-        })
-      }
-    }
-
-    // Start processing in background
-    processWatch().catch((error) => {
-      logger.error('Error in watch processing loop', { error, bucketName, key })
-    })
-
-    // Return cleanup function - promisify for non-blocking
-    return () => {
-      return new Promise((resolve, reject) => {
-        try {
-          watcher.stop()
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      })
-    }
-  }
-
-  async delete(params: { bucketName: string; key: string }): Promise<void> {
-    if (!this.js) {
-      throw new Error('Not connected to NATS')
-    }
-
-    const { bucketName, key } = params
-
-    const kvBucket = await this.js.views.kv(bucketName)
-
-    await kvBucket.purge(key)
-  }
-
-  async getKeys(params: { bucketName: string; filter?: string; limit?: number }): Promise<string[]> {
+  async getBucketKeys(params: { bucketName: string; filter?: string; limit?: number }): Promise<string[]> {
     if (!this.js) {
       throw new Error('Not connected to NATS')
     }
@@ -734,5 +638,117 @@ export class NatsClient implements EventClient {
     }
 
     return result
+  }
+
+  async putBucketEntry(params: { bucketName: string; key: string; value: Uint8Array<ArrayBufferLike> }): Promise<void> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, key, value } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    await kvBucket.put(key, value)
+  }
+
+  async getBucketEntry(params: { bucketName: string; key: string }): Promise<Uint8Array<ArrayBufferLike> | null> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, key } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    const entry = await kvBucket.get(key).catch(() => null)
+    if (!entry || entry.value.length === 0) {
+      return null
+    }
+
+    return entry.value
+  }
+
+  async watchBucket(params: {
+    bucketName: string
+    key: string
+    handler: (handlerParams: {
+      key: string
+      operation: 'update' | 'delete'
+      value: Uint8Array<ArrayBufferLike>
+    }) => Promise<void>
+  }): Promise<() => Promise<void>> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, key, handler } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    const watcher = await kvBucket.watch({ key })
+
+    const processBucketWatch = async () => {
+      for await (const entry of watcher) {
+        if (entry.operation !== 'DEL' && entry.operation !== 'PURGE' && (!entry.value || entry.value.length === 0)) {
+          // Treat empty value as delete
+          logger.warn('Received empty bucket entry - will be ignored', { bucketName, key, entry })
+          continue
+        }
+        await handler({
+          key: entry.key,
+          operation: entry.operation === 'DEL' || entry.operation === 'PURGE' ? 'delete' : 'update',
+          value: entry.value,
+        })
+      }
+    }
+
+    // Start processing in background
+    processBucketWatch()
+    // Return cleanup function - promisify for non-blocking
+    return () => {
+      return new Promise((resolve, reject) => {
+        try {
+          watcher.stop()
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+  }
+
+  async deleteBucketEntry(params: { bucketName: string; key: string }): Promise<void> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, key } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    await kvBucket.purge(key)
+  }
+
+  async getBucketStatus(params: { bucketName: string }): Promise<{
+    valueCount: number
+    maxEntriesPerKey: number
+    ttlMs: number
+  }> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    const status = await kvBucket.status()
+
+    return {
+      valueCount: status.values,
+      maxEntriesPerKey: status.history,
+      ttlMs: status.ttl,
+    }
   }
 }

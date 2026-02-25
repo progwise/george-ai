@@ -8,6 +8,6 @@ export function subtractStorageStats(minuend: StorageStats, subtrahend: StorageS
     extractionFileCount: minuend.extractionFileCount - subtrahend.extractionFileCount,
     attachmentFileCount: minuend.attachmentFileCount - subtrahend.attachmentFileCount,
     physicalFileCount: minuend.physicalFileCount - subtrahend.physicalFileCount,
-    lastUpdate: new Date().toISOString(),
+    lastUpdate: new Date(),
   }
 }

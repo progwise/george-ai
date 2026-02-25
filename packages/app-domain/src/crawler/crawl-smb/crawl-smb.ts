@@ -1,6 +1,6 @@
+import { getConfigValue } from '@george-ai/app-commons'
 import { SmbCrawlerClient, SmbFileMetadataSchema } from '@george-ai/smb-crawler-client'
 
-import { getConfig } from '../../config'
 import { FileInfo, MAX_FILE_SIZE, applyFileFilters, isSizeAcceptable } from '../../file'
 import { logger, recordOmittedFile } from '../common'
 import { CrawledFileInfo } from '../crawled-file-info'
@@ -10,7 +10,7 @@ import { saveSmbCrawlerFile } from './save-smb-crawler-file'
 export async function* crawlSmb(parameters: CrawlOptions): AsyncGenerator<CrawledFileInfo, void, void> {
   const { workspaceId, uri, credentials, maxDepth, maxPages, libraryId, crawlerId, crawlerRunId, filterConfig } =
     parameters
-  const smbCrawlerUrl = getConfig('SMB_CRAWLER_URL')
+  const smbCrawlerUrl = getConfigValue('SMB_CRAWLER_URL')
   logger.info('Start SMB crawling', { parameters, smbCrawlerUrl })
 
   if (!credentials?.username || !credentials?.password) {

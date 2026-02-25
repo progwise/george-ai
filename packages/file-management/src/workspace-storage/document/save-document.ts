@@ -33,10 +33,10 @@ export async function saveDocument(
     origin: {
       author: origin?.author || existingManifest.origin.author,
       uri: origin?.uri || existingManifest.origin.uri,
-      creationDate: origin?.creationDate?.toISOString() || existingManifest.origin.creationDate,
+      creationDate: origin?.creationDate || existingManifest.origin.creationDate,
       hash: origin?.originHash || existingManifest.origin.hash,
-      lastModifiedDate: origin?.lastModifiedDate?.toISOString() || existingManifest.origin.lastModifiedDate,
+      lastModifiedDate: origin?.lastModifiedDate || existingManifest.origin.lastModifiedDate,
     },
-    updated: new Date().toISOString(),
+    updated: new Date(),
   })
 }

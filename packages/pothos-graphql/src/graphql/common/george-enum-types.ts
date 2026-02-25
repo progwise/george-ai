@@ -3,6 +3,7 @@ import {
   ExtractionMethod,
   ModelProvider,
   ProcessingRequestType,
+  WorkerType,
   WorkspaceRole,
 } from '@george-ai/app-commons'
 import { AutomationItemStatus } from '@george-ai/app-database'

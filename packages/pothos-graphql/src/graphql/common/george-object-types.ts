@@ -5,6 +5,7 @@ import {
   EmbedDocumentRequest,
   EnrichItemRequest,
   ExtractDocumentRequest,
+  WorkerEntry,
   WorkspaceProcessStatistics,
 } from '@george-ai/event-service-client'
 import {
@@ -36,6 +37,7 @@ export type GeorgeObjectTypes = {
   LibrarySettings: LibraryManifest['settings']
   ProcessingRequestSettings: Record<string, string | number | boolean> | null
   StorageStats: StorageStats
+  WorkerEntry: WorkerEntry
   WorkspaceManifest: WorkspaceManifest
   WorkspaceRole: WorkspaceRole
   WorkspaceSettings: WorkspaceManifest['settings']
