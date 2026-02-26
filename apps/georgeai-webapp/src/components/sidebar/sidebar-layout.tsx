@@ -36,7 +36,7 @@ export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
         )}
       >
         <TopNavigation user={user} workspaceId={workspaceId} isDrawerOpen={isDrawerOpen} />
-        <div>
+        <div role="main">
           <Outlet />
         </div>
       </div>

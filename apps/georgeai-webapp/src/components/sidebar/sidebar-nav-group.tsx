@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { ReactNode } from 'react'
+import { ReactNode, useMemo } from 'react'
 
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
@@ -45,9 +45,20 @@ export const SidebarNavGroup = ({
     automations: 'group-hover/automations:visible group-hover/automations:opacity-100',
   }[groupName]
 
+  const title = useMemo(() => {
+    switch (groupName) {
+      case 'libraries':
+        return t('sidebar.select.library')
+      case 'lists':
+        return t('sidebar.select.list')
+      case 'automations':
+        return t('sidebar.select.automation')
+    }
+  }, [groupName, t])
+
   return (
     <>
-      <li className={`${groupClass}`}>
+      <li className={`${groupClass}`} title={title}>
         {isDrawerOpen ? ( // Opened sidebar
           items.length > 0 ? (
             <div className="collapse rounded-lg pl-5 text-sm">
@@ -70,7 +81,7 @@ export const SidebarNavGroup = ({
                   hoverClass={hoverClass}
                 />
               </div>
-              <div className="collapse-content p-0">
+              <div className="collapse-content p-0 pr-1">
                 <SidebarNavItems items={items} groupName={groupName} getLink={getLink} />
               </div>
             </div>
@@ -102,10 +113,6 @@ export const SidebarNavGroup = ({
                 <SidebarNavigationLink to={to} icon={icon} label="" />
                 <ul
                   className={`invisible absolute -top-0.5 left-15 min-w-96 cursor-default rounded-box bg-base-200 p-1 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                  }}
                 >
                   <SidebarNavItems items={items} groupName={groupName} getLink={getLink} />
                 </ul>

@@ -947,6 +947,7 @@ export default {
     theme: 'Farbschema',
   },
   sidebar: {
+    ariaLabel: 'Hauptmenü',
     assistants: 'Assistenten',
     automations: 'Automatisierungen',
     close: 'Seitenleise schließen',
@@ -957,6 +958,8 @@ export default {
     libraries: 'Bibliotheken',
     lists: 'Listen',
     open: 'Seitenleise öffnen',
+    select: { library: 'Bibliothek auswählen', list: 'Liste auswählen', automation: 'Automatisierung auswählen' },
+    toggleDescription: 'Menü umschalten',
   },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',

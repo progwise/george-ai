@@ -88,8 +88,12 @@ export function Sidebar({
   const activeWorkspaceId = workspaceId ?? user.defaultWorkspaceId
 
   return (
-    <div className="group/sidebar drawer-side z-60 transition-all duration-200 ease-in is-drawer-close:overflow-visible">
-      <label htmlFor="sidebar" aria-label="sidebar" className="drawer-overlay" />
+    <div
+      role="complementary"
+      aria-label={t('sidebar.ariaLabel')}
+      className="group/sidebar drawer-side z-60 transition-all duration-200 ease-in is-drawer-close:overflow-visible"
+    >
+      <label htmlFor="sidebar" aria-label={t('sidebar.toggleDescription')} className="drawer-overlay" />
       <label
         className="fixed top-0 left-0 flex min-h-full flex-col bg-base-200 is-drawer-close:w-14 is-drawer-close:cursor-w-resize is-drawer-open:w-64"
         htmlFor={!isDrawerOpen ? 'sidebar' : ''}

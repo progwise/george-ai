@@ -98,7 +98,6 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const { reorderFields } = useListActions(list.id)
 
   const [editField, setEditField] = useState<FieldModal_FieldFragment | null>(null)
-  const [fieldDropdownOpen, setFieldDropdownOpen] = useState<string | null>(null)
   const [itemDropdownOpen, setItemDropdownOpen] = useState<string | null>(null)
   const [sidePanelData, setSidePanelData] = useState<{
     itemId: string
@@ -112,10 +111,10 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
     libraryId: string
     fileId: string
   } | null>(null)
-  const totalTableWidth = visibleFields.reduce(
-    (sum, field) => sum + ((columnWidths && columnWidths[field.id]) || 150),
-    60,
-  )
+  // const totalTableWidth = visibleFields.reduce(
+  //   (sum, field) => sum + ((columnWidths && columnWidths[field.id]) || 150),
+  //   60,
+  // )
 
   // Helper to get field value and error from the fetched data
   const getFieldData = useCallback(
@@ -167,7 +166,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   }
 
   return (
-    <div>
+    <>
       {listItems.count === 0 ? (
         <div className="rounded-lg border border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/70">
           {t('lists.noFilesFound')}
@@ -177,8 +176,8 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
         </div>
       ) : (
         <>
-          <div className="max-h-[70vh] overflow-x-auto overflow-y-auto">
-            <table className="table-pin-rows table table-fixed table-sm" style={{ width: `${totalTableWidth}px` }}>
+          <div className="size-full overflow-auto">
+            <table className="table-pin-rows table table-fixed table-sm">
               <colgroup>
                 {visibleFields.map((field) => (
                   <col
@@ -234,25 +233,16 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             )}
                           </div>
 
-                          <div className="relative">
+                          <div className="group/test relative">
                             <button
                               type="button"
-                              className="btn opacity-100 btn-ghost btn-xs"
-                              aria-label={`Field actions for ${field.name}`}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setFieldDropdownOpen(fieldDropdownOpen === field.id ? null : field.id)
-                              }}
+                              className="btn btn-circle btn-ghost btn-xs"
+                              title={`Field actions for ${field.name}`}
                             >
                               <MenuEllipsisIcon />
                             </button>
 
-                            <FieldHeaderDropdown
-                              field={field}
-                              isOpen={fieldDropdownOpen === field.id}
-                              onClose={() => setFieldDropdownOpen(null)}
-                              onEdit={handleEditField}
-                            />
+                            <FieldHeaderDropdown field={field} onEdit={handleEditField} />
                           </div>
                         </div>
                       </div>
@@ -492,6 +482,6 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
           )}
         </>
       )}
-    </div>
+    </>
   )
 }

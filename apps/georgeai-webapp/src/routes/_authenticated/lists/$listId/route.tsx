@@ -24,10 +24,14 @@ function RouteComponent() {
   } = useSuspenseQuery(getListQueryOptions(params.listId))
 
   return (
-    <div className="flex flex-col gap-4">
-      <ListMenu list={aiList} />
-
+    <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-4">
+      <div>
+        <ListMenu list={aiList} />
+      </div>
       <div role="tablist" className="tabs-lift tabs justify-end">
+        <a className="tab tab-disabled flex-1 cursor-default text-center">
+          {/* Placeholder empty tab for filling up the line... */}
+        </a>
         <Link
           to="/lists/$listId"
           className="tab"
@@ -72,12 +76,9 @@ function RouteComponent() {
           <EditIcon />
           {t('lists.edit')}
         </Link>
-        <input type="radio" className="tab hidden" defaultChecked />
-        <div className="tab-content border border-base-300 bg-base-100 p-3">
-          <div className="relative overflow-scroll">
-            <Outlet />
-          </div>
-        </div>
+      </div>
+      <div className="min-h-0 w-full bg-base-100 p-3">
+        <Outlet />
       </div>
     </div>
   )

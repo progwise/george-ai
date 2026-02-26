@@ -31,8 +31,12 @@ test.describe('Workspace Model Filtering', () => {
     await switchWorkspace(page, 'E2E Test Workspace 1')
 
     // Navigate to library creation
-    await page.getByRole('link', { name: 'Libraries' }).click()
-    await page.getByRole('button', { name: /new/i }).click()
+    const sidebar = page.getByRole('complementary', { name: /main menu/i })
+    await sidebar.getByLabel('Open sidebar').click({ force: true })
+
+    const newLibraryButton = sidebar.getByRole('button', { name: /create library/i })
+    await expect(newLibraryButton).toBeEnabled()
+    await newLibraryButton.click()
 
     const dialog = page.locator('dialog[open]')
     await expect(dialog).toBeVisible()
@@ -86,8 +90,12 @@ test.describe('Workspace Model Filtering', () => {
     await switchWorkspace(page, 'E2E Test Workspace 2')
 
     // Navigate to library creation
-    await page.getByRole('link', { name: 'Libraries' }).click()
-    await page.getByRole('button', { name: /new/i }).click()
+    const sidebar = page.getByRole('complementary', { name: /main menu/i })
+    await sidebar.getByLabel('Open sidebar').click({ force: true })
+
+    const newLibraryButton = sidebar.getByRole('button', { name: /create library/i })
+    await expect(newLibraryButton).toBeEnabled()
+    await newLibraryButton.click()
 
     const dialog = page.locator('dialog[open]')
     await expect(dialog).toBeVisible()

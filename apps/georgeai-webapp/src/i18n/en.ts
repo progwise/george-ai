@@ -933,7 +933,7 @@ export default {
     theme: 'Theme',
   },
   sidebar: {
-    assistants: 'Assistants',
+    ariaLabel: 'Main menu',
     automations: 'Automations',
     close: 'Close sidebar',
     conversations: 'Conversations',
@@ -943,6 +943,8 @@ export default {
     libraries: 'Libraries',
     lists: 'Lists',
     open: 'Open sidebar',
+    select: { library: 'Select library', list: 'Select list', automation: 'Select automation' },
+    toggleDescription: 'Toggle menu',
   },
   texts: {
     addGoogleDriveFiles: 'Add Google Drive files',
