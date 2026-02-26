@@ -111,10 +111,6 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
     libraryId: string
     fileId: string
   } | null>(null)
-  // const totalTableWidth = visibleFields.reduce(
-  //   (sum, field) => sum + ((columnWidths && columnWidths[field.id]) || 150),
-  //   60,
-  // )
 
   // Helper to get field value and error from the fetched data
   const getFieldData = useCallback(
@@ -233,7 +229,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
                             )}
                           </div>
 
-                          <div className="group/test relative">
+                          <div className="group/dropdown relative">
                             <button
                               type="button"
                               className="btn btn-circle btn-ghost btn-xs"

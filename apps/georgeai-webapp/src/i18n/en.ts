@@ -935,6 +935,7 @@ export default {
   sidebar: {
     ariaLabel: 'Main menu',
     automations: 'Automations',
+    assistants: 'Assistants',
     close: 'Close sidebar',
     conversations: 'Conversations',
     copyItemLink: 'Copy link',

@@ -56,8 +56,8 @@ export const FieldHeaderDropdown = ({ field, onEdit }: FieldHeaderDropdownProps)
   return (
     <div
       className={
-        'invisible absolute top-8 -right-2 rounded-box bg-base-300 p-1 opacity-0 transition-all duration-50 not-[&:hover]:delay-50 group-hover/test:visible group-hover/test:opacity-100 before:hidden'
-      } //delay only on away
+        'invisible absolute top-8 -right-2 rounded-box bg-base-300 p-1 opacity-0 transition-all duration-50 group-hover/dropdown:visible group-hover/dropdown:opacity-100 group-hover/dropdown:delay-0 before:hidden'
+      }
     >
       <div className="py-2">
         {canEnrich && (
