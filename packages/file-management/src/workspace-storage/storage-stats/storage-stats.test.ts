@@ -37,7 +37,7 @@ describe.sequential('Storage stats accuracy', () => {
   })
 
   it('... and the library has 2 physical files (library manifest + document manifest)', async () => {
-    const libraryManifest = await getLibrary(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID })
+    const libraryManifest = await getLibrary({ workspaceId: TEST_WORKSPACE_ID, libraryId: TEST_LIBRARY_ID })
     expect(libraryManifest).toBeDefined()
     expect(libraryManifest!.storageStats.physicalFileCount).toBe(2)
     expect(libraryManifest!.storageStats.physicalBytes).toBeGreaterThan(0)

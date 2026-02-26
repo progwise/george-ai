@@ -7,8 +7,8 @@ import { Language, getLanguage, translate } from '../../../i18n'
 import { backendRequest } from '../../../server-functions/backend'
 
 const updateLibraryDocument = graphql(`
-  mutation changeLibrary($id: String!, $data: LibraryInput!) {
-    updateLibrary(id: $id, data: $data) {
+  mutation changeLibrary($libraryId: String!, $data: LibraryInput!) {
+    updateLibrary(libraryId: $libraryId, data: $data) {
       ...AiLibraryForm_Library
     }
   }
@@ -56,6 +56,6 @@ export const updateLibraryFn = createServerFn({ method: 'POST' })
     const data = await ctx.data
     return await backendRequest(updateLibraryDocument, {
       data: data.input,
-      id: data.id,
+      libraryId: data.id,
     })
   })

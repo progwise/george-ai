@@ -134,9 +134,7 @@ describe.sequential('Read and write extractions', () => {
   })
 
   it('Should have updated library usage after adding an extraction file', async () => {
-    const libraryManifest = await lib.get(TEST_WORKSPACE_ID, {
-      libraryId: TEST_LIBRARY_ID,
-    })
+    const libraryManifest = await lib.get({ workspaceId: TEST_WORKSPACE_ID, libraryId: TEST_LIBRARY_ID })
     expect(libraryManifest).toBeDefined()
     expect(libraryManifest!.storageStats.physicalFileCount).toBe(5) // 1 for source file, 1 for document manifest,  1 for extraction manifest, 1 for extraction file, 1 for library metadata.json
     expect(libraryManifest!.storageStats.extractionFileCount).toBe(1)
@@ -150,7 +148,7 @@ describe.sequential('Read and write extractions', () => {
       documentId: TEST_FILE_ID,
     })
     expect(document).toBeDefined()
-    const library = await lib.get(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID })
+    const library = await lib.get({ workspaceId: TEST_WORKSPACE_ID, libraryId: TEST_LIBRARY_ID })
     const workspace = await ws.get(TEST_WORKSPACE_ID)
 
     const extractionWriter = await createExtraction(document!, 'csvExtraction')
@@ -163,7 +161,7 @@ describe.sequential('Read and write extractions', () => {
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_FILE_ID,
     })
-    const libraryAfter = await lib.get(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID })
+    const libraryAfter = await lib.get({ workspaceId: TEST_WORKSPACE_ID, libraryId: TEST_LIBRARY_ID })
     const workspaceAfter = await ws.get(TEST_WORKSPACE_ID)
 
     // Document stats should be unchanged

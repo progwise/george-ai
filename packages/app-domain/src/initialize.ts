@@ -37,10 +37,10 @@ const initializeAppDomain = async () => {
         workspaceId: workspace.id,
         providerInstances: workspace.providers.map((provider) => ({
           version: 1,
-          id: provider.id,
+          providerInstanceId: provider.id,
+          workspaceId: workspace.id,
           modelProvider: getModelProvider(provider.provider),
           connection: {
-            version: 1,
             baseUrl: provider.baseUrl || undefined,
             apiKey: provider.apiKey || undefined,
           },

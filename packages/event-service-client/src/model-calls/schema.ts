@@ -41,21 +41,21 @@ export const ModelResponseBaseSchema = z.object({
   version: z.literal(1),
   resultStatus: z.enum(['success', 'error']),
   errorMessage: z.string().nullable().optional(),
-  providerInstanceUrl: z.string().nullable(),
+  providerInstanceUrl: z.string().nullable().optional(),
   processingDurationMs: z.number(),
   modelCallType: z.enum(MODEL_CALL_TYPES),
 })
 
 export const EmbeddingResponseSchema = ModelResponseBaseSchema.extend({
   modelCallType: z.literal('generateEmbedding'),
-  embeddings: z.array(z.array(z.number())),
+  embeddings: z.array(z.array(z.number())).optional(),
 })
 
 export type EmbeddingResponse = z.infer<typeof EmbeddingResponseSchema>
 
 export const ChatCompletionResponseSchema = ModelResponseBaseSchema.extend({
   modelCallType: z.literal('generateChatCompletion'),
-  chunks: z.array(z.string()),
+  chunks: z.array(z.string()).optional(),
 })
 
 export type ChatCompletionResponse = z.infer<typeof ChatCompletionResponseSchema>

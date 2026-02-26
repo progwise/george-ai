@@ -1,7 +1,6 @@
 import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
-import { modelProvider } from '@george-ai/event-service-client'
-import { RequestTestConnection } from '@george-ai/event-service-client/src/model-provider/schema'
+import { ProviderTestConnectionRequest, requestProviderInstance } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
 
@@ -26,14 +25,12 @@ builder.mutationField('testProviderConnection', (t) =>
     resolve: async (_source, { providerId, provider, baseUrl, apiKey }, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
 
-      const request: RequestTestConnection = {
+      const request: ProviderTestConnectionRequest = {
         version: 1,
-        callType: 'testConnection',
+        requestType: 'testConnection',
         workspaceId,
         modelProvider: provider,
-        providerId,
         connection: {
-          version: 1,
           baseUrl,
           apiKey,
         },
@@ -66,13 +63,12 @@ builder.mutationField('testProviderConnection', (t) =>
         }
 
         request.connection = {
-          version: 1,
           baseUrl: storedProvider.baseUrl || undefined,
           apiKey: storedProvider.apiKey || undefined,
         }
       }
 
-      const testResult = await modelProvider.callProviderInstance(request)
+      const testResult = await requestProviderInstance(request)
 
       return {
         success: true,

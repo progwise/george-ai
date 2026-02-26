@@ -16,7 +16,7 @@ export async function transform(
 ): Promise<ExtractionManifest> {
   const { libraryId, documentId, extractionMethod } = parameters
 
-  const libraryManifest = await getLibrary(workspaceId, { libraryId })
+  const libraryManifest = await getLibrary({ workspaceId: workspaceId, libraryId })
   if (!libraryManifest) {
     await fixMissingLibraryManifest(libraryId)
   }

@@ -46,7 +46,7 @@ describe.sequential('Basic storage tests', () => {
 
   it('Should create a library within the workspace', async () => {
     await createLibrary(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID, name: 'Test Library' })
-    const libraryManifest = await getLibrary(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID })
+    const libraryManifest = await getLibrary({ workspaceId: TEST_WORKSPACE_ID, libraryId: TEST_LIBRARY_ID })
     expect(libraryManifest).toBeDefined()
     expect(libraryManifest!.libraryId).toBe(TEST_LIBRARY_ID)
     expect(libraryManifest!.name).toBe('Test Library')
@@ -69,9 +69,7 @@ describe.sequential('Basic storage tests', () => {
   })
 
   it('Should have updated library usage after adding a document', async () => {
-    const libraryManifest = await getLibrary(TEST_WORKSPACE_ID, {
-      libraryId: TEST_LIBRARY_ID,
-    })
+    const libraryManifest = await getLibrary({ workspaceId: TEST_WORKSPACE_ID, libraryId: TEST_LIBRARY_ID })
     expect(libraryManifest).toBeDefined()
     expect(libraryManifest!.storageStats.physicalFileCount).toBe(2) // 1 for library manifest + 1 for document manifest
     expect(libraryManifest!.storageStats.physicalBytes).toBeGreaterThan(0)
@@ -125,7 +123,7 @@ describe.sequential('Basic storage tests', () => {
 
   it('Should delete the library', async () => {
     await deleteLibrary(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID })
-    const libraryManifest = await getLibrary(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID })
+    const libraryManifest = await getLibrary({ workspaceId: TEST_WORKSPACE_ID, libraryId: TEST_LIBRARY_ID })
     expect(libraryManifest).toBeNull()
   })
 

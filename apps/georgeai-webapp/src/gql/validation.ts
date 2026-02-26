@@ -314,7 +314,7 @@ export function LibraryInputSchema(): z.ZodObject<Properties<LibraryInput>> {
     embeddingModelId: z.string().nullish(),
     embeddingTimeoutMs: z.number().nullish(),
     fileConverterOptions: z.string().nullish(),
-    name: z.string(),
+    name: z.string().nullish(),
     ocrModelId: z.string().nullish(),
     url: z.string().nullish(),
   })

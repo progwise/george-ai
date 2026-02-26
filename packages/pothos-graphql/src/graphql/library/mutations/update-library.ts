@@ -1,36 +1,29 @@
 import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
+import { updateLibrary } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 builder.mutationField('updateLibrary', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibrary',
     nullable: false,
     args: {
-      id: t.arg.string({ required: true }),
+      libraryId: t.arg.string({ required: true }),
       data: t.arg({ type: 'LibraryInput', required: true }),
     },
-    resolve: async (query, _source, { id, data }, context) => {
-      await canWriteWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+    resolve: async (query, _source, { libraryId, data }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
 
       // Validate fileConverterOptions if provided
-      const { embeddingModelId, ocrModelId, ...restData } = data
+      const { aiLibrary, manifest } = await updateLibrary({ workspaceId, libraryId, data })
 
-      return prisma.aiLibrary.update({
+      logger.info('Library updated', { aiLibrary, manifest })
+
+      return prisma.aiLibrary.findUniqueOrThrow({
+        where: { id: libraryId, workspaceId },
         ...query,
-        where: { id },
-        data: {
-          name: restData.name,
-          description: restData.description,
-          url: restData.url,
-          fileConverterOptions: data.fileConverterOptions,
-          embeddingTimeoutMs: restData.embeddingTimeoutMs,
-          autoProcessCrawledFiles: data.autoProcessCrawledFiles ?? undefined,
-          // Convert empty strings to null for foreign key fields
-          embeddingModelId: embeddingModelId || null,
-          ocrModelId: ocrModelId || null,
-        },
       })
     },
   }),

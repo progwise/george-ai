@@ -1,8 +1,14 @@
 import { EmbeddingCall, EmbeddingResponse, ModelCall, ModelResponse } from '.'
-import { isEventServiceClientInitialized, providerHealth } from '..'
+import {
+  ProviderInstance,
+  getHealthyProviderInstance,
+  isEventServiceClientInitialized,
+  writeProviderInstance,
+} from '..'
 import { deleteModelCallConsumer, ensureModelCallConsumer } from './consumers'
 import { publishProviderCallEvent } from './publish'
-import { directModelCall, respondDirectModelCall } from './request'
+import { requestModelCall } from './request-model-call'
+import { respondModelCall } from './respond-model-call'
 import { subscribeModelCalls } from './subscribe'
 
 const TEST_CONFIG = {
@@ -17,31 +23,28 @@ describe
   .skipIf(!TEST_CONFIG.ollama.apiUrl || !TEST_CONFIG.ollama.apiKey || !TEST_CONFIG.ollama.embeddingModelName)
   .sequential('Model Calls', () => {
     const TEST_WORKSPACE_ID = `test-workspace-provider-calls_${Date.now()}`
-    const TEST_PROVIDER_INSTANCE_HEALTH = {
+    const TEST_PROVIDER_INSTANCE_HEALTH: ProviderInstance = {
       version: 1 as const,
       workspaceId: TEST_WORKSPACE_ID,
-      providerInstance: {
-        version: 1 as const,
-        modelProvider: 'ollama' as const,
-        id: 'test-instance',
-        connection: {
-          version: 1 as const,
-          baseUrl: TEST_CONFIG.ollama.apiUrl!,
-          apiKey: TEST_CONFIG.ollama.apiKey!,
-        },
-      },
+
       status: 'healthy' as const,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
       availableModelNames: [TEST_CONFIG.ollama.embeddingModelName!],
       loadedModelNames: [],
       processorUsagePercent: 10,
       totalMemoryMb: 12,
       usedMemoryMb: 4,
+      providerInstanceId: 'test-instance',
+      modelProvider: 'ollama',
+      connection: {
+        baseUrl: TEST_CONFIG.ollama.apiUrl!,
+        apiKey: TEST_CONFIG.ollama.apiKey!,
+      },
     }
 
     beforeAll(async () => {
       await isEventServiceClientInitialized()
-      await providerHealth.writeProviderInstance(TEST_PROVIDER_INSTANCE_HEALTH)
+      await writeProviderInstance(TEST_PROVIDER_INSTANCE_HEALTH)
     })
 
     afterAll(async () => {
@@ -80,6 +83,7 @@ describe
       const unsubscribe = await subscribeModelCalls({
         handler: async ({ event, providerInstance }) => {
           if (event.workspaceId !== TEST_WORKSPACE_ID) return
+
           console.log('Received model call event:', { event, providerInstance })
           receivedCalls.push(event)
         },
@@ -113,14 +117,13 @@ describe
 
       const responses: ModelResponse[] = []
 
-      const cleanup = await respondDirectModelCall({
-        serviceCall: modelCall,
+      const cleanup = await respondModelCall({
         handler: async ({ event }) => {
           if (event.workspaceId !== TEST_WORKSPACE_ID) {
             throw new Error('Received event for wrong workspace')
           }
           console.log('Handling direct model call event:', { event })
-          const healtyService = await providerHealth.getProviderInstance({
+          const healtyService = await getHealthyProviderInstance({
             workspaceId: TEST_WORKSPACE_ID,
             modelProvider: 'ollama',
             modelName: TEST_CONFIG.ollama.embeddingModelName!,
@@ -133,7 +136,7 @@ describe
             resultStatus: 'success',
             embeddings: [[0.1, 0.2, 0.3]],
             version: 1,
-            providerInstanceUrl: healtyService.providerInstance.connection.baseUrl || null,
+            providerInstanceUrl: healtyService.connection.baseUrl || null,
             processingDurationMs: 0,
           }
           responses.push(result)
@@ -141,7 +144,7 @@ describe
         },
       })
 
-      const response = await directModelCall(modelCall, 60000)
+      const response = await requestModelCall(modelCall, 60000)
       expect(response.modelCallType).toBe('generateEmbedding')
       expect(response.resultStatus).toBe('success')
       expect(responses.length).toBe(1)

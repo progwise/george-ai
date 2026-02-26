@@ -35,6 +35,11 @@ async function backendRequest<T, V extends Variables = Variables>(
     if (typeof error === 'object' && 'response' in error) {
       const response = error.response as { errors?: Array<{ message: string }> }
       if (response.errors && response.errors.length > 0) {
+        logger.error('GraphQL errors returned from backend', {
+          errors: JSON.stringify(response.errors, null, 2),
+          document,
+          variables,
+        })
         const errorMessages = response.errors.map((e) => e.message).join('\n')
         throw new Error(errorMessages)
       }

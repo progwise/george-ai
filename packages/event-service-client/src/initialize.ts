@@ -1,9 +1,9 @@
 import { logger } from './common'
 import { ensureModelCallsStream } from './model-calls'
-import { ensureProviderHealthBucket } from './provider-health'
+import { ensureProviderInstanceBucket } from './provider-instance'
 import { ensureWorkerRegistryBucket } from './worker-registry'
-import { ensureWorkspaceConfigBucket } from './workspace-config'
 import { ensureWorkspaceProcessingStream } from './workspace-processing'
+import { ensureWorkspaceConfigBucket } from './workspace-registry'
 import { ensureWorkspaceUsageStream } from './workspace-usage'
 
 let initializeOncePromise: Promise<void> | null = null
@@ -27,8 +27,8 @@ const initializeEventServiceClient = async () => {
       logger.error('Error initializing provider calls stream:', error)
       throw error
     }),
-    ensureProviderHealthBucket().catch((error) => {
-      logger.error('Error initializing provider health bucket:', error)
+    ensureProviderInstanceBucket().catch((error) => {
+      logger.error('Error initializing provider instance bucket:', error)
       throw error
     }),
     ensureWorkerRegistryBucket().catch((error) => {

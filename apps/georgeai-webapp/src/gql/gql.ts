@@ -153,7 +153,7 @@ type Documents = {
   '\n        mutation prepareDocumentUpload($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n          prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n            workspaceId\n            libraryId\n            documentId\n            uploadId\n          }\n        }\n      ': typeof types.PrepareDocumentUploadDocument
   '\n  mutation processDocument($requestType: ProcessingRequestType!, $libraryId: String!, $documentId: String!) {\n    processDocument(requestType: $requestType, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n': typeof types.ProcessDocumentDocument
   '\n  mutation triggerExtraction($extractionMethod: ExtractionMethod!, $libraryId: String!, $documentId: String!) {\n    triggerExtraction(extractionMethod: $extractionMethod, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n': typeof types.TriggerExtractionDocument
-  '\n  mutation changeLibrary($id: String!, $data: LibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n': typeof types.ChangeLibraryDocument
+  '\n  mutation changeLibrary($libraryId: String!, $data: LibraryInput!) {\n    updateLibrary(libraryId: $libraryId, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n': typeof types.ChangeLibraryDocument
   '\n          mutation prepareGoogleDriveFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ': typeof types.PrepareGoogleDriveFileDocument
   '\n        query libraryUpdatesList($libraryId: ID!, $crawlerId: ID, $take: Int, $skip: Int) {\n          aiLibraryUpdates(libraryId: $libraryId, crawlerId: $crawlerId, take: $take, skip: $skip) {\n            libraryId\n            library {\n              name\n            }\n            crawlerId\n            take\n            skip\n            count\n            updates {\n              ...AiLibraryUpdate_TableItem\n            }\n          }\n        }\n      ': typeof types.LibraryUpdatesListDocument
   '\n  fragment AiLibraryUpdate_TableItem on AiLibraryUpdate {\n    id\n    createdAt\n    libraryId\n    crawlerRunId\n    crawlerRun {\n      id\n      crawlerId\n      crawler {\n        id\n        uri\n        uriType\n      }\n    }\n    fileId\n    file {\n      id\n      name\n    }\n    message\n    updateType\n    filePath\n    fileName\n    fileSize\n    filterType\n    filterValue\n  }\n': typeof types.AiLibraryUpdate_TableItemFragmentDoc
@@ -528,7 +528,7 @@ const documents: Documents = {
     types.ProcessDocumentDocument,
   '\n  mutation triggerExtraction($extractionMethod: ExtractionMethod!, $libraryId: String!, $documentId: String!) {\n    triggerExtraction(extractionMethod: $extractionMethod, libraryId: $libraryId, documentId: $documentId) {\n      success\n    }\n  }\n':
     types.TriggerExtractionDocument,
-  '\n  mutation changeLibrary($id: String!, $data: LibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n':
+  '\n  mutation changeLibrary($libraryId: String!, $data: LibraryInput!) {\n    updateLibrary(libraryId: $libraryId, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n':
     types.ChangeLibraryDocument,
   '\n          mutation prepareGoogleDriveFile($libraryId: String!, $documentId: String, $input: PrepareUploadInput!) {\n            prepareUpload(libraryId: $libraryId, documentId: $documentId, input: $input) {\n              workspaceId\n              libraryId\n              documentId\n              uploadId\n            }\n          }\n        ':
     types.PrepareGoogleDriveFileDocument,
@@ -1563,8 +1563,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation changeLibrary($id: String!, $data: LibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n',
-): (typeof documents)['\n  mutation changeLibrary($id: String!, $data: LibraryInput!) {\n    updateLibrary(id: $id, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n']
+  source: '\n  mutation changeLibrary($libraryId: String!, $data: LibraryInput!) {\n    updateLibrary(libraryId: $libraryId, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n',
+): (typeof documents)['\n  mutation changeLibrary($libraryId: String!, $data: LibraryInput!) {\n    updateLibrary(libraryId: $libraryId, data: $data) {\n      ...AiLibraryForm_Library\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

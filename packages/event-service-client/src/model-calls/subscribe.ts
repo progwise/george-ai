@@ -1,12 +1,11 @@
 import { eventClient } from '../client'
-import { ModelProviderInstance } from '../model-provider/schema'
-import providerHealth from '../provider-health'
+import { ProviderInstance, getHealthyProviderInstance } from '../provider-instance'
 import { MODEL_CALLS_STREAM_NAME, getConsumerGlobPattern, logger } from './common'
 import { ModelCall, ModelCallSchema } from './schema'
 
 export const subscribeModelCalls = async <E extends ModelCall>(parameters: {
   serviceCall?: ModelCall
-  handler: ({ event, providerInstance }: { event: E; providerInstance: ModelProviderInstance }) => Promise<void>
+  handler: ({ event, providerInstance }: { event: E; providerInstance: ProviderInstance }) => Promise<void>
 }) => {
   const { serviceCall, handler } = parameters
   const subscribedConsumerCleanups = new Map<string, () => Promise<void>>()
@@ -17,16 +16,16 @@ export const subscribeModelCalls = async <E extends ModelCall>(parameters: {
       try {
         const decoded = new TextDecoder().decode(payload)
         const event = ModelCallSchema.parse(JSON.parse(decoded)) as E
-        const healtyService = await providerHealth.getProviderInstance({
+        const healthyProviderInstance = await getHealthyProviderInstance({
           workspaceId: event.workspaceId,
           modelProvider: event.provider,
           modelName: event.modelName,
         })
-        if (!healtyService?.providerInstance) {
+        if (!healthyProviderInstance) {
           logger.error('No healthy provider instance found for AI call', { event })
           throw new Error('No healthy provider instance found for AI call')
         }
-        await handler({ event, providerInstance: healtyService.providerInstance })
+        await handler({ event, providerInstance: healthyProviderInstance })
       } catch (error) {
         logger.error('Error handling processing event', { error, serviceCall })
         throw error

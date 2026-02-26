@@ -155,6 +155,7 @@ export type OpenAIStreamChunk = z.infer<typeof OpenAIStreamChunkSchema>
 interface FetchParams {
   baseUrl?: string | null
   apiKey: string
+  abortSignal?: AbortSignal
 }
 
 async function openAIApiGet<T>(
@@ -171,6 +172,7 @@ async function openAIApiGet<T>(
             Authorization: `Bearer ${instance.apiKey}`,
             'Content-Type': 'application/json',
           },
+          signal: instance.abortSignal,
         }),
       { retries: 3 },
     )
@@ -226,6 +228,7 @@ async function openAIApiPost<T>(
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(params),
+          signal: instance.abortSignal,
         }),
       { retries: 3 },
     )

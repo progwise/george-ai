@@ -13,8 +13,8 @@ export async function ensureWorkerRegistryBucket() {
   await eventClient.ensureBucket({
     name: WORKER_REGISTRY_BUCKET_NAME,
     options: {
-      history: 1,
-      ttlMs: 5 * 60 * 1000, // 5 minutes
+      history: 0,
+      ttlMs: 2 * 60 * 1000, // 2 minutes
     },
   })
   return WORKER_REGISTRY_BUCKET_NAME

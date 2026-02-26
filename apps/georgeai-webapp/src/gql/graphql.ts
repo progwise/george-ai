@@ -1228,6 +1228,7 @@ export enum ExtractionMethod {
   EmlExtraction = 'emlExtraction',
   ExcelExtraction = 'excelExtraction',
   HtmlExtraction = 'htmlExtraction',
+  ImageExtraction = 'imageExtraction',
   LegacyExtraction = 'legacyExtraction',
   PdfExtraction = 'pdfExtraction',
   TextExtraction = 'textExtraction',
@@ -1349,7 +1350,7 @@ export type LibraryInput = {
   embeddingModelId?: InputMaybe<Scalars['String']['input']>
   embeddingTimeoutMs?: InputMaybe<Scalars['Int']['input']>
   fileConverterOptions?: InputMaybe<Scalars['String']['input']>
-  name: Scalars['String']['input']
+  name?: InputMaybe<Scalars['String']['input']>
   ocrModelId?: InputMaybe<Scalars['String']['input']>
   url?: InputMaybe<Scalars['String']['input']>
 }
@@ -1992,7 +1993,7 @@ export type MutationUpdateConnectorArgs = {
 
 export type MutationUpdateLibraryArgs = {
   data: LibraryInput
-  id: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
 }
 
 export type MutationUpdateLibraryUsageArgs = {
@@ -5573,7 +5574,7 @@ export type TriggerExtractionMutation = {
 }
 
 export type ChangeLibraryMutationVariables = Exact<{
-  id: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
   data: LibraryInput
 }>
 
@@ -19184,7 +19185,7 @@ export const ChangeLibraryDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
         {
@@ -19202,8 +19203,8 @@ export const ChangeLibraryDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
               },
               {
                 kind: 'Argument',

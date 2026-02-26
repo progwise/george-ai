@@ -143,6 +143,7 @@ export type OllamaStreamChunk = z.infer<typeof OllamaStreamChunkSchema>
 interface FetchParams {
   baseUrl: string
   apiKey?: string | null
+  abortSignal?: AbortSignal
 }
 
 async function ollamaApiGet<T>(
@@ -154,6 +155,7 @@ async function ollamaApiGet<T>(
     () =>
       fetch(`${instance.baseUrl}${endpoint}`, {
         headers: instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {},
+        signal: instance.abortSignal,
       }),
     { retries: 3 },
   )
@@ -183,6 +185,7 @@ async function ollamaApiPost<T>(
           ...(instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {}),
         },
         body: JSON.stringify(params),
+        signal: instance.abortSignal,
       }),
     { retries: 3 },
   )
@@ -236,7 +239,6 @@ async function getChatResponseStream(
   modelName: string,
   messages: Message[],
   options?: {
-    abortSignal?: AbortSignal
     includeUsage?: boolean // Enable usage stats in final chunk
   },
 ): Promise<ReadableStream<ChatCompletionStreamChunk>> {
@@ -252,7 +254,7 @@ async function getChatResponseStream(
             ...(params.apiKey ? { Authorization: `Bearer ${params.apiKey}` } : {}),
           },
           body: JSON.stringify({ model: modelName, stream: true, messages }),
-          signal: options?.abortSignal,
+          signal: params?.abortSignal,
         }),
       { retries: 3 },
     )
@@ -295,13 +297,13 @@ async function getChatResponseStream(
   const transformStream = new TransformStream<string, ChatCompletionStreamChunk>({
     start(controller) {
       // Listen for abort signal and close the stream
-      options?.abortSignal?.addEventListener('abort', () => {
+      params.abortSignal?.addEventListener('abort', () => {
         controller.terminate()
       })
     },
     transform(chunk, controller) {
       // Check if aborted before processing
-      if (options?.abortSignal?.aborted) {
+      if (params.abortSignal?.aborted) {
         controller.terminate()
         return
       }

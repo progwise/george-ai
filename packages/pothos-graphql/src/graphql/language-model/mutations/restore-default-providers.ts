@@ -2,7 +2,7 @@ import { invalidateWorkspace } from '@george-ai/ai-service-client'
 import { encryptValue, getConfigValue } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { canAdminWorkspaceOrThrow } from '@george-ai/app-domain'
-import { ModelProviderInstance } from '@george-ai/event-service-client'
+import { ProviderInstance } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
 
@@ -43,12 +43,11 @@ builder.mutationField('restoreDefaultProviders', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: RestoreDefaultProvidersResult,
     nullable: false,
-    resolve: async (_source, _args, context) => {
-      await canAdminWorkspaceOrThrow(context.workspaceId, context.session.user.id)
+    resolve: async (_source, _args, { workspaceId, session }) => {
+      await canAdminWorkspaceOrThrow(workspaceId, session.user.id)
 
-      const userId = context.session.user.id
-      const workspaceId = context.workspaceId
-      const providersToCreate: Array<Omit<ModelProviderInstance, 'id'>> = []
+      const userId = session.user.id
+      const providersToCreate: Array<Omit<ProviderInstance, 'providerInstanceId'>> = []
 
       const apiKey = getConfigValue('OPENAI_API_KEY')
       const baseUrl = getConfigValue('OPENAI_BASE_URL')
@@ -57,8 +56,9 @@ builder.mutationField('restoreDefaultProviders', (t) =>
         providersToCreate.push({
           modelProvider: 'openai',
           name: 'OpenAI',
-          connection: { version: 1, apiKey, baseUrl },
+          connection: { apiKey, baseUrl },
           version: 1,
+          workspaceId,
         })
       }
 
@@ -68,11 +68,11 @@ builder.mutationField('restoreDefaultProviders', (t) =>
           modelProvider: 'ollama',
           name: instance.name,
           connection: {
-            version: 1,
             baseUrl: instance.baseUrl,
             apiKey: instance.apiKey,
           },
           version: 1,
+          workspaceId,
         })
       }
 

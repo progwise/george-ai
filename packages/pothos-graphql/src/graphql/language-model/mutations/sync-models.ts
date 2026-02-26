@@ -1,7 +1,7 @@
-import { ModelProvider } from '@george-ai/app-commons'
+import { ModelProvider, getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
-import { modelProvider } from '@george-ai/event-service-client'
+import { requestProviderInstance } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
 
@@ -32,12 +32,11 @@ builder.mutationField('syncModels', (t) =>
       })
       const discoveredModels = await Promise.all(
         providers.map(async (provider) =>
-          modelProvider.callProviderInstance({
+          requestProviderInstance({
             workspaceId,
-            callType: 'discoverModels',
-            providerId: provider.id,
+            requestType: 'discoverModels',
+            modelProvider: getModelProvider(provider.provider),
             connection: {
-              version: 1,
               apiKey: provider.apiKey || undefined,
               baseUrl: provider.baseUrl || undefined,
             },
@@ -49,8 +48,8 @@ builder.mutationField('syncModels', (t) =>
       const discoveredModelMap = new Map<ModelProvider, Set<string>>()
 
       discoveredModels.forEach((response) => {
-        if (response.callType === 'discoverModels') {
-          discoveredModelMap.set(response.provider.modelProvider, new Set(response.models.map((model) => model.id)))
+        if (response.requestType === 'discoverModels') {
+          discoveredModelMap.set(response.modelProvider, new Set(response.models.map((model) => model.id)))
         }
       })
 
@@ -97,7 +96,7 @@ builder.mutationField('syncModels', (t) =>
       return {
         success: true,
         modelsEnabled: discoveredModels.reduce((sum, response) => {
-          if (response.callType === 'discoverModels') {
+          if (response.requestType === 'discoverModels') {
             return sum + response.models.length
           }
           return sum

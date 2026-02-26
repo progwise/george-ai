@@ -1175,6 +1175,7 @@ enum ExtractionMethod {
   emlExtraction
   excelExtraction
   htmlExtraction
+  imageExtraction
   legacyExtraction
   pdfExtraction
   textExtraction
@@ -1294,7 +1295,7 @@ input LibraryInput {
   embeddingModelId: String
   embeddingTimeoutMs: Int
   fileConverterOptions: String
-  name: String!
+  name: String
   ocrModelId: String
   url: String
 }
@@ -1617,7 +1618,7 @@ type Mutation {
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateAutomation(data: AutomationInput!, id: ID!): Automation!
   updateConnector(data: AiConnectorInput!, id: ID!): AiConnector!
-  updateLibrary(data: LibraryInput!, id: String!): AiLibrary!
+  updateLibrary(data: LibraryInput!, libraryId: String!): AiLibrary!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!

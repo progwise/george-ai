@@ -9,7 +9,7 @@ export async function fixMissingLibraryManifest(libraryId: string): Promise<Libr
     where: { id: libraryId },
   })
 
-  const manifest = await getLibrary(library.workspaceId, { libraryId: library.id })
+  const manifest = await getLibrary({ workspaceId: library.workspaceId, libraryId: library.id })
   if (manifest) {
     return manifest
   }

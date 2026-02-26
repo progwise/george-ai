@@ -21,7 +21,7 @@ const aiLibraryDetailQueryDocument = graphql(`
 `)
 
 const getLibrary = createServerFn({ method: 'GET' })
-  .inputValidator((data: unknown) => {
+  .inputValidator((data: { libraryId: string }) => {
     return z
       .object({
         libraryId: z.string(),

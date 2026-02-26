@@ -18,10 +18,14 @@ export const chat = async (parameters: {
     if (!baseUrl) {
       throw new Error('Ollama apiUrl is required in parameters')
     }
-    const result = await ollamaApi.getChatResponseStream({ baseUrl, apiKey }, modelName, messages, {
-      abortSignal: abortController.signal,
-      includeUsage: true, // Enable token usage tracking
-    })
+    const result = await ollamaApi.getChatResponseStream(
+      { baseUrl, apiKey, abortSignal: abortController.signal },
+      modelName,
+      messages,
+      {
+        includeUsage: true, // Enable token usage tracking
+      },
+    )
     return result
   } else if (modelProvider === 'openai') {
     if (!apiKey) {

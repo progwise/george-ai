@@ -3,6 +3,7 @@ import {
   ExtractionMethod,
   ModelProvider,
   ProcessingRequestType,
+  ProviderHealthStatus,
   WorkerType,
   WorkspaceRole,
 } from '@george-ai/app-commons'
@@ -16,7 +17,7 @@ import {
   ListFieldSourceType,
   ListFieldType,
 } from '@george-ai/app-domain'
-import { EventProcessingStatus, ModelCallType, ProcessingStatus, ProviderHealth } from '@george-ai/event-service-client'
+import { EventProcessingStatus, ModelCallType, ProcessingStatus } from '@george-ai/event-service-client'
 
 export type GeorgeEnumTypes = {
   AutomationBatchStatus: AutomationBatchStatus
@@ -32,7 +33,7 @@ export type GeorgeEnumTypes = {
   ListFieldFileProperty: ListFieldFileProperty
   ModelCallType: ModelCallType
   ModelProvider: ModelProvider
-  ProviderHealthStatus: ProviderHealth
+  ProviderHealthStatus: ProviderHealthStatus
   ProcessingStatus: ProcessingStatus
   ProcessingRequestType: ProcessingRequestType
   WorkerType: WorkerType

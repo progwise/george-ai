@@ -3,7 +3,7 @@ import { GraphQLError } from 'graphql/error'
 import { getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
-import { modelCalls, providerHealth } from '@george-ai/event-service-client'
+import { getHealthyProviderInstance, requestModelCall } from '@george-ai/event-service-client'
 import { FileChunk, vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
@@ -76,7 +76,7 @@ builder.queryField('similarChunks', (t) =>
           const modelProvider = getModelProvider(library.embeddingModel.provider)
           const modelName = library.embeddingModel.name
 
-          const healthyProviderData = await providerHealth.getProviderInstance({
+          const healthyProviderData = await getHealthyProviderInstance({
             workspaceId,
             modelProvider,
             modelName,
@@ -89,7 +89,7 @@ builder.queryField('similarChunks', (t) =>
             })
             throw new GraphQLError('No provider instance available')
           }
-          const embeddingResult = await modelCalls.directModelCall({
+          const embeddingResult = await requestModelCall({
             version: 1,
             modelCallType: 'generateEmbedding',
             provider: modelProvider,
@@ -98,11 +98,23 @@ builder.queryField('similarChunks', (t) =>
             workspaceId,
           })
 
+          if (!embeddingResult.embeddings || embeddingResult.embeddings.length === 0) {
+            logger.error('No embeddings returned from model call for similarChunks query', {
+              workspaceId,
+              modelProvider,
+              modelName,
+              embeddingResult,
+            })
+            throw new GraphQLError('No embeddings returned from model call')
+          }
+
+          const vector = embeddingResult.embeddings[0]
+
           const results = await vectorStore.findSimilarChunks({
             workspaceId,
             libraryId,
             fileId,
-            vector: embeddingResult.embeddings[0],
+            vector,
             topK: maxResults || 10,
             fragment: fragment ?? null,
             modelName,

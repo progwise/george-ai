@@ -7,7 +7,7 @@ import { deleteLibrary } from './delete-library'
 import { existsLibrary } from './exists-library'
 import { getLibrary } from './get-library'
 import { moveLibrary } from './move-library'
-import { updateLibrary } from './update-library'
+import { saveLibrary } from './save-library'
 
 export default {
   create: createLibrary,
@@ -17,8 +17,8 @@ export default {
   reconcile: reconcileLibrary,
   migrate: migrateWorkspace,
   move: moveLibrary,
-  update: updateLibrary,
+  save: saveLibrary,
   clearDocuments,
   storageStats,
 }
-export { createLibrary, deleteLibrary, getLibrary, moveLibrary, updateLibrary, clearDocuments, existsLibrary }
+export { createLibrary, deleteLibrary, getLibrary, moveLibrary, saveLibrary, clearDocuments, existsLibrary }

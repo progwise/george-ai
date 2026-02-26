@@ -330,7 +330,6 @@ export class NatsClient implements EventClient {
     }
     const { streamName, consumerGlobPattern, signal, handler } = parameters
     while (true) {
-      logger.debug('Worker loop iteration started', { parameters })
       if (signal.aborted) {
         logger.debug('Worker loop aborted', { parameters })
         break
@@ -342,7 +341,7 @@ export class NatsClient implements EventClient {
         .filter((c) => matchGlobPattern(c.name, consumerGlobPattern) && !c.paused)
         .sort(() => Math.random() - 0.5)
 
-      logger.debug('Processing consumers', { streamName, consumers: shuffledConsumers })
+      logger.debug('Processing consumers', { streamName, consumerGlobPattern, consumers: shuffledConsumers.length })
       for (const consumerInfo of shuffledConsumers) {
         if (signal.aborted) {
           logger.debug('Worker loop aborted', { streamName, consumerGlobPattern })
@@ -377,7 +376,7 @@ export class NatsClient implements EventClient {
               await handler({ subject: msg.subject, payload: msg.data })
               // Acknowledge message
               msg.ack()
-              logger.debug('Message processed and acknowledged', {
+              logger.info('Message processed and acknowledged', {
                 streamName,
                 subject: msg.subject,
                 consumerName: consumerInfo.name,
@@ -409,7 +408,7 @@ export class NatsClient implements EventClient {
           logger.debug('no message available', { error, streamName, consumerName: consumerInfo.name })
         }
       }
-      await new Promise((resolve) => setTimeout(resolve, 100)) // Prevent tight loop
+      await new Promise((resolve) => setTimeout(resolve, 1000)) // Prevent tight loop
     }
   }
 
@@ -612,11 +611,40 @@ export class NatsClient implements EventClient {
 
     const { name, options } = params
 
-    await this.js.views.kv(name, {
-      history: options?.history || 1,
-      ttl: options?.ttlMs ? options.ttlMs : 0,
-      storage: StorageType.Memory,
-    })
+    const jsm = await this.js.jetstreamManager()
+    const streamName = `KV_${name}`
+    const ttlNanoseconds = options?.ttlMs ? options.ttlMs * 1_000_000 : 0
+
+    try {
+      const info = await jsm.streams.info(streamName)
+
+      await jsm.streams.update(streamName, {
+        ...info.config,
+        max_age: ttlNanoseconds,
+        max_msgs_per_subject: options?.history || 1,
+        allow_rollup_hdrs: true,
+      })
+      logger.debug('Updated existing bucket stream with new configuration', { name, options })
+    } catch (error) {
+      if (typeof error === 'object' && error !== null) {
+        const errorCode = 'code' in error && typeof error.code === 'number' ? error.code : null
+        const errorMessage = 'message' in error && typeof error.message === 'string' ? error.message : null
+        if (errorCode === 404 && errorMessage?.includes('not found')) {
+          await this.js.views.kv(name, {
+            history: options?.history || 0,
+            ttl: options?.ttlMs ? options.ttlMs : 0,
+            storage: StorageType.Memory,
+          })
+          logger.info('Created new bucket stream', { name, options })
+        } else {
+          logger.error('Error ensuring bucket stream', { error, name, options })
+          throw error
+        }
+      } else {
+        logger.error('Unknown error ensuring bucket stream', { error, name, options })
+        throw error
+      }
+    }
   }
 
   async getBucketKeys(params: { bucketName: string; filter?: string; limit?: number }): Promise<string[]> {
@@ -699,6 +727,8 @@ export class NatsClient implements EventClient {
           key: entry.key,
           operation: entry.operation === 'DEL' || entry.operation === 'PURGE' ? 'delete' : 'update',
           value: entry.value,
+        }).catch((error) => {
+          logger.error('Error in bucket watch handler', { error, bucketName, key, entry })
         })
       }
     }

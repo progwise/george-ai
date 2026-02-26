@@ -16,9 +16,7 @@ export async function createDocument(
     originalContentHash?: string | null
   },
 ): Promise<{ documentId: string }> {
-  const libraryManifest = await library.get(workspaceId, {
-    libraryId: parameters.libraryId,
-  })
+  const libraryManifest = await library.get({ workspaceId: workspaceId, libraryId: parameters.libraryId })
   if (!libraryManifest) {
     logger.error('Library not found when trying to create document', { workspaceId, libraryId: parameters.libraryId })
     throw new DomainError('Library not found', 'document')
