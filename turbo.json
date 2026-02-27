@@ -9,6 +9,8 @@
       "dependsOn": []
     },
     "test": {
+      "outputs": ["node_modules/.vitest-reports/test-summary-metadata.json"],
+      "cache": true,
       "dependsOn": [],
       "env": [
         "TEST_DB_HOST",
