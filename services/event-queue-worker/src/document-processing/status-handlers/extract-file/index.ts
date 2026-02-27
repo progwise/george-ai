@@ -1,7 +1,6 @@
 import { ExtractDocumentStatus } from '@george-ai/event-service-client'
 
-import { logger } from '../../../common'
-import { logNoHandler } from '../../common'
+import { logNoHandler, logger } from '../../common'
 import { extractDocumentCompleted } from './completed'
 
 export async function handleExtractFileStatus(event: ExtractDocumentStatus) {

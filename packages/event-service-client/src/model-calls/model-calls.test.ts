@@ -1,6 +1,7 @@
 import { EmbeddingCall, EmbeddingResponse, ModelCall, ModelResponse } from '.'
 import {
   ProviderInstance,
+  deleteProviderInstance,
   getHealthyProviderInstance,
   isEventServiceClientInitialized,
   writeProviderInstance,
@@ -22,7 +23,8 @@ const TEST_CONFIG = {
 describe
   .skipIf(!TEST_CONFIG.ollama.apiUrl || !TEST_CONFIG.ollama.apiKey || !TEST_CONFIG.ollama.embeddingModelName)
   .sequential('Model Calls', () => {
-    const TEST_WORKSPACE_ID = `test-workspace-provider-calls_${Date.now()}`
+    const now = Date.now()
+    const TEST_WORKSPACE_ID = `test-workspace-provider-calls_${now}`
     const TEST_PROVIDER_INSTANCE_HEALTH: ProviderInstance = {
       version: 1 as const,
       workspaceId: TEST_WORKSPACE_ID,
@@ -34,7 +36,7 @@ describe
       processorUsagePercent: 10,
       totalMemoryMb: 12,
       usedMemoryMb: 4,
-      providerInstanceId: 'test-instance',
+      providerInstanceId: `test-instance_${now}`,
       modelProvider: 'ollama',
       connection: {
         baseUrl: TEST_CONFIG.ollama.apiUrl!,
@@ -51,9 +53,10 @@ describe
       await deleteModelCallConsumer({
         workspaceId: TEST_WORKSPACE_ID,
         modelProvider: 'ollama',
-        providerInstanceId: 'test-instance',
+        providerInstanceId: `test-instance_${now}`,
         eventType: 'call',
       })
+      await deleteProviderInstance(TEST_PROVIDER_INSTANCE_HEALTH)
     })
 
     it('Should publish embedding call', async () => {
@@ -71,7 +74,7 @@ describe
       await ensureModelCallConsumer({
         workspaceId: TEST_WORKSPACE_ID,
         modelProvider: 'ollama',
-        providerInstanceId: 'test-instance',
+        providerInstanceId: `test-instance_${now}`,
         eventType: 'call',
         modelNames: [TEST_CONFIG.ollama.embeddingModelName!],
         maxPendingMessages: 0,

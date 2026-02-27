@@ -1,7 +1,7 @@
 import { prisma } from '@george-ai/app-database'
 
 import { syncItemsForList } from '../automation'
-import { createItemsForFile } from './create-items-for-file';
+import { createItemsForFile } from './create-items-for-file'
 
 /**
  * Create list items for a file across all list sources that link to its library.

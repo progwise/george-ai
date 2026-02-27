@@ -1,7 +1,7 @@
 import { getExtraction, getLibraryManifest } from '@george-ai/app-domain'
 import { ExtractDocumentStatus, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
 
-import { logger } from '../../../common'
+import { logger } from '../../common'
 
 export async function extractDocumentCompleted(event: ExtractDocumentStatus) {
   const { extractionMethod, documentId, workspaceId, libraryId } = event

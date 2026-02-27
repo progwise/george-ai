@@ -5,7 +5,7 @@ import {
   writeProviderInstance,
 } from '@george-ai/event-service-client'
 
-import { logger } from '../common'
+import { logger } from './common'
 
 export async function handleWorkspaceConfigUpdated(workspaceId: string, config: WorkspaceConfig) {
   logger.debug('handle Workspace Config Updated', { workspaceId, config })

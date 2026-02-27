@@ -1,7 +1,7 @@
 import { ProviderStatusReportRequest, ProviderStatusReportResponse } from '@george-ai/event-service-client'
 import { statusReport } from '@george-ai/llm-client'
 
-import { logger } from '../common'
+import { logger } from './common'
 
 export async function getProviderInstanceStatusReport(
   request: ProviderStatusReportRequest,

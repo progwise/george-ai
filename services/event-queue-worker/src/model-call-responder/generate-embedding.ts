@@ -1,7 +1,7 @@
 import { EmbeddingCall, EmbeddingResponse, ProviderInstance } from '@george-ai/event-service-client'
 import { getEmbeddings } from '@george-ai/llm-client'
 
-import { logger } from '../common'
+import { logger } from './common'
 
 export async function generateEmbedding(event: EmbeddingCall, providerInstance: ProviderInstance) {
   logger.debug('Generating embedding for event', { event, providerInstance })

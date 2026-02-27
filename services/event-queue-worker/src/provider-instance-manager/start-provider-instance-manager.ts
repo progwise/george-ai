@@ -1,7 +1,8 @@
 import { watchProviderInstances, workerRegistry } from '@george-ai/event-service-client'
 
-import { WORKER_ID, logger } from '../common'
+import { WORKER_ID } from '../common'
 import sub from '../subscription-map'
+import { logger } from './common'
 import { handleProviderInstanceDeleted } from './handle-provider-instance-deleted'
 import { handleProviderInstanceUpdated } from './handle-provider-instance-updated'
 

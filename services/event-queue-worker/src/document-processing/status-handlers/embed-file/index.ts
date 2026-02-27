@@ -1,7 +1,6 @@
 import { EmbedDocumentStatus } from '@george-ai/event-service-client'
 
-import { logger } from '../../../common'
-import { logNoHandler } from '../../common'
+import { logNoHandler, logger } from '../../common'
 import { inProgressHandler } from './in-progress-handler'
 
 export async function handleEmbedFileStatus(event: EmbedDocumentStatus) {

@@ -1,7 +1,7 @@
 import { transform } from '@george-ai/app-domain'
 import { ExtractDocumentRequest } from '@george-ai/event-service-client'
 
-import { logger } from '../../common'
+import { logger } from '../common'
 
 export async function extractFile(event: ExtractDocumentRequest) {
   const { extractionMethod, documentId, workspaceId, libraryId, requestType, version } = event

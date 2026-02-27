@@ -5,9 +5,10 @@ import {
   workspaceProcessing,
 } from '@george-ai/event-service-client'
 
-import { WORKER_ID, logger } from '../common'
+import { WORKER_ID } from '../common'
 import sub from '../subscription-map'
 import { handleProcessingEvent } from './action-handlers'
+import { logger } from './common'
 import { handleStatusEvent } from './status-handlers'
 
 export async function startDocumentProcessing(): Promise<() => Promise<void>> {

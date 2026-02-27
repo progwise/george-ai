@@ -1,6 +1,6 @@
 import type { ProcessingStatus } from '@george-ai/event-service-client'
 
-import { logger } from '../../common'
+import { logger } from '../common'
 
 export async function handleStatusEvent(event: ProcessingStatus): Promise<void> {
   logger.debug('Handling status event', { event })

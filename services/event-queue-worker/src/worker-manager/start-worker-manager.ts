@@ -1,8 +1,9 @@
 import { registerWorker, updateWorkerHeartbeat, watchWorkerEntries } from '@george-ai/event-service-client'
 
-import { WORKER_ID, logger } from '../common'
+import { WORKER_ID } from '../common'
 import { ensureProcessingStart, ensureProcessingStop } from '../ensure-processing'
 import sub from '../subscription-map'
+import { logger } from './common'
 
 export async function startWorkerManager(): Promise<() => Promise<void>> {
   const cleanupFunctions = [] as Array<() => Promise<void>>

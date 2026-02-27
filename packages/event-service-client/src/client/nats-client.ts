@@ -141,6 +141,18 @@ export class NatsClient implements EventClient {
     }
   }
 
+  async purgeStream(params: { streamName: string; subjectFilter: string }): Promise<void> {
+    if (!this.jsm) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { streamName, subjectFilter } = params
+
+    await this.jsm.streams.purge(streamName, {
+      filter: subjectFilter,
+    })
+  }
+
   async ensureConsumer(params: {
     consumerName: string
     streamName: string
@@ -228,6 +240,12 @@ export class NatsClient implements EventClient {
     }
 
     const consumerInfo = await this.jsm.consumers.info(streamName, consumerName)
+
+    logger.debug('Resuming consumer', {
+      consumerName,
+      streamName,
+      consumersubjects: JSON.stringify(consumerInfo.config.filter_subjects),
+    })
 
     try {
       await this.jsm.consumers.resume(streamName, consumerInfo.name)
@@ -342,6 +360,7 @@ export class NatsClient implements EventClient {
         .sort(() => Math.random() - 0.5)
 
       logger.debug('Processing consumers', { streamName, consumerGlobPattern, consumers: shuffledConsumers.length })
+
       for (const consumerInfo of shuffledConsumers) {
         if (signal.aborted) {
           logger.debug('Worker loop aborted', { streamName, consumerGlobPattern })
@@ -363,7 +382,7 @@ export class NatsClient implements EventClient {
 
           for await (const msg of messages) {
             if (signal.aborted) {
-              logger.info('Worker loop aborted', { streamName, consumerName: consumerInfo.name })
+              logger.debug('Worker loop aborted', { streamName, consumerName: consumerInfo.name })
               break
             }
             logger.debug('Received message for consumer', {
@@ -376,7 +395,7 @@ export class NatsClient implements EventClient {
               await handler({ subject: msg.subject, payload: msg.data })
               // Acknowledge message
               msg.ack()
-              logger.info('Message processed and acknowledged', {
+              logger.debug('Message processed and acknowledged', {
                 streamName,
                 subject: msg.subject,
                 consumerName: consumerInfo.name,
@@ -627,9 +646,8 @@ export class NatsClient implements EventClient {
       logger.debug('Updated existing bucket stream with new configuration', { name, options })
     } catch (error) {
       if (typeof error === 'object' && error !== null) {
-        const errorCode = 'code' in error && typeof error.code === 'number' ? error.code : null
-        const errorMessage = 'message' in error && typeof error.message === 'string' ? error.message : null
-        if (errorCode === 404 && errorMessage?.includes('not found')) {
+        const errorCode = 'code' in error ? error.code : null
+        if (errorCode === '404') {
           await this.js.views.kv(name, {
             history: options?.history || 0,
             ttl: options?.ttlMs ? options.ttlMs : 0,

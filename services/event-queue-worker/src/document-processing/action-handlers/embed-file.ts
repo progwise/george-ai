@@ -3,7 +3,8 @@ import { pipeline } from 'node:stream/promises'
 import { readChunks } from '@george-ai/app-domain'
 import { type EmbedDocumentRequest, modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
 
-import { WORKER_ID, logger } from '../../common'
+import { WORKER_ID } from '../../common'
+import { logger } from '../common'
 
 export async function embedFile(event: EmbedDocumentRequest) {
   const { workspaceId, libraryId, documentId, embeddingModelProvider, embeddingModelName, extractionMethod } = event

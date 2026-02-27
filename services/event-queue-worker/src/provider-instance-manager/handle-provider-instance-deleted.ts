@@ -1,4 +1,4 @@
-import { logger } from '../common'
+import { logger } from './common'
 import { removeFromCheckMap } from './provider-instances-map'
 
 export async function handleProviderInstanceDeleted(parameters: {

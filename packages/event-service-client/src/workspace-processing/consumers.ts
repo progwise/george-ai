@@ -35,11 +35,11 @@ export const deleteWorkspace = async ({ workspaceId }: { workspaceId: string }) 
       await eventClient
         .deleteConsumer({ streamName: WORKSPACE_STREAM_NAME, consumerName })
         .then(() => {
-          logger.info('Deleted consumer during workspace cleanup', { consumerName, workspaceId })
+          logger.debug('Deleted consumer during workspace cleanup', { consumerName, workspaceId })
         })
         .catch((error) => {
           // Log and ignore errors during cleanup
-          logger.info('Error deleting consumer during cleanup', { error, consumerName, workspaceId })
+          logger.error('Error deleting consumer during cleanup', { error, consumerName, workspaceId })
         })
     }),
   )
@@ -53,4 +53,14 @@ export const deleteWorkspace = async ({ workspaceId }: { workspaceId: string }) 
   } else {
     logger.info('Successfully deleted all consumers for workspace', { workspaceId })
   }
+
+  await eventClient
+    .purgeStream({
+      streamName: WORKSPACE_STREAM_NAME,
+      subjectFilter: `processing.workspace.${workspaceId}.request.>`,
+    })
+    .catch((error) => {
+      logger.error('Error purging stream during workspace cleanup', { error, workspaceId })
+      throw error
+    })
 }

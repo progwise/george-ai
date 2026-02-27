@@ -1,7 +1,8 @@
 import { watchWorkspaceConfigs, workerRegistry } from '@george-ai/event-service-client'
 
-import { WORKER_ID, logger } from '../common'
+import { WORKER_ID } from '../common'
 import sub from '../subscription-map'
+import { logger } from './common'
 import { handleWorkspaceConfigDeleted } from './handle-workspace-config-deleted'
 import { handleWorkspaceConfigUpdated } from './handle-workspace-config-updated'
 

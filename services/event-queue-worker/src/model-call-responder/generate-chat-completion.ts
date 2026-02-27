@@ -1,7 +1,7 @@
 import { ChatCompletionCall, ChatCompletionResponse, ProviderInstance } from '@george-ai/event-service-client'
 import { chat } from '@george-ai/llm-client'
 
-import { logger } from '../common'
+import { logger } from './common'
 
 export async function generateChatCompletion(
   event: ChatCompletionCall,

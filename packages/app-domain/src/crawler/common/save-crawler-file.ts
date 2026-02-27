@@ -1,9 +1,9 @@
 import { Readable } from 'node:stream'
 
 import { prisma } from '@george-ai/app-database'
-import { getSourceHash, saveDocument } from '../../document'
 
 import { logger } from '.'
+import { getSourceHash, saveDocument } from '../../document'
 
 export const saveCrawlerFile = async (parameters: {
   workspaceId: string
@@ -22,9 +22,7 @@ export const saveCrawlerFile = async (parameters: {
     select: { id: true, name: true, originUri: true, mimeType: true },
   })
 
-  const hashBefore = existingFile
-    ? await getSourceHash(workspaceId, { libraryId, documentId: existingFile.id })
-    : null
+  const hashBefore = existingFile ? await getSourceHash(workspaceId, { libraryId, documentId: existingFile.id }) : null
 
   const saveResult = await saveDocument(workspaceId, {
     libraryId,

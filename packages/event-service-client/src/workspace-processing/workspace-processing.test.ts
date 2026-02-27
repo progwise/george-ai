@@ -17,6 +17,7 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
     // Ensure workspace is clean before tests
     // await workspaceProcessing.deleteWorkspace({ workspaceId: TEST_WORKSPACE_ID })
     await isEventServiceClientInitialized()
+    await workspaceProcessing.ensureWorkspaceConsumers({ workspaceId: TEST_WORKSPACE_ID })
   })
 
   afterAll(async () => {
@@ -70,6 +71,10 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
 
     const unsubscribe = await workspaceProcessing.subscribeEvent({
       handler: async ({ eventType, event }) => {
+        console.log('Received event:', TEST_WORKSPACE_ID, eventType, event)
+        if (event.workspaceId !== TEST_WORKSPACE_ID) {
+          return
+        }
         messages.push({ eventType, event })
       },
     })
@@ -184,4 +189,22 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
 
     await unsubscribe()
   }, 30000)
+
+  test('publish 10000 extraction events with different workspace id trying to break other test runs', async () => {
+    const publishPromises = []
+    for (let i = 0; i < 10000; i++) {
+      publishPromises.push(
+        workspaceProcessing.publishProcessingRequest({
+          ...TEST_PROCESSING_REQUEST,
+          workspaceId: `test-another-workspace-${Date.now()}`,
+          requestType: 'embedFile',
+          extractionMethod: 'textExtraction',
+          documentId: `test-file-id-${i}`,
+          embeddingModelName: 'test-model',
+          embeddingModelProvider: 'openai',
+        }),
+      )
+    }
+    await Promise.all(publishPromises)
+  })
 })

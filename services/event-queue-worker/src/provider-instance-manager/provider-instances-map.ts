@@ -1,7 +1,7 @@
 import { ModelProvider, ProviderHealthStatus } from '@george-ai/app-commons'
 import { requestProviderInstance, writeProviderInstance } from '@george-ai/event-service-client'
 
-import { logger } from '../common'
+import { logger } from './common'
 
 const PROVIDER_CHECK_INTERVAL_MS = 2 * 60 * 1000 // 2 minutes
 

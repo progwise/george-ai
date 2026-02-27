@@ -93,13 +93,9 @@ const dropTestDatabase = async (databaseName: string) => {
     database: 'postgres', // Connect to default database for admin operations
   })
   try {
-    logger.info('Dropping test database ...', { databaseName, TEST_DB_CONFIG })
     await adminClient.connect()
-
-    // Connect to default 'postgres' database to create test database
-
     await adminClient.query(`DROP DATABASE IF EXISTS "${databaseName}" WITH (FORCE)`)
-    logger.info('✅ Dropped database', { databaseName, TEST_DB_CONFIG })
+    logger.debug('✅ Dropped database', { databaseName, TEST_DB_CONFIG })
   } catch (error) {
     logger.error('Error dropping test database', { databaseName, error, TEST_DB_CONFIG })
   } finally {

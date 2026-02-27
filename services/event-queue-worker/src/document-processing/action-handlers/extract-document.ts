@@ -2,7 +2,7 @@ import { getLibraryManifest, transform } from '@george-ai/app-domain'
 import { ExtractDocumentRequest, requestModelCall, workspaceProcessing } from '@george-ai/event-service-client'
 import { writeExtraction } from '@george-ai/file-management'
 
-import { logger } from '../../common'
+import { logger } from '../common'
 
 export async function extractDocument(event: ExtractDocumentRequest) {
   const { extractionMethod, documentId, workspaceId, libraryId, requestType, version } = event

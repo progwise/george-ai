@@ -22,7 +22,7 @@ export interface EventClient {
   }): Promise<void>
 
   deleteConsumer(params: { streamName: string; consumerName: string }): Promise<void>
-
+  purgeStream(params: { streamName: string; subjectFilter: string }): Promise<void>
   getStreamStatistics(params: {
     consumerName: string
     streamName: string

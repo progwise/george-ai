@@ -1,6 +1,6 @@
 import { ProviderInstance } from '@george-ai/event-service-client'
 
-import { logger } from '../common'
+import { logger } from './common'
 import { planMatureStatusCheck } from './provider-instances-map'
 
 export async function handleProviderInstanceUpdated(instance: ProviderInstance) {

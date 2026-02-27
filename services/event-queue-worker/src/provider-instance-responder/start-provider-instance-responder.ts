@@ -1,7 +1,8 @@
 import { respondProviderInstance, updateWorkerHeartbeat } from '@george-ai/event-service-client'
 
-import { WORKER_ID, logger } from '../common'
+import { WORKER_ID } from '../common'
 import sub from '../subscription-map'
+import { logger } from './common'
 import { getProviderInstanceStatusReport } from './get-provider-instance-status-report'
 
 export async function startProviderInstanceResponder() {

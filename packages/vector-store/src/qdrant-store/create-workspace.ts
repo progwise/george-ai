@@ -16,7 +16,7 @@ const ensurePayloadIndex = async (
   }
 
   // 3. Create the index if it's missing
-  logger.info(`Creating index for field.`, { collectionName, fieldName, schemaType })
+  logger.debug(`Creating index for field.`, { collectionName, fieldName, schemaType })
   await qdrantClient.createPayloadIndex(collectionName, {
     field_name: fieldName,
     field_schema: schemaType, // e.g., 'keyword', 'integer', 'text', 'datetime'

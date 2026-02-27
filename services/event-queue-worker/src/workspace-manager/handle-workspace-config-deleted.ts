@@ -1,6 +1,6 @@
 import { deleteProviderInstance, getProviderInstances } from '@george-ai/event-service-client'
 
-import { logger } from '../common'
+import { logger } from './common'
 
 export async function handleWorkspaceConfigDeleted(workspaceId: string) {
   logger.debug('Handle Workspace Config Deleted', { workspaceId })

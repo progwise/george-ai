@@ -5,7 +5,7 @@ import type {
   ProcessingRequest,
 } from '@george-ai/event-service-client'
 
-import { logger } from '../../common'
+import { logger } from '../common'
 import { embedFile } from './embed-file'
 import { enrichItem } from './enrich-item'
 import { extractDocument } from './extract-document'
