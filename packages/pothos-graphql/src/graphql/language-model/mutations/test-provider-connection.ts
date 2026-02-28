@@ -1,8 +1,10 @@
+import { encryptValue } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { ProviderTestConnectionRequest, requestProviderInstance } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 // Test provider connection
 builder.mutationField('testProviderConnection', (t) =>
@@ -25,49 +27,45 @@ builder.mutationField('testProviderConnection', (t) =>
     resolve: async (_source, { providerId, provider, baseUrl, apiKey }, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
 
-      const request: ProviderTestConnectionRequest = {
-        version: 1,
-        requestType: 'testConnection',
-        workspaceId,
-        modelProvider: provider,
-        connection: {
-          baseUrl,
-          apiKey,
-        },
-      }
-
       if (!baseUrl && !apiKey && !providerId) {
         return {
           success: false,
           message: 'No connection details provided and no providerId for fallback',
         }
       }
+      const { baseUrl: storedBaseUrl, apiKey: storedEncryptedApiKey } = !providerId
+        ? { baseUrl: undefined, apiKey: undefined }
+        : await prisma.aiServiceProvider.findFirstOrThrow({
+            select: {
+              apiKey: true,
+              baseUrl: true,
+            },
+            where: {
+              id: providerId,
+              workspaceId,
+            },
+          })
 
-      if (!baseUrl && !apiKey && providerId) {
-        const storedProvider = await prisma.aiServiceProvider.findFirst({
-          select: {
-            apiKey: true,
-            baseUrl: true,
-          },
-          where: {
-            id: providerId,
-            workspaceId,
-          },
-        })
-
-        if (!storedProvider) {
-          return {
-            success: false,
-            message: 'Provider not found for given providerId',
-          }
-        }
-
-        request.connection = {
-          baseUrl: storedProvider.baseUrl || undefined,
-          apiKey: storedProvider.apiKey || undefined,
-        }
+      if (!baseUrl && !storedBaseUrl) {
+        return { success: false, message: 'No url for provider available' }
       }
 
+      const encryptedApiKey = apiKey ? encryptValue(apiKey) : null
+
+      const request: ProviderTestConnectionRequest = {
+        version: 1,
+        requestType: 'testConnection',
+        workspaceId,
+        modelProvider: provider,
+        connection: {
+          baseUrl: !baseUrl ? storedBaseUrl : baseUrl,
+          encryptedApiKey: !encryptedApiKey ? storedEncryptedApiKey : encryptedApiKey,
+        },
+      }
+
+      logger.debug('test provider connection mutation', { args: { providerId, provider, baseUrl, apiKey }, request })
+
+      // TODO: Check for alternative so we do not send apiKey
       const testResult = await requestProviderInstance(request)
 
       return {

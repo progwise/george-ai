@@ -32,3 +32,21 @@ export default {
   findSimilarChunks,
   queryChunks,
 }
+
+export {
+  createWorkspace,
+  existsWorkspace,
+  getWorkspace,
+  removeWorkspace,
+  getEmbeddingModelNames,
+  getEmbeddingStatistics,
+  getChunkCount,
+  upsertChunks,
+  removeChunks,
+  getChunks,
+  readChunks,
+  upsertEmbeddings,
+  removeEmbeddings,
+  findSimilarChunks,
+  queryChunks,
+}

@@ -16,7 +16,7 @@ export async function getChunks(parameters: {
   const { workspaceId, libraryId, fileId, extractionMethod, fragment, take, skip } = parameters
   const collectionName = getCollectionName(workspaceId)
 
-  const collectionExists = await qdrantClient.getCollection(collectionName)
+  const collectionExists = await qdrantClient.getCollection(collectionName).catch(() => {})
   if (!collectionExists) {
     return []
   }

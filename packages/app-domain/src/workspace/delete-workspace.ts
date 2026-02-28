@@ -1,4 +1,5 @@
 import { prisma } from '@george-ai/app-database'
+import { deleteWorkspaceConfig } from '@george-ai/event-service-client'
 import { workspace as ws } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
@@ -33,6 +34,8 @@ export async function deleteWorkspace(workspaceId: string): Promise<void> {
       await vectorStore.removeWorkspace(workspaceId)
 
       await ws.delete(workspaceId)
+
+      await deleteWorkspaceConfig(workspaceId)
     })
   } catch (error) {
     logger.error('Error deleting workspace', { error, workspaceId })

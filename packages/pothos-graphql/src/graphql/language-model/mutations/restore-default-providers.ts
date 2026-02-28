@@ -51,12 +51,14 @@ builder.mutationField('restoreDefaultProviders', (t) =>
 
       const apiKey = getConfigValue('OPENAI_API_KEY')
       const baseUrl = getConfigValue('OPENAI_BASE_URL')
+
+      const encryptedApiKey = apiKey ? encryptValue(apiKey) : null
       // Import OpenAI if configured
       if (apiKey) {
         providersToCreate.push({
           modelProvider: 'openai',
           name: 'OpenAI',
-          connection: { apiKey, baseUrl },
+          connection: { encryptedApiKey, baseUrl },
           version: 1,
           workspaceId,
         })
@@ -64,12 +66,14 @@ builder.mutationField('restoreDefaultProviders', (t) =>
 
       // Import all configured Ollama instances
       for (const instance of getConfigValue('OLLAMA_INSTANCES')) {
+        const encryptedApiKey = instance.apiKey ? encryptValue(instance.apiKey) : null
+
         providersToCreate.push({
           modelProvider: 'ollama',
           name: instance.name,
           connection: {
             baseUrl: instance.baseUrl,
-            apiKey: instance.apiKey,
+            encryptedApiKey: encryptedApiKey,
           },
           version: 1,
           workspaceId,
@@ -110,7 +114,7 @@ builder.mutationField('restoreDefaultProviders', (t) =>
           })
         }
 
-        const encryptedApi = encryptValue(providerData.connection.apiKey || '')
+        const encryptedApi = encryptValue(providerData.connection.encryptedApiKey || '')
 
         // Create new provider (enabled by default)
         const newProvider = await prisma.aiServiceProvider.create({

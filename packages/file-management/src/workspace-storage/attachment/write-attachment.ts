@@ -52,7 +52,7 @@ export async function writeAttachment(
   }
   const parentEntry = await getEntry(identifier)
   if (!parentEntry) {
-    logger.warn(
+    logger.debug(
       'Cannot update parent entry with attachments because it was not found. Normal for extraction stream usage.',
       { identifier },
     )

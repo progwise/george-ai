@@ -4,6 +4,7 @@ import { WORKER_ID } from '../common'
 import sub from '../subscription-map'
 import { logger } from './common'
 import { getProviderInstanceStatusReport } from './get-provider-instance-status-report'
+import { testProviderInstanceConnection } from './test-provider-instance-connection'
 
 export async function startProviderInstanceResponder() {
   logger.info('Starting provider instance responder', { WORKER_ID })
@@ -24,6 +25,9 @@ export async function startProviderInstanceResponder() {
       switch (event.requestType) {
         case 'statusReport': {
           return await getProviderInstanceStatusReport(event)
+        }
+        case 'testConnection': {
+          return await testProviderInstanceConnection(event)
         }
         default:
           logger.error('Received provider instance request with unsupported request type:', { event })

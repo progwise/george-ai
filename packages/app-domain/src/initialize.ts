@@ -42,7 +42,7 @@ const initializeAppDomain = async () => {
           modelProvider: getModelProvider(provider.provider),
           connection: {
             baseUrl: provider.baseUrl || undefined,
-            apiKey: provider.apiKey || undefined,
+            encryptedApiKey: provider.apiKey || undefined,
           },
         })),
         languageModels: workspace.languageModels.map((model) => ({
@@ -56,7 +56,7 @@ const initializeAppDomain = async () => {
           canDoFunctionCalling: model.canDoFunctionCalling,
         })),
         version: 1,
-        lastUpdate: new Date().toISOString(),
+        lastUpdate: new Date(),
       }
 
       return workspaceConfig.writeWorkspaceConfig(workspaceConfig.WorkspaceConfigSchema.parse(entry))

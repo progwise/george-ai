@@ -23,7 +23,7 @@ describe('event-service-client workspace tests', () => {
           workspaceId: TEST_WORKSPACE_ID,
           modelProvider: 'ollama',
           connection: {
-            apiKey: 'key-1',
+            encryptedApiKey: 'key-1',
             baseUrl: 'https://api.ollama.com',
           },
           version: 1,
@@ -41,7 +41,7 @@ describe('event-service-client workspace tests', () => {
           version: 1,
         },
       ],
-      lastUpdate: new Date().toISOString(),
+      lastUpdate: new Date(),
     }
     await workspaceConfig.writeWorkspaceConfig(configEntry)
 
@@ -59,7 +59,7 @@ describe('event-service-client workspace tests', () => {
           workspaceId: TEST_WORKSPACE_ID,
           modelProvider: 'ollama',
           connection: {
-            apiKey: 'updated-key-1',
+            encryptedApiKey: 'updated-key-1',
             baseUrl: 'https://api.ollama.com',
           },
           version: 1,
@@ -69,7 +69,7 @@ describe('event-service-client workspace tests', () => {
           workspaceId: TEST_WORKSPACE_ID,
           modelProvider: 'openai',
           connection: {
-            apiKey: 'key-2',
+            encryptedApiKey: 'key-2',
             baseUrl: 'https://api.openai.com',
           },
           version: 1,
@@ -97,7 +97,7 @@ describe('event-service-client workspace tests', () => {
           version: 1,
         },
       ],
-      lastUpdate: new Date().toISOString(),
+      lastUpdate: new Date(),
     }
     await workspaceConfig.writeWorkspaceConfig(updatedConfigEntry)
 
@@ -111,7 +111,7 @@ describe('event-service-client workspace tests', () => {
       workspaceId: TEST_WORKSPACE2_ID,
       providerInstances: [],
       languageModels: [],
-      lastUpdate: new Date().toISOString(),
+      lastUpdate: new Date(),
     }
     await workspaceConfig.writeWorkspaceConfig(configEntry)
 
@@ -139,7 +139,7 @@ describe('event-service-client workspace tests', () => {
       workspaceId: TEST_WATCH_WORKSPACE_ID,
       providerInstances: [],
       languageModels: [],
-      lastUpdate: new Date().toISOString(),
+      lastUpdate: new Date(),
     }
     await workspaceConfig.writeWorkspaceConfig(configEntry)
 
@@ -150,14 +150,14 @@ describe('event-service-client workspace tests', () => {
           providerInstanceId: 'provider-1',
           modelProvider: 'ollama',
           connection: {
-            apiKey: 'key-1',
+            encryptedApiKey: 'key-1',
             baseUrl: 'https://api.ollama.com',
           },
           version: 1,
           workspaceId: TEST_WATCH_WORKSPACE_ID,
         },
       ],
-      lastUpdate: new Date().toISOString(),
+      lastUpdate: new Date(),
     }
     await workspaceConfig.writeWorkspaceConfig(updatedConfigEntry)
 

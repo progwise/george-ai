@@ -51,7 +51,7 @@ export async function handleWorkspaceConfigUpdated(workspaceId: string, config: 
         modelProvider: providerInstance.modelProvider,
         name: providerInstance.name,
         connection: {
-          apiKey: providerInstance.connection.apiKey,
+          encryptedApiKey: providerInstance.connection.encryptedApiKey,
           baseUrl: providerInstance.connection.baseUrl,
         },
         status: undefined, // TODO: if there was a status already: preserve.

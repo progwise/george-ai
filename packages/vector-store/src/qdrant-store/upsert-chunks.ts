@@ -8,7 +8,7 @@ export async function upsertChunks(parameters: { workspaceId: string; chunks: Ve
     id: getChunkIdentifier(chunk),
     vector: {}, // Vectors are added separately
     payload: chunk,
-    wait: true,
+    wait: false,
   }))
-  await qdrantClient.upsert(collectionName, { wait: true, points })
+  await qdrantClient.upsert(collectionName, { wait: false, points })
 }

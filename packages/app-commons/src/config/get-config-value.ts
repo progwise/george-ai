@@ -13,6 +13,7 @@ export function getConfigValue(
   key:
     | 'BACKEND_PUBLIC_URL'
     | 'DATABASE_URL'
+    | 'ENCRYPTION_KEY'
     | 'GIT_COMMIT_SHA'
     | 'LOG_LEVEL'
     | 'PUBLIC_APP_URL'
@@ -59,6 +60,7 @@ export function getConfigValue(key: ConfigKey):
       return process.env[key] ?? 'INFO'
     case 'BACKEND_PUBLIC_URL':
     case 'DATABASE_URL':
+    case 'ENCRYPTION_KEY':
     case 'GIT_COMMIT_SHA':
     case 'PUBLIC_APP_URL':
     case 'SMB_CRAWLER_URL':

@@ -13,13 +13,13 @@ export const chat = async (parameters: {
   const { modelProvider, modelName, messages, connection } = parameters
 
   const abortController = new AbortController()
-  const { baseUrl, apiKey } = connection
+  const { baseUrl, encryptedApiKey } = connection
   if (modelProvider === 'ollama') {
     if (!baseUrl) {
       throw new Error('Ollama apiUrl is required in parameters')
     }
     const result = await ollamaApi.getChatResponseStream(
-      { baseUrl, apiKey, abortSignal: abortController.signal },
+      { baseUrl, encryptedApiKey, abortSignal: abortController.signal },
       modelName,
       messages,
       {
@@ -28,10 +28,10 @@ export const chat = async (parameters: {
     )
     return result
   } else if (modelProvider === 'openai') {
-    if (!apiKey) {
+    if (!encryptedApiKey) {
       throw new Error('OpenAI apiKey is required in parameters')
     }
-    const result = await openAiApi.getChatResponseStream({ baseUrl, apiKey }, modelName, messages, {
+    const result = await openAiApi.getChatResponseStream({ baseUrl, encryptedApiKey }, modelName, messages, {
       abortSignal: abortController.signal,
       includeUsage: true, // Enable token usage tracking
     })

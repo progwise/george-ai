@@ -9,7 +9,7 @@ describe.sequential('Provider Calls', () => {
     workspaceId: TEST_WORKSPACE_ID,
     connection: {
       baseUrl: 'http://localhost:11434',
-      apiKey: 'test-api-key',
+      encryptedApiKey: 'test-api-key',
     },
     requestType: 'discoverModels',
     modelProvider: 'openai',

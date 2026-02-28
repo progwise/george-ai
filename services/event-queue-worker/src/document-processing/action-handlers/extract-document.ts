@@ -1,5 +1,10 @@
 import { getLibraryManifest, transform } from '@george-ai/app-domain'
-import { ExtractDocumentRequest, requestModelCall, workspaceProcessing } from '@george-ai/event-service-client'
+import {
+  ChatCompletionCall,
+  ExtractDocumentRequest,
+  requestModelCall,
+  workspaceProcessing,
+} from '@george-ai/event-service-client'
 import { writeExtraction } from '@george-ai/file-management'
 
 import { logger } from '../common'
@@ -59,7 +64,7 @@ export async function extractDocument(event: ExtractDocumentRequest) {
       attachmentFileName: att.fileName,
     })) || []
 
-  const response = await requestModelCall({
+  const chatCompletionRequest: ChatCompletionCall = {
     version: 1,
     workspaceId,
     provider: imageAnalysisSettings.provider,
@@ -88,6 +93,10 @@ export async function extractDocument(event: ExtractDocumentRequest) {
       },
     ],
     attachments: attachmentsToProcess,
+  }
+  const response = await requestModelCall(chatCompletionRequest).catch((error) => {
+    logger.error('Error requesting image chat completion from provider', { chatCompletionRequest, error })
+    throw error
   })
 
   const extractionWriter = await writeExtraction({ extraction })
@@ -97,6 +106,8 @@ export async function extractDocument(event: ExtractDocumentRequest) {
       await extractionWriter.write(
         `
     ## Image Analysis Report
+
+    Timestamp: ${new Date()}
 
     Failed to analyze images with provider ${imageAnalysisSettings.provider} and model ${imageAnalysisSettings.modelName}.`,
       )

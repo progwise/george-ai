@@ -29,6 +29,6 @@ export async function upsertEmbeddings(parameters: {
       }),
       vector: { [embeddingModelName]: vector },
     })),
-    wait: true,
+    wait: false,
   })
 }

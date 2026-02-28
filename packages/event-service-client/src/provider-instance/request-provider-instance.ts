@@ -7,11 +7,13 @@ import {
   ProviderStatusReportRequest,
   ProviderStatusReportResponse,
   ProviderTestConnectionRequest,
+  ProviderTestConnectionResponse,
   RequestDiscoverModels,
-  TestConnectionResponse,
 } from './schema'
 
-export async function requestProviderInstance(request: ProviderTestConnectionRequest): Promise<TestConnectionResponse>
+export async function requestProviderInstance(
+  request: ProviderTestConnectionRequest,
+): Promise<ProviderTestConnectionResponse>
 export async function requestProviderInstance(request: RequestDiscoverModels): Promise<DiscoverModelsResponse>
 export async function requestProviderInstance(
   request: ProviderStatusReportRequest,

@@ -40,7 +40,7 @@ describe
       modelProvider: 'ollama',
       connection: {
         baseUrl: TEST_CONFIG.ollama.apiUrl!,
-        apiKey: TEST_CONFIG.ollama.apiKey!,
+        encryptedApiKey: TEST_CONFIG.ollama.apiKey!,
       },
     }
 

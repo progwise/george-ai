@@ -5,7 +5,7 @@ import { ProviderInstanceSchema, ProviderModelSchema } from '../provider-instanc
 export const WorkspaceConfigSchema = z.object({
   version: z.literal(1),
   workspaceId: z.string(),
-  lastUpdate: z.string(), // ISO date string
+  lastUpdate: z.coerce.date().optional(),
   providerInstances: z.array(ProviderInstanceSchema),
   languageModels: z.array(ProviderModelSchema),
 })

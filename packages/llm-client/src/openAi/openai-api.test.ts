@@ -7,7 +7,7 @@ import { generateOpenAIEmbeddings, getChatResponseStream, getOpenAIModels } from
 describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () => {
   const instance = {
     baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
-    apiKey: process.env.OPENAI_API_KEY!,
+    encryptedApiKey: process.env.OPENAI_API_KEY!,
   }
 
   describe('getOpenAIModels', () => {
@@ -292,7 +292,7 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
 
   describe('error handling', () => {
     it('should throw error for invalid API key', async () => {
-      const invalidInstance = { baseUrl: instance.baseUrl, apiKey: 'invalid-api-key' }
+      const invalidInstance = { baseUrl: instance.baseUrl, encryptedApiKey: 'invalid-api-key' }
 
       await expect(getOpenAIModels(invalidInstance)).rejects.toThrow('Failed to fetch OpenAI API')
     }, 10000)
@@ -304,13 +304,13 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
     }, 10000)
 
     it('should throw error for invalid base URL', async () => {
-      const invalidInstance = { url: 'http://localhost:99999', apiKey: instance.apiKey }
+      const invalidInstance = { url: 'http://localhost:99999', encryptedApiKey: instance.encryptedApiKey }
 
       await expect(getOpenAIModels(invalidInstance)).rejects.toThrow()
     }, 10000)
 
     it('should throw error for malformed API endpoint', async () => {
-      const invalidInstance = { url: 'not-a-valid-url', apiKey: instance.apiKey }
+      const invalidInstance = { url: 'not-a-valid-url', encryptedApiKey: instance.encryptedApiKey }
 
       await expect(getOpenAIModels(invalidInstance)).rejects.toThrow()
     }, 5000)
@@ -322,7 +322,7 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
       async () => {
         const azureInstance = {
           url: process.env.AZURE_OPENAI_ENDPOINT!,
-          apiKey: process.env.AZURE_OPENAI_API_KEY!,
+          encryptedApiKey: process.env.AZURE_OPENAI_API_KEY!,
         }
 
         const result = await getOpenAIModels(azureInstance)

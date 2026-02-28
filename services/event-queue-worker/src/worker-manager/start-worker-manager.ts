@@ -41,7 +41,7 @@ export async function startWorkerManager(): Promise<() => Promise<void>> {
       }
 
       if (operation === 'delete') {
-        logger.info('Foreign worker entry deleted - trying to register', { workerId, WORKER_ID, workerType })
+        logger.debug('Foreign worker entry deleted - trying to register', { workerId, WORKER_ID, workerType })
         try {
           await registerWorker({ workerId: WORKER_ID, workerType })
         } catch (error) {

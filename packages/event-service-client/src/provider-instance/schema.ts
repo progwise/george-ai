@@ -1,15 +1,10 @@
 import z from 'zod'
 
-import { PROVIDER_HEALTH_STATUS } from '@george-ai/app-commons'
+import { PROVIDER_HEALTH_STATUS, ProviderConnectionSchema } from '@george-ai/app-commons'
 import { MODEL_PROVIDERS } from '@george-ai/app-commons'
 
 export const PROVIDER_INSTANCE_REQUEST_TYPES = ['discoverModels', 'statusReport', 'testConnection'] as const
 export type ProviderInstanceRequestType = (typeof PROVIDER_INSTANCE_REQUEST_TYPES)[number]
-
-export const ProviderConnectionSchema = z.object({
-  baseUrl: z.string().url().optional().nullable(),
-  apiKey: z.string().optional().nullable(),
-})
 
 export const ProviderInstanceSchema = z.object({
   version: z.literal(1),
@@ -107,7 +102,7 @@ export const ProviderStatusReportResponseSchema = ProviderResponseBaseSchema.ext
 
 export type ProviderStatusReportResponse = z.infer<typeof ProviderStatusReportResponseSchema>
 
-export const TestConnectionResponseSchema = ProviderResponseBaseSchema.extend({
+export const ProviderTestConnectionResponseSchema = ProviderResponseBaseSchema.extend({
   requestType: z.literal('testConnection'),
   success: z.boolean(),
   isOnline: z.boolean().optional(),
@@ -115,11 +110,11 @@ export const TestConnectionResponseSchema = ProviderResponseBaseSchema.extend({
   statusMessage: z.string().optional(),
 })
 
-export type TestConnectionResponse = z.infer<typeof TestConnectionResponseSchema>
+export type ProviderTestConnectionResponse = z.infer<typeof ProviderTestConnectionResponseSchema>
 
 export const ProviderResponseSchema = z.discriminatedUnion('requestType', [
   DiscoverModelsResponseSchema,
   ProviderStatusReportResponseSchema,
-  TestConnectionResponseSchema,
+  ProviderTestConnectionResponseSchema,
 ])
 export type ProviderResponse = z.infer<typeof ProviderResponseSchema>

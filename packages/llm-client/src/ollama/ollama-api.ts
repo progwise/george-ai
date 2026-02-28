@@ -1,7 +1,7 @@
 import pRetry from 'p-retry'
 import { z } from 'zod'
 
-import { createLogger } from '@george-ai/app-commons'
+import { createLogger, decryptValue } from '@george-ai/app-commons'
 
 import { ChatCompletionStreamChunk, Message } from '../common'
 
@@ -142,7 +142,7 @@ export type OllamaStreamChunk = z.infer<typeof OllamaStreamChunkSchema>
 
 interface FetchParams {
   baseUrl: string
-  apiKey?: string | null
+  encryptedApiKey?: string | null
   abortSignal?: AbortSignal
 }
 
@@ -154,7 +154,7 @@ async function ollamaApiGet<T>(
   const response = await pRetry(
     () =>
       fetch(`${instance.baseUrl}${endpoint}`, {
-        headers: instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {},
+        headers: instance.encryptedApiKey ? { Authorization: `Bearer ${decryptValue(instance.encryptedApiKey)}` } : {},
         signal: instance.abortSignal,
       }),
     { retries: 3 },
@@ -187,7 +187,7 @@ async function ollamaApiPost<T>(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(instance.apiKey ? { Authorization: `Bearer ${instance.apiKey}` } : {}),
+          ...(instance.encryptedApiKey ? { Authorization: `Bearer ${decryptValue(instance.encryptedApiKey)}` } : {}),
         },
         body: JSON.stringify(params),
         signal: instance.abortSignal,
@@ -256,7 +256,7 @@ async function getChatResponseStream(
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(params.apiKey ? { Authorization: `Bearer ${params.apiKey}` } : {}),
+            ...(params.encryptedApiKey ? { Authorization: `Bearer ${decryptValue(params.encryptedApiKey)}` } : {}),
           },
           body: JSON.stringify({ model: modelName, stream: true, messages }),
           signal: params?.abortSignal,

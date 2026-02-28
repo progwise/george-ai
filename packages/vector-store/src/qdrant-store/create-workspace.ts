@@ -20,7 +20,7 @@ const ensurePayloadIndex = async (
   await qdrantClient.createPayloadIndex(collectionName, {
     field_name: fieldName,
     field_schema: schemaType, // e.g., 'keyword', 'integer', 'text', 'datetime'
-    wait: true,
+    wait: false, // setting this to true is far too slow (>2000 ms)
   })
 }
 
@@ -38,8 +38,8 @@ export async function createWorkspace(parameters: {
   const collectionName = getCollectionName(workspaceId)
   const { exists } = await qdrantClient.collectionExists(collectionName)
   if (exists) {
-    logger.error(`Collection for workspace already exists`, { workspaceId })
-    throw new Error(`Collection for workspace already exists: ${workspaceId}`)
+    logger.warn(`Collection for workspace already exists`, { workspaceId })
+    return
   }
   logger.info(`Creating Qdrant collection for workspace`, { workspaceId, collectionName, vectors })
   await qdrantClient.createCollection(collectionName, {

@@ -22,7 +22,7 @@ export async function removeEmbeddings(parameters: {
     await qdrantClient.deleteVectors(collectionName, {
       filter: filterConditions,
       vector: allEmbeddingModelNames,
-      wait: true,
+      wait: false,
     })
     return
   }
@@ -30,6 +30,6 @@ export async function removeEmbeddings(parameters: {
   await qdrantClient.deleteVectors(collectionName, {
     filter: filterConditions,
     vector: embeddingModelNames,
-    wait: true,
+    wait: false,
   })
 }

@@ -23,7 +23,7 @@ export async function statusReport(parameters: {
   const { modelProvider, connection } = parameters
 
   const abortController = new AbortController()
-  const { baseUrl, apiKey } = connection
+  const { baseUrl, encryptedApiKey } = connection
   if (modelProvider === 'ollama') {
     if (!baseUrl) {
       throw new Error('Ollama apiUrl is required in parameters')
@@ -31,9 +31,9 @@ export async function statusReport(parameters: {
 
     const startTime = Date.now()
     const [ollamaVersion, ollamaModels, ollamaRunningModels] = await Promise.allSettled([
-      ollamaApi.getOllamaVersion({ baseUrl, apiKey, abortSignal: abortController.signal }),
-      ollamaApi.getOllamaModels({ baseUrl, apiKey, abortSignal: abortController.signal }),
-      ollamaApi.getOllamaRunningModels({ baseUrl, apiKey, abortSignal: abortController.signal }),
+      ollamaApi.getOllamaVersion({ baseUrl, encryptedApiKey, abortSignal: abortController.signal }),
+      ollamaApi.getOllamaModels({ baseUrl, encryptedApiKey, abortSignal: abortController.signal }),
+      ollamaApi.getOllamaRunningModels({ baseUrl, encryptedApiKey, abortSignal: abortController.signal }),
     ])
     const latencyMs = Date.now() - startTime
 
@@ -57,12 +57,12 @@ export async function statusReport(parameters: {
       processorUsagePercent: undefined, // Ollama does not currently provide CPU usage info
     }
   } else if (modelProvider === 'openai') {
-    if (!apiKey) {
+    if (!encryptedApiKey) {
       throw new Error('OpenAI apiKey is required in parameters')
     }
     const startTime = Date.now()
     const [openAiModels] = await Promise.allSettled([
-      openAiApi.getOpenAIModels({ apiKey, abortSignal: abortController.signal }),
+      openAiApi.getOpenAIModels({ encryptedApiKey, abortSignal: abortController.signal }),
       // TODO: Find out more possibilities for openAi status reporting
     ])
     const latencyMs = Date.now() - startTime

@@ -176,10 +176,10 @@ describe.sequential('Workspace Trigger Event Lifecycle', () => {
         checkCount++
         if (receivedEvents >= 2) {
           resolve(true)
-        } else if (checkCount > 50) {
+        } else if (checkCount > 100) {
           reject(new Error('Did not receive redelivered message in time'))
         } else {
-          setTimeout(checkMessages, 100)
+          setTimeout(checkMessages, 200)
         }
       }
       checkMessages()

@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { prisma } from '@george-ai/app-database'
+import { writeWorkspaceConfig } from '@george-ai/event-service-client'
 import { workspace as ws } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
@@ -18,6 +19,7 @@ export async function createWorkspace(params: {
 }> {
   const { name, slug, userId } = params
   logger.debug('Creating workspace', params)
+  const start = Date.now()
 
   try {
     const slugSchema = z.string().regex(/^[a-z0-9-]+$/)
@@ -51,13 +53,21 @@ export async function createWorkspace(params: {
         throw error
       })
 
+      await writeWorkspaceConfig({
+        languageModels: [],
+        providerInstances: [],
+        version: 1,
+        workspaceId: workspace.id,
+        lastUpdate: new Date(),
+      })
+
       return {
         workspaceId: workspace.id,
         slug: validatedSlug,
       }
     })
   } catch (error) {
-    logger.error('Error creating workspace', { error, name, slug, userId })
+    logger.error('Error creating workspace', { error, name, slug, userId, ellapsed: start - Date.now() })
     if (error instanceof z.ZodError) {
       throw new DomainError(
         'Invalid workspace slug. Slug must be lowercase and can only contain letters, numbers, and hyphens.',

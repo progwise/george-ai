@@ -11,22 +11,22 @@ export const getEmbeddings = async (parameters: {
   connection: ProviderConnection
 }): Promise<EmbeddingsResult> => {
   const { modelProvider, modelName, textChunks, connection } = parameters
-  const { baseUrl, apiKey } = connection
+  const { baseUrl, encryptedApiKey } = connection
   if (modelProvider === 'ollama') {
     if (!baseUrl) {
       throw new Error('Ollama providerBaseUrl is required in connection')
     }
-    const result = await ollamaApi.generateOllamaEmbeddings({ baseUrl, apiKey }, modelName, textChunks)
+    const result = await ollamaApi.generateOllamaEmbeddings({ baseUrl, encryptedApiKey }, modelName, textChunks)
     return {
       embeddings: result.embeddings.map((emb, index) => ({ inputText: textChunks[index], embedding: emb })),
       usage: result.usage,
     }
   } else if (modelProvider === 'openai') {
-    if (!apiKey) {
+    if (!encryptedApiKey) {
       throw new Error('OpenAI providerApiKey is required in connection')
     }
     const result = await openAiApi.generateOpenAIEmbeddings(
-      { baseUrl, apiKey },
+      { baseUrl, encryptedApiKey },
 
       modelName,
       textChunks,

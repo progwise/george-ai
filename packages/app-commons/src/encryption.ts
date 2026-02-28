@@ -1,11 +1,13 @@
 import crypto from 'node:crypto'
 
+import { getConfigValue } from './config'
+
 const ALGORITHM = 'aes-256-gcm'
 const IV_LENGTH = 16
 const ENCRYPTED_PREFIX = 'encrypted:'
 
 function getEncryptionKey(): Buffer {
-  const key = process.env.ENCRYPTION_KEY
+  const key = getConfigValue('ENCRYPTION_KEY')
   if (!key) {
     throw new Error('ENCRYPTION_KEY environment variable is required')
   }

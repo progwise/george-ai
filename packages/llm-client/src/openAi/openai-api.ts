@@ -1,7 +1,7 @@
 import pRetry from 'p-retry'
 import { z } from 'zod'
 
-import { createLogger } from '@george-ai/app-commons'
+import { createLogger, decryptValue } from '@george-ai/app-commons'
 
 import { ChatCompletionStreamChunk, Message } from '../common'
 
@@ -154,7 +154,7 @@ export type OpenAIStreamChunk = z.infer<typeof OpenAIStreamChunkSchema>
 
 interface FetchParams {
   baseUrl?: string | null
-  apiKey: string
+  encryptedApiKey: string
   abortSignal?: AbortSignal
 }
 
@@ -169,7 +169,7 @@ async function openAIApiGet<T>(
       () =>
         fetch(`${instance.baseUrl}${endpoint}`, {
           headers: {
-            Authorization: `Bearer ${instance.apiKey}`,
+            Authorization: `Bearer ${decryptValue(instance.encryptedApiKey)}`,
             'Content-Type': 'application/json',
           },
           signal: instance.abortSignal,
@@ -224,7 +224,7 @@ async function openAIApiPost<T>(
         fetch(`${instance.baseUrl}${endpoint}`, {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${instance.apiKey}`,
+            Authorization: `Bearer ${decryptValue(instance.encryptedApiKey)}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(params),
@@ -307,7 +307,7 @@ export async function getChatResponseStream(
         fetch(`${params.baseUrl}/chat/completions`, {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${params.apiKey}`,
+            Authorization: `Bearer ${decryptValue(params.encryptedApiKey)}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({

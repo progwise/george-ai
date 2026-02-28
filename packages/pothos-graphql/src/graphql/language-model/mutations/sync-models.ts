@@ -37,7 +37,7 @@ builder.mutationField('syncModels', (t) =>
             requestType: 'discoverModels',
             modelProvider: getModelProvider(provider.provider),
             connection: {
-              apiKey: provider.apiKey || undefined,
+              encryptedApiKey: provider.apiKey || undefined,
               baseUrl: provider.baseUrl || undefined,
             },
             version: 1,

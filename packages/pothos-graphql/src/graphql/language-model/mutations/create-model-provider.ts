@@ -1,9 +1,8 @@
 import { GraphQLError } from 'graphql'
 
-import { invalidateWorkspace } from '@george-ai/ai-service-client'
 import { encryptValue } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
-import { canAdminWorkspaceOrThrow } from '@george-ai/app-domain'
+import { canAdminWorkspaceOrThrow, invalidateWorkspace } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
 
@@ -63,7 +62,6 @@ builder.mutationField('createModelProvider', (t) =>
         },
       })
 
-      // Invalidate provider cache for this workspace
       invalidateWorkspace(workspaceId)
 
       return provider

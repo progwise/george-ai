@@ -9,13 +9,13 @@ export const testConnection = async (parameters: {
   connection: ProviderConnection
 }): Promise<TestResult> => {
   const { modelProvider, connection } = parameters
-  const { baseUrl, apiKey } = connection
+  const { baseUrl, encryptedApiKey } = connection
   if (modelProvider === 'ollama') {
     if (!baseUrl) {
       return { success: false, errorMessage: 'Ollama providerBaseUrl is required in connection' }
     }
     try {
-      const result = await ollamaApi.getOllamaVersion({ baseUrl, apiKey })
+      const result = await ollamaApi.getOllamaVersion({ baseUrl, encryptedApiKey })
       logger.debug('Successfully connected to Provider Instance', {
         modelProvider,
         connection,
@@ -28,11 +28,11 @@ export const testConnection = async (parameters: {
       return { success: false, errorMessage: errorMessage }
     }
   } else if (modelProvider === 'openai') {
-    if (!apiKey) {
+    if (!encryptedApiKey) {
       return { success: false, errorMessage: 'OpenAI apiKey is required in connection' }
     }
     try {
-      const result = await openAiApi.getOpenAIModels({ baseUrl, apiKey })
+      const result = await openAiApi.getOpenAIModels({ baseUrl, encryptedApiKey })
       logger.debug('Successfully connected to Provider Instance', {
         modelProvider,
         connection,

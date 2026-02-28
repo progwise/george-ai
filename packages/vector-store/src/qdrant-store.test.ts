@@ -1,5 +1,6 @@
 import { vectorStore } from '.'
-import { VectorStoreChunk } from './schema'
+import { createWorkspace, getChunks, removeWorkspace, upsertChunks, upsertEmbeddings } from './qdrant-store'
+import { FileChunk, VectorStoreChunk } from './schema'
 
 describe.sequential('Vector Store with Qdrant  ', () => {
   const TEST_WORKSPACE_ID = `test-workspace-qdrant-store_${Date.now()}`
@@ -10,16 +11,16 @@ describe.sequential('Vector Store with Qdrant  ', () => {
     },
   }
   afterAll(async () => {
-    await vectorStore.removeWorkspace(TEST_WORKSPACE_ID)
+    await removeWorkspace(TEST_WORKSPACE_ID)
   })
   it(
     'should create store for workspace',
     { timeout: 20000 }, // Workspace creation is slow in Qdrant
     async () => {
-      await vectorStore.createWorkspace({ workspaceId: TEST_WORKSPACE_ID, vectors: TEST_VECTOR_DEFINITIONS })
+      await createWorkspace({ workspaceId: TEST_WORKSPACE_ID, vectors: TEST_VECTOR_DEFINITIONS })
     },
   )
-  it('shoud store chunks', async () => {
+  it('should store chunks', async () => {
     const chunks: VectorStoreChunk[] = [
       {
         id: 'chunk1',
@@ -40,22 +41,32 @@ describe.sequential('Vector Store with Qdrant  ', () => {
         filename: 'testfile.md',
       },
     ]
-    await vectorStore.upsertChunks({ workspaceId: TEST_WORKSPACE_ID, chunks })
+    await upsertChunks({ workspaceId: TEST_WORKSPACE_ID, chunks })
   })
   it('should retrieve stored chunks', async () => {
-    const retrievedChunks = await vectorStore.getChunks({
-      workspaceId: TEST_WORKSPACE_ID,
-      libraryId: 'lib1',
-      fileId: 'file1',
-      extractionMethod: 'textExtraction',
-      take: 10,
-      skip: 0,
+    const retrievedChunks = await new Promise<FileChunk[]>((resolve) => {
+      const interval = setInterval(async () => {
+        const chunks = await getChunks({
+          workspaceId: TEST_WORKSPACE_ID,
+          libraryId: 'lib1',
+          fileId: 'file1',
+          extractionMethod: 'textExtraction',
+          take: 10,
+          skip: 0,
+        })
+        if (chunks.length > 1) {
+          clearInterval(interval)
+          resolve(chunks)
+        }
+      }, 200)
     })
+
     expect(retrievedChunks.length).toBe(2)
     const sortedChunks = retrievedChunks.sort((a, b) => a.chunk - b.chunk)
     expect(sortedChunks[0].content).toBe('This is a test chunk 1')
     expect(sortedChunks[1].content).toBe('This is a test chunk 2')
-  })
+  }, 10000)
+
   it('Create the same workspace should result in an error', async () => {
     await vectorStore
       .createWorkspace({ workspaceId: TEST_WORKSPACE_ID, vectors: TEST_VECTOR_DEFINITIONS })
@@ -68,7 +79,7 @@ describe.sequential('Vector Store with Qdrant  ', () => {
       { chunk: 0, vector: [0.1, 0.2, 0.3] },
       { chunk: 1, vector: [0.4, 0.5, 0.6] },
     ]
-    await vectorStore.upsertEmbeddings({
+    await upsertEmbeddings({
       workspaceId: TEST_WORKSPACE_ID,
       libraryId: 'lib1',
       fileId: 'file1',
@@ -78,7 +89,7 @@ describe.sequential('Vector Store with Qdrant  ', () => {
     })
   })
   it('should retrieve chunks with embeddings', async () => {
-    const retrievedChunks = await vectorStore.getChunks({
+    const retrievedChunks = await getChunks({
       workspaceId: TEST_WORKSPACE_ID,
       libraryId: 'lib1',
       fileId: 'file1',
