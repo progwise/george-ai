@@ -1,4 +1,4 @@
-import { createLogger, getErrorObject, getErrorString } from '@george-ai/app-commons'
+import { createLogger, getErrorMessage, getErrorObject } from '@george-ai/app-commons'
 
 import { isEmbeddingModel, isVisionModel } from '../model-classifier'
 import { providerCache } from '../provider-cache'
@@ -240,7 +240,7 @@ class OllamaResourceManager {
         return { success: false, reason: 'Unload not completed' }
       }
     } catch (error) {
-      return { success: false, reason: getErrorString(error) || 'Unknown error' }
+      return { success: false, reason: getErrorMessage(error) || 'Unknown error' }
     }
   }
 

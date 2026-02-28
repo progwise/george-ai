@@ -1,4 +1,4 @@
-import { PROCESSING_REQUEST_TYPES, type ProcessingRequestType } from '@george-ai/app-commons'
+import { PROCESSING_REQUEST_TYPES, type ProcessingRequestType, getErrorMessage } from '@george-ai/app-commons'
 
 import { eventClient } from '../client'
 import { logger } from '../common'
@@ -34,7 +34,7 @@ export async function getWorkspaceProcessStatistics(
       streamName,
     })
     throw new Error(
-      `Failed to fetch workspace process statistics for request type ${requestType}: ${(error as Error).message}`,
+      `Failed to get workspace statistics from workspace stream for request type ${requestType}: ${getErrorMessage(error)}`,
     )
   }
 }

@@ -1,7 +1,7 @@
 import pRetry from 'p-retry'
 import { z } from 'zod'
 
-import { createLogger, decryptValue } from '@george-ai/app-commons'
+import { createLogger, decryptValue, getErrorMessage } from '@george-ai/app-commons'
 
 const logger = createLogger('OpenAI API')
 
@@ -85,9 +85,9 @@ async function openAIApiGet<T>(
       { retries: 3 },
     )
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
+    const errorMessage = getErrorMessage(error)
     logger.warn('Network error connecting to OpenAI:', {
-      error: errorMessage,
+      error,
       endpoint,
       url: instance.url,
     })
@@ -101,7 +101,7 @@ async function openAIApiGet<T>(
     } catch (error) {
       logger.warn('Failed to read error response body:', error)
     }
-    logger.warn('Failed to fetch OpenAI API:', {
+    logger.warn('Failed to fetch OpenAI API', {
       status: response.status,
       statusText: response.statusText,
       responseText,
@@ -109,8 +109,7 @@ async function openAIApiGet<T>(
       url: instance.url,
     })
     throw new Error(
-      `Failed to fetch OpenAI API: ${response.status} ${response.statusText}\n` +
-        `Endpoint: ${endpoint}\nURL: ${instance.url}\n` +
+      `Failed to fetch OpenAI API on ${instance.url}/${endpoint}: ${response.status} ${response.statusText}\n` +
         `Response: ${responseText}`,
     )
   }
@@ -141,13 +140,13 @@ async function openAIApiPost<T>(
       { retries: 3 },
     )
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
-    logger.warn('Network error connecting to OpenAI:', {
-      error: errorMessage,
-      endpoint,
+    const errorMessage = getErrorMessage(error)
+    logger.error('Failed to POST OpenAI API', {
+      error,
       url: instance.url,
+      endpoint,
     })
-    throw new Error(`Network error connecting to OpenAI at ${instance.url}: ${errorMessage}\nEndpoint: ${endpoint}`)
+    throw new Error(`Failed to POST OpenAI API> ${instance.url}/${endpoint}: ${errorMessage}`)
   }
 
   if (!response.ok) {

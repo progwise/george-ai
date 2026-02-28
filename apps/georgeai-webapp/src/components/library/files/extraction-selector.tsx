@@ -5,6 +5,7 @@ import { ExtractionMethod } from '@george-ai/app-commons'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BoltIcon } from '../../../icons/bolt-icon'
+import { ClientDate } from '../../client-date'
 import { toastSuccess } from '../../georgeToaster'
 import { useDocumentActions } from './use-document-actions'
 
@@ -135,6 +136,9 @@ export const ExtractionSelector = ({
             className="hover:text-accent"
           >
             <BoltIcon />
+            <span>
+              <ClientDate date={selectedOption.updated || selectedOption.created} />
+            </span>
           </button>
         </li>
       )}

@@ -162,8 +162,13 @@ async function ollamaApiGet<T>(
 
   if (!response.ok) {
     const responseText = await response.text()
-    logger.warn(`Failed to fetch ${endpoint}:`, { status: response.status, responseText })
-    throw new Error(`Failed to fetch OLLAMA API ${endpoint}: ${response.status}`)
+    logger.warn('Failed to fetch OLLAMA API', {
+      url: instance.baseUrl,
+      endpoint,
+      status: response.status,
+      responseText,
+    })
+    throw new Error(`Failed to fetch OLLAMA API ${instance.baseUrl}/${endpoint}: ${response.status}`)
   }
 
   const data = await response.json()

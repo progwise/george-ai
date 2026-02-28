@@ -53,7 +53,7 @@ const getModelProviderStatus = createServerFn({ method: 'GET' }).handler(async (
     )
     return result.modelProviderStatus
   } catch (error) {
-    console.error('Failed to fetch AI service status:', error)
+    console.error('Failed to get Model Provider status', error)
     throw error
   }
 })

@@ -9,7 +9,6 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CpuIcon } from '../../../icons/cpu-icon'
 import { ProcessingIcon } from '../../../icons/processing-icon'
 import { ServerIcon } from '../../../icons/server-icon'
-import { ShieldCheckIcon } from '../../../icons/shield-check-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/workers')({
   component: RouteComponent,
@@ -80,15 +79,6 @@ function RouteComponent() {
     }
   })
 
-  // const workers = [
-  //   { healthy: true, lastHeartbeatAt: new Date().toISOString(), workerId: 'worker-1', workerType: 'type-A' },
-  //   {
-  //     healthy: false,
-  //     lastHeartbeatAt: new Date(now.getTime() - 600000).toISOString(),
-  //     workerId: 'worker-2',
-  //     workerType: 'type-B',
-  //   },
-  // ] // Dummy data for workers
   const totalWorkers = workers.length
 
   return (
@@ -163,11 +153,10 @@ function RouteComponent() {
                       <td>
                         <div className="flex items-center gap-2">
                           {worker.healthy ? (
-                            <ShieldCheckIcon className="size-5 text-success" />
+                            <div className="badge badge-sm badge-success">{worker.workerId.replace(/\D/g, '')}</div>
                           ) : (
-                            <div className="badge badge-sm badge-error">{t('admin.workers.offline')}</div>
+                            <div className="badge badge-sm badge-error">{worker.workerId.replace(/\D/g, '')}</div>
                           )}
-                          <code className="text-sm">{worker.workerId}</code>
                         </div>
                       </td>
                       <td>
@@ -180,13 +169,13 @@ function RouteComponent() {
                       </td>
                       <td>
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             {worker.entries.map((entry) => (
                               <div
                                 key={`${worker.workerId}_${entry.workerType}_${entry.lastHeartBeat}`}
-                                className="badge badge-sm badge-primary"
+                                className="badge badge-sm badge-info"
                               >
-                                {`${entry.workerType} (${entry.lastHeartBeat ? `${formatTimeAgo(entry.lastHeartBeat.toISOString())}` : ''})`}
+                                {`${entry.workerType}`}
                               </div>
                             ))}
                           </div>
