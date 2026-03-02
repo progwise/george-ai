@@ -1,5 +1,6 @@
 import { createReadStream } from 'fs'
 
+import { isConfigured } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { getTestAssetLocalPath } from '@george-ai/test-utils'
 
@@ -75,7 +76,7 @@ describe.sequential('Base sequential flow', () => {
     expect(result).toBeDefined()
   })
 
-  it('Should upload the file content', async () => {
+  it.skipIf(() => isConfigured('GITHUB_TOKEN'))('Should upload the file content', async () => {
     const filePath = await getTestAssetLocalPath('sample-extraction.pdf')
     const stream = createReadStream(filePath)
     const result = await document.uploadDocumentSource(TEST_WORKSPACE_ID, {

@@ -15,6 +15,7 @@ export function getConfigValue(
     | 'DATABASE_URL'
     | 'ENCRYPTION_KEY'
     | 'GIT_COMMIT_SHA'
+    | 'GITHUB_TOKEN'
     | 'LOG_LEVEL'
     | 'PUBLIC_APP_URL'
     | 'SMB_CRAWLER_URL'
@@ -62,6 +63,7 @@ export function getConfigValue(key: ConfigKey):
     case 'DATABASE_URL':
     case 'ENCRYPTION_KEY':
     case 'GIT_COMMIT_SHA':
+    case 'GITHUB_TOKEN':
     case 'PUBLIC_APP_URL':
     case 'SMB_CRAWLER_URL':
     case 'STORAGE_PATH_ASSISTANTS':
