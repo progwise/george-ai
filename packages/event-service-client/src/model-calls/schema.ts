@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { MODEL_PROVIDERS } from '@george-ai/app-commons'
+import { AttachmentSchema, MODEL_PROVIDERS } from '@george-ai/app-commons'
 
 import { ContextSchema } from '../common'
 import { MODEL_CALL_TYPES } from './common'
@@ -30,7 +30,7 @@ export const ChatCompletionCallSchema = ModelBaseCall.extend({
       content: z.string(),
     }),
   ),
-  attachments: z.array(z.record(z.string(), z.string())).optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 })
 export type ChatCompletionCall = z.infer<typeof ChatCompletionCallSchema>
 

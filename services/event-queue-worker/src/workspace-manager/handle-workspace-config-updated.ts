@@ -1,3 +1,4 @@
+import { ProviderConnectionSchema, getModelProvider } from '@george-ai/app-commons'
 import {
   WorkspaceConfig,
   deleteProviderInstance,
@@ -50,10 +51,11 @@ export async function handleWorkspaceConfigUpdated(workspaceId: string, config: 
         providerInstanceId: providerInstance.providerInstanceId,
         modelProvider: providerInstance.modelProvider,
         name: providerInstance.name,
-        connection: {
+        connection: ProviderConnectionSchema.parse({
+          modelProvider: getModelProvider(providerInstance.modelProvider),
           encryptedApiKey: providerInstance.connection.encryptedApiKey,
           baseUrl: providerInstance.connection.baseUrl,
-        },
+        }),
         status: undefined, // TODO: if there was a status already: preserve.
         timestamp: new Date(),
       })

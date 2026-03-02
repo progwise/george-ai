@@ -1,4 +1,4 @@
-import { getModelProvider } from '@george-ai/app-commons'
+import { ProviderConnectionSchema, getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { WorkspaceConfig, workspaceConfig } from '@george-ai/event-service-client'
 
@@ -40,10 +40,11 @@ const initializeAppDomain = async () => {
           providerInstanceId: provider.id,
           workspaceId: workspace.id,
           modelProvider: getModelProvider(provider.provider),
-          connection: {
+          connection: ProviderConnectionSchema.parse({
+            modelProvider: getModelProvider(provider.provider),
             baseUrl: provider.baseUrl || undefined,
             encryptedApiKey: provider.apiKey || undefined,
-          },
+          }),
         })),
         languageModels: workspace.languageModels.map((model) => ({
           version: 1,

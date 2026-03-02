@@ -5,6 +5,7 @@ import {
   ExtractionIdentifierSchema,
   LibraryIdentifierSchema,
   WorkspaceIdentifierSchema,
+  getIdentifier,
 } from './identifier'
 import {
   AttachmentSchema,
@@ -17,6 +18,7 @@ import {
 } from './manifest'
 
 export {
+  getIdentifier,
   AttachmentSchema,
   EntryManifestSchema,
   DocumentIdentifierSchema,

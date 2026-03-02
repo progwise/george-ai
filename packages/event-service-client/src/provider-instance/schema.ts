@@ -29,7 +29,6 @@ export const ProviderInstanceRequestBaseSchema = z.object({
   workspaceId: z.string(),
   connection: ProviderConnectionSchema,
   requestType: z.enum(PROVIDER_INSTANCE_REQUEST_TYPES),
-  modelProvider: z.enum(MODEL_PROVIDERS),
 })
 
 export const RequestDiscoverModelsSchema = ProviderInstanceRequestBaseSchema.extend({

@@ -1,3 +1,4 @@
+export * from './attachment'
 export * from './api'
 export * from './embedding'
 export * from './extraction'

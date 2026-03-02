@@ -8,11 +8,11 @@ describe.sequential('Provider Calls', () => {
     version: 1,
     workspaceId: TEST_WORKSPACE_ID,
     connection: {
+      modelProvider: 'ollama',
       baseUrl: 'http://localhost:11434',
       encryptedApiKey: 'test-api-key',
     },
     requestType: 'discoverModels',
-    modelProvider: 'openai',
   }
 
   beforeAll(async () => {})

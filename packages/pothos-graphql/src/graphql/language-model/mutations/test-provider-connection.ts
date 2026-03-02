@@ -1,4 +1,4 @@
-import { encryptValue } from '@george-ai/app-commons'
+import { ProviderConnectionSchema, encryptValue } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { ProviderTestConnectionRequest, requestProviderInstance } from '@george-ai/event-service-client'
@@ -56,11 +56,11 @@ builder.mutationField('testProviderConnection', (t) =>
         version: 1,
         requestType: 'testConnection',
         workspaceId,
-        modelProvider: provider,
-        connection: {
+        connection: ProviderConnectionSchema.parse({
+          modelProvider: provider,
           baseUrl: !baseUrl ? storedBaseUrl : baseUrl,
           encryptedApiKey: !encryptedApiKey ? storedEncryptedApiKey : encryptedApiKey,
-        },
+        }),
       }
 
       logger.debug('test provider connection mutation', { args: { providerId, provider, baseUrl, apiKey }, request })

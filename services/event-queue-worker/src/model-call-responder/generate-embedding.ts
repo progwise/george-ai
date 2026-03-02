@@ -8,7 +8,6 @@ export async function generateEmbedding(event: EmbeddingCall, providerInstance: 
 
   const startTime = Date.now()
   const result = await getEmbeddings({
-    modelProvider: event.provider,
     modelName: event.modelName,
     connection: providerInstance.connection,
     textChunks: event.inputTexts,

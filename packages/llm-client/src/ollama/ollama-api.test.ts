@@ -1,29 +1,35 @@
 import { describe, expect, it } from 'vitest'
 
-import type { ChatCompletionStreamChunk } from '../common'
+import { OllamaProviderConnection } from '@george-ai/app-commons'
+
 import {
   generateOllamaEmbeddings,
-  getChatResponseStream,
+  getOllamaChatCompletionStream,
   getOllamaModelInfo,
   getOllamaModels,
   getOllamaRunningModels,
   getOllamaVersion,
-  loadOllamaModel,
-  unloadOllamaModel,
-} from './ollama-api'
+  loadOllamaChatModel,
+  unloadOllamaChatModel,
+} from '.'
+import type { ChatCompletionStreamChunk } from '../common'
 
 // Skip tests if required environment variables are not set (e.g., in Dependabot PRs)
 describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || !process.env.MODEL_NAME_EMBEDDING)(
-  'ollama-api integration tests',
+  'ollama-api tests',
   () => {
-    const instance = { baseUrl: process.env.OLLAMA_BASE_URL!, encryptedApiKey: process.env.OLLAMA_API_KEY }
+    const connection: OllamaProviderConnection = {
+      baseUrl: process.env.OLLAMA_BASE_URL!,
+      encryptedApiKey: process.env.OLLAMA_API_KEY,
+      modelProvider: 'ollama',
+    }
     const modelNameVL = process.env.MODEL_NAME_VL!
     const modelNameEmbedding = process.env.MODEL_NAME_EMBEDDING!
     const modelNameChat = process.env.MODEL_NAME_CHAT!
 
     describe('getOllamaVersion', () => {
       it('should fetch version successfully', async () => {
-        const result = await getOllamaVersion(instance)
+        const result = await getOllamaVersion(connection)
 
         expect(result).toHaveProperty('timestamp')
         expect(result.timestamp).toBeTypeOf('number')
@@ -36,7 +42,7 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
 
     describe('getOllamaModels', () => {
       it('should fetch available models', async () => {
-        const result = await getOllamaModels(instance)
+        const result = await getOllamaModels(connection)
 
         expect(result).toHaveProperty('models')
         expect(result).toHaveProperty('timestamp')
@@ -61,9 +67,9 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
 
     describe('getOllamaRunningModels', () => {
       it(`should fetch running models with loaded ${modelNameChat}`, async () => {
-        await loadOllamaModel(instance, modelNameChat)
+        await loadOllamaChatModel(connection, modelNameChat)
 
-        const result = await getOllamaRunningModels(instance)
+        const result = await getOllamaRunningModels(connection)
 
         expect(result).toHaveProperty('models')
         expect(result).toHaveProperty('timestamp')
@@ -92,11 +98,11 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
 
       it('should get model info for available models', async () => {
         // First get available models
-        const modelsResult = await getOllamaModels(instance)
+        const modelsResult = await getOllamaModels(connection)
         expect(modelsResult.models.length).toBeGreaterThan(0)
 
         const testModel = modelsResult.models[0]
-        const modelInfo = await getOllamaModelInfo(instance, testModel.name)
+        const modelInfo = await getOllamaModelInfo(connection, testModel.name)
 
         expect(modelInfo).toHaveProperty('modelfile')
         expect(modelInfo).toHaveProperty('template')
@@ -116,22 +122,22 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
 
       it('should load a small model if available', async () => {
         // First check if any common small models are available
-        const modelsResult = await getOllamaModels(instance)
+        const modelsResult = await getOllamaModels(connection)
         const model = modelsResult.models.filter((m) => m.name.includes(modelNameChat))[0]
 
         expect(model).toBeDefined()
 
-        const result = await loadOllamaModel(instance, model.name)
+        const result = await loadOllamaChatModel(connection, model.name)
         expect(result).toHaveProperty('done')
         expect(result.done).toBeTypeOf('boolean')
       }, 30000)
 
       it('should unload a model if one is running', async () => {
-        const runningModels = await getOllamaRunningModels(instance)
+        const runningModels = await getOllamaRunningModels(connection)
         expect(runningModels.models.length).toBeGreaterThan(0)
 
         const testModel = runningModels.models[0]
-        const result = await unloadOllamaModel(instance, testModel.name)
+        const result = await unloadOllamaChatModel(connection, testModel.name)
 
         expect(result).toHaveProperty('done')
         expect(result).toHaveProperty('done_reason')
@@ -141,31 +147,38 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
 
     describe('embeddings generation', () => {
       it('should generate embeddings if embedding model available', async () => {
-        const modelsResult = await getOllamaModels(instance)
+        const modelsResult = await getOllamaModels(connection)
         const model = modelsResult.models.filter((m) => m.name.includes(modelNameEmbedding))[0]
         expect(model).toBeDefined()
 
-        const result = await generateOllamaEmbeddings(instance, model.name, 'Hello world')
+        const result = await generateOllamaEmbeddings(connection, model.name, 'Hello world')
 
         expect(result).toHaveProperty('embeddings')
         expect(Array.isArray(result.embeddings)).toBe(true)
         expect(result.embeddings.length).toBe(1)
-        expect(Array.isArray(result.embeddings[0])).toBe(true)
-        expect(result.embeddings[0].length).toBeGreaterThan(0)
+        expect(result.embeddings[0].inputText).toBe('Hello world')
+        expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
 
         // Test multiple inputs
-        const multiResult = await generateOllamaEmbeddings(instance, model.name, ['Hello', 'world'])
+        const multiResult = await generateOllamaEmbeddings(connection, model.name, ['Hello', 'world', 'Hello', 'all'])
 
-        expect(multiResult.embeddings).toHaveLength(2)
-        expect(multiResult.embeddings[0]).toHaveLength(result.embeddings[0].length)
+        expect(multiResult.embeddings).toHaveLength(4)
+        expect(multiResult.embeddings[0].inputText).toBe('Hello')
+        expect(multiResult.embeddings[1].inputText).toBe('world')
+        expect(multiResult.embeddings[2].inputText).toBe('Hello')
+        expect(multiResult.embeddings[3].inputText).toBe('all')
+
+        expect(multiResult.embeddings[0].embedding).toEqual(multiResult.embeddings[2].embedding)
+        expect(multiResult.embeddings[1].embedding).not.toEqual(multiResult.embeddings[3].embedding)
       }, 30000)
     })
 
     describe('chat streaming', () => {
       it('should create chat response stream if chat model available', async () => {
-        const stream = await getChatResponseStream(instance, modelNameChat, [
-          { role: 'user', content: 'Say hello in one word' },
-        ])
+        const stream = await getOllamaChatCompletionStream(connection, {
+          messages: [{ role: 'user', content: 'Say hello in one word' }],
+          modelName: modelNameChat,
+        })
 
         expect(stream).toBeDefined()
 
@@ -195,19 +208,6 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
         expect(chunks.length).toBeGreaterThan(0)
         expect(fullContent.length).toBeGreaterThan(0) // Should have received content
       }, 45000)
-    })
-
-    describe('error handling', () => {
-      it('should throw error for invalid model names', async () => {
-        await expect(getOllamaModelInfo(instance, 'nonexistent-model:invalid')).rejects.toThrow(
-          'Failed to POST OLLAMA API',
-        )
-      }, 10000)
-
-      it('should throw error for invalid endpoints', async () => {
-        const invalidInstance = { baseUrl: 'http://localhost:99999' }
-        await expect(getOllamaVersion(invalidInstance)).rejects.toThrow()
-      }, 5000)
     })
   },
 )

@@ -27,7 +27,7 @@ export const subscribeModelCalls = async <E extends ModelCall>(parameters: {
         }
         await handler({ event, providerInstance: healthyProviderInstance })
       } catch (error) {
-        logger.error('Error handling processing event', { error, serviceCall })
+        logger.error('Error subscribeModelCalls event', { error, serviceCall })
         throw error
       }
     },

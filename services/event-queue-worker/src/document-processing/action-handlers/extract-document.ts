@@ -61,7 +61,8 @@ export async function extractDocument(event: ExtractDocumentRequest) {
       libraryId,
       documentId,
       extractionMethod,
-      attachmentFileName: att.fileName,
+      fileName: att.fileName,
+      mimeType: att.mimeType,
     })) || []
 
   const chatCompletionRequest: ChatCompletionCall = {
@@ -72,28 +73,22 @@ export async function extractDocument(event: ExtractDocumentRequest) {
     modelCallType: 'generateChatCompletion',
     messages: [
       {
+        role: 'system',
+        content: `You are a high-fidelity OCR and document-to-markdown converter. 
+    Your goal is to transcribe images into Markdown. 
+    - Maintain the visual hierarchy (use # for titles, | for tables).
+    - If you see a list, use markdown bullets.
+    - Do not describe the image; only output the text found within it.`,
+      },
+      {
         role: 'user',
-        content: `Provide a markdown that represents the content of the following images:\n${imageAttachments
-          .map((att) => `- ${att.fileName} (MIME type: ${att.mimeType})`)
-          .join('\n')}
-          Include observations about content, style, and any notable features.
-          The markdown should be in the following format:
-          ## Image Analysis Report
-
-          ${imageAttachments.map(
-            (att) => `### ${att.fileName}
-
-          - **Content**: Exact text read from the image.
-          - **Tables and numbers**: Any tables or numbers read from the image, represented in markdown format.
-          - **Style**: Description of the style of the image (e.g., colors, composition).
-          - **Notable Features**: Any notable features or observations about the image.`,
-          )}
-
-          `,
+        content: `Below are ${attachmentsToProcess.length} images. Please convert them to Markdown:
+    ${attachmentsToProcess.map((a, i) => `[Image ${i + 1}: ${a.fileName}]`).join('\n')}`,
       },
     ],
     attachments: attachmentsToProcess,
   }
+
   const response = await requestModelCall(chatCompletionRequest).catch((error) => {
     logger.error('Error requesting image chat completion from provider', { chatCompletionRequest, error })
     throw error

@@ -746,7 +746,13 @@ export class NatsClient implements EventClient {
           operation: entry.operation === 'DEL' || entry.operation === 'PURGE' ? 'delete' : 'update',
           value: entry.value,
         }).catch((error) => {
-          logger.error('Error in bucket watch handler', { error, bucketName, key, entry })
+          logger.error('Error in bucket watch handler', {
+            error,
+            bucketName,
+            key,
+            entry,
+            value: new TextDecoder().decode(entry.value),
+          })
         })
       }
     }

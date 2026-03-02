@@ -1,4 +1,4 @@
-import { getModelProvider } from '@george-ai/app-commons'
+import { ProviderConnectionSchema, getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { WorkspaceConfig, writeWorkspaceConfig } from '@george-ai/event-service-client'
 
@@ -15,10 +15,11 @@ export async function invalidateWorkspace(workspaceId: string) {
     version: 1,
     workspaceId,
     providerInstances: entity.providers.map((provider) => ({
-      connection: {
+      connection: ProviderConnectionSchema.parse({
+        modelProvider: getModelProvider(provider.provider),
         baseUrl: provider.baseUrl,
         encryptedApiKey: provider.apiKey,
-      },
+      }),
       modelProvider: getModelProvider(provider.provider),
       providerInstanceId: provider.id,
       version: 1,

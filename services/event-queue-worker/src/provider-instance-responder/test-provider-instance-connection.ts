@@ -1,22 +1,12 @@
 import { ProviderTestConnectionRequest, ProviderTestConnectionResponse } from '@george-ai/event-service-client'
 import { testConnection } from '@george-ai/llm-client'
 
-import { logger } from './common'
-
 export async function testProviderInstanceConnection(
   event: ProviderTestConnectionRequest,
 ): Promise<ProviderTestConnectionResponse> {
   const start = Date.now()
 
-  const result = await testConnection({
-    modelProvider: event.modelProvider,
-    connection: event.connection,
-  })
-
-  logger.info('remove before flight', {
-    event,
-    result,
-  })
+  const result = await testConnection(event.connection)
 
   const durationMs = start - Date.now()
 

@@ -1,20 +1,26 @@
+import { Readable } from 'node:stream'
+
 import { createLogger } from '@george-ai/app-commons'
 
 export const logger = createLogger('llm-client')
 
-export interface Message {
+export interface ChatMessage {
   role: 'user' | 'assistant' | 'system'
   content: string
   images?: string[]
 }
 
+export interface ChatAttachment {
+  fileName: string
+  mimeType: string
+  size: number
+  stream: Readable
+}
+
 export interface ChatOptions {
   modelName: string
-  messages: Message[]
-  timeout?: number // in milliseconds
-  onChunk?: (chunk: string) => void // optional streaming callback
-  abortSignal?: AbortSignal // optional abort signal to cancel the request
-  abortOnConsecutiveRepeats?: number // number of repetitions to trigger abort
+  messages: ChatMessage[]
+  attachments?: ChatAttachment[]
 }
 
 export interface AIResponse {
@@ -33,6 +39,14 @@ export interface AIResponse {
     completionTokens?: number // For usage tracking (OpenAI)
   }
   error?: object
+}
+
+export interface ChatCompletionResult {
+  model: string
+  content: string
+  created: Date
+  promptTokens?: number
+  completionTokens?: number
 }
 
 export interface ChatCompletionStreamChunk {

@@ -38,7 +38,7 @@ export const respondModelCall = async <E extends ModelCall>(parameters: {
         const result = await handler({ event, providerInstance: healthyInstance })
         return new TextEncoder().encode(JSON.stringify(result))
       } catch (error) {
-        logger.error('Error handling processing event', { error, serviceCall })
+        logger.error('Error respondModelCall event', { error, serviceCall })
         throw error
       }
     },

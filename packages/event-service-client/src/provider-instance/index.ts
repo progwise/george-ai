@@ -2,6 +2,7 @@ import { eventClient } from '../client'
 import { PROVIDER_INSTANCE_BUCKET_NAME } from './common'
 import { deleteProviderInstance } from './delete-provider-instance'
 import { getHealthyProviderInstance } from './get-healthy-provider-instance'
+import { getProviderInstance } from './get-provider-instance'
 import { getProviderInstances } from './get-provider-instances'
 import { requestProviderInstance } from './request-provider-instance'
 import { respondProviderInstance } from './respond-provider-instance'
@@ -24,6 +25,7 @@ export async function ensureProviderInstanceBucket() {
 export default {
   deleteProviderInstance,
   getHealthyProviderInstance,
+  getProviderInstance,
   getProviderInstances,
   requestProviderInstance,
   respondProviderInstance,
@@ -34,6 +36,7 @@ export default {
 export {
   deleteProviderInstance,
   getHealthyProviderInstance,
+  getProviderInstance,
   getProviderInstances,
   requestProviderInstance,
   respondProviderInstance,

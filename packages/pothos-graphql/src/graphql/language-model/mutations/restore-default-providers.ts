@@ -49,16 +49,16 @@ builder.mutationField('restoreDefaultProviders', (t) =>
       const userId = session.user.id
       const providersToCreate: Array<Omit<ProviderInstance, 'providerInstanceId'>> = []
 
-      const apiKey = getConfigValue('OPENAI_API_KEY')
-      const baseUrl = getConfigValue('OPENAI_BASE_URL')
+      const openAIApiKey = getConfigValue('OPENAI_API_KEY')
+      const openAIBaseUrl = getConfigValue('OPENAI_BASE_URL')
 
-      const encryptedApiKey = apiKey ? encryptValue(apiKey) : null
+      const encryptedOpenAIApiKey = encryptValue(openAIApiKey)
       // Import OpenAI if configured
-      if (apiKey) {
+      if (encryptedOpenAIApiKey) {
         providersToCreate.push({
           modelProvider: 'openai',
           name: 'OpenAI',
-          connection: { encryptedApiKey, baseUrl },
+          connection: { modelProvider: 'openai', encryptedApiKey: encryptedOpenAIApiKey, baseUrl: openAIBaseUrl },
           version: 1,
           workspaceId,
         })
@@ -66,12 +66,13 @@ builder.mutationField('restoreDefaultProviders', (t) =>
 
       // Import all configured Ollama instances
       for (const instance of getConfigValue('OLLAMA_INSTANCES')) {
-        const encryptedApiKey = instance.apiKey ? encryptValue(instance.apiKey) : null
+        const encryptedApiKey = encryptValue(instance.apiKey)
 
         providersToCreate.push({
           modelProvider: 'ollama',
           name: instance.name,
           connection: {
+            modelProvider: 'ollama',
             baseUrl: instance.baseUrl,
             encryptedApiKey: encryptedApiKey,
           },

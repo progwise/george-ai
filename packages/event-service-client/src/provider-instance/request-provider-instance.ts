@@ -19,8 +19,8 @@ export async function requestProviderInstance(
   request: ProviderStatusReportRequest,
 ): Promise<ProviderStatusReportResponse>
 export async function requestProviderInstance(request: ProviderRequest) {
-  const { workspaceId, modelProvider, requestType } = request
-  const subject = getRequestSubject({ workspaceId, modelProvider, requestType })
+  const { workspaceId, requestType, connection } = request
+  const subject = getRequestSubject({ workspaceId, modelProvider: connection.modelProvider, requestType })
   const payload = new TextEncoder().encode(JSON.stringify(request))
 
   const response = await eventClient.request({

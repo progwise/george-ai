@@ -29,6 +29,8 @@ export async function readAttachment(
     logger.error('Attachments directory does not exist for entry', {
       ...identifier,
       attachmentFileName,
+      attachmentsDir,
+      attachmentFilePath,
     })
     throw new Error(
       `Cannot read attachment. Attachments directory does not exist for the entry: ${getUri(identifier)}. Attachment file name: ${attachmentFileName}`,

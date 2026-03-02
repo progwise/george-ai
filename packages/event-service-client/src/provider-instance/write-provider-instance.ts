@@ -1,5 +1,6 @@
 import { eventClient } from '../client'
 import { PROVIDER_INSTANCE_BUCKET_NAME, getKey } from './common'
+import { getProviderInstance } from './get-provider-instance'
 import { ProviderInstance } from './schema'
 
 export async function writeProviderInstance(providerInstance: ProviderInstance): Promise<void> {
@@ -8,7 +9,12 @@ export async function writeProviderInstance(providerInstance: ProviderInstance):
     modelProvider: providerInstance.modelProvider,
     providerInstanceId: providerInstance.providerInstanceId,
   })
-  const valueBytes = new TextEncoder().encode(JSON.stringify(providerInstance))
+
+  const oldValue = await getProviderInstance(providerInstance)
+
+  const updatedValue = { ...oldValue, ...providerInstance }
+
+  const valueBytes = new TextEncoder().encode(JSON.stringify(updatedValue))
   // TODO: Do not overwrite existing provider instance entry
   // to preserve status and timestamp information
   await eventClient.putBucketEntry({

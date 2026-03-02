@@ -1,42 +1,39 @@
-import { ModelProvider, ProviderConnection } from '@george-ai/app-commons'
+import { OllamaProviderConnection, OpenAiProviderConnection } from '@george-ai/app-commons'
 
-import { ChatCompletionStreamChunk, Message } from './common'
-import { ollamaApi } from './ollama'
-import { openAiApi } from './openAi'
+import { ChatCompletionResult, ChatCompletionStreamChunk, ChatOptions } from './common'
+import { getOllamaChatCompletion, getOllamaChatCompletionStream } from './ollama'
+import { getOpenAIChatCompletion, getOpenAIChatCompletionStream } from './openAi'
 
 export const chat = async (parameters: {
-  modelProvider: ModelProvider
-  modelName: string
-  messages: Message[]
-  connection: ProviderConnection
-}): Promise<ReadableStream<ChatCompletionStreamChunk>> => {
-  const { modelProvider, modelName, messages, connection } = parameters
+  connection: OllamaProviderConnection | OpenAiProviderConnection
+  options: ChatOptions
+}): Promise<ChatCompletionResult> => {
+  const { connection, options } = parameters
+  const { modelProvider } = connection
 
-  const abortController = new AbortController()
-  const { baseUrl, encryptedApiKey } = connection
-  if (modelProvider === 'ollama') {
-    if (!baseUrl) {
-      throw new Error('Ollama apiUrl is required in parameters')
-    }
-    const result = await ollamaApi.getChatResponseStream(
-      { baseUrl, encryptedApiKey, abortSignal: abortController.signal },
-      modelName,
-      messages,
-      {
-        includeUsage: true, // Enable token usage tracking
-      },
-    )
-    return result
-  } else if (modelProvider === 'openai') {
-    if (!encryptedApiKey) {
-      throw new Error('OpenAI apiKey is required in parameters')
-    }
-    const result = await openAiApi.getChatResponseStream({ baseUrl, encryptedApiKey }, modelName, messages, {
-      abortSignal: abortController.signal,
-      includeUsage: true, // Enable token usage tracking
-    })
-    return result
-  } else {
-    throw new Error(`Unsupported chat model provider: ${modelProvider}`)
+  switch (modelProvider) {
+    case 'ollama':
+      return await getOllamaChatCompletion(connection, options)
+    case 'openai':
+      return await getOpenAIChatCompletion(connection, options)
+    default:
+      throw new Error(`model type not implemented: ${modelProvider}`)
+  }
+}
+
+export const chatStream = async (parameters: {
+  connection: OllamaProviderConnection | OpenAiProviderConnection
+  options: ChatOptions
+}): Promise<ReadableStream<ChatCompletionStreamChunk>> => {
+  const { connection, options } = parameters
+  const { modelProvider } = connection
+
+  switch (modelProvider) {
+    case 'ollama':
+      return await getOllamaChatCompletionStream(connection, options)
+    case 'openai':
+      return await getOpenAIChatCompletionStream(connection, options)
+    default:
+      throw new Error(`model type not implemented: ${modelProvider}`)
   }
 }

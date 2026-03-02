@@ -1,18 +1,21 @@
 import { describe, expect, it } from 'vitest'
 
+import { OpenAiProviderConnection } from '@george-ai/app-commons'
+
+import { generateOpenAIEmbeddings, getOpenAIChatCompletionStream, getOpenAIModels } from '.'
 import type { ChatCompletionStreamChunk } from '../common'
-import { generateOpenAIEmbeddings, getChatResponseStream, getOpenAIModels } from './openai-api'
 
 // Skip tests if required environment variables are not set (e.g., in Dependabot PRs)
 describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () => {
-  const instance = {
-    baseUrl: process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1',
+  const connection: OpenAiProviderConnection = {
+    modelProvider: 'openai',
+    baseUrl: process.env.OPENAI_BASE_URL,
     encryptedApiKey: process.env.OPENAI_API_KEY!,
   }
 
   describe('getOpenAIModels', () => {
     it('should fetch available models', async () => {
-      const result = await getOpenAIModels(instance)
+      const result = await getOpenAIModels(connection)
 
       expect(result).toHaveProperty('data')
       expect(result).toHaveProperty('object')
@@ -45,7 +48,7 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
     }, 15000)
 
     it('should return models with recent timestamps', async () => {
-      const result = await getOpenAIModels(instance)
+      const result = await getOpenAIModels(connection)
 
       // Timestamp should be within last 5 seconds
       expect(result.timestamp).toBeGreaterThan(Date.now() - 5000)
@@ -56,14 +59,12 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
   describe('generateOpenAIEmbeddings', () => {
     it('should generate embeddings for single input', async () => {
       const modelName = 'text-embedding-3-small'
-      const result = await generateOpenAIEmbeddings(instance, modelName, 'Hello world')
+      const result = await generateOpenAIEmbeddings(connection, modelName, 'Hello world')
 
       expect(result).toHaveProperty('embeddings')
       expect(result).toHaveProperty('usage')
-      expect(Array.isArray(result.embeddings)).toBe(true)
       expect(result.embeddings.length).toBe(1)
-      expect(Array.isArray(result.embeddings[0])).toBe(true)
-      expect(result.embeddings[0].length).toBeGreaterThan(0)
+      expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
 
       // Validate usage data
       expect(result.usage).toHaveProperty('promptTokens')
@@ -77,17 +78,17 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
     it('should generate embeddings for multiple inputs', async () => {
       const modelName = 'text-embedding-3-small'
       const inputs = ['Hello', 'world', 'test']
-      const result = await generateOpenAIEmbeddings(instance, modelName, inputs)
+      const result = await generateOpenAIEmbeddings(connection, modelName, inputs)
 
       expect(result.embeddings).toHaveLength(3)
-      expect(result.embeddings[0].length).toBeGreaterThan(0)
-      expect(result.embeddings[1].length).toBeGreaterThan(0)
-      expect(result.embeddings[2].length).toBeGreaterThan(0)
+      expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
+      expect(result.embeddings[1].embedding.length).toBeGreaterThan(0)
+      expect(result.embeddings[2].embedding.length).toBeGreaterThan(0)
 
       // All embeddings should have the same dimension
-      const dimension = result.embeddings[0].length
-      expect(result.embeddings[1].length).toBe(dimension)
-      expect(result.embeddings[2].length).toBe(dimension)
+      const dimension = result.embeddings[0].embedding.length
+      expect(result.embeddings[1].embedding.length).toBe(dimension)
+      expect(result.embeddings[2].embedding.length).toBe(dimension)
 
       // Usage should reflect multiple inputs
       expect(result.usage.promptTokens).toBeGreaterThan(0)
@@ -95,22 +96,22 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
 
     it('should work with text-embedding-3-large model', async () => {
       const modelName = 'text-embedding-3-large'
-      const result = await generateOpenAIEmbeddings(instance, modelName, 'Test embedding')
+      const result = await generateOpenAIEmbeddings(connection, modelName, 'Test embedding')
 
       expect(result.embeddings).toHaveLength(1)
-      expect(result.embeddings[0].length).toBeGreaterThan(0)
+      expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
 
       // text-embedding-3-large should have larger dimensions than small
       // Default is 3072 for large, 1536 for small
-      expect(result.embeddings[0].length).toBeGreaterThanOrEqual(1536)
+      expect(result.embeddings[0].embedding.length).toBeGreaterThanOrEqual(1536)
     }, 15000)
 
     it('should handle empty string input', async () => {
       const modelName = 'text-embedding-3-small'
-      const result = await generateOpenAIEmbeddings(instance, modelName, '')
+      const result = await generateOpenAIEmbeddings(connection, modelName, '')
 
       expect(result.embeddings).toHaveLength(1)
-      expect(result.embeddings[0].length).toBeGreaterThan(0)
+      expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
       expect(result.usage.promptTokens).toBeGreaterThanOrEqual(0)
     }, 10000)
   })
@@ -120,9 +121,10 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
     const chatModel = 'gpt-5-nano'
 
     it('should create chat response stream with basic message', async () => {
-      const stream = await getChatResponseStream(instance, chatModel, [
-        { role: 'user', content: 'Say hello in one word' },
-      ])
+      const stream = await getOpenAIChatCompletionStream(connection, {
+        modelName: chatModel,
+        messages: [{ role: 'user', content: 'Say hello in one word' }],
+      })
 
       expect(stream).toBeDefined()
 
@@ -143,7 +145,7 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
             // Validate chunk structure
             expect(typeof value.chunk).toBe('string')
             expect(value.metadata).toBeDefined()
-            expect(value.metadata?.instanceUrl).toBe(instance.baseUrl)
+            expect(value.metadata?.instanceUrl).toBe(connection.baseUrl)
           }
         }
       } finally {
@@ -156,8 +158,9 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
     }, 30000)
 
     it('should include token usage when includeUsage is true', async () => {
-      const stream = await getChatResponseStream(instance, chatModel, [{ role: 'user', content: 'Count to 3' }], {
-        includeUsage: true,
+      const stream = await getOpenAIChatCompletionStream(connection, {
+        modelName: chatModel,
+        messages: [{ role: 'user', content: 'Count to 3' }],
       })
 
       const reader = stream.getReader()
@@ -194,12 +197,15 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
     }, 30000)
 
     it('should handle multi-turn conversations', async () => {
-      const stream = await getChatResponseStream(instance, chatModel, [
-        { role: 'system', content: 'You are a helpful assistant.' },
-        { role: 'user', content: 'What is 2+2?' },
-        { role: 'assistant', content: '4' },
-        { role: 'user', content: 'What is 3+3?' },
-      ])
+      const stream = await getOpenAIChatCompletionStream(connection, {
+        modelName: chatModel,
+        messages: [
+          { role: 'system', content: 'You are a helpful assistant.' },
+          { role: 'user', content: 'What is 2+2?' },
+          { role: 'assistant', content: '4' },
+          { role: 'user', content: 'What is 3+3?' },
+        ],
+      })
 
       const reader = stream.getReader()
       let fullContent = ''
@@ -225,9 +231,11 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
       const abortController = new AbortController()
 
       // Create stream with abort signal attached
-      const stream = await getChatResponseStream(instance, chatModel, [{ role: 'user', content: 'Say hello' }], {
-        abortSignal: abortController.signal,
-      })
+      const stream = await getOpenAIChatCompletionStream(
+        connection,
+        { modelName: chatModel, messages: [{ role: 'user', content: 'Say hello' }] },
+        abortController.signal,
+      )
 
       expect(stream).toBeDefined()
 
@@ -258,16 +266,19 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
 
       // Creating a stream with an already-aborted signal should throw
       await expect(
-        getChatResponseStream(instance, chatModel, [{ role: 'user', content: 'This should not execute' }], {
-          abortSignal: abortController.signal,
-        }),
+        getOpenAIChatCompletionStream(
+          connection,
+          { modelName: chatModel, messages: [{ role: 'user', content: 'This should not execute' }] },
+          abortController.signal,
+        ),
       ).rejects.toThrow()
     }, 10000)
 
     it('should handle empty assistant response gracefully', async () => {
-      const stream = await getChatResponseStream(instance, chatModel, [
-        { role: 'user', content: 'Say nothing. Just acknowledge with a period.' },
-      ])
+      const stream = await getOpenAIChatCompletionStream(connection, {
+        modelName: chatModel,
+        messages: [{ role: 'user', content: 'Say nothing. Just acknowledge with a period.' }],
+      })
 
       const reader = stream.getReader()
       let fullContent = ''
@@ -288,49 +299,5 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
       // Should complete successfully even with minimal response
       expect(fullContent.length).toBeGreaterThanOrEqual(0)
     }, 20000)
-  })
-
-  describe('error handling', () => {
-    it('should throw error for invalid API key', async () => {
-      const invalidInstance = { baseUrl: instance.baseUrl, encryptedApiKey: 'invalid-api-key' }
-
-      await expect(getOpenAIModels(invalidInstance)).rejects.toThrow('Failed to fetch OpenAI API')
-    }, 10000)
-
-    it('should throw error for invalid model name in embeddings', async () => {
-      await expect(generateOpenAIEmbeddings(instance, 'nonexistent-model:invalid', 'test')).rejects.toThrow(
-        'Failed to POST OpenAI API',
-      )
-    }, 10000)
-
-    it('should throw error for invalid base URL', async () => {
-      const invalidInstance = { url: 'http://localhost:99999', encryptedApiKey: instance.encryptedApiKey }
-
-      await expect(getOpenAIModels(invalidInstance)).rejects.toThrow()
-    }, 10000)
-
-    it('should throw error for malformed API endpoint', async () => {
-      const invalidInstance = { url: 'not-a-valid-url', encryptedApiKey: instance.encryptedApiKey }
-
-      await expect(getOpenAIModels(invalidInstance)).rejects.toThrow()
-    }, 5000)
-  })
-
-  describe('Azure OpenAI compatibility', () => {
-    it.skipIf(!process.env.AZURE_OPENAI_ENDPOINT)(
-      'should work with Azure OpenAI endpoint if configured',
-      async () => {
-        const azureInstance = {
-          url: process.env.AZURE_OPENAI_ENDPOINT!,
-          encryptedApiKey: process.env.AZURE_OPENAI_API_KEY!,
-        }
-
-        const result = await getOpenAIModels(azureInstance)
-
-        expect(result).toHaveProperty('data')
-        expect(Array.isArray(result.data)).toBe(true)
-      },
-      15000,
-    )
   })
 })

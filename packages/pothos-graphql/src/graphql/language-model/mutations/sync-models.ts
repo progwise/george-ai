@@ -1,4 +1,4 @@
-import { ModelProvider, getModelProvider } from '@george-ai/app-commons'
+import { ModelProvider, ProviderConnectionSchema, getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 import { requestProviderInstance } from '@george-ai/event-service-client'
@@ -35,11 +35,11 @@ builder.mutationField('syncModels', (t) =>
           requestProviderInstance({
             workspaceId,
             requestType: 'discoverModels',
-            modelProvider: getModelProvider(provider.provider),
-            connection: {
+            connection: ProviderConnectionSchema.parse({
+              modelProvider: getModelProvider(provider.provider),
               encryptedApiKey: provider.apiKey || undefined,
               baseUrl: provider.baseUrl || undefined,
-            },
+            }),
             version: 1,
           }),
         ),

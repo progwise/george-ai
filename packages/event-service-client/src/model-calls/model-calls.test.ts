@@ -39,6 +39,7 @@ describe
       providerInstanceId: `test-instance_${now}`,
       modelProvider: 'ollama',
       connection: {
+        modelProvider: 'ollama',
         baseUrl: TEST_CONFIG.ollama.apiUrl!,
         encryptedApiKey: TEST_CONFIG.ollama.apiKey!,
       },

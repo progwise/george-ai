@@ -17,7 +17,7 @@ export async function requestModelCall(
 ): Promise<ModelResponse> {
   const subject = getDirectCallSubject(event)
   const payload = new TextEncoder().encode(JSON.stringify(event))
-  logger.info(`Requesting provider call response from subject`, { subject, event })
+  logger.debug(`Requesting provider call response from subject`, { subject, event })
   const response = await eventClient.request({
     subject,
     payload,
@@ -25,7 +25,7 @@ export async function requestModelCall(
   })
 
   const decodedResponse = new TextDecoder().decode(response)
-  logger.info('Received response for provider call', { subject, decodedResponse })
+  logger.debug('Received response for provider call', { subject, decodedResponse })
   const parsedResponse = ModelResponseSchema.parse(JSON.parse(decodedResponse))
   return parsedResponse
 }

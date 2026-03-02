@@ -1,5 +1,6 @@
-import { ModelProvider, ProviderHealthStatus } from '@george-ai/app-commons'
-import { requestProviderInstance, writeProviderInstance } from '@george-ai/event-service-client'
+import { ModelProvider, ProviderConnection, ProviderHealthStatus } from '@george-ai/app-commons'
+import { writeProviderInstance } from '@george-ai/event-service-client'
+import { statusReport } from '@george-ai/llm-client'
 
 import { logger } from './common'
 
@@ -8,10 +9,7 @@ const PROVIDER_CHECK_INTERVAL_MS = 2 * 60 * 1000 // 2 minutes
 interface ProviderInstanceData {
   workspaceId: string
   modelProvider: ModelProvider
-  connection: {
-    apiKey?: string | null
-    baseUrl?: string | null
-  }
+  connection: ProviderConnection
   timestamp?: Date
   status?: ProviderHealthStatus | undefined | null
 }
@@ -71,39 +69,37 @@ export function planMatureStatusCheck(providerInstanceId: string, newData: Provi
     const timeSinceLastUpdate = now.getTime() - (entry.instance.timestamp ? entry.instance.timestamp.getTime() : 0)
     if (timeSinceLastUpdate > PROVIDER_CHECK_INTERVAL_MS) {
       // Mark status as unknown if we haven't received an update within the check interval
-      logger.info('Executing provider instance health check due to timeout', {
+      const healthReport = await statusReport(entry.instance.connection)
+
+      logger.info('Executed provider instance health check due to timeout', {
         providerInstanceId,
         workspaceId: entry.instance.workspaceId,
         modelProvider: entry.instance.modelProvider,
         timeSinceLastUpdate,
-      })
-      const response = await requestProviderInstance({
-        version: 1,
-        requestType: 'statusReport',
-        workspaceId: entry.instance.workspaceId,
-        providerInstanceId,
-        modelProvider: entry.instance.modelProvider,
-        connection: entry.instance.connection,
+        healthReport,
       })
 
-      if (response.resultStatus !== 'success') {
+      if (healthReport.connectionErrorMessage) {
         logger.error('Health check request for provider instance did not succeed', {
           providerInstanceId,
           workspaceId: entry.instance.workspaceId,
-          modelProvider: entry.instance.modelProvider,
-          errorMessage: response.errorMessage,
+          connection: entry.instance.connection,
+          healthReport,
         })
-        // We can choose to mark the provider instance as unhealthy here if desired, but for now we'll just log the error.
       }
-
       await writeProviderInstance({
         version: 1,
         workspaceId: entry.instance.workspaceId,
         providerInstanceId,
         modelProvider: entry.instance.modelProvider,
         connection: entry.instance.connection,
-        status: response.resultStatus === 'success' ? 'healthy' : 'unhealthy',
+        status: healthReport.isConnected ? 'healthy' : 'unhealthy',
         timestamp: new Date(),
+        loadedModelNames: healthReport.loadedModelNames,
+        availableModelNames: healthReport.availableModelNames,
+        totalMemoryMb: healthReport.totalMemoryMb,
+        usedMemoryMb: healthReport.usedMemoryMb,
+        processorUsagePercent: healthReport.processorUsagePercent,
       })
     } else {
       logger.debug('Skipping provider instance health check because recent update was received', {

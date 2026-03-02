@@ -23,6 +23,7 @@ describe('event-service-client workspace tests', () => {
           workspaceId: TEST_WORKSPACE_ID,
           modelProvider: 'ollama',
           connection: {
+            modelProvider: 'ollama',
             encryptedApiKey: 'key-1',
             baseUrl: 'https://api.ollama.com',
           },
@@ -59,6 +60,7 @@ describe('event-service-client workspace tests', () => {
           workspaceId: TEST_WORKSPACE_ID,
           modelProvider: 'ollama',
           connection: {
+            modelProvider: 'ollama',
             encryptedApiKey: 'updated-key-1',
             baseUrl: 'https://api.ollama.com',
           },
@@ -69,6 +71,7 @@ describe('event-service-client workspace tests', () => {
           workspaceId: TEST_WORKSPACE_ID,
           modelProvider: 'openai',
           connection: {
+            modelProvider: 'ollama',
             encryptedApiKey: 'key-2',
             baseUrl: 'https://api.openai.com',
           },
@@ -150,6 +153,7 @@ describe('event-service-client workspace tests', () => {
           providerInstanceId: 'provider-1',
           modelProvider: 'ollama',
           connection: {
+            modelProvider: 'ollama',
             encryptedApiKey: 'key-1',
             baseUrl: 'https://api.ollama.com',
           },

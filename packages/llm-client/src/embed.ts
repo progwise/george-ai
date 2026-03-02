@@ -1,41 +1,23 @@
-import { ModelProvider, ProviderConnection } from '@george-ai/app-commons'
+import { ProviderConnection } from '@george-ai/app-commons'
 
-import { EmbeddingsResult } from './common'
-import { ollamaApi } from './ollama'
-import { openAiApi } from './openAi'
+import { EmbeddingsResult, logger } from './common'
+import { generateOllamaEmbeddings } from './ollama'
+import { generateOpenAIEmbeddings } from './openAi'
 
 export const getEmbeddings = async (parameters: {
-  modelProvider: ModelProvider
   modelName: string
   textChunks: string[]
   connection: ProviderConnection
 }): Promise<EmbeddingsResult> => {
-  const { modelProvider, modelName, textChunks, connection } = parameters
-  const { baseUrl, encryptedApiKey } = connection
-  if (modelProvider === 'ollama') {
-    if (!baseUrl) {
-      throw new Error('Ollama providerBaseUrl is required in connection')
-    }
-    const result = await ollamaApi.generateOllamaEmbeddings({ baseUrl, encryptedApiKey }, modelName, textChunks)
-    return {
-      embeddings: result.embeddings.map((emb, index) => ({ inputText: textChunks[index], embedding: emb })),
-      usage: result.usage,
-    }
-  } else if (modelProvider === 'openai') {
-    if (!encryptedApiKey) {
-      throw new Error('OpenAI providerApiKey is required in connection')
-    }
-    const result = await openAiApi.generateOpenAIEmbeddings(
-      { baseUrl, encryptedApiKey },
+  const { modelName, textChunks, connection } = parameters
 
-      modelName,
-      textChunks,
-    )
-    return {
-      embeddings: result.embeddings.map((emb, index) => ({ inputText: textChunks[index], embedding: emb })),
-      usage: result.usage,
-    }
-  } else {
-    throw new Error(`Unsupported embedding model provider: ${modelProvider}`)
+  switch (connection.modelProvider) {
+    case 'ollama':
+      return await generateOllamaEmbeddings(connection, modelName, textChunks)
+    case 'openai':
+      return await generateOpenAIEmbeddings(connection, modelName, textChunks)
+    default:
+      logger.error('getEmbeddings for model type not implemented', connection)
+      throw new Error('getEmbeddings for model type not implemented')
   }
 }

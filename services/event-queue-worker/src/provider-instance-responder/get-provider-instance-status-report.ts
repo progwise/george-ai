@@ -10,10 +10,7 @@ export async function getProviderInstanceStatusReport(
 
   const startTime = Date.now()
   try {
-    const report = await statusReport({
-      modelProvider: request.modelProvider,
-      connection: request.connection,
-    })
+    const report = await statusReport(request.connection)
 
     const response: ProviderStatusReportResponse = {
       version: 1,

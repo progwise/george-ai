@@ -45,7 +45,7 @@ export async function extractDocumentCompleted(event: ExtractDocumentStatus) {
             libraryId,
             documentId,
             extractionMethod,
-            attachmentFileName: att.fileName,
+            fileName: att.fileName,
           })) || [],
         replySubject: workspaceProcessing.getEventSubject({ ...event, eventType: 'reply' }),
         context: { documentId, libraryId, extractionMethod },

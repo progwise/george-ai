@@ -10,7 +10,7 @@ export const respondProviderInstance = async <T extends ProviderRequest>(paramet
   const cleanup = await eventClient.respond({
     subject: getRequestSubject({
       workspaceId: request?.workspaceId,
-      modelProvider: request?.modelProvider,
+      modelProvider: request?.connection.modelProvider,
       requestType: request?.requestType,
     }),
     handler: async (payload) => {

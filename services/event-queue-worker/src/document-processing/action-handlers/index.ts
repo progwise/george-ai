@@ -28,7 +28,7 @@ export async function handleProcessingEvent(event: ProcessingRequest) {
     }
     logger.debug('Completed handling processing event', { event })
   } catch (error) {
-    logger.error('Error handling processing event', { event, error })
+    logger.error('Error handleProcessingEvent event', { event, error })
     throw error
   }
 }
