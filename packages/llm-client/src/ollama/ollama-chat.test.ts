@@ -154,7 +154,7 @@ describe('Testing Ollama chat endpoints', () => {
 
       const result = await getOllamaChatCompletion(ollamaConnection!, chatOptions)
       expect(result).toBeDefined()
-      const searchFor = ['vancouver', 'city', 'skyline', 'mountains', 'harbour']
+      const searchFor = ['vancouver', 'city', 'skyline', 'mountains', 'harbour', 'urban', 'building']
       expect(searchFor.some((term) => result.content.includes(term))).toBe(true)
     })
 

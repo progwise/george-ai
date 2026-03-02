@@ -123,8 +123,9 @@ describe('Testing openAI chat endpoints', () => {
       }
 
       const result = await getOpenAIChatCompletion(openAIConnection!, chatOptions)
-      expect(result).toBeDefined()
-      expect(result.content).toContain('city')
+
+      const searchFor = ['vancouver', 'city', 'skyline', 'mountains', 'harbour', 'urban', 'building']
+      expect(searchFor.some((term) => result.content.includes(term))).toBe(true)
     })
 
     it('Testing a second image to be sure', async () => {

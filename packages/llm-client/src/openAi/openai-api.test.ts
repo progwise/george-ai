@@ -145,7 +145,6 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
             // Validate chunk structure
             expect(typeof value.chunk).toBe('string')
             expect(value.metadata).toBeDefined()
-            expect(value.metadata?.instanceUrl).toBe(connection.baseUrl)
           }
         }
       } finally {

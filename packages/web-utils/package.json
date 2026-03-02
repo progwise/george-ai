@@ -19,8 +19,6 @@
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
-    "dotenv": "^16.4.5",
-    "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.1",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
