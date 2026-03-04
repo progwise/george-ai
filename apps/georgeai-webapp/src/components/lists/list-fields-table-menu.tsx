@@ -48,7 +48,7 @@ export const ListFieldsTableMenu = (props: ListFieldsTableMenuProps) => {
   }, [])
 
   return (
-    <ul className="menu menu-horizontal z-48 items-center gap-2 menu-sm rounded-box bg-base-200 p-2 text-sm">
+    <ul className="menu menu-horizontal z-20 items-center gap-2 menu-sm rounded-box bg-base-200 p-2 text-sm">
       <li className="menu-title pr-2">
         {props.unfilteredCount !== undefined && (
           <span className="text-sm text-base-content/50">

@@ -98,7 +98,6 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   const { reorderFields } = useListActions(list.id)
 
   const [editField, setEditField] = useState<FieldModal_FieldFragment | null>(null)
-  const [fieldDropdownOpen, setFieldDropdownOpen] = useState<string | null>(null)
   const [itemDropdownOpen, setItemDropdownOpen] = useState<string | null>(null)
   const [sidePanelData, setSidePanelData] = useState<{
     itemId: string
@@ -163,7 +162,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   }
 
   return (
-    <div>
+    <>
       {listItems.count === 0 ? (
         <div className="rounded-lg border border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/70">
           {t('lists.noFilesFound')}
@@ -173,327 +172,312 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <div
-              className="grid border-base-300"
-              style={{
-                gridTemplateColumns: `${visibleFields.map((field) => `${(columnWidths && columnWidths[field.id]) || 150}px`).join(' ')} 60px`,
-              }}
-            >
-              {/* Header Row */}
-              {visibleFields.map((field) => (
-                <div
-                  key={`header-${field.id}`}
-                  className="group relative border-r border-b border-base-300 bg-base-200 text-sm"
-                  style={{
-                    minWidth: `${(columnWidths && columnWidths[field.id]) || 150}px`,
-                    width: `${(columnWidths && columnWidths[field.id]) || 150}px`,
-                    opacity: isOrdering === field.id ? 0.5 : 1,
-                  }}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleFieldReorder(field.id, e)}
-                >
-                  <div
-                    className="absolute top-2.5 left-1 h-full w-2 cursor-grab transition-colors before:content-['⋮⋮']"
-                    draggable={true}
-                    onDragStart={(e) => handleDragStart(field.id, e)}
-                    onDragEnd={handleDragEnd}
-                  ></div>
-
-                  <div className="space-y-2 p-2">
-                    {/* Field header with sorting and dropdown */}
-                    <div className="flex items-center justify-between gap-1">
-                      <div className="flex flex-1 items-center gap-1 overflow-hidden pl-2 text-nowrap whitespace-nowrap hover:overflow-visible">
-                        {visibleFields.find((sortableField) => sortableField.id === field.id) ? (
-                          <button
-                            type="button"
-                            className="flex items-center gap-1 hover:text-primary"
-                            aria-label={`Sort by ${field.name}`}
-                            onClick={() => toggleSorting(field.id)}
-                          >
-                            {field.name}
-                            <span className="text-xs">
-                              <SortingIcon direction={getSortingDirection(field.id)} />
-                            </span>
-                          </button>
-                        ) : (
-                          <span aria-label={`Field column ${field.name}`}>{field.name}</span>
-                        )}
-
-                        {(field.pendingItemsCount > 0 || field.processingItemsCount > 0) && (
-                          <div className="flex items-center gap-2">
-                            <div className="loading loading-ring text-primary"></div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Field dropdown trigger */}
-                      <div className="relative">
-                        <button
-                          type="button"
-                          className="btn opacity-100 btn-ghost btn-xs"
-                          aria-label={`Field actions for ${field.name}`}
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setFieldDropdownOpen(fieldDropdownOpen === field.id ? null : field.id)
-                          }}
-                        >
-                          <MenuEllipsisIcon />
-                        </button>
-
-                        {/* Field dropdown */}
-                        <FieldHeaderDropdown
-                          field={field}
-                          isOpen={fieldDropdownOpen === field.id}
-                          onClose={() => setFieldDropdownOpen(null)}
-                          onEdit={handleEditField}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Resize handle */}
-                  <div
-                    className="absolute top-0 right-0 h-full w-2 cursor-col-resize transition-colors hover:bg-primary/30"
-                    style={{
-                      backgroundColor: isResizing === field.id ? 'rgba(59, 130, 246, 0.5)' : 'transparent',
-                      right: '-1px',
-                    }}
-                    onMouseDown={(e) => handleResizeMouseDown(field.id, e)}
+          <div className="size-full overflow-auto">
+            <table className="table-pin-rows table table-fixed table-sm">
+              <colgroup>
+                {visibleFields.map((field) => (
+                  <col
+                    key={`col-${field.id}`}
+                    style={{ width: `${(columnWidths && columnWidths[field.id]) || 150}px` }}
                   />
-                </div>
-              ))}
+                ))}
+                <col style={{ width: '60px' }} />
+              </colgroup>
 
-              {/* Add Field Header */}
-              <div className="relative flex items-center justify-center border-r border-b border-base-300 bg-base-200 text-sm">
-                <button
-                  type="button"
-                  className="btn size-full rounded-none btn-ghost btn-sm"
-                  onClick={handleAddField}
-                  title="Add enrichment field"
-                >
-                  <PlusIcon />
-                </button>
-              </div>
-
-              {/* Data Rows */}
-              {listItems.items.map((item) =>
-                visibleFields
-                  .map((field) => {
-                    const { value, error, failedEnrichmentValue, queueStatus } = getFieldData(item.id, field.id)
-                    const displayValue = value?.toString() || '-'
-                    const fieldValueData = item.values.find((v) => v.fieldId === field.id)
-
-                    return (
+              <thead>
+                <tr>
+                  {visibleFields.map((field) => (
+                    <th
+                      key={`header-${field.id}`}
+                      className="relative bg-base-200"
+                      style={{
+                        opacity: isOrdering === field.id ? 0.5 : 1,
+                      }}
+                      onDragOver={handleDragOver}
+                      onDrop={(e) => handleFieldReorder(field.id, e)}
+                    >
                       <div
-                        key={`${item.origin.id}-${field.id}`}
-                        className="border-r border-b border-base-300 p-2 text-sm hover:bg-base-100"
-                        style={{
-                          minWidth: `${(columnWidths && columnWidths[field.id]) || 150}px`,
-                          width: `${(columnWidths && columnWidths[field.id]) || 150}px`,
-                        }}
-                      >
-                        {field.sourceType === 'llm_computed' ? (
-                          <div className="group relative flex items-center gap-1">
-                            <span
-                              id={`${item.origin.id}-${field.id}`}
-                              className={twMerge(
-                                'flex-1 overflow-hidden text-nowrap',
-                                queueStatus === 'processing' && 'text-xs text-info',
-                                queueStatus === 'pending' && 'text-xs text-info',
-                                queueStatus !== 'processing' &&
-                                  queueStatus !== 'pending' &&
-                                  !value &&
-                                  error &&
-                                  'text-xs text-error',
-                                queueStatus !== 'processing' &&
-                                  queueStatus !== 'pending' &&
-                                  !value &&
-                                  !error &&
-                                  failedEnrichmentValue &&
-                                  'text-xs text-warning',
-                                queueStatus !== 'processing' &&
-                                  queueStatus !== 'pending' &&
-                                  !value &&
-                                  !error &&
-                                  !failedEnrichmentValue &&
-                                  'text-xs text-base-content/40 italic',
-                              )}
-                              title={error || failedEnrichmentValue || queueStatus || displayValue}
+                        className="absolute top-2.5 left-1 h-full w-2 cursor-grab transition-colors before:content-['⋮⋮']"
+                        draggable={true}
+                        onDragStart={(e) => handleDragStart(field.id, e)}
+                        onDragEnd={handleDragEnd}
+                      />
+
+                      <div>
+                        <div className="flex items-center justify-between gap-1">
+                          <div className="flex flex-1 items-center gap-1 overflow-hidden pl-2 text-nowrap whitespace-nowrap hover:overflow-visible">
+                            {visibleFields.find((sortableField) => sortableField.id === field.id) ? (
+                              <button
+                                type="button"
+                                className="flex items-center gap-1 hover:text-primary"
+                                aria-label={`Sort by ${field.name}`}
+                                onClick={() => toggleSorting(field.id)}
+                              >
+                                {field.name}
+                                <span className="text-xs">
+                                  <SortingIcon direction={getSortingDirection(field.id)} />
+                                </span>
+                              </button>
+                            ) : (
+                              <span aria-label={`Field column ${field.name}`}>{field.name}</span>
+                            )}
+
+                            {(field.pendingItemsCount > 0 || field.processingItemsCount > 0) && (
+                              <div className="flex items-center gap-2">
+                                <div className="loading loading-ring text-primary" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="group/dropdown relative">
+                            <button
+                              type="button"
+                              className="btn btn-circle btn-ghost btn-xs"
+                              title={`Field actions for ${field.name}`}
                             >
-                              {queueStatus === 'processing'
-                                ? '⚙️ processing...'
-                                : queueStatus === 'pending'
-                                  ? '⏳ pending...'
-                                  : error
-                                    ? `❌ ${t('lists.enrichment.error')}`
-                                    : value
-                                      ? displayValue
-                                      : failedEnrichmentValue
-                                        ? `⚠️ ${t('lists.enrichment.failedTerm')}`
-                                        : t('lists.enrichment.notEnriched')}
-                            </span>
-                            {fieldValueData && (value || error || failedEnrichmentValue) && (
+                              <MenuEllipsisIcon />
+                            </button>
+
+                            <FieldHeaderDropdown field={field} onEdit={handleEditField} />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Resize handle */}
+                      <div
+                        className="absolute top-0 right-0 h-full w-2 cursor-col-resize transition-colors hover:bg-primary/30"
+                        style={{
+                          backgroundColor: isResizing === field.id ? 'rgba(59, 130, 246, 0.5)' : 'transparent',
+                          right: '-1px',
+                        }}
+                        onMouseDown={(e) => handleResizeMouseDown(field.id, e)}
+                      />
+                    </th>
+                  ))}
+
+                  {/* Add Field Header */}
+                  <th className="relative bg-base-200">
+                    <button
+                      type="button"
+                      className="btn size-full rounded-none btn-ghost btn-sm"
+                      onClick={handleAddField}
+                      title="Add enrichment field"
+                    >
+                      <PlusIcon />
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {listItems.items.map((item) => (
+                  <tr key={item.id}>
+                    {visibleFields.map((field) => {
+                      const { value, error, failedEnrichmentValue, queueStatus } = getFieldData(item.id, field.id)
+                      const displayValue = value?.toString() || '-'
+                      const fieldValueData = item.values.find((v) => v.fieldId === field.id)
+
+                      return (
+                        <td key={`${item.id}-${field.id}`} className="p-2 text-sm hover:bg-base-100">
+                          {field.sourceType === 'llm_computed' ? (
+                            <div className="group relative flex items-center gap-1">
+                              {/* All your llm_computed content */}
+                              <span
+                                id={`${item.origin.id}-${field.id}`}
+                                className={twMerge(
+                                  'flex-1 overflow-hidden text-nowrap',
+                                  queueStatus === 'processing' && 'text-xs text-info',
+                                  queueStatus === 'pending' && 'text-xs text-info',
+                                  queueStatus !== 'processing' &&
+                                    queueStatus !== 'pending' &&
+                                    !value &&
+                                    error &&
+                                    'text-xs text-error',
+                                  queueStatus !== 'processing' &&
+                                    queueStatus !== 'pending' &&
+                                    !value &&
+                                    !error &&
+                                    failedEnrichmentValue &&
+                                    'text-xs text-warning',
+                                  queueStatus !== 'processing' &&
+                                    queueStatus !== 'pending' &&
+                                    !value &&
+                                    !error &&
+                                    !failedEnrichmentValue &&
+                                    'text-xs text-base-content/40 italic',
+                                )}
+                                title={error || failedEnrichmentValue || queueStatus || displayValue}
+                              >
+                                {queueStatus === 'processing'
+                                  ? '⚙️ processing...'
+                                  : queueStatus === 'pending'
+                                    ? '⏳ pending...'
+                                    : error
+                                      ? `❌ ${t('lists.enrichment.error')}`
+                                      : value
+                                        ? displayValue
+                                        : failedEnrichmentValue
+                                          ? `⚠️ ${t('lists.enrichment.failedTerm')}`
+                                          : t('lists.enrichment.notEnriched')}
+                              </span>
+                              {fieldValueData && (value || error || failedEnrichmentValue) && (
+                                <button
+                                  type="button"
+                                  className="btn opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
+                                  aria-label={t('lists.enrichment.sidePanel.viewDetails')}
+                                  title={t('lists.enrichment.sidePanel.viewDetails')}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setSidePanelData({
+                                      itemId: item.id,
+                                      fieldValue: fieldValueData,
+                                      origin: item.origin,
+                                    })
+                                  }}
+                                >
+                                  <EyeIcon className="size-4" />
+                                </button>
+                              )}
                               <button
                                 type="button"
                                 className="btn opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
-                                aria-label={t('lists.enrichment.sidePanel.viewDetails')}
-                                title={t('lists.enrichment.sidePanel.viewDetails')}
+                                aria-label={`Actions for ${field.name} in ${item.origin.name}`}
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  setSidePanelData({
+                                  const itemKey = `${item.id}-${field.id}`
+                                  setItemDropdownOpen(itemDropdownOpen === itemKey ? null : itemKey)
+                                }}
+                              >
+                                <MenuEllipsisIcon className="size-4" />
+                              </button>
+                              <FieldItemDropdown
+                                listId={list.id}
+                                fieldId={field.id}
+                                itemId={item.id}
+                                fieldName={field.name}
+                                fileName={item.origin.name}
+                                isOpen={itemDropdownOpen === `${item.id}-${field.id}`}
+                                onClose={() => setItemDropdownOpen(null)}
+                                queueStatus={queueStatus}
+                                error={error}
+                                failedEnrichmentValue={failedEnrichmentValue}
+                                value={value}
+                              />
+                            </div>
+                          ) : field.fileProperty === 'name' ? (
+                            <Link
+                              to="/libraries/$libraryId/files/$fileId"
+                              params={{
+                                libraryId: item.origin.libraryId,
+                                fileId: item.origin.id,
+                              }}
+                              className="block link overflow-hidden text-nowrap link-primary"
+                              title={displayValue}
+                            >
+                              {displayValue}
+                            </Link>
+                          ) : field.fileProperty === 'originUri' && value ? (
+                            <a
+                              href={value.toString()}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="block link overflow-hidden text-nowrap link-primary"
+                              title={displayValue}
+                            >
+                              {displayValue}
+                            </a>
+                          ) : field.fileProperty === 'source' ? (
+                            <Link
+                              to="/libraries/$libraryId"
+                              params={{
+                                libraryId: item.origin.libraryId,
+                              }}
+                              className="block link overflow-hidden text-nowrap link-primary"
+                              title={displayValue}
+                            >
+                              {displayValue}
+                            </Link>
+                          ) : field.fileProperty === 'itemName' ? (
+                            <div className="group flex items-center gap-1">
+                              <span className="flex-1 overflow-hidden text-nowrap" title={displayValue}>
+                                {displayValue}
+                              </span>
+                              <button
+                                type="button"
+                                className="btn opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
+                                aria-label={t('lists.itemDetail.viewDetails')}
+                                title={t('lists.itemDetail.viewDetails')}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setItemDetailData({
                                     itemId: item.id,
-                                    fieldValue: fieldValueData,
-                                    origin: item.origin,
+                                    itemName: displayValue,
+                                    fileName: item.origin.name,
+                                    libraryId: item.origin.libraryId,
+                                    fileId: item.origin.id,
                                   })
                                 }}
                               >
                                 <EyeIcon className="size-4" />
                               </button>
-                            )}
-                            <button
-                              type="button"
-                              className="btn opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
-                              aria-label={`Actions for ${field.name} in ${item.origin.name}`}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                const itemKey = `${item.id}-${field.id}`
-                                setItemDropdownOpen(itemDropdownOpen === itemKey ? null : itemKey)
-                              }}
+                            </div>
+                          ) : (
+                            <div
+                              id={`${item.origin.id}-${field.id}`}
+                              className="overflow-hidden text-nowrap"
+                              title={displayValue}
                             >
-                              <MenuEllipsisIcon className="size-4" />
-                            </button>
-                            <FieldItemDropdown
-                              listId={list.id}
-                              fieldId={field.id}
-                              itemId={item.id}
-                              fieldName={field.name}
-                              fileName={item.origin.name}
-                              isOpen={itemDropdownOpen === `${item.id}-${field.id}`}
-                              onClose={() => setItemDropdownOpen(null)}
-                              queueStatus={queueStatus}
-                              error={error}
-                              failedEnrichmentValue={failedEnrichmentValue}
-                              value={value}
-                            />
-                          </div>
-                        ) : field.fileProperty === 'name' ? (
-                          <Link
-                            to="/libraries/$libraryId/files/$fileId"
-                            params={{
-                              libraryId: item.origin.libraryId,
-                              fileId: item.origin.id,
-                            }}
-                            className="block link overflow-hidden text-nowrap link-primary"
-                            title={displayValue}
-                          >
-                            {displayValue}
-                          </Link>
-                        ) : field.fileProperty === 'originUri' && value ? (
-                          <a
-                            href={value.toString()}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block link overflow-hidden text-nowrap link-primary"
-                            title={displayValue}
-                          >
-                            {displayValue}
-                          </a>
-                        ) : field.fileProperty === 'source' ? (
-                          <Link
-                            to="/libraries/$libraryId"
-                            params={{
-                              libraryId: item.origin.libraryId,
-                            }}
-                            className="block link overflow-hidden text-nowrap link-primary"
-                            title={displayValue}
-                          >
-                            {displayValue}
-                          </Link>
-                        ) : field.fileProperty === 'itemName' ? (
-                          <div className="group flex items-center gap-1">
-                            <span className="flex-1 overflow-hidden text-nowrap" title={displayValue}>
                               {displayValue}
-                            </span>
-                            <button
-                              type="button"
-                              className="btn opacity-0 btn-ghost transition-opacity btn-xs group-hover:opacity-100"
-                              aria-label={t('lists.itemDetail.viewDetails')}
-                              title={t('lists.itemDetail.viewDetails')}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setItemDetailData({
-                                  itemId: item.id,
-                                  itemName: displayValue,
-                                  fileName: item.origin.name,
-                                  libraryId: item.origin.libraryId,
-                                  fileId: item.origin.id,
-                                })
-                              }}
-                            >
-                              <EyeIcon className="size-4" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div
-                            id={`${item.origin.id}-${field.id}`}
-                            className="overflow-hidden text-nowrap"
-                            title={displayValue}
-                          >
-                            {displayValue}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })
-                  .concat(
-                    // Add empty cell for "Add Field" column
-                    <div
-                      key={`${item.origin.id}-add-field`}
-                      className="border-r border-b border-base-300"
-                      style={{ width: '60px', minWidth: '60px' }}
-                    />,
-                  ),
-              )}
-            </div>
+                            </div>
+                          )}
+                        </td>
+                      )
+                    })}
+
+                    {/* Empty cell for actions column */}
+                    <td style={{ width: '60px', minWidth: '60px' }} />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+
+          {/* Field Modal (Add/Edit) */}
+          <FieldModal
+            list={list}
+            ref={fieldModalDialogRef}
+            maxOrder={Math.max(0, ...visibleFields.map((f) => f.order))}
+            editField={editField}
+          />
+
+          {/* Enrichment Side Panel */}
+          {sidePanelData && (
+            <EnrichmentSidePanel
+              key={`${sidePanelData.itemId}-${sidePanelData.fieldValue.fieldId}`}
+              isOpen={!!sidePanelData}
+              onClose={() => setSidePanelData(null)}
+              listId={list.id}
+              itemId={sidePanelData.itemId}
+              fieldValue={sidePanelData.fieldValue}
+              origin={sidePanelData.origin}
+            />
+          )}
+
+          {/* Item Detail Side Panel */}
+          {itemDetailData && (
+            <ItemDetailSidePanel
+              key={itemDetailData.itemId}
+              isOpen={!!itemDetailData}
+              onClose={() => setItemDetailData(null)}
+              itemId={itemDetailData.itemId}
+              itemName={itemDetailData.itemName}
+              fileName={itemDetailData.fileName}
+              libraryId={itemDetailData.libraryId}
+              fileId={itemDetailData.fileId}
+            />
+          )}
         </>
       )}
-
-      {/* Field Modal (Add/Edit) */}
-      <FieldModal
-        list={list}
-        ref={fieldModalDialogRef}
-        maxOrder={Math.max(0, ...visibleFields.map((f) => f.order))}
-        editField={editField}
-      />
-
-      {/* Enrichment Side Panel */}
-      {sidePanelData && (
-        <EnrichmentSidePanel
-          key={`${sidePanelData.itemId}-${sidePanelData.fieldValue.fieldId}`}
-          isOpen={!!sidePanelData}
-          onClose={() => setSidePanelData(null)}
-          listId={list.id}
-          itemId={sidePanelData.itemId}
-          fieldValue={sidePanelData.fieldValue}
-          origin={sidePanelData.origin}
-        />
-      )}
-
-      {/* Item Detail Side Panel */}
-      {itemDetailData && (
-        <ItemDetailSidePanel
-          key={itemDetailData.itemId}
-          isOpen={!!itemDetailData}
-          onClose={() => setItemDetailData(null)}
-          itemId={itemDetailData.itemId}
-          itemName={itemDetailData.itemName}
-          fileName={itemDetailData.fileName}
-          libraryId={itemDetailData.libraryId}
-          fileId={itemDetailData.fileId}
-        />
-      )}
-    </div>
+    </>
   )
 }

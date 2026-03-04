@@ -6,8 +6,8 @@ import { builder } from '../../builder'
 const responseType = builder
   .objectRef<{
     input: {
-      skip?: number | null
-      take?: number | null
+      skip: number
+      take: number
       showArchived?: boolean | null
       libraryId?: string | null
       sortOrder?: 'asc' | 'desc' | null
@@ -29,6 +29,8 @@ const responseType = builder
               ...(input.libraryId ? { libraryId: input.libraryId } : {}),
               ...(input.showArchived ? {} : { archivedAt: null }),
             },
+            skip: input.skip,
+            take: input.take,
             orderBy:
               input.sortOrder === 'asc'
                 ? { [input.sortField as string]: 'asc' }
@@ -85,7 +87,7 @@ builder.queryField('files', (t) =>
         },
       })
       return {
-        input: args,
+        input: { ...args, skip: args.skip ?? 0, take: args.take ?? 20 },
         totalCount,
         archivedCount,
       }

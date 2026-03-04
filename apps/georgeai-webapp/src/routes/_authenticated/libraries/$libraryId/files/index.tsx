@@ -46,17 +46,7 @@ function RouteComponent() {
   return (
     <div className="grid size-full grid-rows-[auto_1fr] gap-2 bg-base-100">
       <div>
-        <div className="align-text-top text-xs text-nowrap text-primary italic">
-          {showArchived
-            ? t('files.allFilesForLibrary', { count: files.totalCount })
-            : t('files.activeFilesForLibrary', {
-                count: files.totalCount,
-              })}
-        </div>
         <div className="relative flex justify-between align-top">
-          <div className="flex flex-row items-center gap-1 overflow-y-auto">
-            <h3 className="text-xl font-bold text-nowrap text-base-content">{library.name}</h3>
-          </div>
           <div className="absolute right-0 z-49 md:flex">
             <FilesActionsBar
               hasLegacyData={library.manifest?.version !== 1}
@@ -67,8 +57,15 @@ function RouteComponent() {
             />
           </div>
         </div>
-        <div className="mt-10 flex flex-col">
-          <div className="flex flex-col md:items-end">
+        <div className="mt-10 flex">
+          <div className="flex-1 align-text-top text-xs text-nowrap text-primary italic">
+            {showArchived
+              ? t('files.allFilesForLibrary', { count: files.totalCount })
+              : t('files.activeFilesForLibrary', {
+                  count: files.totalCount,
+                })}
+          </div>
+          <div>
             <Pagination
               totalItems={files.totalCount}
               itemsPerPage={take}

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { FieldModal_FieldFragment, ListFieldsTable_ListFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
@@ -12,34 +12,15 @@ import { removeListField } from './server-functions'
 
 interface FieldHeaderDropdownProps {
   field: ListFieldsTable_ListFragment['fields'][0]
-  isOpen: boolean
-  onClose: () => void
   onEdit: (field: FieldModal_FieldFragment) => void
 }
 
-export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHeaderDropdownProps) => {
+export const FieldHeaderDropdown = ({ field, onEdit }: FieldHeaderDropdownProps) => {
   const queryClient = useQueryClient()
   const { t } = useTranslation()
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Close dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsConfirmingDelete(false)
-        onClose()
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [isOpen, onClose])
 
   const removeFieldMutation = useMutation({
     mutationFn: async (fieldId: string) => {
@@ -52,14 +33,12 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
       toastSuccess(t('lists.fields.removeSuccess', { name: field.name }))
 
       queryClient.invalidateQueries(getListQueryOptions(field.listId))
-      onClose()
       setIsConfirmingDelete(false)
     },
   })
 
   const handleEdit = () => {
     onEdit(field)
-    onClose()
   }
 
   const handleDelete = () => {
@@ -74,12 +53,11 @@ export const FieldHeaderDropdown = ({ field, isOpen, onClose, onEdit }: FieldHea
   const canDelete = field.sourceType === 'llm_computed'
   const canEnrich = field.sourceType === 'llm_computed'
 
-  if (!isOpen) return null
-
   return (
     <div
-      ref={dropdownRef}
-      className="absolute top-full right-0 z-9999 mt-1 w-60 rounded-lg border border-base-300 bg-base-100 shadow-lg"
+      className={
+        'invisible absolute top-8 -right-2 rounded-box bg-base-300 p-1 opacity-0 transition-all duration-50 group-hover/dropdown:visible group-hover/dropdown:opacity-100 group-hover/dropdown:delay-0 before:hidden'
+      }
     >
       <div className="py-2">
         {canEnrich && (

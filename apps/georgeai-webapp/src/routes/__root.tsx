@@ -1,6 +1,6 @@
 import { QueryClient, useQuery } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Suspense } from 'react'
 
@@ -8,7 +8,7 @@ import { AuthProvider } from '../auth/auth-provider'
 import { currentUserQueryOptions } from '../auth/queries'
 import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
-import TopNavigation from '../components/top-navigation'
+import { SidebarLayout } from '../components/sidebar/sidebar-layout'
 import { getWorkspacesQueryOptions } from '../components/workspace/queries'
 import { getThemeQueryOptions } from '../hooks/use-theme'
 import { getLanguageQueryOptions, useLanguage } from '../i18n/use-language-hook'
@@ -31,10 +31,7 @@ const RootDocument = () => {
       <body className="px-body">
         <AuthProvider>
           <>
-            <TopNavigation user={user} workspaceId={workspaceId} />
-            <div className="flex grow flex-col p-4">
-              <Outlet />
-            </div>
+            <SidebarLayout user={user} workspaceId={workspaceId} />
             <Scripts />
             <Suspense>
               <TanStackRouterDevtools />

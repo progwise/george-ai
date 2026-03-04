@@ -77,39 +77,39 @@ function RouteComponent() {
   }, [aiListItems.items, selectedItemId])
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4">
-        {/* Controls */}
-        <div className="">
-          <div className="flex grow flex-row items-center gap-2">
-            <div className="flex grow items-center gap-2">
-              <ListFieldsTableMenu list={aiList} fields={aiList.fields} unfilteredCount={aiListItems.unfilteredCount} />
+    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
+      {/* Controls */}
+      <div>
+        <div className="flex grow flex-row items-center gap-2">
+          <div className="flex grow items-center gap-2">
+            <ListFieldsTableMenu list={aiList} fields={aiList.fields} unfilteredCount={aiListItems.unfilteredCount} />
 
-              {/* Summary */}
-              <div className="text-sm text-base-content/70">
-                {t('lists.files.showing', {
-                  start: page * pageSize + 1,
-                  end: Math.min((page + 1) * pageSize, aiListItems.count),
-                  total: aiListItems.count,
-                })}
-              </div>
-            </div>
-            <div className="text-sm">
-              <Pagination
-                totalItems={aiListItems.count}
-                itemsPerPage={pageSize}
-                currentPage={page + 1} // Convert from 0-based to 1-based
-                onPageChange={(page) => handlePageChange(page - 1, pageSize)} // Convert back to 0-based
-                showPageSizeSelector={true}
-                onPageSizeChange={(newPageSize) => handlePageChange(0, newPageSize)}
-              />
+            {/* Summary */}
+            <div className="text-sm text-base-content/70">
+              {t('lists.files.showing', {
+                start: page * pageSize + 1,
+                end: Math.min((page + 1) * pageSize, aiListItems.count),
+                total: aiListItems.count,
+              })}
             </div>
           </div>
-
-          {/* Pagination with page size selector */}
-
-          <ListFieldsTableFilterBadges listId={aiList.id} fields={aiList.fields} selectedItem={selectedItem} />
+          <div className="text-sm">
+            <Pagination
+              totalItems={aiListItems.count}
+              itemsPerPage={pageSize}
+              currentPage={page + 1} // Convert from 0-based to 1-based
+              onPageChange={(page) => handlePageChange(page - 1, pageSize)} // Convert back to 0-based
+              showPageSizeSelector={true}
+              onPageSizeChange={(newPageSize) => handlePageChange(0, newPageSize)}
+            />
+          </div>
         </div>
+
+        {/* Pagination with page size selector */}
+
+        <ListFieldsTableFilterBadges listId={aiList.id} fields={aiList.fields} selectedItem={selectedItem} />
+      </div>
+      <div className="overflow-auto">
         <ListFieldsTable list={aiList} listItems={aiListItems} />
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
-import { LibraryMenu } from '../../../../components/library/library-menu'
+import { LibraryActions } from '../../../../components/library/library-menu'
 import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
@@ -14,14 +14,15 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
 
 function RouteComponent() {
   const { libraryId } = Route.useParams()
-  const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
+  const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   const { t } = useTranslation()
 
   return (
-    <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-4">
-      <div>
-        <LibraryMenu library={aiLibrary} />
+    <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-4">
+      <div className="flex flex-row items-center justify-center gap-1">
+        <h3 className="text-xl font-bold text-nowrap text-base-content">{library.name}</h3>
+        <LibraryActions library={library} />
       </div>
       <div role="tablist" className="tabs-lift tabs justify-end">
         <a className="tab tab-disabled flex-1 cursor-default text-center">
@@ -88,7 +89,7 @@ function RouteComponent() {
           {t('labels.updates')}
         </Link>
       </div>
-      <div className="min-h-0 w-full bg-base-100 p-3">
+      <div className="min-h-0 bg-base-100 p-3">
         <Outlet />
       </div>
     </div>

@@ -30,32 +30,30 @@ function RouteComponent() {
   const { currentWorkspace } = useWorkspace(user)
 
   return (
-    <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-2">
+    <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-2">
       {/* Admin Header with Navigation */}
-      <div className="border-b border-primary/20 bg-linear-to-r from-primary/10 via-secondary/10 to-accent/10 shadow-sm">
-        <div className="container mx-auto p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Header Section */}
-            <div className="flex items-center gap-4">
-              <div className="rounded-full bg-linear-to-br from-primary/20 to-secondary/20 p-3 shadow-lg">
-                <ShieldCheckIcon className="size-8 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-primary">{t('admin.adminAreaHeadline')}</h1>
-                <p className="text-sm opacity-70">{t('admin.adminAreaSubtitle')}</p>
-              </div>
+      <div className="container mx-auto rounded-lg bg-linear-to-r from-primary/10 via-secondary/10 to-accent/10 p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          {/* Header Section */}
+          <div className="flex items-center gap-4">
+            <div className="rounded-full bg-linear-to-br from-primary/20 to-secondary/20 p-3 shadow-lg">
+              <ShieldCheckIcon className="size-8 text-primary" />
             </div>
-            {/* Workspace Indicator */}
-            <div className="flex items-center gap-3 rounded-xl bg-base-100/80 px-4 py-2 shadow-md backdrop-blur-sm">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <BuildingOfficeIcon className="size-5 text-primary" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-medium tracking-wide text-base-content/60 uppercase">
-                  {t('admin.administeringWorkspace')}
-                </span>
-                <span className="text-sm font-semibold text-base-content">{currentWorkspace?.name}</span>
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold text-primary">{t('admin.adminAreaHeadline')}</h1>
+              <p className="text-sm opacity-70">{t('admin.adminAreaSubtitle')}</p>
+            </div>
+          </div>
+          {/* Workspace Indicator */}
+          <div className="flex items-center gap-3 rounded-xl bg-base-100/80 px-4 py-2 shadow-md backdrop-blur-sm">
+            <div className="rounded-lg bg-primary/10 p-2">
+              <BuildingOfficeIcon className="size-5 text-primary" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-medium tracking-wide text-base-content/60 uppercase">
+                {t('admin.administeringWorkspace')}
+              </span>
+              <span className="text-sm font-semibold text-base-content">{currentWorkspace?.name}</span>
             </div>
           </div>
         </div>

@@ -1,15 +1,13 @@
-import { Link, useRouteContext } from '@tanstack/react-router'
+import { useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
-import { ListMenu_AiListFragment, ListMenu_AiListsFragment } from '../../gql/graphql'
+import { ListMenu_AiListFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DownloadIcon } from '../../icons/download-icon'
-import { ListPlusIcon } from '../../icons/list-plus-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { DialogForm } from '../dialog-form'
 import { ListExportDialog } from './list-export-dialog'
-import { NewListDialog } from './new-list-dialog'
 import { useListActions } from './use-list-actions'
 
 graphql(`
@@ -19,20 +17,11 @@ graphql(`
   }
 `)
 
-graphql(`
-  fragment ListMenu_AiLists on AiList {
-    id
-    name
-  }
-`)
-
 interface ListMenuProps {
   list: ListMenu_AiListFragment
-  selectableLists: ListMenu_AiListsFragment[]
 }
 
-export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
-  const newListDialogRef = useRef<HTMLDialogElement | null>(null)
+export const ListMenu = ({ list }: ListMenuProps) => {
   const deleteDialogRef = useRef<HTMLDialogElement | null>(null)
   const listSelectorDetailsRef = useRef<HTMLDetailsElement | null>(null)
   const exportListDialogRef = useRef<HTMLDialogElement | null>(null)
@@ -63,33 +52,6 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
   return (
     <div>
       <ul className="menu menu-horizontal w-full rounded-box">
-        <li>
-          <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('lists.title')}</span>
-        </li>
-        <li>
-          <details aria-label={t('lists.switcherTitle')} ref={listSelectorDetailsRef} className="z-50">
-            <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
-              {list.name}
-            </summary>
-            <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
-              {selectableLists.map((l) => (
-                <li role="option" key={l.id} aria-selected={l.id === list.id}>
-                  <Link
-                    to="."
-                    className="text-nowrap"
-                    params={{ listId: l.id }}
-                    activeProps={{ className: 'font-bold' }}
-                    onClick={() => {
-                      listSelectorDetailsRef.current?.removeAttribute('open')
-                    }}
-                  >
-                    {l.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </details>
-        </li>
         <li className="grow items-end">
           <button
             type="button"
@@ -102,18 +64,7 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
             <span className="max-lg:hidden">{t('lists.export.button')}</span>
           </button>
         </li>
-        <li>
-          <button
-            type="button"
-            onClick={() => newListDialogRef.current?.showModal()}
-            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-            title={t('lists.newList')}
-            data-tip={t('lists.newList')}
-          >
-            <ListPlusIcon className="size-5" />
-            <span className="max-lg:hidden">{t('lists.newList')}</span>
-          </button>
-        </li>
+
         <li>
           <button
             type="button"
@@ -128,7 +79,6 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
           </button>
         </li>
       </ul>
-      <NewListDialog ref={newListDialogRef} />
       <DialogForm ref={deleteDialogRef} title={t('lists.deleteDialogTitle')} onSubmit={() => deleteList()}>
         {t('lists.deleteDialogConfirmation', { name: list.name })}
       </DialogForm>
