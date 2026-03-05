@@ -7,6 +7,8 @@ import { NewAutomationDialog } from '../automations/new-automation-dialog'
 import { NewLibraryDialog } from '../library/new-library-dialog'
 import { NewListDialog } from '../lists/new-list-dialog'
 import TopNavigation from '../top-navigation'
+import { CreateWorkspaceDialog } from '../workspace/create-workspace-dialog'
+import { DeleteWorkspaceDialog } from '../workspace/delete-workspace-dialog'
 import { Sidebar } from './sidebar'
 
 interface SidebarLayoutProps {
@@ -18,6 +20,9 @@ export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
   const newLibraryDialogRef = useRef<HTMLDialogElement | null>(null)
   const newListDialogRef = useRef<HTMLDialogElement | null>(null)
   const newAutomationDialogRef = useRef<HTMLDialogElement | null>(null)
+  const createWorkspaceRef = useRef<HTMLDialogElement>(null)
+  const deleteWorkspaceDialogRef = useRef<HTMLDialogElement>(null)
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   return (
@@ -49,11 +54,15 @@ export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
             newLibraryDialogRef={newLibraryDialogRef}
             newListDialogRef={newListDialogRef}
             newAutomationDialogRef={newAutomationDialogRef}
+            createWorkspaceDialogRef={createWorkspaceRef}
+            deleteWorkspaceDialogRef={deleteWorkspaceDialogRef}
           />
 
           <NewLibraryDialog ref={newLibraryDialogRef} />
           <NewListDialog ref={newListDialogRef} />
           <NewAutomationDialog ref={newAutomationDialogRef} />
+          <CreateWorkspaceDialog user={user} dialogRef={createWorkspaceRef} />
+          <DeleteWorkspaceDialog user={user} ref={deleteWorkspaceDialogRef} />
         </>
       )}
     </div>

@@ -1052,6 +1052,7 @@ export default {
     createLong: 'Create new workspace',
     createSuccess: 'Workspace created successfully',
     createTitle: 'Create Workspace',
+    current: 'Workspace: ',
     deleteBlockedDescription: 'This workspace cannot be deleted because it contains items.',
     deleteDescription: 'This action cannot be undone. This will permanently delete this workspace.',
     deleteInstructions: 'Please delete all libraries, assistants, and lists before deleting this workspace.',

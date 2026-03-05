@@ -6,8 +6,10 @@ interface SidebarNavItemsProps {
   items: Array<{ id: string; name: string }>
   groupName: 'libraries' | 'lists' | 'automations'
   getLink: (item: { id: string; name: string }) => { to: string; params: Record<string, string> }
+  count: number
 }
-export function SidebarNavItems({ items, groupName, getLink }: SidebarNavItemsProps) {
+export function SidebarNavItems({ items, groupName, getLink, count }: SidebarNavItemsProps) {
+  console.log(items, count)
   return (
     <>
       {items.map((item) => (
@@ -23,6 +25,7 @@ export function SidebarNavItems({ items, groupName, getLink }: SidebarNavItemsPr
           </div>
         </div>
       ))}
+      {items.length < count && <span>{count - items.length} more items</span>}
     </>
   )
 }

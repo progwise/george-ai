@@ -18,11 +18,11 @@ graphql(`
   }
 `)
 
-interface LibraryActionsProps {
+interface LibraryMenuProps {
   library: LibraryMenu_AiLibraryFragment
 }
 
-export const LibraryActions = ({ library }: LibraryActionsProps) => {
+export const LibraryMenu = ({ library }: LibraryMenuProps) => {
   const deleteDialogRef = useRef<HTMLDialogElement | null>(null)
   const librarySelectorDetailsRef = useRef<HTMLDetailsElement | null>(null)
   const { t } = useTranslation()
@@ -48,13 +48,13 @@ export const LibraryActions = ({ library }: LibraryActionsProps) => {
     }
   }, [])
 
-  const copyItemLink = useCallback(async () => {
+  const copyLibraryLink = useCallback(async () => {
     const path = `/libraries/${library.id}`
     const fullUrl = `${window.location.origin}${path}`
 
     try {
       await navigator.clipboard.writeText(fullUrl)
-      const popoverElement = document.getElementById('popoverLibraryActions')
+      const popoverElement = document.getElementById('popoverLibraryMenu')
       if (popoverElement) {
         popoverElement.hidePopover()
       }
@@ -69,11 +69,11 @@ export const LibraryActions = ({ library }: LibraryActionsProps) => {
   return (
     <>
       <button
-        popoverTarget="popoverLibraryActions"
+        popoverTarget="popoverLibraryMenu"
         tabIndex={0}
         type="button"
         className={'btn btn-circle bg-base-300 btn-xs'}
-        style={{ anchorName: 'anchorLibraryActions' } as React.CSSProperties}
+        style={{ anchorName: 'anchorLibraryMenu' } as React.CSSProperties}
       >
         <span className="size-3">…</span>
       </button>
@@ -81,10 +81,10 @@ export const LibraryActions = ({ library }: LibraryActionsProps) => {
       <ul
         className="dropdown rounded-xl bg-base-200 p-1.5 shadow-sm"
         popover="auto"
-        id="popoverLibraryActions"
+        id="popoverLibraryMenu"
         style={
           {
-            positionAnchor: 'anchorLibraryActions',
+            positionAnchor: 'anchorLibraryMenu',
             transition: 'none',
             top: 'calc(anchor(bottom) + 3px)',
             left: 'calc(anchor(left) - 12px)',
@@ -94,7 +94,7 @@ export const LibraryActions = ({ library }: LibraryActionsProps) => {
         <li>
           <button
             type="button"
-            onClick={copyItemLink}
+            onClick={copyLibraryLink}
             className="btn w-full justify-start rounded-lg border-none px-3 py-1.5 font-medium btn-ghost hover:bg-base-100"
           >
             <ClipboardIcon />
@@ -126,7 +126,7 @@ export const LibraryActions = ({ library }: LibraryActionsProps) => {
         onSubmit={() => {
           deleteLibrary()
         }}
-        submitButtonText={t('actions.delete')}
+        submitButtonText={t('Menu.delete')}
         disabledSubmit={isPending}
       />
     </>

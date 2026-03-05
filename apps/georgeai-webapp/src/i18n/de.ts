@@ -1061,6 +1061,7 @@ export default {
     createLong: 'Neuen Arbeitsbereich erstellen',
     createSuccess: 'Arbeitsbereich erfolgreich erstellt',
     createTitle: 'Arbeitsbereich erstellen',
+    current: 'Arbeitsbereich: ',
     deleteBlockedDescription: 'Dieser Arbeitsbereich kann nicht gelöscht werden, da er Elemente enthält.',
     deleteDescription: 'Diese Aktion kann nicht rückgängig gemacht werden. Der Arbeitsbereich wird dauerhaft gelöscht.',
     deleteInstructions:

@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
-import { LibraryActions } from '../../../../components/library/library-menu'
+import { LibraryMenu } from '../../../../components/library/library-menu'
 import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 
@@ -21,8 +21,8 @@ function RouteComponent() {
   return (
     <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-4">
       <div className="flex flex-row items-center justify-center gap-1">
-        <h3 className="text-xl font-bold text-nowrap text-base-content">{library.name}</h3>
-        <LibraryActions library={library} />
+        <h3 className="text-xl font-bold text-nowrap">{library.name}</h3>
+        <LibraryMenu library={library} />
       </div>
       <div role="tablist" className="tabs-lift tabs justify-end">
         <a className="tab tab-disabled flex-1 cursor-default text-center">

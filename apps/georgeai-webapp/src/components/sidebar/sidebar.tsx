@@ -6,15 +6,18 @@ import 'tailwind-merge'
 import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ConversationIcon } from '../../icons/conversation-icon'
+import { FolderPlusIcon } from '../../icons/folder-plus'
 import { LibraryIcon } from '../../icons/library-icon'
 import { LinkIcon } from '../../icons/link-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
+import { TrashIcon } from '../../icons/trash-icon'
 import UserIcon from '../../icons/user-icon'
 import { UsersIcon } from '../../icons/users-icon'
 import { getAutomationsQueryOptions } from '../automations/queries'
 import { getLibrariesQueryOptions } from '../library/queries/get-libraries'
 import { getListsQueryOptions } from '../lists/queries'
 import { WorkspaceMembersDialog } from '../workspace/members/workspace-members-dialog'
+import { useWorkspace } from '../workspace/use-workspace'
 import { SidebarDivider } from './sidebar-divider'
 import { SidebarHeader } from './sidebar-header'
 import { SidebarNavGroup } from './sidebar-nav-group'
@@ -27,6 +30,8 @@ interface SidebarProps {
   newLibraryDialogRef: React.RefObject<HTMLDialogElement | null>
   newListDialogRef: React.RefObject<HTMLDialogElement | null>
   newAutomationDialogRef: React.RefObject<HTMLDialogElement | null>
+  createWorkspaceDialogRef: React.RefObject<HTMLDialogElement | null>
+  deleteWorkspaceDialogRef: React.RefObject<HTMLDialogElement | null>
 }
 
 export function Sidebar({
@@ -36,11 +41,15 @@ export function Sidebar({
   newLibraryDialogRef,
   newListDialogRef,
   newAutomationDialogRef,
+  createWorkspaceDialogRef,
+  deleteWorkspaceDialogRef,
 }: SidebarProps) {
   const { t } = useTranslation()
   const membersDialogRef = useRef<HTMLDialogElement>(null)
+  const { validate, isDefaultWorkspace, currentUserRole } = useWorkspace(user)
+
   const {
-    data: { items },
+    data: { items: libraries, totalCount: librariesCount },
   } = useSuspenseQuery(getLibrariesQueryOptions())
   const {
     data: { aiLists },
@@ -53,39 +62,47 @@ export function Sidebar({
     {
       icon: <LibraryIcon className="shrink-0" />,
       label: t('sidebar.libraries'),
-      items: items,
+      items: libraries,
       to: '/libraries',
-      groupName: 'libraries' as const,
+      groupName: 'libraries',
       dialogRef: newLibraryDialogRef,
       getLink: (item: { id: string; name: string }) => ({
         to: '/libraries/$libraryId',
         params: { libraryId: item.id },
       }),
+      count: librariesCount,
     },
     {
       icon: <ListViewIcon className="shrink-0" />,
       label: t('sidebar.lists'),
       items: aiLists,
       to: '/lists',
-      groupName: 'lists' as const,
+      groupName: 'lists',
       dialogRef: newListDialogRef,
       getLink: (item: { id: string; name: string }) => ({ to: '/lists/$listId', params: { listId: item.id } }),
+      count: 0, // TODO
     },
     {
       icon: <LinkIcon className="shrink-0" />,
       label: t('sidebar.automations'),
       items: automations,
       to: '/automations',
-      groupName: 'automations' as const,
+      groupName: 'automations',
       dialogRef: newAutomationDialogRef,
       getLink: (item: { id: string; name: string }) => ({
         to: '/automations/$automationId',
         params: { automationId: item.id },
       }),
+      count: 0,
     },
   ] as const
 
   const activeWorkspaceId = workspaceId ?? user.defaultWorkspaceId
+
+  const handleDeleteWorkspaceClick = async () => {
+    await validate()
+    deleteWorkspaceDialogRef.current?.showModal()
+  }
 
   return (
     <div
@@ -103,7 +120,7 @@ export function Sidebar({
         <ul className="flex flex-col is-drawer-open:pointer-events-auto">
           <SidebarDivider />
 
-          {menuItems.map(({ icon, label, items, to, groupName, dialogRef: newItemDialogRef, getLink }) => (
+          {menuItems.map(({ icon, label, items, to, groupName, dialogRef: newItemDialogRef, getLink, count }) => (
             <SidebarNavGroup
               key={groupName}
               icon={icon}
@@ -114,6 +131,7 @@ export function Sidebar({
               groupName={groupName}
               newItemDialogRef={newItemDialogRef}
               getLink={getLink}
+              count={count}
             />
           ))}
           <li>
@@ -132,11 +150,11 @@ export function Sidebar({
           </li>
           <SidebarDivider />
 
-          <li>
+          <li className="px-1">
             <button
               type="button"
               onClick={() => membersDialogRef.current?.showModal()}
-              className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-5 hover:animate-pulse is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 hover:animate-pulse is-drawer-close:tooltip is-drawer-close:tooltip-right"
               data-tip={t('workspace.members.title')}
               aria-label={t('workspace.members.title')}
             >
@@ -144,6 +162,35 @@ export function Sidebar({
               <span className="text-sm whitespace-nowrap is-drawer-close:hidden">{t('workspace.members.title')}</span>
             </button>
           </li>
+          <li className="px-1">
+            <button
+              type="button"
+              onClick={() => createWorkspaceDialogRef.current?.showModal()}
+              className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 hover:animate-pulse is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              data-tip={t('workspace.createLong')}
+              aria-label={t('workspace.createTitle')}
+            >
+              <FolderPlusIcon className="mx-0 shrink-0" />
+              <span className="text-sm whitespace-nowrap is-drawer-close:hidden">{t('workspace.createTitle')}</span>
+            </button>
+          </li>
+          {/* Delete button - only show for owners of non-default workspaces */}
+          {currentUserRole === 'owner' && !isDefaultWorkspace && (
+            <li className="px-1">
+              <button
+                type="button"
+                onClick={handleDeleteWorkspaceClick}
+                className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 text-error hover:bg-error/20 is-drawer-close:tooltip is-drawer-close:tooltip-right"
+                data-tip={t('workspace.deleteTitle')}
+                aria-label={t('workspace.deleteTitle')}
+              >
+                <TrashIcon className="shrink-0" />
+                <span className="text-sm whitespace-nowrap text-error is-drawer-close:hidden">
+                  {t('workspace.deleteTitle')}
+                </span>
+              </button>
+            </li>
+          )}
         </ul>
       </label>
 

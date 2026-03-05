@@ -17,6 +17,7 @@ interface SidebarNavGroupProps {
   groupName: 'libraries' | 'lists' | 'automations'
   newItemDialogRef: React.RefObject<HTMLDialogElement | null>
   getLink: (item: { id: string; name: string }) => { to: string; params: Record<string, string> }
+  count: number
 }
 
 export const SidebarNavGroup = ({
@@ -28,6 +29,7 @@ export const SidebarNavGroup = ({
   groupName,
   newItemDialogRef,
   getLink,
+  count,
 }: SidebarNavGroupProps) => {
   const { t } = useTranslation()
 
@@ -82,7 +84,7 @@ export const SidebarNavGroup = ({
                 />
               </div>
               <div className="collapse-content p-0 pr-1">
-                <SidebarNavItems items={items} groupName={groupName} getLink={getLink} />
+                <SidebarNavItems items={items} groupName={groupName} getLink={getLink} count={count} />
               </div>
             </div>
           ) : (
@@ -114,7 +116,7 @@ export const SidebarNavGroup = ({
                 <ul
                   className={`invisible absolute -top-0.5 left-15 min-w-96 cursor-default rounded-box bg-base-200 p-1 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
                 >
-                  <SidebarNavItems items={items} groupName={groupName} getLink={getLink} />
+                  <SidebarNavItems items={items} groupName={groupName} getLink={getLink} count={count} />
                 </ul>
               </div>
             ) : (
