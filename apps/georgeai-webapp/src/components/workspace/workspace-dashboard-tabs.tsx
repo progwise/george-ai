@@ -140,6 +140,12 @@ export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) 
                       </Link>
                     </li>
                   ))}
+                  {libraries.items.length < libraries.totalCount && (
+                    <div className="flex justify-center p-2">
+                      {t('dashboard.currentWorkspace')}
+                      search through {libraries.totalCount - libraries.items.length} more libraries
+                    </div>
+                  )}
                 </ul>
               ) : (
                 <p className="text-base-content/50">{t('dashboard.emptyStates.noLibraries')}</p>

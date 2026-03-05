@@ -3,17 +3,16 @@ import { twMerge } from 'tailwind-merge'
 
 import { formatBytes } from '@george-ai/web-utils'
 
-import { CurrentUserFragment } from '../../gql/graphql'
+import { CurrentUserFragment, Workspace } from '../../gql/graphql'
 import { MigrateWorkspaceDialog } from './migrate-workspace-dialog'
-import { useWorkspace } from './use-workspace'
 
 interface WorkspaceStatusCardProps {
   user: CurrentUserFragment
+  currentWorkspace: Workspace | undefined
 }
 
-export function WorkspaceStatusCard({ user }: WorkspaceStatusCardProps) {
+export function WorkspaceStatusCard({ user, currentWorkspace }: WorkspaceStatusCardProps) {
   const [showMigrationDialog, setShowMigrationDialog] = useState(false)
-  const { currentWorkspace } = useWorkspace(user)
   if (!currentWorkspace) {
     return (
       <div className="stats min-w-50 flex-1 shadow-sm">

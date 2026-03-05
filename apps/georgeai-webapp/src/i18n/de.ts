@@ -85,7 +85,7 @@ export default {
     manageAiModels: 'AI-Modelle',
     manageAiModelsDescription: 'AI-Modelle von allen Anbietern entdecken, konfigurieren und verwalten.',
     manageQueues: 'Warteschlangen',
-    manageQueuesDescription: 'Queue-Worker steuern und fehlgeschlagene Verarbeitungsaufgaben verwalten.',
+    manageWorkersLabel: 'Worker-Übersicht',
     manageUsers: 'Benutzer',
     manageUsersDescription:
       'Alle Benutzer anzeigen, Konten aktivieren, Profile bearbeiten und Benutzer bei Bedarf löschen.',
@@ -491,7 +491,7 @@ export default {
       owned: 'Eigene',
       shared: 'Geteilt',
     },
-    subtitle: 'Ihr Arbeitsbereich und Systemstatus',
+    subtitle: 'Derzeitiger Arbeitsbereich: ',
     tabs: {
       assistants: 'Assistenten',
       conversations: 'Konversationen',

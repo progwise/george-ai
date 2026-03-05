@@ -4,6 +4,7 @@ import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { LibraryMenu } from '../../../../components/library/library-menu'
 import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
+import { LibraryIcon } from '../../../../icons/library-icon'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId')({
   component: RouteComponent,
@@ -21,6 +22,7 @@ function RouteComponent() {
   return (
     <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-4">
       <div className="flex flex-row items-center justify-center gap-1">
+        <LibraryIcon className="mr-2" />
         <h3 className="text-xl font-bold text-nowrap">{library.name}</h3>
         <LibraryMenu library={library} />
       </div>

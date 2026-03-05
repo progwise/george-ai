@@ -1,18 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
-import { CurrentUserFragment } from '../../gql/graphql'
+import { Workspace } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { getModelProviderStatusQueryOptions } from './queries'
-import { useWorkspace } from './use-workspace'
 
 interface WorkspaceModelProviderCardsProps {
-  user: CurrentUserFragment
+  currentWorkspace: Workspace | undefined
 }
-export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCardsProps) => {
+export const WorkspaceModelProviderCards = ({ currentWorkspace }: WorkspaceModelProviderCardsProps) => {
   const { t } = useTranslation()
-
-  const { currentWorkspace } = useWorkspace(user)
 
   const { data: modelProviderStatus, isLoading, error } = useQuery(getModelProviderStatusQueryOptions())
 

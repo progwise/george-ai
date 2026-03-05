@@ -5,6 +5,7 @@ import { AutomationMenu } from '../../../../components/automations/automation-me
 import { getAutomationQueryOptions } from '../../../../components/automations/queries'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { EditIcon } from '../../../../icons/edit-icon'
+import { LinkIcon } from '../../../../icons/link-icon'
 import { ListViewIcon } from '../../../../icons/list-view-icon'
 import { StatisticsIcon } from '../../../../icons/statistics-icon'
 
@@ -26,6 +27,7 @@ function RouteComponent() {
   return (
     <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-4">
       <div className="flex flex-row items-center justify-center gap-1">
+        <LinkIcon className="mr-2" />
         <h3 className="text-xl font-bold text-nowrap">{automation.name}</h3>
         <AutomationMenu automation={automation} />
       </div>

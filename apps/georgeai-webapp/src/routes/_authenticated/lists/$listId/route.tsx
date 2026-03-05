@@ -26,6 +26,7 @@ function RouteComponent() {
   return (
     <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-4">
       <div className="flex flex-row items-center justify-center gap-1">
+        <ListViewIcon className="mr-2" />
         <h3 className="text-xl font-bold text-nowrap">{aiList.name}</h3>
         <ListMenu list={aiList} />
       </div>

@@ -1,17 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
-import { CurrentUserFragment } from '../../gql/graphql'
+import { Workspace } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { getQueueStatusQueryOptions } from './queries'
-import { useWorkspace } from './use-workspace'
 
 interface WorkspaceQueueCardsProps {
-  user: CurrentUserFragment
+  currentWorkspace: Workspace | undefined
 }
-export const WorkspaceQueueCards = ({ user }: WorkspaceQueueCardsProps) => {
+export const WorkspaceQueueCards = ({ currentWorkspace }: WorkspaceQueueCardsProps) => {
   const { t } = useTranslation()
-  const { currentWorkspace } = useWorkspace(user)
 
   const { data: queueSystemStatus, isLoading, error } = useQuery(getQueueStatusQueryOptions())
 
@@ -55,7 +53,7 @@ export const WorkspaceQueueCards = ({ user }: WorkspaceQueueCardsProps) => {
           return (
             <Link
               key={queue.queueType}
-              to="/admin/queues"
+              to="/admin/workers"
               className="stats min-w-50 flex-1 shadow-sm transition-shadow hover:shadow-lg"
             >
               {queueCard}

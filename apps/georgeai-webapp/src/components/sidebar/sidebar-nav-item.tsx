@@ -9,7 +9,6 @@ interface SidebarNavItemsProps {
   count: number
 }
 export function SidebarNavItems({ items, groupName, getLink, count }: SidebarNavItemsProps) {
-  console.log(items, count)
   return (
     <>
       {items.map((item) => (
@@ -25,7 +24,11 @@ export function SidebarNavItems({ items, groupName, getLink, count }: SidebarNav
           </div>
         </div>
       ))}
-      {items.length < count && <span>{count - items.length} more items</span>}
+      {items.length < count && (
+        <span className="p-1 pl-6">
+          … {count - items.length} more {groupName}
+        </span>
+      )}
     </>
   )
 }

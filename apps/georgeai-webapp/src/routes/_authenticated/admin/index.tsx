@@ -127,7 +127,7 @@ function AdminDashboard() {
         </Link>
 
         {/* Queue Management Card */}
-        <Link to="/admin/queues" className="group">
+        <Link to="/admin/workers" className="group">
           <div className="card border border-accent/20 bg-linear-to-br from-accent/10 to-accent/5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:border-accent/40 hover:shadow-2xl">
             <div className="card-body p-6">
               <div className="flex items-start justify-between">
@@ -137,11 +137,11 @@ function AdminDashboard() {
                       <ListViewIcon className="size-8 text-accent" />
                     </div>
                     <div>
-                      <h3 className="mb-1 card-title text-xl">{t('admin.manageQueues')}</h3>
-                      <div className="badge badge-outline badge-accent">Queue Control</div>
+                      <h3 className="mb-1 card-title text-xl">{t('admin.manageWorkers')}</h3>
+                      <div className="badge badge-outline badge-accent">{t('admin.manageWorkersLabel')}</div>
                     </div>
                   </div>
-                  <p className="text-sm/relaxed opacity-80">{t('admin.manageQueuesDescription')}</p>
+                  <p className="text-sm/relaxed opacity-80">{t('admin.manageWorkersDescription')}</p>
                 </div>
                 <ArrowRight className="size-6 shrink-0 opacity-60 transition-all duration-200 group-hover:translate-x-1 group-hover:opacity-100" />
               </div>
@@ -149,7 +149,7 @@ function AdminDashboard() {
               {/* Feature highlights */}
               <div className="mt-4 flex flex-wrap gap-2">
                 <div className="badge badge-ghost badge-sm">Start/Stop Workers</div>
-                <div className="badge badge-ghost badge-sm">Retry Failed Tasks</div>
+                <div className="badge badge-ghost badge-sm">{t('admin.workers.embeddingProgress')}</div>
                 <div className="badge badge-ghost badge-sm">Monitor Status</div>
               </div>
             </div>
