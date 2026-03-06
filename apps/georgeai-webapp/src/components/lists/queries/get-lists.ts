@@ -8,6 +8,7 @@ import { backendRequest } from '../../../server-functions/backend'
 graphql(`
   fragment ListsBase on AiList {
     id
+    name
     createdAt
     updatedAt
   }
@@ -19,7 +20,6 @@ const getLists = createServerFn({ method: 'GET' }).handler(async (ctx) =>
       query getUserLists {
         aiLists {
           ...ListsBase
-          ...ListMenu_AiLists
         }
       }
     `),

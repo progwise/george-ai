@@ -26,16 +26,16 @@ const RouteComponent = () => {
 
       {/* Overview Cards & System Status */}
       <div className="flex flex-wrap gap-3">
-        {user && <WorkspaceStatusCard user={user} currentWorkspace={currentWorkspace} />}
+        <WorkspaceStatusCard user={user} currentWorkspace={currentWorkspace} />
         {/* Task Queues */}
-        {user && <WorkspaceQueueCards user={user} currentWorkspace={currentWorkspace} />}
+        <WorkspaceQueueCards user={user} currentWorkspace={currentWorkspace} />
         {/* AI Service Instances */}
-        {user && <WorkspaceModelProviderCards user={user} currentWorkspace={currentWorkspace} />}
+        <WorkspaceModelProviderCards user={user} currentWorkspace={currentWorkspace} />
       </div>
 
       {/* Tabs for all entities */}
 
-      {user && <WorkspaceDashboardTabs user={user} />}
+      <WorkspaceDashboardTabs user={user} />
     </div>
   )
 }

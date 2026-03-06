@@ -2672,10 +2672,12 @@ export type WorkerEntry = {
 }
 
 export enum WorkerType {
-  AiHealthManagement = 'AI_HEALTH_MANAGEMENT',
-  AiProviderCalling = 'AI_PROVIDER_CALLING',
-  WorkerRegistry = 'WORKER_REGISTRY',
-  WorkspaceProcessing = 'WORKSPACE_PROCESSING',
+  DocumentProcessing = 'DOCUMENT_PROCESSING',
+  ModelCallResponder = 'MODEL_CALL_RESPONDER',
+  ProviderInstanceManager = 'PROVIDER_INSTANCE_MANAGER',
+  ProviderInstanceResponder = 'PROVIDER_INSTANCE_RESPONDER',
+  WorkerManager = 'WORKER_MANAGER',
+  WorkspaceManager = 'WORKSPACE_MANAGER',
 }
 
 export type Workspace = {
@@ -3849,8 +3851,6 @@ export type AiAssistantCardsQuery = {
 }
 
 export type AutomationMenu_AutomationFragment = { __typename?: 'Automation'; id: string; name: string }
-
-export type AutomationMenu_AutomationsFragment = { __typename?: 'Automation'; id: string; name: string }
 
 export type AutomationBatchDetailFragment = {
   __typename?: 'AutomationBatch'
@@ -6042,8 +6042,6 @@ export type ListFieldsTable_FieldFragment = {
 
 export type ListMenu_AiListFragment = { __typename?: 'AiList'; id: string; name: string }
 
-export type ListMenu_AiListsFragment = { __typename?: 'AiList'; id: string; name: string }
-
 export type ListSourcesManager_ListFragment = {
   __typename?: 'AiList'
   id: string
@@ -6262,9 +6260,9 @@ export type GetListQuery = {
   aiList: {
     __typename?: 'AiList'
     id: string
+    name: string
     createdAt: string
     updatedAt?: string | null
-    name: string
     fields: Array<{
       __typename?: 'AiListField'
       id: string
@@ -6314,13 +6312,19 @@ export type GetListQuery = {
   }
 }
 
-export type ListsBaseFragment = { __typename?: 'AiList'; id: string; createdAt: string; updatedAt?: string | null }
+export type ListsBaseFragment = {
+  __typename?: 'AiList'
+  id: string
+  name: string
+  createdAt: string
+  updatedAt?: string | null
+}
 
 export type GetUserListsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetUserListsQuery = {
   __typename?: 'Query'
-  aiLists: Array<{ __typename?: 'AiList'; id: string; createdAt: string; updatedAt?: string | null; name: string }>
+  aiLists: Array<{ __typename?: 'AiList'; id: string; name: string; createdAt: string; updatedAt?: string | null }>
 }
 
 export type AddListFieldMutationVariables = Exact<{
@@ -7023,6 +7027,23 @@ export type UpdateWorkspaceMemberRoleMutation = {
     role: string
     user: { __typename?: 'User'; id: string; name?: string | null; email: string }
   }
+}
+
+export type WorkspaceStatusCard_CurrentWorkspaceFragment = {
+  __typename?: 'Workspace'
+  role?: WorkspaceRole | null
+  name: string
+  chunksCount?: number | null
+  manifest?: {
+    __typename?: 'WorkspaceManifest'
+    version: number
+    storageStats: {
+      __typename?: 'StorageStats'
+      physicalBytes: number
+      physicalFileCount: number
+      extractionFileCount: number
+    }
+  } | null
 }
 
 export type UserProfileQueryVariables = Exact<{ [key: string]: never }>
@@ -8751,23 +8772,6 @@ export const AutomationMenu_AutomationFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<AutomationMenu_AutomationFragment, unknown>
-export const AutomationMenu_AutomationsFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AutomationMenu_Automations' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Automation' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<AutomationMenu_AutomationsFragment, unknown>
 export const AutomationBatchDetailFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -12211,23 +12215,6 @@ export const ListMenu_AiListFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ListMenu_AiListFragment, unknown>
-export const ListMenu_AiListsFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListMenu_AiLists' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ListMenu_AiListsFragment, unknown>
 export const ListSourcesManager_ListFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -12278,6 +12265,7 @@ export const ListsBaseFragmentDoc = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -12312,6 +12300,46 @@ export const UserProfileForm_UserProfileFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<UserProfileForm_UserProfileFragment, unknown>
+export const WorkspaceStatusCard_CurrentWorkspaceFragmentDoc = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'WorkspaceStatusCard_CurrentWorkspace' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Workspace' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'manifest' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'storageStats' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'chunksCount' } },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<WorkspaceStatusCard_CurrentWorkspaceFragment, unknown>
 export const TypeRefFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -20357,6 +20385,7 @@ export const GetListDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
         ],
@@ -20497,10 +20526,7 @@ export const GetUserListsDocument = {
             name: { kind: 'Name', value: 'aiLists' },
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } },
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListMenu_AiLists' } },
-              ],
+              selections: [{ kind: 'FragmentSpread', name: { kind: 'Name', value: 'ListsBase' } }],
             },
           },
         ],
@@ -20514,20 +20540,9 @@ export const GetUserListsDocument = {
         kind: 'SelectionSet',
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
           { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'ListMenu_AiLists' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiList' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
         ],
       },
     },
@@ -22251,6 +22266,7 @@ export const GetWorkspaceDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'WorkspaceStatusCard_CurrentWorkspace' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
@@ -22295,6 +22311,41 @@ export const GetWorkspaceDocument = {
               ],
             },
           },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'WorkspaceStatusCard_CurrentWorkspace' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'Workspace' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'manifest' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'storageStats' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+          { kind: 'Field', name: { kind: 'Name', value: 'role' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'chunksCount' } },
         ],
       },
     },

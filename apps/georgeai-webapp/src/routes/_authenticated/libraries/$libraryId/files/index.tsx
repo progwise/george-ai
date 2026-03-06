@@ -44,45 +44,40 @@ function RouteComponent() {
   const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   return (
-    <div className="grid size-full grid-rows-[auto_1fr] gap-2 bg-base-100">
-      <div>
-        <div className="relative flex justify-between align-top">
-          <div className="absolute right-0 z-49 md:flex">
-            <FilesActionsBar
-              hasLegacyData={library.manifest?.version !== 1}
-              libraryId={libraryId}
-              totalItems={files.totalCount}
-              showArchived={showArchived}
-              archivedCount={files.archivedCount}
-            />
-          </div>
+    <div className="grid h-full grid-rows-[auto_1fr] justify-center gap-14 bg-base-100">
+      <div className="flex justify-between align-top">
+        <div className="z-49 md:flex">
+          <FilesActionsBar
+            hasLegacyData={library.manifest?.version !== 1}
+            libraryId={libraryId}
+            totalItems={files.totalCount}
+            showArchived={showArchived}
+            archivedCount={files.archivedCount}
+          />
         </div>
-        <div className="mt-10 flex">
-          <div className="flex-1 align-text-top text-xs text-nowrap text-primary italic">
-            {showArchived
-              ? t('files.allFilesForLibrary', { count: files.totalCount })
-              : t('files.activeFilesForLibrary', {
-                  count: files.totalCount,
-                })}
-          </div>
-          <div>
-            <Pagination
-              totalItems={files.totalCount}
-              itemsPerPage={take}
-              currentPage={1 + skip / take}
-              onPageChange={(page) => {
-                // TODO: Add prefetching here
-                navigate({ search: { skip: (page - 1) * take, take, showArchived } })
-              }}
-              showPageSizeSelector={true}
-              onPageSizeChange={(newPageSize) => {
-                navigate({ search: { skip: 0, take: newPageSize, showArchived } })
-              }}
-            />
-          </div>
+
+        <div>
+          {showArchived
+            ? t('files.allFilesForLibrary', { count: files.totalCount })
+            : t('files.activeFilesForLibrary', {
+                count: files.totalCount,
+              })}
+          <Pagination
+            totalItems={files.totalCount}
+            itemsPerPage={take}
+            currentPage={1 + skip / take}
+            onPageChange={(page) => {
+              // TODO: Add prefetching here
+              navigate({ search: { skip: (page - 1) * take, take, showArchived } })
+            }}
+            showPageSizeSelector={true}
+            onPageSizeChange={(newPageSize) => {
+              navigate({ search: { skip: 0, take: newPageSize, showArchived } })
+            }}
+          />
         </div>
       </div>
-      <div className="overflow-auto">
+      <div className="flex min-h-24 max-w-full min-w-[18rem] flex-wrap items-center justify-center overflow-auto">
         <FilesTable firstItemNumber={skip + 1} files={files.items} />
       </div>
     </div>

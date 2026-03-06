@@ -26,7 +26,7 @@ function RouteComponent() {
         <h3 className="text-xl font-bold text-nowrap">{library.name}</h3>
         <LibraryMenu library={library} />
       </div>
-      <div role="tablist" className="tabs-lift tabs justify-end">
+      <div role="tablist" className="tabs-lift tabs">
         <a className="tab tab-disabled flex-1 cursor-default text-center">
           {/* Placeholder empty tab for filling up the line... */}
         </a>
@@ -90,6 +90,9 @@ function RouteComponent() {
         >
           {t('labels.updates')}
         </Link>
+        <a className="tab tab-disabled flex-1 cursor-default text-center">
+          {/* Placeholder empty tab for filling up the line... */}
+        </a>
       </div>
       <div className="min-h-0 bg-base-100 p-3">
         <Outlet />

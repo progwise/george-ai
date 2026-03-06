@@ -284,7 +284,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden size-full overflow-auto lg:block">
+      <div className="hidden h-full overflow-auto lg:block">
         <table className="table-pin-rows table-pin-cols table table-zebra table-sm">
           <thead>
             <tr>

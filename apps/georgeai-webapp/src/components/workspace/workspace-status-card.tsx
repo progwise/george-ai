@@ -3,12 +3,29 @@ import { twMerge } from 'tailwind-merge'
 
 import { formatBytes } from '@george-ai/web-utils'
 
-import { CurrentUserFragment, Workspace } from '../../gql/graphql'
+import { graphql } from '../../gql'
+import { CurrentUserFragment, WorkspaceStatusCard_CurrentWorkspaceFragment } from '../../gql/graphql'
 import { MigrateWorkspaceDialog } from './migrate-workspace-dialog'
+
+graphql(`
+  fragment WorkspaceStatusCard_CurrentWorkspace on Workspace {
+    manifest {
+      version
+      storageStats {
+        physicalBytes
+        physicalFileCount
+        extractionFileCount
+      }
+    }
+    role
+    name
+    chunksCount
+  }
+`)
 
 interface WorkspaceStatusCardProps {
   user: CurrentUserFragment
-  currentWorkspace: Workspace | undefined
+  currentWorkspace: WorkspaceStatusCard_CurrentWorkspaceFragment | undefined
 }
 
 export function WorkspaceStatusCard({ user, currentWorkspace }: WorkspaceStatusCardProps) {

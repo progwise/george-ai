@@ -9,6 +9,7 @@ import { backendRequest } from '../../../server-functions/backend'
 const workspaceQueryDocument = graphql(`
   query GetWorkspace($workspaceId: String!) {
     workspace(workspaceId: $workspaceId) {
+      ...WorkspaceStatusCard_CurrentWorkspace
       id
       name
       slug

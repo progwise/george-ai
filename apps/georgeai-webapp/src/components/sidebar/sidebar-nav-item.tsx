@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 
+import { SearchIcon } from '../../icons/search-icon'
 import { ItemActionsDropdown } from './item-actions-dropdown'
 
 interface SidebarNavItemsProps {
@@ -25,9 +26,15 @@ export function SidebarNavItems({ items, groupName, getLink, count }: SidebarNav
         </div>
       ))}
       {items.length < count && (
-        <span className="p-1 pl-6">
-          … {count - items.length} more {groupName}
-        </span>
+        <Link
+          to="/search"
+          className="group flex h-8 items-center rounded-lg py-0 pl-3 gap-1 text-base-content/75 hover:bg-accent/20 hover:text-base-content"
+        >
+          <SearchIcon />
+          <span>
+            {count - items.length} more {groupName}
+          </span>
+        </Link>
       )}
     </>
   )
