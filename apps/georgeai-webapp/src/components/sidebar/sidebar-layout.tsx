@@ -26,7 +26,7 @@ export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   return (
-    <div className="drawer lg:drawer-open">
+    <div className="drawer md:drawer-open">
       <input
         id="sidebar"
         type="checkbox"
@@ -37,10 +37,10 @@ export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
       <div
         className={twMerge(
           'drawer-content transition-all duration-250 ease-in',
-          isDrawerOpen ? 'lg:pl-64' : 'lg:pl-14',
+          isDrawerOpen ? 'md:pl-64' : 'md:pl-14',
         )}
       >
-        <TopNavigation user={user} isDrawerOpen={isDrawerOpen} />
+        <TopNavigation user={user} isDrawerOpen={isDrawerOpen} setIsDrawerOpen={setIsDrawerOpen} />
         <div role="main">
           <Outlet />
         </div>

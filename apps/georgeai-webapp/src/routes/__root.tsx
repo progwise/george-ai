@@ -6,7 +6,6 @@ import { Suspense } from 'react'
 
 import { AuthProvider } from '../auth/auth-provider'
 import { currentUserQueryOptions } from '../auth/queries'
-import BottomNavigationMobile from '../components/bottom-navigation-mobile'
 import { GeorgeToaster } from '../components/georgeToaster'
 import { SidebarLayout } from '../components/sidebar/sidebar-layout'
 import { getWorkspacesQueryOptions } from '../components/workspace/queries'
@@ -42,7 +41,6 @@ const RootDocument = () => {
             <GeorgeToaster />
           </>
         </AuthProvider>
-        <BottomNavigationMobile />
       </body>
     </html>
   )
