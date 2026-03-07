@@ -144,10 +144,10 @@ export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) 
                     </li>
                   ))}
                   {libraries.items.length < libraries.totalCount && (
-                    <li className="text-base-content/75">
+                    <li className="text-base-content/75 hover:text-base-content">
                       <Link
                         to="/search"
-                        className="flex flex-1 place-content-center items-center gap-2 rounded-lg p-2 hover:bg-accent/20 hover:text-base-content"
+                        className="flex flex-1 place-content-center items-center gap-2 rounded-lg p-2 hover:bg-info/50"
                       >
                         Search through {libraries.totalCount - libraries.items.length} more libraries
                         <SearchIcon />

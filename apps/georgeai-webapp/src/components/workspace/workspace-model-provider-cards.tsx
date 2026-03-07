@@ -1,19 +1,20 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
-import { Workspace } from '../../gql/graphql'
+import { WorkspaceRole } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { getModelProviderStatusQueryOptions } from './queries'
 
 interface WorkspaceModelProviderCardsProps {
-  currentWorkspace: Workspace | undefined
+  currentWorkspaceRole?: WorkspaceRole
 }
-export const WorkspaceModelProviderCards = ({ currentWorkspace }: WorkspaceModelProviderCardsProps) => {
+
+export const WorkspaceModelProviderCards = ({ currentWorkspaceRole }: WorkspaceModelProviderCardsProps) => {
   const { t } = useTranslation()
 
   const { data: modelProviderStatus, isLoading, error } = useQuery(getModelProviderStatusQueryOptions())
 
-  if (!currentWorkspace || isLoading) {
+  if (!currentWorkspaceRole || isLoading) {
     return (
       <div className="stats min-w-50 flex-1 shadow-sm">
         <div className="stat py-3">
@@ -52,7 +53,7 @@ export const WorkspaceModelProviderCards = ({ currentWorkspace }: WorkspaceModel
           </div>
         )
 
-        if (currentWorkspace.role === 'admin' || currentWorkspace.role === 'owner') {
+        if (currentWorkspaceRole === 'admin' || currentWorkspaceRole === 'owner') {
           return (
             <Link
               key={instance.name}

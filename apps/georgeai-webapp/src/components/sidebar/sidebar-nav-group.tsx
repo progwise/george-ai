@@ -83,9 +83,16 @@ export const SidebarNavGroup = ({
                   hoverClass={hoverClass}
                 />
               </div>
-              <div className="collapse-content p-0 pr-1">
-                <SidebarNavItems items={items} groupName={groupName} getLink={getLink} count={count} />
-              </div>
+              <ul className="collapse-content flex flex-col gap-0.5 p-0 pr-1">
+                <SidebarNavItems
+                  items={items}
+                  groupName={groupName}
+                  getLink={getLink}
+                  count={count}
+                  newItemDialogRef={newItemDialogRef}
+                  createNewItemTooltip={createNewItemTooltip}
+                />
+              </ul>
             </div>
           ) : (
             <div className="relative flex h-9 items-center rounded-lg text-sm">
@@ -114,9 +121,19 @@ export const SidebarNavGroup = ({
               <div className="relative text-sm">
                 <SidebarNavigationLink to={to} icon={icon} label="" />
                 <ul
-                  className={`invisible absolute -top-0.5 left-15 min-w-96 cursor-default rounded-box bg-base-200 p-1 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
+                  onClick={(e) => {
+                    e.preventDefault() // prevents the sidebar from opening
+                  }}
+                  className={`invisible absolute -top-0.5 left-15 flex min-w-96 cursor-default flex-col gap-0.5 rounded-box bg-base-200 p-1 opacity-0 transition-all duration-200 not-[&:hover]:delay-300 ${hoverClass} before:hidden`}
                 >
-                  <SidebarNavItems items={items} groupName={groupName} getLink={getLink} count={count} />
+                  <SidebarNavItems
+                    items={items}
+                    groupName={groupName}
+                    getLink={getLink}
+                    count={count}
+                    newItemDialogRef={newItemDialogRef}
+                    createNewItemTooltip={createNewItemTooltip}
+                  />
                 </ul>
               </div>
             ) : (

@@ -28,9 +28,9 @@ const RouteComponent = () => {
       <div className="flex flex-wrap gap-3">
         <WorkspaceStatusCard user={user} currentWorkspace={currentWorkspace} />
         {/* Task Queues */}
-        <WorkspaceQueueCards user={user} currentWorkspace={currentWorkspace} />
+        <WorkspaceQueueCards currentWorkspaceRole={currentWorkspace?.role || undefined} />
         {/* AI Service Instances */}
-        <WorkspaceModelProviderCards user={user} currentWorkspace={currentWorkspace} />
+        <WorkspaceModelProviderCards currentWorkspaceRole={currentWorkspace?.role || undefined} />
       </div>
 
       {/* Tabs for all entities */}

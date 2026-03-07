@@ -39,7 +39,7 @@ export const WorkspaceSwitcher = ({ user }: { user: CurrentUserFragment }) => {
 
   // Show loading skeleton while fetching workspaces
   if (isLoading) {
-    return <div className="h-9 w-32 skeleton" />
+    return <div className="h-9 w-80 skeleton" />
   }
 
   // Hide if no workspaces available

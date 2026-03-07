@@ -57,11 +57,13 @@ function RouteComponent() {
         </div>
 
         <div>
-          {showArchived
-            ? t('files.allFilesForLibrary', { count: files.totalCount })
-            : t('files.activeFilesForLibrary', {
-                count: files.totalCount,
-              })}
+          <div className="text-sm text-base-content/70">
+            {showArchived
+              ? t('files.allFilesForLibrary', { count: files.totalCount })
+              : t('files.activeFilesForLibrary', {
+                  count: files.totalCount,
+                })}
+          </div>
           <Pagination
             totalItems={files.totalCount}
             itemsPerPage={take}
@@ -77,7 +79,7 @@ function RouteComponent() {
           />
         </div>
       </div>
-      <div className="flex min-h-24 max-w-full min-w-[18rem] flex-wrap items-center justify-center overflow-auto">
+      <div className="max-h-[80vh] min-h-24">
         <FilesTable firstItemNumber={skip + 1} files={files.items} />
       </div>
     </div>

@@ -1,26 +1,26 @@
-import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
-import { getAiAssistantsQueryOptions } from '../../../components/assistant/get-assistants'
-import { getAutomationsQueryOptions } from '../../../components/automations/queries'
-import { getConversationsQueryOptions } from '../../../components/conversation/get-conversations'
-import { getLibrariesQueryOptions } from '../../../components/library/queries'
-import { getListsQueryOptions } from '../../../components/lists/queries'
 import { useWorkspace } from '../../../components/workspace'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { SearchIcon } from '../../../icons/search-icon'
 
 const RouteComponent = () => {
   const { t } = useTranslation()
   const { user } = Route.useRouteContext()
-
   const { currentWorkspace } = useWorkspace(user)
-  const { data: libraries } = useQuery(getLibrariesQueryOptions())
-  const { data: lists } = useQuery(getListsQueryOptions())
-  const { data: automations } = useQuery(getAutomationsQueryOptions())
-  const { data: assistants } = useQuery(getAiAssistantsQueryOptions())
-  const { data: conversations } = useQuery(getConversationsQueryOptions())
 
-  return <span>test</span>
+  return (
+    <div className="flex flex-col items-center pt-24">
+      <SearchIcon />
+      <h1>{t('Search')}</h1>
+      <p>Coming soon™</p>
+      {currentWorkspace ? (
+        <p>Current Workspace loaded successfully</p>
+      ) : (
+        <div className="h-6 w-72 skeleton rounded-lg"></div>
+      )}
+    </div>
+  )
 }
 
 export const Route = createFileRoute('/_authenticated/search/')({

@@ -1,19 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
-import { Workspace } from '../../gql/graphql'
+import { WorkspaceRole } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { getQueueStatusQueryOptions } from './queries'
 
 interface WorkspaceQueueCardsProps {
-  currentWorkspace: Workspace | undefined
+  currentWorkspaceRole?: WorkspaceRole
 }
-export const WorkspaceQueueCards = ({ currentWorkspace }: WorkspaceQueueCardsProps) => {
+export const WorkspaceQueueCards = ({ currentWorkspaceRole }: WorkspaceQueueCardsProps) => {
   const { t } = useTranslation()
 
   const { data: queueSystemStatus, isLoading, error } = useQuery(getQueueStatusQueryOptions())
 
-  if (!currentWorkspace || isLoading) {
+  if (!currentWorkspaceRole || isLoading) {
     return (
       <div className="stats min-w-50 flex-1 shadow-sm">
         <div className="stat py-3">
@@ -49,7 +49,7 @@ export const WorkspaceQueueCards = ({ currentWorkspace }: WorkspaceQueueCardsPro
           </div>
         )
 
-        if (currentWorkspace.role === 'admin' || currentWorkspace.role === 'owner') {
+        if (currentWorkspaceRole === 'admin' || currentWorkspaceRole === 'owner') {
           return (
             <Link
               key={queue.queueType}

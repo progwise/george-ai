@@ -162,7 +162,7 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
   }
 
   return (
-    <>
+    <div className="hidden h-full overflow-auto lg:block">
       {listItems.count === 0 ? (
         <div className="rounded-lg border border-base-300 bg-base-200 p-4 text-center text-sm text-base-content/70">
           {t('lists.noFilesFound')}
@@ -478,6 +478,6 @@ export const ListFieldsTable = ({ list, listItems }: ListFieldsTableProps) => {
           )}
         </>
       )}
-    </>
+    </div>
   )
 }

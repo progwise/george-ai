@@ -7,7 +7,7 @@ interface SidebarCreateNewItemButtonProps {
 }
 
 export const SidebarCreateNewItemButton = ({
-  newItemDialogRef: newDialogRef,
+  newItemDialogRef,
   createNewItemTooltip,
   hoverClass,
 }: SidebarCreateNewItemButtonProps) => (
@@ -15,7 +15,7 @@ export const SidebarCreateNewItemButton = ({
     type="button"
     onClick={(e) => {
       e.stopPropagation()
-      newDialogRef.current?.showModal()
+      newItemDialogRef.current?.showModal()
     }}
     className={`tooltip btn tooltip-left right-2 z-20 ml-auto btn-circle shrink-0 opacity-0 btn-ghost btn-xs [&::before]:text-xs ${hoverClass}`}
     data-tip={createNewItemTooltip}
