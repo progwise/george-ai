@@ -102,7 +102,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
 
   return (
     <>
-      <ul className="menu flex-nowrap items-end menu-xs rounded-box bg-base-200 shadow-lg md:menu-horizontal md:items-center">
+      <ul className="menu menu-horizontal flex-nowrap menu-xs rounded-box bg-base-200 shadow-lg md:items-center">
         <li>
           <button
             type="button"

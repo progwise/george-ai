@@ -1,66 +1,58 @@
 import { Link } from '@tanstack/react-router'
 
-import { graphql } from '../../../gql'
-import { FileNavigation_FileFragment } from '../../../gql/graphql'
-
-graphql(`
-  fragment FileNavigation_File on AiLibraryFile {
-    id
-    libraryId
-    name
-  }
-`)
-
 interface FileNavigationProps {
-  file: FileNavigation_FileFragment
+  fileId: string
+  libraryId: string
 }
-export const FileNavigation = ({ file }: FileNavigationProps) => {
+export const FileNavigation = ({ fileId, libraryId }: FileNavigationProps) => {
   return (
-    <ul className="menu menu-horizontal flex-nowrap menu-sm rounded-box bg-base-200 shadow-lg">
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: true, includeSearch: false }}
-          to="/libraries/$libraryId/files/$fileId"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Markdown
-        </Link>
-      </li>
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/tasks"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Tasks
-        </Link>
-      </li>
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/chunks"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Chunks
-        </Link>
-      </li>
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/similarity"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Similarity
-        </Link>
-      </li>
-    </ul>
+    <div role="tablist" className="tabs-lift tabs">
+      <a className="tab tab-disabled flex-1 cursor-default text-center">
+        {/* Placeholder empty tab for filling up the line... */}
+      </a>
+      <Link
+        className="tab"
+        activeOptions={{ exact: true }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId"
+        params={{ libraryId, fileId }}
+      >
+        Markdown
+      </Link>
+      <Link
+        className="tab"
+        activeOptions={{ exact: false }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId/tasks"
+        params={{ libraryId, fileId }}
+      >
+        Tasks
+      </Link>
+      <Link
+        className="tab"
+        activeOptions={{ exact: false }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId/chunks"
+        params={{ libraryId, fileId }}
+      >
+        Chunks
+      </Link>
+      <Link
+        className="tab"
+        activeOptions={{ exact: false }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId/similarity"
+        params={{ libraryId, fileId }}
+      >
+        Similarity
+      </Link>
+      <a className="tab tab-disabled flex-1 cursor-default text-center">
+        {/* Placeholder empty tab for filling up the line... */}
+      </a>
+    </div>
   )
 }
