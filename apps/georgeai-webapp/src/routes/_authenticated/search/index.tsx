@@ -6,6 +6,9 @@ import { getFilesQueryOptions, getLibrariesQueryOptions } from '../../../compone
 import { getListsQueryOptions } from '../../../components/lists/queries'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CrossIcon } from '../../../icons/cross-icon'
+import { FileIcon } from '../../../icons/file-icon'
+import { LibraryIcon } from '../../../icons/library-icon'
+import { ListViewIcon } from '../../../icons/list-view-icon'
 import { SearchIcon } from '../../../icons/search-icon'
 
 const RouteComponent = () => {
@@ -77,13 +80,14 @@ const RouteComponent = () => {
 
       <div className="mx-auto mt-4 min-h-0 w-full flex-1 overflow-y-auto lg:w-2xl">
         {filtered.libraries.map((lib) => (
-          <div className="flex flex-col rounded-lg" key={lib.id}>
+          <div key={lib.id}>
             {lib.libMatches && (
               <Link
-                className="rounded-lg px-2 py-2 hover:bg-base-300"
+                className="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-base-300"
                 to="/libraries/$libraryId"
                 params={{ libraryId: lib.id }}
               >
+                <LibraryIcon className="text-primary" />
                 <span>{lib.name}</span>
               </Link>
             )}
@@ -95,19 +99,26 @@ const RouteComponent = () => {
                 to="/libraries/$libraryId/files/$fileId"
                 params={{ libraryId: lib.id, fileId: file.id }}
               >
-                <span>{file.name}</span>
-                <span className="text-sm text-base-content/50">{lib.name}</span>
+                <div className="flex items-center gap-2">
+                  <FileIcon />
+                  {file.name}
+                </div>
+                <span className="pl-6 text-sm text-base-content/50">{lib.name}</span>
               </Link>
             ))}
           </div>
         ))}
 
         {filtered.lists.map((list) => (
-          <div className="flex flex-col rounded-lg" key={list.id}>
-            <Link className="rounded-lg px-2 py-2 hover:bg-base-300" to="/lists/$listId" params={{ listId: list.id }}>
-              <span>{list.name}</span>
-            </Link>
-          </div>
+          <Link
+            key={list.id}
+            className="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-base-300"
+            to="/lists/$listId"
+            params={{ listId: list.id }}
+          >
+            <ListViewIcon className="text-accent" />
+            <span>{list.name}</span>
+          </Link>
         ))}
       </div>
     </div>
