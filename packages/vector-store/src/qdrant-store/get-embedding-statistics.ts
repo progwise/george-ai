@@ -1,4 +1,4 @@
-import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-commons'
+import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-schema'
 
 import { getCollection, getCollectionName, logger, qdrantClient } from './common'
 

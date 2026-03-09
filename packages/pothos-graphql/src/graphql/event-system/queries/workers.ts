@@ -1,15 +1,15 @@
-import { isAdminOrThrow } from '@george-ai/app-domain'
-import { workerRegistry } from '@george-ai/event-service-client'
+import { canAdminWorkspaceOrThrow } from '@george-ai/app-domain'
+import { getWorkerSlots } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
 
 builder.queryField('workers', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
-    type: ['WorkerEntry'],
+    type: ['WorkerSlotEntry'],
     nullable: false,
-    resolve: async (_parent, _args, { session }) => {
-      await isAdminOrThrow(session.user.id)
-      const entries = await workerRegistry.getWorker()
+    resolve: async (_parent, _args, { workspaceId, session }) => {
+      await canAdminWorkspaceOrThrow(workspaceId, session.user.id)
+      const entries = await getWorkerSlots({})
       return entries
     },
   }),

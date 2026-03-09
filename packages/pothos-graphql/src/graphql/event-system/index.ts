@@ -1,6 +1,7 @@
 import './queries'
-import './worker-type'
+import './worker-action'
 import './worker-entry'
+import './worker-role'
 
 import { logger } from '../common'
 

@@ -700,59 +700,6 @@ export type AiListSourceInput = {
   libraryId: Scalars['String']['input']
 }
 
-export type AiModelInfo = {
-  __typename?: 'AiModelInfo'
-  capabilities: Array<Scalars['String']['output']>
-  digest?: Maybe<Scalars['String']['output']>
-  family?: Maybe<Scalars['String']['output']>
-  name: Scalars['String']['output']
-  parameterSize?: Maybe<Scalars['String']['output']>
-  quantizationLevel?: Maybe<Scalars['String']['output']>
-  size: Scalars['Float']['output']
-}
-
-export type AiModelQueue = {
-  __typename?: 'AiModelQueue'
-  estimatedRequestSize: Scalars['Float']['output']
-  maxConcurrency: Scalars['Int']['output']
-  modelName: Scalars['String']['output']
-  queueLength: Scalars['Int']['output']
-}
-
-export type AiRunningModel = {
-  __typename?: 'AiRunningModel'
-  activeRequests: Scalars['Int']['output']
-  expiresAt: Scalars['String']['output']
-  name: Scalars['String']['output']
-  size: Scalars['Float']['output']
-}
-
-export type AiServiceClusterStatus = {
-  __typename?: 'AiServiceClusterStatus'
-  availableInstances: Scalars['Int']['output']
-  healthyInstances: Scalars['Int']['output']
-  instances: Array<AiServiceInstance>
-  totalInstances: Scalars['Int']['output']
-  totalMaxConcurrency: Scalars['Int']['output']
-  totalMemory: Scalars['Float']['output']
-  totalQueueLength: Scalars['Int']['output']
-  totalUsedMemory: Scalars['Float']['output']
-}
-
-export type AiServiceInstance = {
-  __typename?: 'AiServiceInstance'
-  availableModels?: Maybe<Array<AiModelInfo>>
-  isOnline: Scalars['Boolean']['output']
-  modelQueues?: Maybe<Array<AiModelQueue>>
-  name: Scalars['String']['output']
-  runningModels?: Maybe<Array<AiRunningModel>>
-  totalVram: Scalars['Float']['output']
-  type: Scalars['String']['output']
-  url: Scalars['String']['output']
-  usedVram: Scalars['Float']['output']
-  version: Scalars['String']['output']
-}
-
 export type AiServiceProvider = {
   __typename?: 'AiServiceProvider'
   apiKeyHint?: Maybe<Scalars['String']['output']>
@@ -1048,6 +995,17 @@ export type DocumentExtraction = {
   updated?: Maybe<Scalars['DateTime']['output']>
 }
 
+export type DocumentExtractionRequest = EventQueueRequest & {
+  __typename?: 'DocumentExtractionRequest'
+  action: EventQueueAction
+  documentId: Scalars['String']['output']
+  extractionMethod: Scalars['String']['output']
+  libraryId: Scalars['String']['output']
+  timestamp: Scalars['DateTime']['output']
+  version?: Maybe<Scalars['Int']['output']>
+  workspaceId: Scalars['String']['output']
+}
+
 /** Information about a file stored in the AI library */
 export type DocumentManifest = {
   __typename?: 'DocumentManifest'
@@ -1072,17 +1030,18 @@ export type DocumentOrigin = {
   uri?: Maybe<Scalars['String']['output']>
 }
 
-export type EmbedDocumentRequest = ProcessingRequest & {
-  __typename?: 'EmbedDocumentRequest'
-  documentId?: Maybe<Scalars['String']['output']>
-  embeddingModelName?: Maybe<Scalars['String']['output']>
-  embeddingModelProvider?: Maybe<ModelProvider>
-  extractionMethod?: Maybe<Scalars['String']['output']>
-  libraryId?: Maybe<Scalars['String']['output']>
-  requestType?: Maybe<Scalars['String']['output']>
-  settings?: Maybe<Array<ProcessingRequestSettingItem>>
+export type DocumentVectorizationRequest = EventQueueRequest & {
+  __typename?: 'DocumentVectorizationRequest'
+  action: EventQueueAction
+  documentId: Scalars['String']['output']
+  embeddingDriver?: Maybe<InferenceDriver>
+  embeddingModel: Scalars['String']['output']
+  extractionMethod: Scalars['String']['output']
+  libraryId: Scalars['String']['output']
+  splitMethod: Scalars['String']['output']
+  timestamp: Scalars['DateTime']['output']
   version?: Maybe<Scalars['Int']['output']>
-  workspaceId?: Maybe<Scalars['String']['output']>
+  workspaceId: Scalars['String']['output']
 }
 
 /** Information about an embedding method used in the workspace */
@@ -1098,17 +1057,6 @@ export enum EmbeddingStatus {
   Ready = 'Ready',
   UnknownModelConfig = 'UnknownModelConfig',
   WorkspaceNotFound = 'WorkspaceNotFound',
-}
-
-export type EnrichItemRequest = ProcessingRequest & {
-  __typename?: 'EnrichItemRequest'
-  documentId?: Maybe<Scalars['String']['output']>
-  fragment?: Maybe<Scalars['Int']['output']>
-  libraryId?: Maybe<Scalars['String']['output']>
-  requestType?: Maybe<Scalars['String']['output']>
-  settings?: Maybe<Array<ProcessingRequestSettingItem>>
-  version?: Maybe<Scalars['Int']['output']>
-  workspaceId?: Maybe<Scalars['String']['output']>
 }
 
 export type EnrichmentQueueResult = {
@@ -1181,26 +1129,42 @@ export type EnrichmentTaskWebFetchResult = {
   url: Scalars['String']['output']
 }
 
-export enum EventProcessingStatus {
+export type EventQueue = {
+  __typename?: 'EventQueue'
+  action: EventQueueAction
+  delivered?: Maybe<Scalars['Int']['output']>
+  error?: Maybe<Scalars['String']['output']>
+  pending?: Maybe<Scalars['Int']['output']>
+  redelivered?: Maybe<Scalars['Int']['output']>
+  status: EventQueueStatus
+  waiting?: Maybe<Scalars['Int']['output']>
+}
+
+export enum EventQueueAction {
+  DocumentExtraction = 'documentExtraction',
+  DocumentVectorization = 'documentVectorization',
+  FieldEnrichment = 'fieldEnrichment',
+}
+
+export type EventQueueRequest = {
+  action: EventQueueAction
+  timestamp: Scalars['DateTime']['output']
+  version?: Maybe<Scalars['Int']['output']>
+  workspaceId: Scalars['String']['output']
+}
+
+/** take and sequence based */
+export type EventQueueRequestsResult = {
+  __typename?: 'EventQueueRequestsResult'
+  lastSequence: Scalars['Int']['output']
+  requests: Array<EventQueueRequest>
+  totalMessages: Scalars['Int']['output']
+}
+
+export enum EventQueueStatus {
   Paused = 'paused',
   Running = 'running',
-}
-
-export type EventProcessingStatusResult = {
-  __typename?: 'EventProcessingStatusResult'
-  requestType: ProcessingRequestType
-  status: EventProcessingStatus
-}
-
-export type ExtractDocumentRequest = ProcessingRequest & {
-  __typename?: 'ExtractDocumentRequest'
-  documentId?: Maybe<Scalars['String']['output']>
-  extractionMethod?: Maybe<Scalars['String']['output']>
-  libraryId?: Maybe<Scalars['String']['output']>
-  requestType?: Maybe<Scalars['String']['output']>
-  settings?: Maybe<Array<ProcessingRequestSettingItem>>
-  version?: Maybe<Scalars['Int']['output']>
-  workspaceId?: Maybe<Scalars['String']['output']>
+  Unknown = 'unknown',
 }
 
 /** Metadata about a specific extraction of a file */
@@ -1232,6 +1196,21 @@ export enum ExtractionMethod {
   LegacyExtraction = 'legacyExtraction',
   PdfExtraction = 'pdfExtraction',
   TextExtraction = 'textExtraction',
+}
+
+export type FieldEnrichmentRequest = EventQueueRequest & {
+  __typename?: 'FieldEnrichmentRequest'
+  action: EventQueueAction
+  chatModelDriver: InferenceDriver
+  chatModelName: Scalars['String']['output']
+  context: Array<Scalars['String']['output']>
+  fieldId: Scalars['String']['output']
+  notFoundValue?: Maybe<Scalars['String']['output']>
+  timestamp: Scalars['DateTime']['output']
+  valueFormat: Scalars['String']['output']
+  valuePrompt: Scalars['String']['output']
+  version?: Maybe<Scalars['Int']['output']>
+  workspaceId: Scalars['String']['output']
 }
 
 export type FieldValueResult = {
@@ -1312,6 +1291,53 @@ export type HumanParticipant = AiConversationParticipant & {
   name?: Maybe<Scalars['String']['output']>
   user?: Maybe<User>
   userId?: Maybe<Scalars['ID']['output']>
+}
+
+export enum InferenceAction {
+  ChatCompletion = 'chatCompletion',
+  ChunkEmbedding = 'chunkEmbedding',
+}
+
+export enum InferenceDriver {
+  Ollama = 'ollama',
+  Openai = 'openai',
+}
+
+export type InferenceHostConfig = {
+  __typename?: 'InferenceHostConfig'
+  apiKey?: Maybe<Scalars['String']['output']>
+  driver: InferenceDriver
+  hostId: Scalars['String']['output']
+  lastUpdate?: Maybe<Scalars['DateTime']['output']>
+  name?: Maybe<Scalars['String']['output']>
+  url?: Maybe<Scalars['String']['output']>
+}
+
+export type InferenceHostState = {
+  __typename?: 'InferenceHostState'
+  apiKey?: Maybe<Scalars['String']['output']>
+  driver: InferenceDriver
+  hostId: Scalars['String']['output']
+  lastHealthCheck?: Maybe<Scalars['DateTime']['output']>
+  lastTestConnection?: Maybe<Scalars['DateTime']['output']>
+  models?: Maybe<Array<InferenceModelState>>
+  processorUsagePercent?: Maybe<Scalars['Int']['output']>
+  state: Scalars['String']['output']
+  totalMemoryMb?: Maybe<Scalars['Int']['output']>
+  url?: Maybe<Scalars['String']['output']>
+  usedMemoryMb?: Maybe<Scalars['Int']['output']>
+}
+
+export type InferenceModelState = {
+  __typename?: 'InferenceModelState'
+  callCount?: Maybe<Scalars['Int']['output']>
+  driver: InferenceDriver
+  errorCount?: Maybe<Scalars['Int']['output']>
+  hostId?: Maybe<Scalars['String']['output']>
+  loadState?: Maybe<Scalars['String']['output']>
+  modelName?: Maybe<Scalars['String']['output']>
+  responseTimeMsPerToken?: Maybe<Scalars['Int']['output']>
+  workspaceId?: Maybe<Scalars['String']['output']>
 }
 
 export type LibrariesResponseType = {
@@ -1489,17 +1515,6 @@ export type ManagedUsersResponse = {
   users: Array<ManagedUser>
 }
 
-export enum ModelCallType {
-  GenerateChatCompletion = 'generateChatCompletion',
-  GenerateEmbedding = 'generateEmbedding',
-  GenerateImage = 'generateImage',
-}
-
-export enum ModelProvider {
-  Ollama = 'ollama',
-  Openai = 'openai',
-}
-
 export type ModelProviderInput = {
   apiKey?: InputMaybe<Scalars['String']['input']>
   baseUrl?: InputMaybe<Scalars['String']['input']>
@@ -1571,7 +1586,6 @@ export type Mutation = {
   login: LoginResult
   migrateWorkspace?: Maybe<Scalars['Boolean']['output']>
   prepareUpload: PrepareUploadResult
-  processDocument: ProcessDocumentResult
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeListField: AiListField
@@ -1586,11 +1600,11 @@ export type Mutation = {
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
   startAllQueueWorkers: QueueOperationResult
-  startProcessing: StartProcessingResult
+  startProcessing: Array<EventQueue>
   startQueueWorker: QueueOperationResult
   stopAiLibraryCrawler: Scalars['String']['output']
   stopAllQueueWorkers: QueueOperationResult
-  stopProcessing: StopEventProcessingResult
+  stopProcessing: Array<EventQueue>
   stopQueueWorker: QueueOperationResult
   syncModels?: Maybe<SyncModelsResult>
   testConnectorConnection: TestConnectorConnectionResult
@@ -1601,6 +1615,7 @@ export type Mutation = {
   triggerAutomation: TriggerAutomationResult
   triggerAutomationItem: TriggerAutomationResult
   triggerExtraction: TriggerExtractionResult
+  triggerVectorization: TriggerVectorizationResult
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
   updateAiLibraryCrawler: AiLibraryCrawler
@@ -1838,12 +1853,6 @@ export type MutationPrepareUploadArgs = {
   libraryId: Scalars['String']['input']
 }
 
-export type MutationProcessDocumentArgs = {
-  documentId: Scalars['String']['input']
-  libraryId: Scalars['String']['input']
-  requestType: ProcessingRequestType
-}
-
 export type MutationRemoveConversationParticipantArgs = {
   participantId: Scalars['String']['input']
 }
@@ -1897,7 +1906,7 @@ export type MutationSendMessageArgs = {
 }
 
 export type MutationStartProcessingArgs = {
-  requestType: ProcessingRequestType
+  action: EventQueueAction
 }
 
 export type MutationStartQueueWorkerArgs = {
@@ -1909,7 +1918,7 @@ export type MutationStopAiLibraryCrawlerArgs = {
 }
 
 export type MutationStopProcessingArgs = {
-  requestType: ProcessingRequestType
+  action: EventQueueAction
 }
 
 export type MutationStopQueueWorkerArgs = {
@@ -1917,7 +1926,7 @@ export type MutationStopQueueWorkerArgs = {
 }
 
 export type MutationSyncModelsArgs = {
-  provider?: InputMaybe<ModelProvider>
+  driver?: InputMaybe<InferenceDriver>
 }
 
 export type MutationTestConnectorConnectionArgs = {
@@ -1927,7 +1936,7 @@ export type MutationTestConnectorConnectionArgs = {
 export type MutationTestProviderConnectionArgs = {
   apiKey?: InputMaybe<Scalars['String']['input']>
   baseUrl?: InputMaybe<Scalars['String']['input']>
-  provider: ModelProvider
+  driver: InferenceDriver
   providerId?: InputMaybe<Scalars['String']['input']>
 }
 
@@ -1955,7 +1964,13 @@ export type MutationTriggerAutomationItemArgs = {
 
 export type MutationTriggerExtractionArgs = {
   documentId: Scalars['String']['input']
-  extractionMethod: ExtractionMethod
+  extractionMethod?: InputMaybe<ExtractionMethod>
+  libraryId: Scalars['String']['input']
+}
+
+export type MutationTriggerVectorizationArgs = {
+  documentId: Scalars['String']['input']
+  extractionMethod?: InputMaybe<ExtractionMethod>
   libraryId: Scalars['String']['input']
 }
 
@@ -2061,47 +2076,6 @@ export type PrepareUploadResult = {
   workspaceId: Scalars['String']['output']
 }
 
-export type ProcessDocumentResult = {
-  __typename?: 'ProcessDocumentResult'
-  success?: Maybe<Scalars['Boolean']['output']>
-}
-
-export type ProcessingRequest = {
-  requestType?: Maybe<Scalars['String']['output']>
-  settings?: Maybe<Array<ProcessingRequestSettingItem>>
-  version?: Maybe<Scalars['Int']['output']>
-  workspaceId?: Maybe<Scalars['String']['output']>
-}
-
-export type ProcessingRequestItem = {
-  __typename?: 'ProcessingRequestItem'
-  deliveryCount?: Maybe<Scalars['Int']['output']>
-  error?: Maybe<Scalars['String']['output']>
-  id?: Maybe<Scalars['String']['output']>
-  rawText?: Maybe<Scalars['String']['output']>
-  request?: Maybe<ProcessingRequest>
-  subject?: Maybe<Scalars['String']['output']>
-}
-
-export type ProcessingRequestSettingItem = {
-  __typename?: 'ProcessingRequestSettingItem'
-  key?: Maybe<Scalars['String']['output']>
-  value?: Maybe<Scalars['String']['output']>
-}
-
-export enum ProcessingRequestType {
-  EmbedFile = 'embedFile',
-  EnrichItem = 'enrichItem',
-  ExtractFile = 'extractFile',
-}
-
-export type ProcessingRequestsResponse = {
-  __typename?: 'ProcessingRequestsResponse'
-  items: Array<ProcessingRequestItem>
-  lastSequence?: Maybe<Scalars['Int']['output']>
-  totalCount?: Maybe<Scalars['Int']['output']>
-}
-
 export type ProviderCapabilityCounts = {
   __typename?: 'ProviderCapabilityCounts'
   chatCount: Scalars['Int']['output']
@@ -2112,12 +2086,6 @@ export type ProviderCapabilityCounts = {
   modelCount: Scalars['Int']['output']
   provider: Scalars['String']['output']
   visionCount: Scalars['Int']['output']
-}
-
-export enum ProviderHealthStatus {
-  Degraded = 'degraded',
-  Healthy = 'healthy',
-  Unhealthy = 'unhealthy',
 }
 
 export type Query = {
@@ -2155,19 +2123,21 @@ export type Query = {
   countFiles: Scalars['Int']['output']
   currentUser: User
   embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
+  eventQueueRequests: EventQueueRequestsResult
+  eventQueueStats: Array<EventQueue>
   extraction?: Maybe<ExtractionManifest>
   file: AiLibraryFile
   fileChunks?: Maybe<FileChunksResponse>
   files: FilesQueryResponse
+  inferenceHostConfig: Array<InferenceHostConfig>
+  inferenceHostState: Array<InferenceHostState>
+  inferenceModelState: Array<InferenceModelState>
   libraries: LibrariesResponseType
   library: AiLibrary
   managedUsers: ManagedUsersResponse
-  modelProviderStatus: AiServiceClusterStatus
   modelProviders: Array<AiServiceProvider>
   models: AiLanguageModelsResult
   myWorkspaceInvitations: Array<WorkspaceInvitation>
-  processingRequests: ProcessingRequestsResponse
-  processingStatus: Array<EventProcessingStatusResult>
   queryFileChunks: FileChunksQueryResult
   queueSystemStatus: QueueSystemStatus
   similarChunks: Array<SimilarChunkResult>
@@ -2176,13 +2146,12 @@ export type Query = {
   users: Array<User>
   vectorStore: VectorStore
   version?: Maybe<Scalars['String']['output']>
-  workers: Array<WorkerEntry>
+  workers: Array<WorkerSlotEntry>
   workspace: Workspace
   workspaceConnectorTypes: Array<AiConnectorTypeWorkspace>
   workspaceInvitation: WorkspaceInvitation
   workspaceInvitations: Array<WorkspaceInvitation>
   workspaceMembers: Array<WorkspaceMember>
-  workspaceProcessStatistics: Array<WorkspaceProcessStatistics>
   workspaces: WorkspacesResponseType
 }
 
@@ -2338,6 +2307,17 @@ export type QueryEmbeddingStatisticsArgs = {
   workspaceId: Scalars['String']['input']
 }
 
+export type QueryEventQueueRequestsArgs = {
+  action: EventQueueAction
+  startSequence?: InputMaybe<Scalars['Int']['input']>
+  take?: InputMaybe<Scalars['Int']['input']>
+  workspaceId: Scalars['String']['input']
+}
+
+export type QueryEventQueueStatsArgs = {
+  workspaceId: Scalars['String']['input']
+}
+
 export type QueryExtractionArgs = {
   extractionMethod?: InputMaybe<ExtractionMethod>
   fileId: Scalars['String']['input']
@@ -2395,19 +2375,11 @@ export type QueryModelsArgs = {
   canDoFunctionCalling?: InputMaybe<Scalars['Boolean']['input']>
   canDoVision?: InputMaybe<Scalars['Boolean']['input']>
   onlyUsed?: InputMaybe<Scalars['Boolean']['input']>
-  providers?: InputMaybe<Array<ModelProvider>>
+  providers?: InputMaybe<Array<InferenceDriver>>
   search?: InputMaybe<Scalars['String']['input']>
   showDisabled?: InputMaybe<Scalars['Boolean']['input']>
   skip?: InputMaybe<Scalars['Int']['input']>
   take?: InputMaybe<Scalars['Int']['input']>
-}
-
-export type QueryProcessingRequestsArgs = {
-  documentId?: InputMaybe<Scalars['String']['input']>
-  libraryId?: InputMaybe<Scalars['String']['input']>
-  requestType?: InputMaybe<ProcessingRequestType>
-  startSequence?: InputMaybe<Scalars['Int']['input']>
-  take?: Scalars['Int']['input']
 }
 
 export type QueryQueryFileChunksArgs = {
@@ -2447,10 +2419,6 @@ export type QueryWorkspaceInvitationsArgs = {
 
 export type QueryWorkspaceMembersArgs = {
   workspaceId: Scalars['ID']['input']
-}
-
-export type QueryWorkspaceProcessStatisticsArgs = {
-  workspaceId: Scalars['String']['input']
 }
 
 export type QueryWorkspacesArgs = {
@@ -2527,16 +2495,6 @@ export enum SortOrder {
   Desc = 'desc',
 }
 
-export type StartProcessingResult = {
-  __typename?: 'StartProcessingResult'
-  success?: Maybe<Scalars['Boolean']['output']>
-}
-
-export type StopEventProcessingResult = {
-  __typename?: 'StopEventProcessingResult'
-  success?: Maybe<Scalars['Boolean']['output']>
-}
-
 /** Storage usage information for a workspace */
 export type StorageStats = {
   __typename?: 'StorageStats'
@@ -2584,6 +2542,11 @@ export type TriggerAutomationResult = {
 
 export type TriggerExtractionResult = {
   __typename?: 'TriggerExtractionResult'
+  success: Scalars['Boolean']['output']
+}
+
+export type TriggerVectorizationResult = {
+  __typename?: 'TriggerVectorizationResult'
   success: Scalars['Boolean']['output']
 }
 
@@ -2664,18 +2627,33 @@ export type VectorStore = {
   warnings?: Maybe<Array<Scalars['String']['output']>>
 }
 
-export type WorkerEntry = {
-  __typename?: 'WorkerEntry'
-  lastHeartbeat?: Maybe<Scalars['String']['output']>
-  workerId?: Maybe<Scalars['String']['output']>
-  workerType?: Maybe<WorkerType>
+export enum WorkerActionResult {
+  Failure = 'failure',
+  Start = 'start',
+  Success = 'success',
 }
 
-export enum WorkerType {
-  AiHealthManagement = 'AI_HEALTH_MANAGEMENT',
-  AiProviderCalling = 'AI_PROVIDER_CALLING',
-  WorkerRegistry = 'WORKER_REGISTRY',
-  WorkspaceProcessing = 'WORKSPACE_PROCESSING',
+export enum WorkerRole {
+  InferenceHostManager = 'inferenceHostManager',
+  RequestFulfillment = 'requestFulfillment',
+  WorkerSlotManager = 'workerSlotManager',
+  WorkspaceConfigManager = 'workspaceConfigManager',
+  WorkspaceProcessing = 'workspaceProcessing',
+}
+
+export type WorkerSlotEntry = {
+  __typename?: 'WorkerSlotEntry'
+  failedActions?: Maybe<Scalars['Int']['output']>
+  lastHeartbeat?: Maybe<Scalars['DateTime']['output']>
+  latestActionEnd?: Maybe<Scalars['DateTime']['output']>
+  latestActionFailure?: Maybe<Scalars['DateTime']['output']>
+  latestActionStart?: Maybe<Scalars['DateTime']['output']>
+  latestActivity?: Maybe<Scalars['DateTime']['output']>
+  latestActivityResult?: Maybe<WorkerActionResult>
+  signedUp?: Maybe<Scalars['DateTime']['output']>
+  startedActions?: Maybe<Scalars['Int']['output']>
+  workerId?: Maybe<Scalars['String']['output']>
+  workerRole?: Maybe<WorkerRole>
 }
 
 export type Workspace = {
@@ -2740,15 +2718,6 @@ export type WorkspaceMember = {
   role: Scalars['String']['output']
   user: User
   workspace: Workspace
-}
-
-/** Statistics about backend events */
-export type WorkspaceProcessStatistics = {
-  __typename?: 'WorkspaceProcessStatistics'
-  pendingMessages: Scalars['Int']['output']
-  processedMessages: Scalars['Int']['output']
-  requestType: ProcessingRequestType
-  totalMessages: Scalars['Int']['output']
 }
 
 /** The role of a user within a workspace */
@@ -3016,7 +2985,7 @@ export type EditModelButton_LanguageModelFragment = {
 export type GetAiLanguageModelsQueryVariables = Exact<{
   skip?: InputMaybe<Scalars['Int']['input']>
   take?: InputMaybe<Scalars['Int']['input']>
-  providers?: InputMaybe<Array<ModelProvider> | ModelProvider>
+  providers?: InputMaybe<Array<InferenceDriver> | InferenceDriver>
   canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
   canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
   canDoVision?: InputMaybe<Scalars['Boolean']['input']>
@@ -3284,9 +3253,9 @@ export type WorkersQueryVariables = Exact<{ [key: string]: never }>
 export type WorkersQuery = {
   __typename?: 'Query'
   workers: Array<{
-    __typename?: 'WorkerEntry'
+    __typename?: 'WorkerSlotEntry'
     workerId?: string | null
-    workerType?: WorkerType | null
+    workerRole?: WorkerRole | null
     lastHeartbeat?: string | null
   }>
 }
@@ -3370,26 +3339,44 @@ export type RestoreDefaultProvidersMutation = {
 }
 
 export type StartWorkspaceProcessingMutationVariables = Exact<{
-  requestType: ProcessingRequestType
+  action: EventQueueAction
 }>
 
 export type StartWorkspaceProcessingMutation = {
   __typename?: 'Mutation'
-  startProcessing: { __typename?: 'StartProcessingResult'; success?: boolean | null }
+  startProcessing: Array<{
+    __typename?: 'EventQueue'
+    action: EventQueueAction
+    status: EventQueueStatus
+    error?: string | null
+    pending?: number | null
+    delivered?: number | null
+    redelivered?: number | null
+    waiting?: number | null
+  }>
 }
 
 export type StopWorkspaceProcessingMutationVariables = Exact<{
-  requestType: ProcessingRequestType
+  action: EventQueueAction
 }>
 
 export type StopWorkspaceProcessingMutation = {
   __typename?: 'Mutation'
-  stopProcessing: { __typename?: 'StopEventProcessingResult'; success?: boolean | null }
+  stopProcessing: Array<{
+    __typename?: 'EventQueue'
+    action: EventQueueAction
+    status: EventQueueStatus
+    error?: string | null
+    pending?: number | null
+    delivered?: number | null
+    redelivered?: number | null
+    waiting?: number | null
+  }>
 }
 
 export type TestProviderConnectionMutationVariables = Exact<{
   providerId?: InputMaybe<Scalars['String']['input']>
-  provider: ModelProvider
+  driver: InferenceDriver
   baseUrl?: InputMaybe<Scalars['String']['input']>
   apiKey?: InputMaybe<Scalars['String']['input']>
 }>
@@ -5362,77 +5349,6 @@ export type AiLibraryDetailQuery = {
   }
 }
 
-export type ProcessingRequestsQueryVariables = Exact<{
-  requestType?: InputMaybe<ProcessingRequestType>
-  libraryId?: InputMaybe<Scalars['String']['input']>
-  fileId?: InputMaybe<Scalars['String']['input']>
-  startSequence?: InputMaybe<Scalars['Int']['input']>
-  take?: InputMaybe<Scalars['Int']['input']>
-}>
-
-export type ProcessingRequestsQuery = {
-  __typename?: 'Query'
-  processingRequests: {
-    __typename?: 'ProcessingRequestsResponse'
-    totalCount?: number | null
-    lastSequence?: number | null
-    items: Array<{
-      __typename?: 'ProcessingRequestItem'
-      id?: string | null
-      subject?: string | null
-      deliveryCount?: number | null
-      error?: string | null
-      rawText?: string | null
-      request?:
-        | {
-            __typename: 'EmbedDocumentRequest'
-            libraryId?: string | null
-            documentId?: string | null
-            extractionMethod?: string | null
-            embeddingModelProvider?: ModelProvider | null
-            embeddingModelName?: string | null
-            version?: number | null
-            workspaceId?: string | null
-            requestType?: string | null
-            settings?: Array<{
-              __typename?: 'ProcessingRequestSettingItem'
-              key?: string | null
-              value?: string | null
-            }> | null
-          }
-        | {
-            __typename: 'EnrichItemRequest'
-            libraryId?: string | null
-            documentId?: string | null
-            fragment?: number | null
-            version?: number | null
-            workspaceId?: string | null
-            requestType?: string | null
-            settings?: Array<{
-              __typename?: 'ProcessingRequestSettingItem'
-              key?: string | null
-              value?: string | null
-            }> | null
-          }
-        | {
-            __typename: 'ExtractDocumentRequest'
-            libraryId?: string | null
-            documentId?: string | null
-            extractionMethod?: string | null
-            version?: number | null
-            workspaceId?: string | null
-            requestType?: string | null
-            settings?: Array<{
-              __typename?: 'ProcessingRequestSettingItem'
-              key?: string | null
-              value?: string | null
-            }> | null
-          }
-        | null
-    }>
-  }
-}
-
 export type QueryLibraryFilesQueryVariables = Exact<{
   selector: FileChunksSelector
   query: Scalars['String']['input']
@@ -5551,19 +5467,8 @@ export type PrepareDocumentUploadMutation = {
   }
 }
 
-export type ProcessDocumentMutationVariables = Exact<{
-  requestType: ProcessingRequestType
-  libraryId: Scalars['String']['input']
-  documentId: Scalars['String']['input']
-}>
-
-export type ProcessDocumentMutation = {
-  __typename?: 'Mutation'
-  processDocument: { __typename?: 'ProcessDocumentResult'; success?: boolean | null }
-}
-
 export type TriggerExtractionMutationVariables = Exact<{
-  extractionMethod: ExtractionMethod
+  extractionMethod?: InputMaybe<ExtractionMethod>
   libraryId: Scalars['String']['input']
   documentId: Scalars['String']['input']
 }>
@@ -5571,6 +5476,17 @@ export type TriggerExtractionMutationVariables = Exact<{
 export type TriggerExtractionMutation = {
   __typename?: 'Mutation'
   triggerExtraction: { __typename?: 'TriggerExtractionResult'; success: boolean }
+}
+
+export type TriggerVectorizationMutationVariables = Exact<{
+  extractionMethod?: InputMaybe<ExtractionMethod>
+  libraryId: Scalars['String']['input']
+  documentId: Scalars['String']['input']
+}>
+
+export type TriggerVectorizationMutation = {
+  __typename?: 'Mutation'
+  triggerVectorization: { __typename?: 'TriggerVectorizationResult'; success: boolean }
 }
 
 export type ChangeLibraryMutationVariables = Exact<{
@@ -6683,77 +6599,110 @@ export type GetWorkspaceEmbeddingStatisticsQuery = {
   }> | null
 }
 
-export type GetModelProviderStatusQueryVariables = Exact<{ [key: string]: never }>
+export type GetInferenceHostConfigQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetModelProviderStatusQuery = {
+export type GetInferenceHostConfigQuery = {
   __typename?: 'Query'
-  modelProviderStatus: {
-    __typename?: 'AiServiceClusterStatus'
-    totalInstances: number
-    availableInstances: number
-    healthyInstances: number
-    totalMemory: number
-    totalUsedMemory: number
-    totalMaxConcurrency: number
-    totalQueueLength: number
-    instances: Array<{
-      __typename?: 'AiServiceInstance'
-      name: string
-      url: string
-      type: string
-      isOnline: boolean
-      version: string
-      totalVram: number
-      usedVram: number
-      runningModels?: Array<{
-        __typename?: 'AiRunningModel'
-        name: string
-        size: number
-        expiresAt: string
-        activeRequests: number
-      }> | null
-      availableModels?: Array<{
-        __typename?: 'AiModelInfo'
-        name: string
-        size: number
-        capabilities: Array<string>
-        family?: string | null
-        parameterSize?: string | null
-      }> | null
-      modelQueues?: Array<{
-        __typename?: 'AiModelQueue'
-        modelName: string
-        queueLength: number
-        maxConcurrency: number
-        estimatedRequestSize: number
-      }> | null
-    }>
-  }
-}
-
-export type GetWorkspaceProcessStatisticsQueryVariables = Exact<{
-  workspaceId: Scalars['String']['input']
-}>
-
-export type GetWorkspaceProcessStatisticsQuery = {
-  __typename?: 'Query'
-  workspaceProcessStatistics: Array<{
-    __typename?: 'WorkspaceProcessStatistics'
-    requestType: ProcessingRequestType
-    totalMessages: number
-    processedMessages: number
-    pendingMessages: number
+  inferenceHostConfig: Array<{
+    __typename?: 'InferenceHostConfig'
+    hostId: string
+    name?: string | null
+    driver: InferenceDriver
+    url?: string | null
+    apiKey?: string | null
+    lastUpdate?: string | null
   }>
 }
 
-export type GetProcessingStatusQueryVariables = Exact<{ [key: string]: never }>
+export type GetInferenceHostStatusQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetProcessingStatusQuery = {
+export type GetInferenceHostStatusQuery = {
   __typename?: 'Query'
-  processingStatus: Array<{
-    __typename?: 'EventProcessingStatusResult'
-    status: EventProcessingStatus
-    requestType: ProcessingRequestType
+  inferenceHostState: Array<{
+    __typename?: 'InferenceHostState'
+    hostId: string
+    state: string
+    driver: InferenceDriver
+    url?: string | null
+    apiKey?: string | null
+    totalMemoryMb?: number | null
+    usedMemoryMb?: number | null
+    processorUsagePercent?: number | null
+    lastHealthCheck?: string | null
+    lastTestConnection?: string | null
+    models?: Array<{
+      __typename?: 'InferenceModelState'
+      modelName?: string | null
+      callCount?: number | null
+      errorCount?: number | null
+      responseTimeMsPerToken?: number | null
+    }> | null
+  }>
+}
+
+export type GetEventQueueRequestsQueryVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+  action: EventQueueAction
+  take?: InputMaybe<Scalars['Int']['input']>
+  startSequence?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetEventQueueRequestsQuery = {
+  __typename?: 'Query'
+  eventQueueRequests: {
+    __typename?: 'EventQueueRequestsResult'
+    totalMessages: number
+    lastSequence: number
+    requests: Array<
+      | {
+          __typename?: 'DocumentExtractionRequest'
+          extractionMethod: string
+          libraryId: string
+          documentId: string
+          workspaceId: string
+          action: EventQueueAction
+          timestamp: string
+        }
+      | {
+          __typename?: 'DocumentVectorizationRequest'
+          libraryId: string
+          documentId: string
+          splitMethod: string
+          extractionMethod: string
+          embeddingDriver?: InferenceDriver | null
+          embeddingModel: string
+          workspaceId: string
+          action: EventQueueAction
+          timestamp: string
+        }
+      | {
+          __typename?: 'FieldEnrichmentRequest'
+          fieldId: string
+          chatModelDriver: InferenceDriver
+          chatModelName: string
+          workspaceId: string
+          action: EventQueueAction
+          timestamp: string
+        }
+    >
+  }
+}
+
+export type GetEventQueueQueryVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+}>
+
+export type GetEventQueueQuery = {
+  __typename?: 'Query'
+  eventQueueStats: Array<{
+    __typename?: 'EventQueue'
+    action: EventQueueAction
+    status: EventQueueStatus
+    error?: string | null
+    pending?: number | null
+    delivered?: number | null
+    redelivered?: number | null
+    waiting?: number | null
   }>
 }
 
@@ -12986,7 +12935,10 @@ export const GetAiLanguageModelsDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'providers' } },
           type: {
             kind: 'ListType',
-            type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ModelProvider' } } },
+            type: {
+              kind: 'NonNullType',
+              type: { kind: 'NamedType', name: { kind: 'Name', value: 'InferenceDriver' } },
+            },
           },
         },
         {
@@ -13762,7 +13714,7 @@ export const WorkersDocument = {
               kind: 'SelectionSet',
               selections: [
                 { kind: 'Field', name: { kind: 'Name', value: 'workerId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'workerType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'workerRole' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastHeartbeat' } },
               ],
             },
@@ -13981,11 +13933,8 @@ export const StartWorkspaceProcessingDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'EventQueueAction' } } },
         },
       ],
       selectionSet: {
@@ -13997,13 +13946,21 @@ export const StartWorkspaceProcessingDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'requestType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+                name: { kind: 'Name', value: 'action' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'success' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'action' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pending' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'delivered' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'redelivered' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'waiting' } },
+              ],
             },
           },
         ],
@@ -14021,11 +13978,8 @@ export const StopWorkspaceProcessingDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
-          },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'EventQueueAction' } } },
         },
       ],
       selectionSet: {
@@ -14037,13 +13991,21 @@ export const StopWorkspaceProcessingDocument = {
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'requestType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
+                name: { kind: 'Name', value: 'action' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'success' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'action' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pending' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'delivered' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'redelivered' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'waiting' } },
+              ],
             },
           },
         ],
@@ -14066,8 +14028,8 @@ export const TestProviderConnectionDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'provider' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ModelProvider' } } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'driver' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'InferenceDriver' } } },
         },
         {
           kind: 'VariableDefinition',
@@ -14094,8 +14056,8 @@ export const TestProviderConnectionDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'provider' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'provider' } },
+                name: { kind: 'Name', value: 'driver' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'driver' } },
               },
               {
                 kind: 'Argument',
@@ -18401,168 +18363,6 @@ export const AiLibraryDetailDocument = {
     },
   ],
 } as unknown as DocumentNode<AiLibraryDetailQuery, AiLibraryDetailQueryVariables>
-export const ProcessingRequestsDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'ProcessingRequests' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'startSequence' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'processingRequests' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'requestType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'documentId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'startSequence' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'startSequence' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'take' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'lastSequence' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'subject' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'deliveryCount' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'error' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'rawText' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'request' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'version' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'requestType' } },
-                            {
-                              kind: 'Field',
-                              name: { kind: 'Name', value: 'settings' },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'key' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'value' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'InlineFragment',
-                              typeCondition: {
-                                kind: 'NamedType',
-                                name: { kind: 'Name', value: 'ExtractDocumentRequest' },
-                              },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'InlineFragment',
-                              typeCondition: {
-                                kind: 'NamedType',
-                                name: { kind: 'Name', value: 'EmbedDocumentRequest' },
-                              },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelProvider' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelName' } },
-                                ],
-                              },
-                            },
-                            {
-                              kind: 'InlineFragment',
-                              typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'EnrichItemRequest' } },
-                              selectionSet: {
-                                kind: 'SelectionSet',
-                                selections: [
-                                  { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
-                                  { kind: 'Field', name: { kind: 'Name', value: 'fragment' } },
-                                ],
-                              },
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ProcessingRequestsQuery, ProcessingRequestsQueryVariables>
 export const QueryLibraryFilesDocument = {
   kind: 'Document',
   definitions: [
@@ -19058,66 +18858,6 @@ export const PrepareDocumentUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<PrepareDocumentUploadMutation, PrepareDocumentUploadMutationVariables>
-export const ProcessDocumentDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'processDocument' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
-          type: {
-            kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ProcessingRequestType' } },
-          },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'processDocument' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'requestType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'requestType' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'libraryId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'documentId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'success' } }],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ProcessDocumentMutation, ProcessDocumentMutationVariables>
 export const TriggerExtractionDocument = {
   kind: 'Document',
   definitions: [
@@ -19129,7 +18869,7 @@ export const TriggerExtractionDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'extractionMethod' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ExtractionMethod' } } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'ExtractionMethod' } },
         },
         {
           kind: 'VariableDefinition',
@@ -19175,6 +18915,63 @@ export const TriggerExtractionDocument = {
     },
   ],
 } as unknown as DocumentNode<TriggerExtractionMutation, TriggerExtractionMutationVariables>
+export const TriggerVectorizationDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'triggerVectorization' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'extractionMethod' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'ExtractionMethod' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'triggerVectorization' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'extractionMethod' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'extractionMethod' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'documentId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'success' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<TriggerVectorizationMutation, TriggerVectorizationMutationVariables>
 export const ChangeLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -21777,85 +21574,28 @@ export const GetWorkspaceEmbeddingStatisticsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetWorkspaceEmbeddingStatisticsQuery, GetWorkspaceEmbeddingStatisticsQueryVariables>
-export const GetModelProviderStatusDocument = {
+export const GetInferenceHostConfigDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetModelProviderStatus' },
+      name: { kind: 'Name', value: 'GetInferenceHostConfig' },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'modelProviderStatus' },
+            name: { kind: 'Name', value: 'inferenceHostConfig' },
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'instances' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'type' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'isOnline' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'version' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'runningModels' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'expiresAt' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'activeRequests' } },
-                          ],
-                        },
-                      },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'availableModels' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'capabilities' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'family' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'parameterSize' } },
-                          ],
-                        },
-                      },
-                      { kind: 'Field', name: { kind: 'Name', value: 'totalVram' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'usedVram' } },
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'modelQueues' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [
-                            { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'queueLength' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'maxConcurrency' } },
-                            { kind: 'Field', name: { kind: 'Name', value: 'estimatedRequestSize' } },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalInstances' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'availableInstances' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'healthyInstances' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalMemory' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalUsedMemory' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalMaxConcurrency' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalQueueLength' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hostId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'driver' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'apiKey' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
               ],
             },
           },
@@ -21863,14 +21603,188 @@ export const GetModelProviderStatusDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<GetModelProviderStatusQuery, GetModelProviderStatusQueryVariables>
-export const GetWorkspaceProcessStatisticsDocument = {
+} as unknown as DocumentNode<GetInferenceHostConfigQuery, GetInferenceHostConfigQueryVariables>
+export const GetInferenceHostStatusDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'GetWorkspaceProcessStatistics' },
+      name: { kind: 'Name', value: 'GetInferenceHostStatus' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'inferenceHostState' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'hostId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'state' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'driver' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'url' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'apiKey' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'totalMemoryMb' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'usedMemoryMb' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'processorUsagePercent' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastHealthCheck' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastTestConnection' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'models' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'callCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'errorCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'responseTimeMsPerToken' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetInferenceHostStatusQuery, GetInferenceHostStatusQueryVariables>
+export const GetEventQueueRequestsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getEventQueueRequests' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'EventQueueAction' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'startSequence' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'eventQueueRequests' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'action' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'startSequence' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'startSequence' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'lastSequence' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'requests' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'action' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'timestamp' } },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: {
+                          kind: 'NamedType',
+                          name: { kind: 'Name', value: 'DocumentExtractionRequest' },
+                        },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: {
+                          kind: 'NamedType',
+                          name: { kind: 'Name', value: 'DocumentVectorizationRequest' },
+                        },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'splitMethod' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'embeddingDriver' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'embeddingModel' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'FieldEnrichmentRequest' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'chatModelDriver' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'chatModelName' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetEventQueueRequestsQuery, GetEventQueueRequestsQueryVariables>
+export const GetEventQueueDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'getEventQueue' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -21883,7 +21797,7 @@ export const GetWorkspaceProcessStatisticsDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'workspaceProcessStatistics' },
+            name: { kind: 'Name', value: 'eventQueueStats' },
             arguments: [
               {
                 kind: 'Argument',
@@ -21894,36 +21808,13 @@ export const GetWorkspaceProcessStatisticsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'requestType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'totalMessages' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processedMessages' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'pendingMessages' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetWorkspaceProcessStatisticsQuery, GetWorkspaceProcessStatisticsQueryVariables>
-export const GetProcessingStatusDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetProcessingStatus' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'processingStatus' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'action' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'requestType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'pending' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'delivered' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'redelivered' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'waiting' } },
               ],
             },
           },
@@ -21931,7 +21822,7 @@ export const GetProcessingStatusDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<GetProcessingStatusQuery, GetProcessingStatusQueryVariables>
+} as unknown as DocumentNode<GetEventQueueQuery, GetEventQueueQueryVariables>
 export const GetQueueStatusDocument = {
   kind: 'Document',
   definitions: [

@@ -1,7 +1,6 @@
 import { Request, Response } from 'express'
 import { pipeline } from 'stream/promises'
 
-import { getExtractionMethod } from '@george-ai/app-commons'
 import {
   ExtractionManifest,
   getDocumentManifest,
@@ -9,6 +8,7 @@ import {
   readExtraction,
   readSource,
 } from '@george-ai/app-domain'
+import { ExtractionMethodSchema } from '@george-ai/app-schema'
 import { readAttachment } from '@george-ai/file-management/src/workspace-storage/attachment'
 
 import { logger } from './common'
@@ -25,7 +25,7 @@ export const handleFileGet = async (request: Request, response: Response) => {
     fragment,
     requestQuery: request.query,
   })
-  const extractionMethod = extraction ? getExtractionMethod(String(extraction)) : undefined
+  const extractionMethod = extraction ? ExtractionMethodSchema.parse(extraction) : undefined
   const fragmentNumber = fragment ? Number(fragment) : undefined
 
   if (Array.isArray(libraryId) || Array.isArray(fileId)) {

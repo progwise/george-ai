@@ -653,54 +653,6 @@ input AiListSourceInput {
   libraryId: String!
 }
 
-type AiModelInfo {
-  capabilities: [String!]!
-  digest: String
-  family: String
-  name: String!
-  parameterSize: String
-  quantizationLevel: String
-  size: Float!
-}
-
-type AiModelQueue {
-  estimatedRequestSize: Float!
-  maxConcurrency: Int!
-  modelName: String!
-  queueLength: Int!
-}
-
-type AiRunningModel {
-  activeRequests: Int!
-  expiresAt: String!
-  name: String!
-  size: Float!
-}
-
-type AiServiceClusterStatus {
-  availableInstances: Int!
-  healthyInstances: Int!
-  instances: [AiServiceInstance!]!
-  totalInstances: Int!
-  totalMaxConcurrency: Int!
-  totalMemory: Float!
-  totalQueueLength: Int!
-  totalUsedMemory: Float!
-}
-
-type AiServiceInstance {
-  availableModels: [AiModelInfo!]
-  isOnline: Boolean!
-  modelQueues: [AiModelQueue!]
-  name: String!
-  runningModels: [AiRunningModel!]
-  totalVram: Float!
-  type: String!
-  url: String!
-  usedVram: Float!
-  version: String!
-}
-
 type AiServiceProvider {
   apiKeyHint: String
   baseUrl: String
@@ -1003,6 +955,16 @@ type DocumentExtraction {
   updated: DateTime
 }
 
+type DocumentExtractionRequest implements EventQueueRequest {
+  action: EventQueueAction!
+  documentId: String!
+  extractionMethod: String!
+  libraryId: String!
+  timestamp: DateTime!
+  version: Int
+  workspaceId: String!
+}
+
 """
 Information about a file stored in the AI library
 """
@@ -1029,16 +991,17 @@ type DocumentOrigin {
   uri: String
 }
 
-type EmbedDocumentRequest implements ProcessingRequest {
-  documentId: String
-  embeddingModelName: String
-  embeddingModelProvider: ModelProvider
-  extractionMethod: String
-  libraryId: String
-  requestType: String
-  settings: [ProcessingRequestSettingItem!]
+type DocumentVectorizationRequest implements EventQueueRequest {
+  action: EventQueueAction!
+  documentId: String!
+  embeddingDriver: InferenceDriver
+  embeddingModel: String!
+  extractionMethod: String!
+  libraryId: String!
+  splitMethod: String!
+  timestamp: DateTime!
   version: Int
-  workspaceId: String
+  workspaceId: String!
 }
 
 """
@@ -1055,16 +1018,6 @@ enum EmbeddingStatus {
   Ready
   UnknownModelConfig
   WorkspaceNotFound
-}
-
-type EnrichItemRequest implements ProcessingRequest {
-  documentId: String
-  fragment: Int
-  libraryId: String
-  requestType: String
-  settings: [ProcessingRequestSettingItem!]
-  version: Int
-  workspaceId: String
 }
 
 type EnrichmentQueueResult {
@@ -1129,24 +1082,42 @@ type EnrichmentTaskWebFetchResult {
   url: String!
 }
 
-enum EventProcessingStatus {
+type EventQueue {
+  action: EventQueueAction!
+  delivered: Int
+  error: String
+  pending: Int
+  redelivered: Int
+  status: EventQueueStatus!
+  waiting: Int
+}
+
+enum EventQueueAction {
+  documentExtraction
+  documentVectorization
+  fieldEnrichment
+}
+
+interface EventQueueRequest {
+  action: EventQueueAction!
+  timestamp: DateTime!
+  version: Int
+  workspaceId: String!
+}
+
+"""
+take and sequence based
+"""
+type EventQueueRequestsResult {
+  lastSequence: Int!
+  requests: [EventQueueRequest!]!
+  totalMessages: Int!
+}
+
+enum EventQueueStatus {
   paused
   running
-}
-
-type EventProcessingStatusResult {
-  requestType: ProcessingRequestType!
-  status: EventProcessingStatus!
-}
-
-type ExtractDocumentRequest implements ProcessingRequest {
-  documentId: String
-  extractionMethod: String
-  libraryId: String
-  requestType: String
-  settings: [ProcessingRequestSettingItem!]
-  version: Int
-  workspaceId: String
+  unknown
 }
 
 """
@@ -1179,6 +1150,20 @@ enum ExtractionMethod {
   legacyExtraction
   pdfExtraction
   textExtraction
+}
+
+type FieldEnrichmentRequest implements EventQueueRequest {
+  action: EventQueueAction!
+  chatModelDriver: InferenceDriver!
+  chatModelName: String!
+  context: [String!]!
+  fieldId: String!
+  notFoundValue: String
+  timestamp: DateTime!
+  valueFormat: String!
+  valuePrompt: String!
+  version: Int
+  workspaceId: String!
 }
 
 type FieldValueResult {
@@ -1259,6 +1244,50 @@ type HumanParticipant implements AiConversationParticipant {
   name: String
   user: User
   userId: ID
+}
+
+enum InferenceAction {
+  chatCompletion
+  chunkEmbedding
+}
+
+enum InferenceDriver {
+  ollama
+  openai
+}
+
+type InferenceHostConfig {
+  apiKey: String
+  driver: InferenceDriver!
+  hostId: String!
+  lastUpdate: DateTime
+  name: String
+  url: String
+}
+
+type InferenceHostState {
+  apiKey: String
+  driver: InferenceDriver!
+  hostId: String!
+  lastHealthCheck: DateTime
+  lastTestConnection: DateTime
+  models: [InferenceModelState!]
+  processorUsagePercent: Int
+  state: String!
+  totalMemoryMb: Int
+  url: String
+  usedMemoryMb: Int
+}
+
+type InferenceModelState {
+  callCount: Int
+  driver: InferenceDriver!
+  errorCount: Int
+  hostId: String
+  loadState: String
+  modelName: String
+  responseTimeMsPerToken: Int
+  workspaceId: String
 }
 
 type LibrariesResponseType {
@@ -1428,17 +1457,6 @@ type ManagedUsersResponse {
   users: [ManagedUser!]!
 }
 
-enum ModelCallType {
-  generateChatCompletion
-  generateEmbedding
-  generateImage
-}
-
-enum ModelProvider {
-  ollama
-  openai
-}
-
 input ModelProviderInput {
   apiKey: String
   baseUrl: String
@@ -1559,14 +1577,6 @@ type Mutation {
   login(jwtToken: String!): LoginResult!
   migrateWorkspace: Boolean
   prepareUpload(documentId: String, input: PrepareUploadInput!, libraryId: String!): PrepareUploadResult!
-  processDocument(
-    """
-    IDs of the document to process
-    """
-    documentId: String!
-    libraryId: String!
-    requestType: ProcessingRequestType!
-  ): ProcessDocumentResult!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
@@ -1581,18 +1591,18 @@ type Mutation {
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
   startAllQueueWorkers: QueueOperationResult!
-  startProcessing(requestType: ProcessingRequestType!): StartProcessingResult!
+  startProcessing(action: EventQueueAction!): [EventQueue!]!
   startQueueWorker(queueType: QueueType!): QueueOperationResult!
   stopAiLibraryCrawler(crawlerId: String!): String!
   stopAllQueueWorkers: QueueOperationResult!
-  stopProcessing(requestType: ProcessingRequestType!): StopEventProcessingResult!
+  stopProcessing(action: EventQueueAction!): [EventQueue!]!
   stopQueueWorker(queueType: QueueType!): QueueOperationResult!
-  syncModels(provider: ModelProvider): SyncModelsResult
+  syncModels(driver: InferenceDriver): SyncModelsResult
   testConnectorConnection(id: ID!): TestConnectorConnectionResult!
   testProviderConnection(
     apiKey: String
     baseUrl: String
-    provider: ModelProvider!
+    driver: InferenceDriver!
     providerId: String
   ): TestProviderConnectionResult!
   toggleAdminStatus(userId: String!): User
@@ -1605,9 +1615,17 @@ type Mutation {
     IDs of the document to process
     """
     documentId: String!
-    extractionMethod: ExtractionMethod!
+    extractionMethod: ExtractionMethod
     libraryId: String!
   ): TriggerExtractionResult!
+  triggerVectorization(
+    """
+    IDs of the document to process
+    """
+    documentId: String!
+    extractionMethod: ExtractionMethod
+    libraryId: String!
+  ): TriggerVectorizationResult!
   unhideMessage(messageId: String!): AiConversationMessage
   updateAiAssistant(data: AiAssistantInput!, id: String!): AiAssistant
   updateAiLibraryCrawler(
@@ -1646,43 +1664,6 @@ type PrepareUploadResult {
   workspaceId: String!
 }
 
-type ProcessDocumentResult {
-  success: Boolean
-}
-
-interface ProcessingRequest {
-  requestType: String
-  settings: [ProcessingRequestSettingItem!]
-  version: Int
-  workspaceId: String
-}
-
-type ProcessingRequestItem {
-  deliveryCount: Int
-  error: String
-  id: String
-  rawText: String
-  request: ProcessingRequest
-  subject: String
-}
-
-type ProcessingRequestSettingItem {
-  key: String
-  value: String
-}
-
-enum ProcessingRequestType {
-  embedFile
-  enrichItem
-  extractFile
-}
-
-type ProcessingRequestsResponse {
-  items: [ProcessingRequestItem!]!
-  lastSequence: Int
-  totalCount: Int
-}
-
 type ProviderCapabilityCounts {
   chatCount: Int!
   disabledCount: Int!
@@ -1692,12 +1673,6 @@ type ProviderCapabilityCounts {
   modelCount: Int!
   provider: String!
   visionCount: Int!
-}
-
-enum ProviderHealthStatus {
-  degraded
-  healthy
-  unhealthy
 }
 
 type Query {
@@ -1770,6 +1745,13 @@ type Query {
   countFiles(libraryId: String!, namePrefix: String, originUriPrefix: String, showArchived: Boolean!): Int!
   currentUser: User!
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
+  eventQueueRequests(
+    action: EventQueueAction!
+    startSequence: Int
+    take: Int
+    workspaceId: String!
+  ): EventQueueRequestsResult!
+  eventQueueStats(workspaceId: String!): [EventQueue!]!
   extraction(extractionMethod: ExtractionMethod, fileId: String!, libraryId: String!): ExtractionManifest
   file(fileId: String!, libraryId: String!): AiLibraryFile!
   fileChunks(
@@ -1788,6 +1770,9 @@ type Query {
     sortOrder: SortOrder = desc
     take: Int
   ): FilesQueryResponse!
+  inferenceHostConfig: [InferenceHostConfig!]!
+  inferenceHostState: [InferenceHostState!]!
+  inferenceModelState: [InferenceModelState!]!
   libraries(
     skip: Int
     sortField: LibrarySortField = name
@@ -1796,7 +1781,6 @@ type Query {
   ): LibrariesResponseType!
   library(libraryId: String!): AiLibrary!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
-  modelProviderStatus: AiServiceClusterStatus!
   modelProviders(enabled: Boolean): [AiServiceProvider!]!
   models(
     canDoChatCompletion: Boolean
@@ -1804,21 +1788,13 @@ type Query {
     canDoFunctionCalling: Boolean
     canDoVision: Boolean
     onlyUsed: Boolean = false
-    providers: [ModelProvider!]
+    providers: [InferenceDriver!]
     search: String
     showDisabled: Boolean = false
     skip: Int = 0
     take: Int = 20
   ): AiLanguageModelsResult!
   myWorkspaceInvitations: [WorkspaceInvitation!]!
-  processingRequests(
-    documentId: String
-    libraryId: String
-    requestType: ProcessingRequestType
-    startSequence: Int
-    take: Int! = 20
-  ): ProcessingRequestsResponse!
-  processingStatus: [EventProcessingStatusResult!]!
   queryFileChunks(query: String!, selector: FileChunksSelector!, skip: Int, take: Int): FileChunksQueryResult!
   queueSystemStatus: QueueSystemStatus!
   similarChunks(
@@ -1833,13 +1809,12 @@ type Query {
   users: [User!]!
   vectorStore(workspaceId: String!): VectorStore!
   version: String
-  workers: [WorkerEntry!]!
+  workers: [WorkerSlotEntry!]!
   workspace(workspaceId: String!): Workspace!
   workspaceConnectorTypes: [AiConnectorTypeWorkspace!]!
   workspaceInvitation(invitationId: ID!): WorkspaceInvitation!
   workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
-  workspaceProcessStatistics(workspaceId: String!): [WorkspaceProcessStatistics!]!
   workspaces(
     skip: Int
     sortField: WorkspaceSortField = name
@@ -1909,14 +1884,6 @@ enum SortOrder {
   desc
 }
 
-type StartProcessingResult {
-  success: Boolean
-}
-
-type StopEventProcessingResult {
-  success: Boolean
-}
-
 """
 Storage usage information for a workspace
 """
@@ -1960,6 +1927,10 @@ type TriggerAutomationResult {
 }
 
 type TriggerExtractionResult {
+  success: Boolean!
+}
+
+type TriggerVectorizationResult {
   success: Boolean!
 }
 
@@ -2035,17 +2006,32 @@ type VectorStore {
   warnings: [String!]
 }
 
-type WorkerEntry {
-  lastHeartbeat: String
-  workerId: String
-  workerType: WorkerType
+enum WorkerActionResult {
+  failure
+  start
+  success
 }
 
-enum WorkerType {
-  AI_HEALTH_MANAGEMENT
-  AI_PROVIDER_CALLING
-  WORKER_REGISTRY
-  WORKSPACE_PROCESSING
+enum WorkerRole {
+  inferenceHostManager
+  requestFulfillment
+  workerSlotManager
+  workspaceConfigManager
+  workspaceProcessing
+}
+
+type WorkerSlotEntry {
+  failedActions: Int
+  lastHeartbeat: DateTime
+  latestActionEnd: DateTime
+  latestActionFailure: DateTime
+  latestActionStart: DateTime
+  latestActivity: DateTime
+  latestActivityResult: WorkerActionResult
+  signedUp: DateTime
+  startedActions: Int
+  workerId: String
+  workerRole: WorkerRole
 }
 
 type Workspace {
@@ -2106,16 +2092,6 @@ type WorkspaceMember {
   role: String!
   user: User!
   workspace: Workspace!
-}
-
-"""
-Statistics about backend events
-"""
-type WorkspaceProcessStatistics {
-  pendingMessages: Int!
-  processedMessages: Int!
-  requestType: ProcessingRequestType!
-  totalMessages: Int!
 }
 
 """

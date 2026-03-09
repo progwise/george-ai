@@ -34,7 +34,10 @@ export const FileMenu = ({ file }: FileMenuProps) => {
   const [preparedUploadFile, setPreparedUploadFile] = useState<PreparedUploadFile | null>(null)
 
   const { t } = useTranslation()
-  const { prepareSourceUpload, isPending, processDocument } = useDocumentActions({ libraryId, documentId })
+  const { prepareSourceUpload, triggerExtraction, triggerVectorization, isPending } = useDocumentActions({
+    libraryId,
+    documentId,
+  })
 
   useEffect(() => {
     const outsideClickHandler = (event: Event) => {
@@ -90,14 +93,20 @@ export const FileMenu = ({ file }: FileMenuProps) => {
     )
   }
   const handleEmbed = () => {
-    processDocument('embedFile', {
-      onSuccess: () => toastSuccess('Embedding processing triggered successfully'),
-    })
+    triggerVectorization(
+      {},
+      {
+        onSuccess: () => toastSuccess('Embedding processing triggered successfully'),
+      },
+    )
   }
   const handleExtract = () => {
-    processDocument('extractFile', {
-      onSuccess: () => toastSuccess('Extraction processing triggered successfully'),
-    })
+    triggerExtraction(
+      {},
+      {
+        onSuccess: () => toastSuccess('Extraction processing triggered successfully'),
+      },
+    )
   }
 
   return (

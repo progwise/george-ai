@@ -1,4 +1,4 @@
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod } from '@george-ai/app-schema'
 
 import { FileChunk } from '../schema'
 import { getChunks } from './get-chunks'

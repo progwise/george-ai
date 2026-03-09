@@ -6,7 +6,7 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod } from '../../../gql/graphql'
 
 // Custom plugin to rewrite image URLs
 const rewriteAttachmentPaths = (parameters: {

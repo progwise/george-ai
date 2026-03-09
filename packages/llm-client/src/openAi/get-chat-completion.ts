@@ -2,10 +2,10 @@ import pRetry from 'p-retry'
 import { Readable } from 'stream'
 import z from 'zod'
 
-import { OpenAiProviderConnection, decryptValue } from '@george-ai/app-commons'
+import { decryptValue } from '@george-ai/app-commons'
+import { ChatAttachment, ChatMessage, ChatResponseChunk, OpenAIHostConnection } from '@george-ai/app-schema'
 
 import { Base64Encoder } from '../base64-encoder'
-import { ChatAttachment, ChatCompletionResult, ChatCompletionStreamChunk, ChatMessage, ChatOptions } from '../common'
 import { DEFAULT_BASE_URL, logger } from './common'
 import { OpenAIChatCompletionChunkSchema, OpenAIChatCompletionSchema, OpenAIChatStreamChunkSchema } from './schema'
 
@@ -13,7 +13,7 @@ export const openAIChatJsonGenerator = async function* (options: {
   model: string
   stream: boolean
   messages: ChatMessage[]
-  attachments?: ChatAttachment[]
+  attachments?: (ChatAttachment & { stream: Readable })[]
 }) {
   const { model, stream, messages, attachments } = options
   const encoder = new TextEncoder()
@@ -55,12 +55,13 @@ export const openAIChatJsonGenerator = async function* (options: {
 }
 
 export async function getOpenAIChatCompletion(
-  connection: OpenAiProviderConnection,
-  options: ChatOptions,
+  connection: OpenAIHostConnection,
+  modelName: string,
+  messages: ChatMessage[],
+  attachments?: (ChatAttachment & { stream: Readable })[],
   abortSignal?: AbortSignal,
-): Promise<ChatCompletionResult> {
+): Promise<ChatResponseChunk> {
   const { baseUrl, encryptedApiKey } = connection
-  const { messages, modelName, attachments } = options
 
   const requestInit: RequestInit & { duplex: 'half' } = {
     method: 'POST',
@@ -94,8 +95,7 @@ export async function getOpenAIChatCompletion(
   const data = await response.json()
   const result = OpenAIChatCompletionSchema.parse(data)
   return {
-    model: result.model,
-    content: result.choices
+    chunk: result.choices
       .map((choice) => choice.message.content)
       .filter((message) => !!message)
       .join('\n'),
@@ -106,12 +106,13 @@ export async function getOpenAIChatCompletion(
 }
 
 export async function getOpenAIChatCompletionStream(
-  connection: OpenAiProviderConnection,
-  options: ChatOptions,
+  connection: OpenAIHostConnection,
+  modelName: string,
+  messages: ChatMessage[],
+  attachments?: (ChatAttachment & { stream: Readable })[],
   abortSignal?: AbortSignal,
-): Promise<ReadableStream<ChatCompletionStreamChunk>> {
+): Promise<ReadableStream<ChatResponseChunk>> {
   const { baseUrl, encryptedApiKey } = connection
-  const { messages, modelName, attachments } = options
 
   const requestInit: RequestInit & { duplex: 'half' } = {
     method: 'POST',
@@ -147,7 +148,9 @@ export async function getOpenAIChatCompletionStream(
   if (!response.body) {
     logger.error('Failed to retrieve streaming body for openai chat streaming api', {
       connection,
-      options,
+      modelName,
+      messages,
+      attachments,
       status: response.status,
     })
     throw new Error(
@@ -155,7 +158,7 @@ export async function getOpenAIChatCompletionStream(
     )
   }
 
-  const transformStream = new TransformStream<string, ChatCompletionStreamChunk>({
+  const transformStream = new TransformStream<string, ChatResponseChunk>({
     start(controller) {
       // Listen for abort signal and close the stream
       abortSignal?.addEventListener('abort', () => {
@@ -217,14 +220,11 @@ export async function getOpenAIChatCompletionStream(
               done: choice.finish_reason !== null, // Stream is done when finish_reason is set
             })
 
-            const commonChunk: ChatCompletionStreamChunk = {
+            const commonChunk: ChatResponseChunk = {
               chunk: streamChunk.delta.content || streamChunk.delta.reasoning_content || '',
-              metadata: {
-                instanceUrl: baseUrl || DEFAULT_BASE_URL,
-                promptTokens: streamChunk.usage?.prompt_tokens,
-                completionTokens: streamChunk.usage?.completion_tokens,
-                tokensProcessed: streamChunk.usage?.total_tokens,
-              },
+              promptTokens: streamChunk.usage?.prompt_tokens,
+              completionTokens: streamChunk.usage?.completion_tokens,
+              created: new Date(),
             }
 
             controller.enqueue(commonChunk)
@@ -241,14 +241,11 @@ export async function getOpenAIChatCompletionStream(
               done: true,
             })
 
-            const commonChunk: ChatCompletionStreamChunk = {
+            const commonChunk: ChatResponseChunk = {
               chunk: '',
-              metadata: {
-                instanceUrl: baseUrl || DEFAULT_BASE_URL,
-                promptTokens: streamChunk.usage?.prompt_tokens,
-                completionTokens: streamChunk.usage?.completion_tokens,
-                tokensProcessed: streamChunk.usage?.total_tokens,
-              },
+              promptTokens: streamChunk.usage?.prompt_tokens,
+              completionTokens: streamChunk.usage?.completion_tokens,
+              created: new Date(),
             }
 
             controller.enqueue(commonChunk)

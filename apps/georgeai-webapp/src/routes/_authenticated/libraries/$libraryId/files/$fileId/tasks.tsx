@@ -2,16 +2,16 @@ import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { PROCESSING_REQUEST_TYPES, getProcessingRequestType } from '@george-ai/app-commons'
-
-import { getProcessingRequestsQueryOptions } from '../../../../../../components/library/queries/get-processing-requests'
+import { getProcessingRequestsQueryOptions } from '../../../../../../components/workspace/queries'
+import { EventQueueAction } from '../../../../../../gql/graphql'
+import { EventQueueActionSchema } from '../../../../../../gql/validation'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/tasks')({
   component: RouteComponent,
   validateSearch: z.object({
     startSequence: z.coerce.number().optional(),
     take: z.coerce.number().default(20),
-    requestType: z.enum(PROCESSING_REQUEST_TYPES).optional(),
+    action: EventQueueActionSchema.optional(),
   }),
   loaderDeps: ({ search: { startSequence, take } }) => ({
     startSequence,
@@ -20,16 +20,16 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 })
 
 function RouteComponent() {
-  const { libraryId, fileId } = Route.useParams()
-  const { startSequence, take, requestType } = Route.useSearch()
+  const { workspaceId } = Route.useRouteContext()
+  const { fileId } = Route.useParams()
+  const { action, take, startSequence } = Route.useSearch()
 
   const { data, isLoading, error } = useQuery(
     getProcessingRequestsQueryOptions({
-      libraryId,
-      fileId,
-      startSequence,
+      workspaceId,
+      action: !action ? EventQueueAction.DocumentExtraction : action,
       take,
-      requestType: !requestType ? undefined : getProcessingRequestType(requestType),
+      startSequence,
     }),
   )
 
@@ -40,25 +40,16 @@ function RouteComponent() {
       {error && <div className="text-error">Error: {(error as Error).message}</div>}
       {data && (
         <div>
-          <p>Total Requests: {data.totalCount}</p>
+          <p>Total Requests: {data.totalMessages}</p>
           <p>Last Sequence: {data.lastSequence}</p>
           <ul>
-            {data.items.map((item) => (
-              <li key={item.id}>
-                <p>ID: {item.id}</p>
-                <p>Subject: {item.subject}</p>
-                <p>Delivery Count: {item.deliveryCount}</p>
-                {item.error && <p className="text-error">Error: {item.error}</p>}
-                {item.request && (
-                  <div className="ml-4">
-                    <p>Request Type: {item.request.requestType}</p>
-                    <p>Subject: {item.subject}</p>
-                    <p>
-                      Raw: <pre>{item.rawText}</pre>
-                    </p>
-                    {/* Add more details about the request as needed */}
-                  </div>
-                )}
+            {data.requests.map((item) => (
+              <li key={`item-${item.action}-${item.timestamp}`}>
+                <div>Action {item.action}</div>
+                <div>Time {item.timestamp}</div>
+                <pre>
+                  <code lang="json">{JSON.stringify(item)}</code>
+                </pre>
               </li>
             ))}
           </ul>

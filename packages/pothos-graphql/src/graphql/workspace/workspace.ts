@@ -1,5 +1,5 @@
-import { getWorkspaceRole } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
+import { WorkspaceRoleSchema } from '@george-ai/app-schema'
 import { workspace } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
@@ -29,7 +29,7 @@ builder.prismaObject('Workspace', {
           select: { role: true },
           where: { workspaceId_userId: { workspaceId: workspace.id, userId } },
         })
-        const result = member ? getWorkspaceRole(member.role) : null
+        const result = member ? WorkspaceRoleSchema.parse(member.role) : null
         return result
       },
     }),

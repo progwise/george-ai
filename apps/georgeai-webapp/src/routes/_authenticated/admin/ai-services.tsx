@@ -1,6 +1,6 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import { getModelProvidersQueryOptions } from '../../../components/admin/queries'
 import { createProviderFn } from '../../../components/admin/server-functions/create-provider'
@@ -9,10 +9,9 @@ import { restoreDefaultProvidersFn } from '../../../components/admin/server-func
 import { testProviderConnectionFn } from '../../../components/admin/server-functions/test-provider-connection'
 import { toggleProviderFn } from '../../../components/admin/server-functions/toggle-provider'
 import { updateProviderFn } from '../../../components/admin/server-functions/update-provider'
-import { ClientDate } from '../../../components/client-date'
 import { DialogForm } from '../../../components/dialog-form'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
-import { getModelProviderStatusQueryOptions } from '../../../components/workspace/queries/get-model-provider-status'
+import { getInferenceHostStatusQueryOptions } from '../../../components/workspace/queries'
 import { ModelProviderInput } from '../../../gql/graphql'
 import BotIcon from '../../../icons/bot-icon'
 import { EditIcon } from '../../../icons/edit-icon'
@@ -25,7 +24,7 @@ export const Route = createFileRoute('/_authenticated/admin/ai-services')({
   component: AiServicesAdminPage,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getModelProviderStatusQueryOptions()),
+      context.queryClient.ensureQueryData(getInferenceHostStatusQueryOptions()),
       context.queryClient.ensureQueryData(getModelProvidersQueryOptions()),
     ])
   },
@@ -76,18 +75,32 @@ function AiServicesAdminPage() {
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
   const { data: serviceStatus } = useSuspenseQuery({
-    ...getModelProviderStatusQueryOptions(),
+    ...getInferenceHostStatusQueryOptions(),
     refetchInterval: autoRefresh ? 5000 : false,
   })
 
   const { data: providers } = useSuspenseQuery(getModelProvidersQueryOptions())
+
+  const statusWithProvider = useMemo(
+    () =>
+      serviceStatus.map((status) => {
+        const provider = providers.find((provider) => provider.id === status.hostId)
+        return {
+          ...status,
+          name: provider?.name,
+          isOnline: status.state === 'healthy',
+          provider,
+        }
+      }),
+    [providers, serviceStatus],
+  )
 
   const createMutation = useMutation({
     mutationFn: (data: ModelProviderInput) => createProviderFn({ data }),
     onSuccess: () => {
       toastSuccess('Provider created successfully')
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -102,7 +115,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider updated successfully')
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -117,7 +130,7 @@ function AiServicesAdminPage() {
     onSuccess: () => {
       toastSuccess('Provider deleted successfully')
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
       deleteDialogRef.current?.close()
       setDeletingProviderId(null)
     },
@@ -131,7 +144,7 @@ function AiServicesAdminPage() {
     mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => toggleProviderFn({ data: { id, enabled } }),
     onSuccess: () => {
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
@@ -144,7 +157,7 @@ function AiServicesAdminPage() {
     onSuccess: (result) => {
       toastSuccess(`Restored ${result.created} providers (${result.skipped} already existed)`)
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
@@ -176,7 +189,7 @@ function AiServicesAdminPage() {
     },
     onSettled: () => {
       queryClient.invalidateQueries(getModelProvidersQueryOptions())
-      queryClient.invalidateQueries(getModelProviderStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
     },
   })
 
@@ -307,8 +320,8 @@ function AiServicesAdminPage() {
           ) : (
             providers.map((provider) => {
               // Find matching instance from service status
-              const instance = serviceStatus.instances.find((inst) => inst.url === provider.baseUrl)
-              const isOnline = instance ? instance.isOnline : null
+              const instance = serviceStatus.find((inst) => inst.url === provider.baseUrl)
+              const isOnline = instance ? instance.state === 'healthy' : null
 
               return (
                 <div key={provider.id} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
@@ -388,22 +401,30 @@ function AiServicesAdminPage() {
             <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">
               Ollama Instances
             </div>
-            <div className="text-3xl font-bold text-secondary">{serviceStatus.totalInstances}</div>
-            <div className="mt-1 text-sm text-base-content/70">{serviceStatus.healthyInstances} healthy</div>
+            <div className="text-3xl font-bold text-secondary">{serviceStatus.length}</div>
+            <div className="mt-1 text-sm text-base-content/70">
+              {serviceStatus.map((host) => host.state === 'healthy').length} healthy
+            </div>
           </div>
 
           <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
             <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">Total VRAM</div>
-            <div className="text-3xl font-bold text-accent">{formatMemory(serviceStatus.totalMemory)}</div>
+            <div className="text-3xl font-bold text-accent">
+              {formatMemory(serviceStatus.reduce((prev, acc) => prev + (acc.totalMemoryMb || 0), 0))}
+            </div>
             <div className="mt-1 text-sm text-base-content/70">
-              {formatMemory(serviceStatus.totalUsedMemory)} used (
-              {getMemoryUtilization(serviceStatus.totalUsedMemory, serviceStatus.totalMemory)}%)
+              {formatMemory(serviceStatus.reduce((prev, acc) => prev + (acc.usedMemoryMb || 0), 0))} used (
+              {getMemoryUtilization(
+                serviceStatus.reduce((prev, acc) => prev + (acc.usedMemoryMb || 0), 0),
+                serviceStatus.reduce((prev, acc) => prev + (acc.totalMemoryMb || 0), 0),
+              )}
+              %)
             </div>
           </div>
 
           <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
             <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">Queue Length</div>
-            <div className="text-3xl font-bold text-info">{serviceStatus.totalQueueLength}</div>
+            <div className="text-3xl font-bold text-info">?? TODO ??</div>
             <div className="mt-1 text-sm text-base-content/70">Total waiting requests</div>
           </div>
         </div>
@@ -413,15 +434,15 @@ function AiServicesAdminPage() {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Ollama Instance Details</h2>
 
-        {serviceStatus.instances.length === 0 ? (
+        {statusWithProvider.length === 0 ? (
           <div className="rounded-lg border border-warning bg-warning/10 p-4 text-sm">
             <span>No Ollama instances found. Please check your configuration.</span>
           </div>
         ) : (
-          serviceStatus.instances
-            .sort((a, b) => a.name.localeCompare(b.name))
+          statusWithProvider
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
             .map((instance) => {
-              const memoryUtilization = getMemoryUtilization(instance.usedVram, instance.totalVram)
+              const memoryUtilization = getMemoryUtilization(instance.usedMemoryMb || 0, instance.totalMemoryMb || 0)
 
               return (
                 <div key={instance.name} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
@@ -433,17 +454,19 @@ function AiServicesAdminPage() {
                         <div className={`badge ${getStatusBadge(instance.isOnline)}`}>
                           {instance.isOnline ? 'Online' : 'Offline'}
                         </div>
-                        <div className="badge badge-outline">{instance.type}</div>
+                        <div className="badge badge-outline">{instance.driver}</div>
                       </h3>
                       <p className="text-sm opacity-70">{instance.url}</p>
-                      {instance.version && <p className="text-xs opacity-50">Version: {instance.version}</p>}
+                      <p className="text-xs opacity-50">Version: MISSING</p>
                     </div>
 
                     <div className="flex flex-col gap-4 rounded-lg bg-base-200 p-4 lg:flex-row">
                       <div className="text-center">
                         <div className="text-xs font-medium text-base-content/60">VRAM Usage</div>
-                        <div className="text-sm font-bold">{formatMemory(instance.usedVram)}</div>
-                        <div className="text-xs text-base-content/70">of {formatMemory(instance.totalVram)}</div>
+                        <div className="text-sm font-bold">{formatMemory(instance.usedMemoryMb || 0)}</div>
+                        <div className="text-xs text-base-content/70">
+                          of {formatMemory(instance.totalMemoryMb || 0)}
+                        </div>
                       </div>
                       <div className="text-center">
                         <div className="text-xs font-medium text-base-content/60">Utilization</div>
@@ -464,32 +487,31 @@ function AiServicesAdminPage() {
                       <details className="rounded-lg bg-base-200">
                         <summary className="cursor-pointer p-4 text-sm font-semibold">
                           <div className="flex items-center gap-2">
-                            <div className="badge badge-sm badge-info">{instance.availableModels?.length || 0}</div>
+                            <div className="badge badge-sm badge-info">{instance.models?.length || 0}</div>
                             Available Models
                           </div>
                         </summary>
                         <div className="px-4 pb-4">
                           <div className="max-h-48 space-y-1 overflow-y-auto">
-                            {instance.availableModels && instance.availableModels.length > 0 ? (
-                              instance.availableModels.map((model) => (
-                                <div key={model.name} className="rounded-sm border border-base-300 bg-base-100 p-2">
-                                  <div className="font-mono text-xs font-medium">{model.name}</div>
+                            {instance.models && instance.models.length > 0 ? (
+                              instance.models.map((model) => (
+                                <div
+                                  key={model.modelName}
+                                  className="rounded-sm border border-base-300 bg-base-100 p-2"
+                                >
+                                  <div className="font-mono text-xs font-medium">{model.modelName}</div>
                                   <div className="text-xs opacity-70">
-                                    {model.family && (
-                                      <span className="mr-1 badge badge-ghost badge-xs">{model.family}</span>
-                                    )}
-                                    {model.size !== undefined && <span>Size: {formatMemory(model.size)}</span>}
-                                    {model.parameterSize && <span> • {model.parameterSize} params</span>}
+                                    <span className="mr-1 badge badge-ghost badge-xs">MODEL FAMILY</span>
+                                    <span>Size: MISSING</span>
+                                    <span> • MISSING params</span>
                                   </div>
-                                  {model.capabilities && model.capabilities.length > 0 && (
-                                    <div className="mt-1 flex flex-wrap gap-1">
-                                      {model.capabilities.map((cap) => (
-                                        <div key={cap} className="badge badge-outline badge-xs">
-                                          {cap}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
+                                  <div className="mt-1 flex flex-wrap gap-1">
+                                    {['Embedding', 'Completion', 'Function Calling'].map((cap) => (
+                                      <div key={cap} className="badge badge-outline badge-xs">
+                                        {cap}
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
                               ))
                             ) : (
@@ -502,64 +524,9 @@ function AiServicesAdminPage() {
 
                     <div>
                       <h4 className="mb-3 flex items-center gap-2 font-semibold">
-                        <div className="badge badge-sm badge-success">{instance.runningModels?.length || 0}</div>
+                        <div className="badge badge-sm badge-success">{instance.models?.length || 0}</div>
                         Running Models
                       </h4>
-                      <div className="max-h-48 space-y-2 overflow-y-auto">
-                        {instance.runningModels && instance.runningModels.length > 0 ? (
-                          instance.runningModels.map((model) => (
-                            <div key={model.name} className="rounded-sm border border-base-300 bg-base-200 p-3">
-                              <div className="flex items-center justify-between">
-                                <span className="font-mono text-sm font-medium">{model.name}</span>
-                                <div className="badge badge-sm badge-info">{model.activeRequests} active</div>
-                              </div>
-                              <div className="flex justify-between text-xs opacity-70">
-                                <span>Size: {formatMemory(model.size)}</span>
-                                {model.expiresAt && (
-                                  <span>
-                                    Expires: <ClientDate date={model.expiresAt} format="time" />
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="py-4 text-center text-sm opacity-50">No models currently running</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="mb-3 flex items-center gap-2 font-semibold">
-                        <div className="badge badge-sm badge-warning">{instance.modelQueues?.length || 0}</div>
-                        Model Queues
-                      </h4>
-                      <div className="max-h-48 space-y-2 overflow-y-auto">
-                        {instance.modelQueues && instance.modelQueues.length > 0 ? (
-                          instance.modelQueues.map((queue) => (
-                            <div key={queue.modelName} className="rounded-sm border border-base-300 bg-base-200 p-3">
-                              <div className="flex items-center justify-between">
-                                <span className="font-mono text-sm font-medium">{queue.modelName}</span>
-                                <div className="badge badge-outline badge-sm">
-                                  {queue.queueLength}/{queue.maxConcurrency}
-                                </div>
-                              </div>
-                              <div className="text-xs opacity-70">
-                                Est. size per request: {formatMemory(queue.estimatedRequestSize)}
-                              </div>
-                              {queue.queueLength > 0 && (
-                                <progress
-                                  className="progress w-full progress-warning"
-                                  value={queue.queueLength}
-                                  max={queue.maxConcurrency}
-                                />
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          <p className="py-4 text-center text-sm opacity-50">No active queues</p>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>

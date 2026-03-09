@@ -1,6 +1,7 @@
 import './queries'
 import './mutations'
-import './processing-request'
+import './event-queue'
+import './event-queue-request'
 
 import { logger } from '../common'
 

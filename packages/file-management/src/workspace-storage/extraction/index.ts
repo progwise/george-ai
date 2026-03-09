@@ -1,4 +1,4 @@
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod } from '@george-ai/app-schema'
 
 import { createExtraction } from './create-extraction'
 import { deleteExtraction } from './delete-extraction'

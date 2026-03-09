@@ -1,8 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { useRouteContext } from '@tanstack/react-router'
 
-import { ProcessingRequestType } from '@george-ai/app-commons'
-
-import { EventProcessingStatus } from '../../../gql/graphql'
+import { EventQueueAction, EventQueueStatus } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { PlayIcon } from '../../../icons/play-icon'
 import { StopIcon } from '../../../icons/stop-icon'
@@ -11,25 +10,26 @@ import { useWorkerActions } from './use-worker-actions'
 
 export const ManageWorkersMenu = () => {
   const { t } = useTranslation()
+  const { workspaceId } = useRouteContext({ strict: false })
 
-  const { data: eventProcessingStatus } = useSuspenseQuery(getEventProcessingStatusQueryOptions())
+  const { data: eventProcessingStatus } = useSuspenseQuery(getEventProcessingStatusQueryOptions({ workspaceId }))
 
   const { stopProcessing, startProcessing, pending } = useWorkerActions()
 
-  const isProcessing = (requestType: ProcessingRequestType) => {
-    const processingStatus = eventProcessingStatus.find((status) => status.requestType === requestType)
-    return processingStatus?.status === EventProcessingStatus.Running
+  const isProcessing = (action: EventQueueAction) => {
+    const processingStatus = eventProcessingStatus.find((queue) => queue.action === action)
+    return processingStatus?.status === EventQueueStatus.Running
   }
 
   return (
     <ul className="menu menu-horizontal gap-2 rounded-box bg-base-200/50 p-2">
       <li aria-disabled={pending}>
-        {!isProcessing('embedFile') ? (
+        {!isProcessing(EventQueueAction.DocumentVectorization) ? (
           <button
             type="button"
             disabled={pending}
             className="btn btn-xs btn-primary"
-            onClick={() => startProcessing('embedFile')}
+            onClick={() => startProcessing(EventQueueAction.DocumentVectorization)}
           >
             <PlayIcon className="size-4" />
             {t('admin.workers.startEmbedding')}
@@ -39,7 +39,7 @@ export const ManageWorkersMenu = () => {
             type="button"
             disabled={pending}
             className="btn btn-xs btn-secondary"
-            onClick={() => stopProcessing('embedFile')}
+            onClick={() => stopProcessing(EventQueueAction.DocumentVectorization)}
           >
             <StopIcon className="size-4" />
             {t('admin.workers.stopEmbedding')}
@@ -47,12 +47,12 @@ export const ManageWorkersMenu = () => {
         )}
       </li>
       <li>
-        {!isProcessing('extractFile') ? (
+        {!isProcessing(EventQueueAction.DocumentExtraction) ? (
           <button
             type="button"
             disabled={pending}
             className="btn btn-xs btn-primary"
-            onClick={() => startProcessing('extractFile')}
+            onClick={() => startProcessing(EventQueueAction.DocumentExtraction)}
           >
             <PlayIcon className="size-4" />
             {t('admin.workers.startExtraction')}
@@ -62,7 +62,7 @@ export const ManageWorkersMenu = () => {
             type="button"
             disabled={pending}
             className="btn btn-xs btn-secondary"
-            onClick={() => stopProcessing('extractFile')}
+            onClick={() => stopProcessing(EventQueueAction.DocumentExtraction)}
           >
             <StopIcon className="size-4" />
             {t('admin.workers.stopExtraction')}

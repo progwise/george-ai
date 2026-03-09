@@ -1,8 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useMemo, useRef } from 'react'
 
-import { ExtractionMethod } from '@george-ai/app-commons'
-
+import { ExtractionMethod } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { BoltIcon } from '../../../icons/bolt-icon'
 import { ClientDate } from '../../client-date'
@@ -122,14 +121,17 @@ export const ExtractionSelector = ({
           <button
             type="button"
             onClick={() =>
-              triggerExtraction(selectedOption.extractionMethod, {
-                onSuccess: () =>
-                  toastSuccess(
-                    t('files.extractionTriggered', {
-                      id: `extraction-triggered-${documentId}-${selectedOption.extractionMethod}`,
-                    }),
-                  ),
-              })
+              triggerExtraction(
+                { extractionMethod: selectedOption.extractionMethod },
+                {
+                  onSuccess: () =>
+                    toastSuccess(
+                      t('files.extractionTriggered', {
+                        id: `extraction-triggered-${documentId}-${selectedOption.extractionMethod}`,
+                      }),
+                    ),
+                },
+              )
             }
             disabled={isPending}
             data-tip={`Execute ${selectedOption.title}`}

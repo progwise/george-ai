@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { OllamaProviderConnection } from '@george-ai/app-commons'
+import { OllamaHostConnection } from '@george-ai/app-schema'
 
 import { ollamaApiGet, ollamaApiPost } from './ollama-rest-api'
 import {
@@ -11,7 +11,7 @@ import {
 } from './schema'
 
 export async function getOllamaModels(
-  connection: OllamaProviderConnection,
+  connection: OllamaHostConnection,
   abortSignal?: AbortSignal,
 ): Promise<z.infer<typeof OllamaModelsResponseSchema> & { timestamp: number }> {
   const data = await ollamaApiGet(connection, '/api/tags', OllamaModelsResponseSchema, abortSignal)
@@ -19,7 +19,7 @@ export async function getOllamaModels(
 }
 
 export async function getOllamaRunningModels(
-  connection: OllamaProviderConnection,
+  connection: OllamaHostConnection,
   abortSignal?: AbortSignal,
 ): Promise<z.infer<typeof OllamaRunningModelsResponseSchema> & { timestamp: number }> {
   const data = await ollamaApiGet(connection, '/api/ps', OllamaRunningModelsResponseSchema, abortSignal)
@@ -27,7 +27,7 @@ export async function getOllamaRunningModels(
 }
 
 export async function getOllamaModelInfo(
-  connection: OllamaProviderConnection,
+  connection: OllamaHostConnection,
   modelName: string,
   abortSignal?: AbortSignal,
 ): Promise<OllamaModelInfo> {

@@ -21,6 +21,7 @@
     "@george-ai/ai-service-client": "workspace:*",
     "@george-ai/api-crawler": "workspace:*",
     "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-schema": "workspace:*",
     "@george-ai/app-database": "workspace:*",
     "@george-ai/app-domain": "workspace:*",
     "@george-ai/html-crawler-client": "workspace:*",

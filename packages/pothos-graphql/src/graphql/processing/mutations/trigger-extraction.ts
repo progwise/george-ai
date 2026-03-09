@@ -14,7 +14,7 @@ builder.mutationField('triggerExtraction', (t) =>
       }),
     }),
     args: {
-      extractionMethod: t.arg({ type: 'ExtractionMethod', required: true }),
+      extractionMethod: t.arg({ type: 'ExtractionMethod', required: false }),
       libraryId: t.arg.string({ required: true }),
       documentId: t.arg.string({ required: true, description: 'IDs of the document to process' }),
     },

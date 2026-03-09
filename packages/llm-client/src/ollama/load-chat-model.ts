@@ -1,12 +1,12 @@
 import z from 'zod'
 
-import { OllamaProviderConnection } from '@george-ai/app-commons'
+import { OllamaHostConnection } from '@george-ai/app-schema'
 
 import { logger } from './common'
 import { ollamaApiPost } from './ollama-rest-api'
 
 export async function loadOllamaChatModel(
-  connection: OllamaProviderConnection,
+  connection: OllamaHostConnection,
   modelName: string,
   abortSignal?: AbortSignal,
 ) {
@@ -22,7 +22,7 @@ export async function loadOllamaChatModel(
 }
 
 export async function unloadOllamaChatModel(
-  connection: OllamaProviderConnection,
+  connection: OllamaHostConnection,
   modelName: string,
   abortSignal?: AbortSignal,
 ) {

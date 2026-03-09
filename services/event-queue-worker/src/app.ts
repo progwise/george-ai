@@ -2,14 +2,13 @@ import { getConfigReport } from '@george-ai/app-commons'
 import { signupWorker } from '@george-ai/event-service-client'
 
 import { WORKER_ID, logger } from './common'
-import { ensureProcessingStart } from './ensure-processing'
-import sub from './subscription-map'
+import { processingMap, startProcessing } from './processing'
 
 export async function main() {
   logger.info('*** Starting GeorgeAi Event Queue Worker ***')
   logger.info(`\n${getConfigReport()}\n`)
 
-  await ensureProcessingStart('WORKER_MANAGER')
+  await startProcessing('workerSlotManager')
 
   const myWorkerEntries = await signupWorker({
     workerId: WORKER_ID,
@@ -21,12 +20,12 @@ export async function main() {
 
   // Graceful shutdown - run cleanup on signal
   const shutdown = async (signal: string) => {
-    const activeSubscriptions = sub.getAll()
+    const activeSubscriptions = processingMap.getAll()
     logger.info('*** Shutting down GeorgeAi Event Queue Worker ***', { signal, WORKER_ID, activeSubscriptions })
 
     const cancelResult = await Promise.allSettled(
       activeSubscriptions.map(async (workerType) => {
-        const subscription = sub.get(workerType)
+        const subscription = processingMap.get(workerType)
         if (!subscription) {
           logger.warn('No subscription found for worker type during shutdown', { workerType, WORKER_ID })
           return
@@ -37,7 +36,7 @@ export async function main() {
         } catch (error) {
           logger.error('Error during cleanup for subscription in shutdown', { workerType, error, WORKER_ID })
         } finally {
-          sub.remove(workerType)
+          processingMap.remove(workerType)
         }
       }),
     )

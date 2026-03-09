@@ -1,4 +1,4 @@
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod } from '@george-ai/app-schema'
 import { ExtractionManifest, extraction } from '@george-ai/file-management'
 
 export async function getExtraction(

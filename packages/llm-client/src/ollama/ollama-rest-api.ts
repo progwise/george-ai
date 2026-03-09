@@ -1,12 +1,13 @@
 import pRetry from 'p-retry'
 import { z } from 'zod'
 
-import { OllamaProviderConnection, decryptValue } from '@george-ai/app-commons'
+import { decryptValue } from '@george-ai/app-commons'
+import { OllamaHostConnection } from '@george-ai/app-schema'
 
 import { logger } from './common'
 
 export async function ollamaApiGet<T>(
-  connection: OllamaProviderConnection,
+  connection: OllamaHostConnection,
   endpoint: string,
   schema: z.ZodSchema<T>,
   abortSignal?: AbortSignal,
@@ -34,7 +35,7 @@ export async function ollamaApiGet<T>(
 }
 
 export async function ollamaApiPost<T>(
-  connection: OllamaProviderConnection,
+  connection: OllamaHostConnection,
   endpoint: string,
   params: unknown,
   schema: z.ZodSchema<T>,

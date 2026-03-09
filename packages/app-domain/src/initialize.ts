@@ -1,6 +1,6 @@
-import { ProviderConnectionSchema, getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
-import { WorkspaceConfig, workspaceConfig } from '@george-ai/event-service-client'
+import { InferenceDriverSchema, InferenceHostConnectionSchema } from '@george-ai/app-schema'
+import { WorkspaceConfig, WorkspaceConfigSchema, writeRegistryEntry } from '@george-ai/event-service-client'
 
 import { logger } from './common'
 import { ensureSystemWorkspace } from './workspace'
@@ -35,22 +35,21 @@ const initializeAppDomain = async () => {
       logger.info(`Found workspace for initialization: ${workspace.id} - ${workspace.name}`)
       const entry: WorkspaceConfig = {
         workspaceId: workspace.id,
-        providerInstances: workspace.providers.map((provider) => ({
+        modelHosts: workspace.providers.map((provider) => ({
           version: 1,
-          providerInstanceId: provider.id,
+          hostId: provider.id,
           workspaceId: workspace.id,
-          modelProvider: getModelProvider(provider.provider),
-          connection: ProviderConnectionSchema.parse({
-            modelProvider: getModelProvider(provider.provider),
+          connection: InferenceHostConnectionSchema.parse({
+            driver: provider.provider,
             baseUrl: provider.baseUrl || undefined,
             encryptedApiKey: provider.apiKey || undefined,
           }),
         })),
-        languageModels: workspace.languageModels.map((model) => ({
+        activeModels: workspace.languageModels.map((model) => ({
           version: 1,
           id: model.id,
           name: model.name,
-          modelProvider: getModelProvider(model.provider),
+          driver: InferenceDriverSchema.parse(model.provider),
           canDoEmbedding: model.canDoEmbedding,
           canDoChatCompletion: model.canDoChatCompletion,
           canDoVision: model.canDoVision,
@@ -58,9 +57,10 @@ const initializeAppDomain = async () => {
         })),
         version: 1,
         lastUpdate: new Date(),
+        type: 'workspace',
       }
 
-      return workspaceConfig.writeWorkspaceConfig(workspaceConfig.WorkspaceConfigSchema.parse(entry))
+      return writeRegistryEntry(WorkspaceConfigSchema.parse(entry))
     }),
   )
 

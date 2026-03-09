@@ -1,4 +1,4 @@
-import { WORKSPACE_ROLES } from '@george-ai/app-commons'
+import { WORKSPACE_ROLES } from '@george-ai/app-schema'
 
 import { builder } from '../builder'
 

@@ -1,7 +1,7 @@
-import { processDocument } from './process-document'
 import { getProcessingSettings } from './processing-settings'
 import { triggerExtraction } from './trigger-extraction'
+import { triggerVectorization } from './trigger-vectorization'
 
-export default { processDocument, getProcessingSettings }
+export default { getProcessingSettings }
 
-export { processDocument, getProcessingSettings, triggerExtraction }
+export { getProcessingSettings, triggerExtraction, triggerVectorization }

@@ -3,6 +3,9 @@ export const getErrorObject = (error: unknown): object => {
     const errorString = JSON.stringify(error, Object.getOwnPropertyNames(error))
     return JSON.parse(errorString)
   }
+  if (typeof error === 'object' && error !== null) {
+    return error
+  }
   if (typeof error === 'string') {
     return { error }
   }
@@ -29,4 +32,18 @@ export const getErrorMessage = (error: unknown): string => {
     return entries.join(', ')
   }
   return String(error)
+}
+
+export const getErrorMeta = (error: unknown): { errorMessage: string; errorCode?: string } => {
+  const errorMessage = getErrorMessage(error)
+  const errorObject = getErrorObject(error)
+  const errorCode =
+    'code' in errorObject
+      ? String(errorObject.code)
+      : 'errorCode' in errorObject
+        ? String(errorObject.errorCode)
+        : 'statusCode' in errorObject
+          ? String(errorObject.statusCode)
+          : undefined
+  return { errorMessage, errorCode }
 }

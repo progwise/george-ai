@@ -28,9 +28,12 @@ import {
   DateTimePeriod,
   EmbeddingStatus,
   EnrichmentStatus,
-  EventProcessingStatus,
+  EventQueueAction,
+  EventQueueStatus,
   ExtractionMethod,
   FileChunksSelector,
+  InferenceAction,
+  InferenceDriver,
   LibraryFilesSortField,
   LibraryInput,
   LibrarySortField,
@@ -38,17 +41,14 @@ import {
   ListFieldFileProperty,
   ListFieldSourceType,
   ListFieldType,
-  ModelCallType,
-  ModelProvider,
   ModelProviderInput,
   PrepareUploadInput,
-  ProcessingRequestType,
-  ProviderHealthStatus,
   QueueType,
   SortOrder,
   UpdateAiLanguageModelInput,
   UserProfileInput,
-  WorkerType,
+  WorkerActionResult,
+  WorkerRole,
   WorkspaceRole,
   WorkspaceSortField,
 } from './graphql'
@@ -81,9 +81,15 @@ export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 
 export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 
-export const EventProcessingStatusSchema = z.nativeEnum(EventProcessingStatus)
+export const EventQueueActionSchema = z.nativeEnum(EventQueueAction)
+
+export const EventQueueStatusSchema = z.nativeEnum(EventQueueStatus)
 
 export const ExtractionMethodSchema = z.nativeEnum(ExtractionMethod)
+
+export const InferenceActionSchema = z.nativeEnum(InferenceAction)
+
+export const InferenceDriverSchema = z.nativeEnum(InferenceDriver)
 
 export const LibraryFilesSortFieldSchema = z.nativeEnum(LibraryFilesSortField)
 
@@ -97,19 +103,13 @@ export const ListFieldSourceTypeSchema = z.nativeEnum(ListFieldSourceType)
 
 export const ListFieldTypeSchema = z.nativeEnum(ListFieldType)
 
-export const ModelCallTypeSchema = z.nativeEnum(ModelCallType)
-
-export const ModelProviderSchema = z.nativeEnum(ModelProvider)
-
-export const ProcessingRequestTypeSchema = z.nativeEnum(ProcessingRequestType)
-
-export const ProviderHealthStatusSchema = z.nativeEnum(ProviderHealthStatus)
-
 export const QueueTypeSchema = z.nativeEnum(QueueType)
 
 export const SortOrderSchema = z.nativeEnum(SortOrder)
 
-export const WorkerTypeSchema = z.nativeEnum(WorkerType)
+export const WorkerActionResultSchema = z.nativeEnum(WorkerActionResult)
+
+export const WorkerRoleSchema = z.nativeEnum(WorkerRole)
 
 export const WorkspaceRoleSchema = z.nativeEnum(WorkspaceRole)
 

@@ -1,4 +1,5 @@
-import { OllamaProviderConnection, OpenAiProviderConnection, encryptValue } from '@george-ai/app-commons'
+import { encryptValue } from '@george-ai/app-commons'
+import { OllamaHostConnection, OpenAIHostConnection } from '@george-ai/app-schema'
 
 import { statusReport } from './status-report'
 
@@ -7,18 +8,18 @@ const OLLAMA_API_KEY = process.env['OLLAMA_API_KEY']
 const OPENAI_API_KEY = process.env['OPENAI_API_KEY']
 
 describe.sequential('Testing status reports', () => {
-  const ollamaConnection: OllamaProviderConnection | null = !OLLAMA_BASE_URL
+  const ollamaConnection: OllamaHostConnection | null = !OLLAMA_BASE_URL
     ? null
     : {
-        modelProvider: 'ollama',
+        driver: 'ollama',
         baseUrl: OLLAMA_BASE_URL,
         encryptedApiKey: encryptValue(OLLAMA_API_KEY),
       }
 
-  const openAIConnection: OpenAiProviderConnection | null = !OPENAI_API_KEY
+  const openAIConnection: OpenAIHostConnection | null = !OPENAI_API_KEY
     ? null
     : {
-        modelProvider: 'openai',
+        driver: 'openai',
         encryptedApiKey: encryptValue(OPENAI_API_KEY),
       }
 

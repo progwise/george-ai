@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { API_AUTH_TYPES, API_PROVIDER_TYPES } from '@george-ai/app-commons'
+import { CONNECTOR_API_AUTH_TYPES, CONNECTOR_API_PROVIDER_TYPES } from '@george-ai/app-schema'
 
 export const ApiAuthConfigSchema = z.object({
   apiKey: z.string().optional(),
@@ -23,11 +23,11 @@ export const ApiCustomProviderConfigSchema = z.object({
 export type ApiCustomProviderConfig = z.infer<typeof ApiCustomProviderConfigSchema>
 
 export const ApiCrawlerConfigSchema = z.object({
-  provider: z.enum(API_PROVIDER_TYPES).optional().default('custom'),
+  provider: z.enum(CONNECTOR_API_PROVIDER_TYPES).optional().default('custom'),
   providerConfig: ApiCustomProviderConfigSchema.optional(),
   baseUrl: z.string(),
   endpoint: z.string(),
-  authType: z.enum(API_AUTH_TYPES).optional().default('none'),
+  authType: z.enum(CONNECTOR_API_AUTH_TYPES).optional().default('none'),
   authConfig: ApiAuthConfigSchema,
   headers: z.record(z.string()).optional(),
   queryParams: z.record(z.string()).optional(),

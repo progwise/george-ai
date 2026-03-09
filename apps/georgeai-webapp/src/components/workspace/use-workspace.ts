@@ -10,10 +10,10 @@ import { queryKeys } from '../../query-keys'
 import { toastError, toastSuccess } from '../georgeToaster'
 import {
   getApiKeysQueryOptions,
+  getEventProcessingStatusQueryOptions,
   getWorkspaceEmbeddingStatisticsQueryOptions,
   getWorkspaceInvitationsQueryOptions,
   getWorkspaceMembersQueryOptions,
-  getWorkspaceProcessStatisticsQueryOptions,
   getWorkspaceVectorStoreQueryOptions,
   getWorkspacesQueryOptions,
 } from './queries'
@@ -67,8 +67,8 @@ export const useWorkspace = (user: CurrentUserFragment) => {
     getWorkspaceVectorStoreQueryOptions({ workspaceId: currentWorkspace?.id }),
   )
 
-  const { data: processStatistics, isLoading: isLoadingProcessStatistics } = useQuery(
-    getWorkspaceProcessStatisticsQueryOptions({ workspaceId: currentWorkspace?.id }),
+  const { data: processingStatus, isLoading: isLoadingProcessingStatus } = useQuery(
+    getEventProcessingStatusQueryOptions({ workspaceId: currentWorkspace?.id }),
   )
 
   const migrationStatus = useMemo(() => {
@@ -102,7 +102,8 @@ export const useWorkspace = (user: CurrentUserFragment) => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiModelUsageStats] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.ModelProviderStatus] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceHostConfig] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceHostStatus] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiServiceProviders] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.EventProcessingStatistics] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceWorkers] }),
@@ -305,7 +306,7 @@ export const useWorkspace = (user: CurrentUserFragment) => {
     migrationStatus,
     workspaces: workspaces,
     embeddingStatistics,
-    processStatistics,
+    processingStatus,
     currentWorkspace,
     currentWorkspaceId: currentWorkspace?.id || null,
     generateApiKey: generateApiKeyMutation.mutate,
@@ -332,7 +333,7 @@ export const useWorkspace = (user: CurrentUserFragment) => {
       isLoadingInvitations ||
       isLoadingEmbeddingStatistics ||
       isLoadingCurrentWorkspace ||
-      isLoadingProcessStatistics ||
+      isLoadingProcessingStatus ||
       isLoadingVectorStore,
     isPending:
       leaveWorkspaceMutation.isPending ||

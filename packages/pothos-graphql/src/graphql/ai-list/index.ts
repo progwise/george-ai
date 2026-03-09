@@ -5,7 +5,7 @@ import { builder } from '../builder'
 import './queries'
 import './mutations'
 
-import { getExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethodSchema } from '@george-ai/app-schema'
 import { document, extraction } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
@@ -47,7 +47,7 @@ builder.prismaObject('AiListItem', {
     extractionMethod: t.field({
       type: 'ExtractionMethod',
       nullable: true,
-      resolve: (item) => getExtractionMethod(item.extractionMethod),
+      resolve: (item) => ExtractionMethodSchema.parse(item.extractionMethod),
     }),
     fragment: t.exposeInt('fragment'),
     itemName: t.exposeString('itemName', { nullable: false }),
@@ -73,7 +73,7 @@ builder.prismaObject('AiListItem', {
           where: { id: item.fileId },
           select: { libraryId: true },
         })
-        const extractionMethod = getExtractionMethod(item.extractionMethod)
+        const extractionMethod = ExtractionMethodSchema.parse(item.extractionMethod)
         if (!extractionMethod) {
           return null
         }

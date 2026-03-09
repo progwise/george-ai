@@ -1,10 +1,12 @@
 import { createReadStream } from 'fs'
 import { Readable } from 'stream'
 
-import { OllamaProviderConnection, encryptValue } from '@george-ai/app-commons'
+import { encryptValue } from '@george-ai/app-commons'
+import { ChatAttachment, ChatMessage, ChatResponseChunk, OllamaHostConnection } from '@george-ai/app-schema'
 import { getTestAssetLocalPath } from '@george-ai/test-utils'
 
-import { ChatAttachment, ChatCompletionStreamChunk, ChatMessage, ChatOptions } from '../common'
+import '../common'
+
 import {
   getOllamaChatCompletion,
   getOllamaChatCompletionStream,
@@ -12,7 +14,6 @@ import {
 } from './get-chat-completion'
 
 const GITHUB_TOKEN = process.env['GITHUB_TOKEN']
-
 const OLLAMA_BASE_URL = process.env['OLLAMA_BASE_URL']
 const OLLAMA_API_KEY = process.env['OLLAMA_API_KEY']
 
@@ -20,7 +21,7 @@ const readGenerator = async (options: {
   messages: ChatMessage[]
   model: string
   stream: boolean
-  attachments?: ChatAttachment[]
+  attachments?: (ChatAttachment & { stream: Readable })[]
 }) => {
   const chunks: Uint8Array[] = []
 
@@ -44,10 +45,10 @@ const readGenerator = async (options: {
 }
 
 describe('Testing Ollama chat endpoints', () => {
-  const ollamaConnection: OllamaProviderConnection | null = !OLLAMA_BASE_URL
+  const ollamaConnection: OllamaHostConnection | null = !OLLAMA_BASE_URL
     ? null
     : {
-        modelProvider: 'ollama',
+        driver: 'ollama',
         baseUrl: OLLAMA_BASE_URL,
         encryptedApiKey: encryptValue(OLLAMA_API_KEY),
       }
@@ -89,13 +90,13 @@ describe('Testing Ollama chat endpoints', () => {
         {
           fileName: 'test23.jpg',
           mimeType: 'image/jpeg',
-          size: 34,
+          uri: 'testuri',
           stream: Readable.from(['love', 'is', 'relative']),
         },
         {
           fileName: 'test34.png',
           mimeType: 'image/png',
-          size: 34,
+          uri: 'testuri',
           stream: Readable.from(['why', 'is', 'hate', 'absolute', '?']),
         },
       ],
@@ -111,21 +112,22 @@ describe('Testing Ollama chat endpoints', () => {
   })
 
   it('Testing the chat completion endpoint without attachments', async () => {
-    const result = await getOllamaChatCompletion(ollamaConnection!, {
-      messages: [
+    const result = await getOllamaChatCompletion(
+      ollamaConnection!,
+      'gemma3:latest',
+
+      [
         {
           role: 'system',
           content: 'why not',
         },
       ],
-      modelName: 'gemma3:latest',
-      attachments: [],
-    })
+      [],
+    )
 
     expect(result).toBeDefined()
-    expect(result.model).toBe('gemma3:latest')
-    expect(result.content).toBeDefined()
-    expect(result.content.length).toBeGreaterThan(0)
+    expect(result.chunk).toBeDefined()
+    expect(result.chunk.length).toBeGreaterThan(0)
   })
 
   describe.skipIf(!GITHUB_TOKEN || !ollamaConnection)('Test real images for OLLAMA chat completion', () => {
@@ -134,28 +136,27 @@ describe('Testing Ollama chat endpoints', () => {
 
       const readStream = createReadStream(filePath)
 
-      const chatOptions: ChatOptions = {
-        messages: [
+      const result = await getOllamaChatCompletion(
+        ollamaConnection!,
+        'gemma3:latest',
+        [
           {
             role: 'user',
             content: 'Please describe the image.',
           },
         ],
-        modelName: 'gemma3:latest',
-        attachments: [
+        [
           {
             fileName: 'example.png',
             mimeType: 'image/png',
-            size: 0,
+            uri: 'testuri',
             stream: readStream,
           },
         ],
-      }
-
-      const result = await getOllamaChatCompletion(ollamaConnection!, chatOptions)
+      )
       expect(result).toBeDefined()
       const searchFor = ['vancouver', 'city', 'skyline', 'mountains', 'harbour', 'urban', 'building']
-      expect(searchFor.some((term) => result.content.includes(term))).toBe(true)
+      expect(searchFor.some((term) => result.chunk.includes(term))).toBe(true)
     })
 
     it('Testing a second image to be sure', async () => {
@@ -163,30 +164,29 @@ describe('Testing Ollama chat endpoints', () => {
 
       const readStream = createReadStream(filePath)
 
-      const chatOptions: ChatOptions = {
-        messages: [
+      const result = await getOllamaChatCompletion(
+        ollamaConnection!,
+        'gemma3:latest',
+        [
           {
             role: 'user',
             content: 'Please describe the image.',
           },
         ],
-        modelName: 'gemma3:latest',
-        attachments: [
+        [
           {
             fileName: 'example.png',
             mimeType: 'image/png',
-            size: 0,
+            uri: 'testuri',
             stream: readStream,
           },
         ],
-      }
-
-      const result = await getOllamaChatCompletion(ollamaConnection!, chatOptions)
+      )
       expect(result).toBeDefined()
-      expect(result.content).not.toContain('city')
+      expect(result.chunk).not.toContain('city')
 
       const searchFor = ['cat', 'relax', 'sunny', 'sleepy', 'cute']
-      expect(searchFor.some((term) => result.content.includes(term))).toBe(true)
+      expect(searchFor.some((term) => result.chunk.includes(term))).toBe(true)
     })
 
     it('Testing streaming endpoint', async () => {
@@ -194,27 +194,26 @@ describe('Testing Ollama chat endpoints', () => {
 
       const readStream = createReadStream(filePath)
 
-      const chatOptions: ChatOptions = {
-        messages: [
+      const stream = await getOllamaChatCompletionStream(
+        ollamaConnection!,
+        'gemma3:latest',
+        [
           {
             role: 'user',
             content: 'Please describe the image.',
           },
         ],
-        modelName: 'gemma3:latest',
-        attachments: [
+        [
           {
             fileName: 'example.png',
             mimeType: 'image/png',
-            size: 0,
+            uri: 'testuri',
             stream: readStream,
           },
         ],
-      }
+      )
 
-      const stream = await getOllamaChatCompletionStream(ollamaConnection!, chatOptions)
-
-      const bufferedResult: Array<ChatCompletionStreamChunk> = []
+      const bufferedResult: Array<ChatResponseChunk> = []
       for await (const chunk of stream) {
         bufferedResult.push(chunk)
       }

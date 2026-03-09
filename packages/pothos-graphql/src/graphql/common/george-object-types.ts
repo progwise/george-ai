@@ -1,12 +1,19 @@
-import { ExtractionMethod, WorkspaceRole } from '@george-ai/app-commons'
 import { AutomationPreviewValue } from '@george-ai/app-domain'
-import { ActionConfigValue, ActionFieldMapping, ConnectorActionConfig } from '@george-ai/connector-types'
+import { EventQueue, ExtractionMethod, WorkspaceRole } from '@george-ai/app-schema'
 import {
-  EmbedDocumentRequest,
-  EnrichItemRequest,
-  ExtractDocumentRequest,
-  WorkerEntry,
-  WorkspaceProcessStatistics,
+  ConnectorActionConfig,
+  ConnectorActionConfigValue,
+  ConnectorActionFieldMapping,
+} from '@george-ai/connector-types'
+import {
+  DocumentExtractionRequest,
+  DocumentVectorizationRequest,
+  EventQueueRequest,
+  FieldEnrichmentRequest,
+  InferenceHostConfig,
+  InferenceHostState,
+  InferenceModelState,
+  WorkerSlotEntry,
 } from '@george-ai/event-service-client'
 import {
   Attachment,
@@ -22,24 +29,28 @@ export type GeorgeObjectTypes = {
   Attachment: Attachment
   AutomationPreviewValue: AutomationPreviewValue
   ConnectorActionConfig: ConnectorActionConfig
-  ConnectorActionConfigValue: ActionConfigValue
-  ConnectorActionFieldMapping: ActionFieldMapping
+  ConnectorActionConfigValue: ConnectorActionConfigValue
+  ConnectorActionFieldMapping: ConnectorActionFieldMapping
+  DocumentExtractionRequest: DocumentExtractionRequest
+  DocumentVectorizationRequest: DocumentVectorizationRequest
   DocumentManifest: DocumentManifest
   EmbeddingStatistic: EmbeddingStatistic
-  EmbedDocumentRequest: EmbedDocumentRequest
-  EnrichItemRequest: EnrichItemRequest
-  ExtractDocumentRequest: ExtractDocumentRequest
+  EventQueue: EventQueue
+  EventQueueRequest: EventQueueRequest
   ExtractionManifest: ExtractionManifest
   ExtractionMethod: ExtractionMethod
+  FieldEnrichmentRequest: FieldEnrichmentRequest
   FileChunk: FileChunk
   FileExtraction: DocumentManifest['extractions'][number]
+  InferenceHostState: InferenceHostState
+  InferenceHostConfig: InferenceHostConfig
+  InferenceModelState: InferenceModelState
   LibraryManifest: LibraryManifest
   LibrarySettings: LibraryManifest['settings']
   ProcessingRequestSettings: Record<string, string | number | boolean> | null
   StorageStats: StorageStats
-  WorkerEntry: WorkerEntry
+  WorkerSlotEntry: WorkerSlotEntry
   WorkspaceManifest: WorkspaceManifest
   WorkspaceRole: WorkspaceRole
   WorkspaceSettings: WorkspaceManifest['settings']
-  WorkspaceProcessStatistics: WorkspaceProcessStatistics
 }

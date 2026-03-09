@@ -1,5 +1,5 @@
-import { ModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
+import { InferenceDriver, InferenceDriverSchema } from '@george-ai/app-schema'
 
 /**
  * Load workspace providers from database for provider cache
@@ -21,10 +21,10 @@ export const getWorkspaceProviders = async (workspaceId: string) => {
   })
 
   // Group providers by type (ollama vs openai)
-  const grouped = new Map<ModelProvider, { name: string; vramGB?: number; url?: string; apiKey?: string }[]>()
+  const grouped = new Map<InferenceDriver, { name: string; vramGB?: number; url?: string; apiKey?: string }[]>()
 
   for (const provider of providers) {
-    const providerType = provider.provider as ModelProvider
+    const providerType = InferenceDriverSchema.parse(provider.provider)
     if (!grouped.has(providerType)) {
       grouped.set(providerType, [])
     }

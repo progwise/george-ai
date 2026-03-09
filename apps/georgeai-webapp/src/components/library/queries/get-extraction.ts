@@ -2,16 +2,16 @@ import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import z from 'zod'
 
-import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-commons'
-
 import { graphql } from '../../../gql'
+import { ExtractionMethod } from '../../../gql/graphql'
+import { ExtractionMethodSchema } from '../../../gql/validation'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 const GetExtractionParameterSchema = z.object({
   libraryId: z.string().nonempty(),
   fileId: z.string().nonempty(),
-  extractionMethod: z.enum(EXTRACTION_METHODS).optional(),
+  extractionMethod: ExtractionMethodSchema.optional(),
   fragment: z.string().optional(),
 })
 

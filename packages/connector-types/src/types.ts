@@ -3,18 +3,18 @@ import type { z } from 'zod'
 /**
  * Authentication type for connector
  */
-export type AuthType = 'oauth2' | 'api_key' | 'bearer_token' | 'basic_auth'
+export type ConnectorAuthType = 'oauth2' | 'api_key' | 'bearer_token' | 'basic_auth'
 
 /**
  * Status of an action execution
  */
-export type ActionExecutionStatus = 'success' | 'warning' | 'failed' | 'skipped'
+export type ConnectorActionExecutionStatus = 'success' | 'warning' | 'failed' | 'skipped'
 
 /**
  * Result of executing a connector action
  */
-export interface ActionExecutionResult {
-  status: ActionExecutionStatus
+export interface ConnectorActionExecutionResult {
+  status: ConnectorActionExecutionStatus
   message?: string
   data?: Record<string, unknown>
   error?: string
@@ -23,7 +23,7 @@ export interface ActionExecutionResult {
 /**
  * Input for action execution
  */
-export interface ActionInput {
+export interface ConnectorActionInput {
   /** The item being processed (list item data) */
   item: {
     id: string
@@ -46,7 +46,7 @@ export interface ConnectorConfig {
 /**
  * Option for select/enum fields
  */
-export interface ActionConfigOption {
+export interface ConnectorActionConfigOption {
   id: string
   name: string
   description?: string
@@ -55,13 +55,13 @@ export interface ActionConfigOption {
 /**
  * Field type for action configuration
  */
-export type ActionConfigFieldType = 'string' | 'boolean' | 'select' | 'listFieldSelect' | 'fieldMappings'
+export type ConnectorActionConfigFieldType = 'string' | 'boolean' | 'select' | 'listFieldSelect' | 'fieldMappings'
 
 /**
  * Configuration field definition
  * Describes a single configurable field in an action
  */
-export interface ActionConfigField {
+export interface ConnectorActionConfigField {
   /** Field identifier (matches key in config object) */
   id: string
   /** Display name */
@@ -69,15 +69,15 @@ export interface ActionConfigField {
   /** Description/help text */
   description?: string
   /** Field type */
-  type: ActionConfigFieldType
+  type: ConnectorActionConfigFieldType
   /** Whether field is required */
   required?: boolean
   /** Available options for select type */
-  options?: ActionConfigOption[]
+  options?: ConnectorActionConfigOption[]
   /** For fieldMappings: available target fields */
-  targetFields?: ActionConfigOption[]
+  targetFields?: ConnectorActionConfigOption[]
   /** For fieldMappings: available transforms */
-  transforms?: ActionConfigOption[]
+  transforms?: ConnectorActionConfigOption[]
 }
 
 /**
@@ -95,11 +95,11 @@ export interface ConnectorAction {
   /** Default configuration for newly created automations (will need user configuration before running) */
   defaultConfig: Record<string, unknown>
   /** Configuration fields definition for the UI */
-  configFields: ActionConfigField[]
+  configFields: ConnectorActionConfigField[]
   /** Execute the action */
-  execute: (connectorConfig: ConnectorConfig, input: ActionInput) => Promise<ActionExecutionResult>
+  execute: (connectorConfig: ConnectorConfig, input: ConnectorActionInput) => Promise<ConnectorActionExecutionResult>
   /** Get a preview of what will be written (without executing) */
-  preview?: (connectorConfig: ConnectorConfig, input: ActionInput) => Promise<Record<string, unknown>>
+  preview?: (connectorConfig: ConnectorConfig, input: ConnectorActionInput) => Promise<Record<string, unknown>>
 }
 
 /**
@@ -115,7 +115,7 @@ export interface ConnectorType {
   /** Icon identifier or URL */
   icon: string
   /** Authentication type */
-  authType: AuthType
+  authType: ConnectorAuthType
   /** Zod schema for connector credentials configuration */
   credentialsSchema: z.ZodSchema
   /** Fields that contain sensitive data and should be encrypted */

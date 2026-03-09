@@ -1,4 +1,4 @@
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod } from '@george-ai/app-schema'
 import { transformToMarkdown } from '@george-ai/file-converter'
 import { ExtractionManifest, getDocument, getLibrary } from '@george-ai/file-management'
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { OllamaProviderConnection } from '@george-ai/app-commons'
+import { ChatResponseChunk, OllamaHostConnection } from '@george-ai/app-schema'
 
 import {
   generateOllamaEmbeddings,
@@ -12,16 +12,15 @@ import {
   loadOllamaChatModel,
   unloadOllamaChatModel,
 } from '.'
-import type { ChatCompletionStreamChunk } from '../common'
 
 // Skip tests if required environment variables are not set (e.g., in Dependabot PRs)
 describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || !process.env.MODEL_NAME_EMBEDDING)(
   'ollama-api tests',
   () => {
-    const connection: OllamaProviderConnection = {
+    const connection: OllamaHostConnection = {
       baseUrl: process.env.OLLAMA_BASE_URL!,
       encryptedApiKey: process.env.OLLAMA_API_KEY,
-      modelProvider: 'ollama',
+      driver: 'ollama',
     }
     const modelNameVL = process.env.MODEL_NAME_VL!
     const modelNameEmbedding = process.env.MODEL_NAME_EMBEDDING!
@@ -156,35 +155,34 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
         expect(result).toHaveProperty('embeddings')
         expect(Array.isArray(result.embeddings)).toBe(true)
         expect(result.embeddings.length).toBe(1)
-        expect(result.embeddings[0].inputText).toBe('Hello world')
-        expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
+        expect(result.embeddings[0].chunk).toBe('Hello world')
+        expect(result.embeddings[0].vector.length).toBeGreaterThan(0)
 
         // Test multiple inputs
         const multiResult = await generateOllamaEmbeddings(connection, model.name, ['Hello', 'world', 'Hello', 'all'])
 
         expect(multiResult.embeddings).toHaveLength(4)
-        expect(multiResult.embeddings[0].inputText).toBe('Hello')
-        expect(multiResult.embeddings[1].inputText).toBe('world')
-        expect(multiResult.embeddings[2].inputText).toBe('Hello')
-        expect(multiResult.embeddings[3].inputText).toBe('all')
+        expect(multiResult.embeddings[0].chunk).toBe('Hello')
+        expect(multiResult.embeddings[1].chunk).toBe('world')
+        expect(multiResult.embeddings[2].chunk).toBe('Hello')
+        expect(multiResult.embeddings[3].chunk).toBe('all')
 
-        expect(multiResult.embeddings[0].embedding).toEqual(multiResult.embeddings[2].embedding)
-        expect(multiResult.embeddings[1].embedding).not.toEqual(multiResult.embeddings[3].embedding)
+        expect(multiResult.embeddings[0].vector).toEqual(multiResult.embeddings[2].vector)
+        expect(multiResult.embeddings[1].vector).not.toEqual(multiResult.embeddings[3].vector)
       }, 30000)
     })
 
     describe('chat streaming', () => {
       it('should create chat response stream if chat model available', async () => {
-        const stream = await getOllamaChatCompletionStream(connection, {
-          messages: [{ role: 'user', content: 'Say hello in one word' }],
-          modelName: modelNameChat,
-        })
+        const stream = await getOllamaChatCompletionStream(connection, modelNameChat, [
+          { role: 'user', content: 'Say hello in one word' },
+        ])
 
         expect(stream).toBeDefined()
 
         // Test that we can read from the stream until completion
         const reader = stream.getReader()
-        const chunks: ChatCompletionStreamChunk[] = []
+        const chunks: ChatResponseChunk[] = []
         let fullContent = ''
 
         try {
@@ -198,7 +196,6 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
 
               // Validate chunk structure
               expect(typeof value.chunk).toBe('string')
-              expect(value.metadata).toBeDefined()
             }
           }
         } finally {

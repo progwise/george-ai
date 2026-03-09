@@ -1,9 +1,8 @@
-import { GraphQLError } from 'graphql/error'
-
-import { getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
-import { getHealthyProviderInstance, requestModelCall } from '@george-ai/event-service-client'
+import { InferenceDriverSchema } from '@george-ai/app-schema'
+import { invokeAction } from '@george-ai/event-service-client'
+import { EmbeddingRequest } from '@george-ai/event-service-client'
 import { FileChunk, vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
@@ -73,42 +72,27 @@ builder.queryField('similarChunks', (t) =>
             return null
           }
 
-          const modelProvider = getModelProvider(library.embeddingModel.provider)
+          const driver = InferenceDriverSchema.parse(library.embeddingModel.provider)
           const modelName = library.embeddingModel.name
 
-          const healthyProviderData = await getHealthyProviderInstance({
-            workspaceId,
-            modelProvider,
-            modelName,
-          })
-          if (!healthyProviderData) {
-            logger.error('No provider instance available for similarChunks query', {
-              workspaceId,
-              modelProvider,
-              modelName,
-            })
-            throw new GraphQLError('No provider instance available')
-          }
-          const embeddingResult = await requestModelCall({
+          const request: EmbeddingRequest = {
             version: 1,
-            modelCallType: 'generateEmbedding',
-            provider: modelProvider,
-            modelName,
-            inputTexts: [term],
             workspaceId,
-          })
-
-          if (!embeddingResult.embeddings || embeddingResult.embeddings.length === 0) {
-            logger.error('No embeddings returned from model call for similarChunks query', {
-              workspaceId,
-              modelProvider,
-              modelName,
-              embeddingResult,
-            })
-            throw new GraphQLError('No embeddings returned from model call')
+            verb: 'request',
+            action: 'chunkEmbedding',
+            timestamp: new Date(),
+            driver,
+            modelName,
+            chunks: [term],
           }
 
-          const vector = embeddingResult.embeddings[0]
+          const embeddingResult = await invokeAction(request)
+
+          if (embeddingResult.embeddings.length < 1) {
+            logger.error('No embeddings returned from invoke', { request })
+          }
+
+          const vector = embeddingResult.embeddings[0].vector
 
           const results = await vectorStore.findSimilarChunks({
             workspaceId,

@@ -1,17 +1,17 @@
-import { ProviderConnection } from '@george-ai/app-commons'
+import { EmbeddingResult, InferenceHostConnection } from '@george-ai/app-schema'
 
-import { EmbeddingsResult, logger } from './common'
+import { logger } from './common'
 import { generateOllamaEmbeddings } from './ollama'
 import { generateOpenAIEmbeddings } from './openAi'
 
 export const getEmbeddings = async (parameters: {
   modelName: string
   textChunks: string[]
-  connection: ProviderConnection
-}): Promise<EmbeddingsResult> => {
+  connection: InferenceHostConnection
+}): Promise<EmbeddingResult> => {
   const { modelName, textChunks, connection } = parameters
 
-  switch (connection.modelProvider) {
+  switch (connection.driver) {
     case 'ollama':
       return await generateOllamaEmbeddings(connection, modelName, textChunks)
     case 'openai':

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 import { prisma } from '@george-ai/app-database'
-import { writeWorkspaceConfig } from '@george-ai/event-service-client'
+import { writeRegistryEntry } from '@george-ai/event-service-client'
 import { workspace as ws } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
@@ -53,12 +53,13 @@ export async function createWorkspace(params: {
         throw error
       })
 
-      await writeWorkspaceConfig({
-        languageModels: [],
-        providerInstances: [],
+      await writeRegistryEntry({
+        activeModels: [],
+        modelHosts: [],
         version: 1,
         workspaceId: workspace.id,
         lastUpdate: new Date(),
+        type: 'workspace',
       })
 
       return {

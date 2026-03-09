@@ -1,4 +1,4 @@
-import { ApiProviderType } from '@george-ai/app-commons'
+import { ConnectorApiProviderType } from '@george-ai/app-schema'
 
 import { ApiCustomProviderConfig } from '../api-crawler-config'
 import { createCustomProvider } from './custom'
@@ -23,7 +23,7 @@ export { createCustomProvider } from './custom'
  * Get a provider by type
  */
 export function getProvider(
-  type: ApiProviderType,
+  type: ConnectorApiProviderType,
   baseUrl: string,
   endpoint: string,
   customConfig?: ApiCustomProviderConfig,

@@ -1,4 +1,4 @@
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod } from '@george-ai/app-schema'
 
 import { FileChunk, VectorStoreChunkSchema } from '../schema'
 import { getCollectionName, qdrantClient } from './common'

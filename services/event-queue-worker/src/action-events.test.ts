@@ -14,7 +14,7 @@ import {
   prepareUpload,
   uploadDocumentSource,
 } from '@george-ai/app-domain'
-import { workspaceProcessing } from '@george-ai/event-service-client'
+import { publish, resumeEventProcessing } from '@george-ai/event-service-client'
 
 describe.sequential('Should process action events', () => {
   let TEST_WORKSPACE_ID: string
@@ -36,7 +36,6 @@ describe.sequential('Should process action events', () => {
       name: 'Test Library',
     })
     TEST_LIBRARY_ID = library.libraryId
-    await workspaceProcessing.ensureWorkspaceConsumers({ workspaceId: TEST_WORKSPACE_ID })
   })
 
   afterAll(async () => {
@@ -77,18 +76,20 @@ describe.sequential('Should process action events', () => {
   })
 
   it('When I publish an extraction event for it...', async () => {
-    await workspaceProcessing.publishProcessingRequest({
-      requestType: 'extractFile',
+    await publish({
+      action: 'documentExtraction',
       workspaceId: TEST_WORKSPACE_ID,
       version: 1,
       extractionMethod: 'textExtraction',
       documentId: TEST_FILE_ID,
       libraryId: TEST_LIBRARY_ID,
+      verb: 'request',
+      timestamp: new Date(),
     })
   })
 
   it('And start the processing for the workspace...', async () => {
-    await workspaceProcessing.startProcessing({ workspaceId: TEST_WORKSPACE_ID, requestTypes: ['extractFile'] })
+    await resumeEventProcessing({ workspaceId: TEST_WORKSPACE_ID, action: 'documentExtraction' })
   })
 
   it('I should see the status completed event for the extraction', async () => {

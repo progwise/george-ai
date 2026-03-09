@@ -1,8 +1,8 @@
-import { ActionFieldMapping } from '@george-ai/connector-types'
+import { ConnectorActionFieldMapping } from '@george-ai/connector-types'
 
 import { builder } from '../builder'
 
-builder.objectRef<ActionFieldMapping>('ConnectorActionFieldMapping').implement({
+builder.objectRef<ConnectorActionFieldMapping>('ConnectorActionFieldMapping').implement({
   description: 'Maps a source enrichment field to a target field with transform',
   fields: (t) => ({
     sourceFieldId: t.exposeString('sourceFieldId', { nullable: false }),

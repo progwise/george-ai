@@ -35,6 +35,9 @@ importers:
       '@george-ai/app-domain':
         specifier: workspace:*
         version: link:../../packages/app-domain
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../../packages/app-schema
       '@george-ai/file-management':
         specifier: workspace:*
         version: link:../../packages/file-management
@@ -387,6 +390,9 @@ importers:
       '@george-ai/app-commons':
         specifier: workspace:*
         version: link:../app-commons
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../app-schema
       jsonpath-plus:
         specifier: ^10.2.0
         version: 10.3.0
@@ -510,6 +516,9 @@ importers:
       '@george-ai/app-database':
         specifier: workspace:*
         version: link:../app-database
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../app-schema
       '@george-ai/event-service-client':
         specifier: workspace:*
         version: link:../event-service-client
@@ -569,6 +578,34 @@ importers:
         specifier: ^3.1.1
         version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
+  packages/app-schema:
+    dependencies:
+      '@george-ai/app-commons':
+        specifier: workspace:*
+        version: link:../app-commons
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@george-ai/package-configs':
+        specifier: workspace:*
+        version: link:../package-configs
+      '@types/node':
+        specifier: ^22.13.8
+        version: 22.19.7
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.2(jiti@2.6.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.44.1
+        version: 8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+
   packages/connector-types:
     dependencies:
       '@george-ai/app-commons':
@@ -611,12 +648,18 @@ importers:
       '@george-ai/app-commons':
         specifier: workspace:*
         version: link:../app-commons
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../app-schema
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
       nats:
         specifier: ^2.29.3
         version: 2.29.3
+      p-retry:
+        specifier: ^7.1.1
+        version: 7.1.1
       zod:
         specifier: ^3.23.8
         version: 3.25.76
@@ -642,6 +685,9 @@ importers:
       '@george-ai/app-commons':
         specifier: workspace:*
         version: link:../app-commons
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../app-schema
       '@george-ai/file-management':
         specifier: workspace:*
         version: link:../file-management
@@ -709,6 +755,9 @@ importers:
       '@george-ai/app-commons':
         specifier: workspace:*
         version: link:../app-commons
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../app-schema
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
@@ -829,6 +878,9 @@ importers:
       '@george-ai/app-commons':
         specifier: workspace:*
         version: link:../app-commons
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../app-schema
       p-retry:
         specifier: ^7.1.1
         version: 7.1.1
@@ -898,6 +950,52 @@ importers:
         specifier: ^3.1.1
         version: 3.2.4(@types/debug@4.1.12)(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
+  packages/markdown-splitter:
+    dependencies:
+      '@george-ai/app-commons':
+        specifier: workspace:*
+        version: link:../app-commons
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../app-schema
+      '@langchain/textsplitters':
+        specifier: ^1.0.1
+        version: 1.0.1(@langchain/core@1.1.15(openai@6.16.0(ws@8.19.0)(zod@3.25.76)))
+      p-retry:
+        specifier: ^7.1.1
+        version: 7.1.1
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.16.0
+        version: 9.39.2
+      '@george-ai/package-configs':
+        specifier: workspace:*
+        version: link:../package-configs
+      '@george-ai/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+      '@types/node':
+        specifier: ^22.13.8
+        version: 22.19.7
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.2(jiti@2.6.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.44.1
+        version: 8.53.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
+      vitest:
+        specifier: ^3.1.1
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.7)(jiti@2.6.1)(lightningcss@1.30.2)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
+
   packages/package-configs: {}
 
   packages/pothos-graphql:
@@ -920,6 +1018,9 @@ importers:
       '@george-ai/app-domain':
         specifier: workspace:*
         version: link:../app-domain
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../app-schema
       '@george-ai/connector-types':
         specifier: workspace:*
         version: link:../connector-types
@@ -1119,6 +1220,9 @@ importers:
       '@george-ai/app-commons':
         specifier: workspace:*
         version: link:../app-commons
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../app-schema
       '@qdrant/js-client-rest':
         specifier: ^1.16.2
         version: 1.16.2(typescript@5.9.3)
@@ -1160,9 +1264,6 @@ importers:
       dotenv:
         specifier: ^16.4.5
         version: 16.6.1
-      dotenv-cli:
-        specifier: ^11.0.0
-        version: 11.0.0
       eslint:
         specifier: ^9.39.1
         version: 9.39.2(jiti@2.6.1)
@@ -1187,6 +1288,9 @@ importers:
       '@george-ai/app-domain':
         specifier: workspace:*
         version: link:../../packages/app-domain
+      '@george-ai/app-schema':
+        specifier: workspace:*
+        version: link:../../packages/app-schema
       '@george-ai/event-service-client':
         specifier: workspace:*
         version: link:../../packages/event-service-client

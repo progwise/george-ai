@@ -10,8 +10,10 @@ import {
   connect,
   createInbox,
 } from 'nats'
+import z from 'zod'
 
 import { createLogger, matchGlobPattern } from '@george-ai/app-commons'
+import { EventQueueStatus } from '@george-ai/app-schema'
 
 import { EventClient, EventClientConfig } from './event-client'
 
@@ -61,6 +63,34 @@ export class NatsClient implements EventClient {
     return this.nc !== null && !this.nc.isClosed()
   }
 
+  matchesSubjectFilter(args: { subject: string; filter: string }): boolean {
+    // subject =  kfz.motorrad.bmw.enduro.gs1200
+    // filter =   kfz.*.bmw.>
+
+    const { subject, filter } = args
+
+    const subjectParts = subject.split('.')
+    const filterParts = filter.split('.')
+
+    let i = 0
+    while (i < filterParts.length) {
+      if (filterParts[i] === '>') {
+        return true
+      }
+
+      if (i > subjectParts.length) {
+        return false
+      }
+
+      if (filterParts[i] !== '*' && filterParts[i] !== subjectParts[i]) {
+        return false
+      }
+      i = i + 1
+    }
+
+    return i === subjectParts.length
+  }
+
   async ensureWorkerStream(args: { streamName: string; subjects: string[]; description?: string }): Promise<void> {
     if (!this.jsm) {
       throw new Error('Not connected to NATS')
@@ -87,7 +117,7 @@ export class NatsClient implements EventClient {
       logger.debug('Stream already exists', { streamName, existingSubjects, desiredSubjects, description })
 
       if (existingSubjects !== desiredSubjects) {
-        logger.info('Stream subjects mismatch', {
+        logger.warn('Stream subjects mismatch', {
           streamName,
           existingSubjects,
           desiredSubjects,
@@ -97,7 +127,7 @@ export class NatsClient implements EventClient {
         })
       }
       if (description && existingStream.config.description !== description) {
-        logger.info('Stream description mismatch', {
+        logger.warn('Stream description mismatch', {
           streamName,
           existingDescription: existingStream.config.description,
           desiredDescription: description,
@@ -118,7 +148,7 @@ export class NatsClient implements EventClient {
       logger.error(`Error deleting stream ${name}:`, err)
       throw err
     })
-    logger.info(`Deleted stream: ${name}`)
+    logger.debug(`Deleted stream: ${name}`)
   }
 
   async getStream(
@@ -141,16 +171,20 @@ export class NatsClient implements EventClient {
     }
   }
 
-  async purgeStream(params: { streamName: string; subjectFilter: string }): Promise<void> {
+  async purgeStream(params: { streamName: string; subjectFilter: string | string[] }): Promise<void> {
     if (!this.jsm) {
       throw new Error('Not connected to NATS')
     }
 
     const { streamName, subjectFilter } = params
 
-    await this.jsm.streams.purge(streamName, {
-      filter: subjectFilter,
-    })
+    if (Array.isArray(subjectFilter)) {
+      await Promise.all(subjectFilter.map((filter) => this.jsm!.streams.purge(streamName, { filter })))
+    } else {
+      await this.jsm.streams.purge(streamName, {
+        filter: subjectFilter,
+      })
+    }
   }
 
   async ensureConsumer(params: {
@@ -213,7 +247,13 @@ export class NatsClient implements EventClient {
     }
   }
 
-  async pauseConsumer({ streamName, consumerName }: { streamName: string; consumerName: string }): Promise<void> {
+  async pauseConsumer({
+    streamName,
+    consumerName,
+  }: {
+    streamName: string
+    consumerName: string
+  }): Promise<{ status: EventQueueStatus; delivered: number; redelivered: number; pending: number; waiting: number }> {
     if (!this.jsm) {
       throw new Error('Not connected to NATS')
     }
@@ -232,9 +272,23 @@ export class NatsClient implements EventClient {
     }
 
     logger.debug('Consumer paused', { consumerName, streamName })
+
+    return {
+      status: 'paused',
+      delivered: consumerInfo.delivered.consumer_seq,
+      pending: consumerInfo.num_pending,
+      redelivered: consumerInfo.num_redelivered,
+      waiting: consumerInfo.num_waiting,
+    }
   }
 
-  async resumeConsumer({ streamName, consumerName }: { streamName: string; consumerName: string }): Promise<void> {
+  async resumeConsumer({
+    streamName,
+    consumerName,
+  }: {
+    streamName: string
+    consumerName: string
+  }): Promise<{ status: EventQueueStatus; delivered: number; redelivered: number; pending: number; waiting: number }> {
     if (!this.jsm) {
       throw new Error('Not connected to NATS')
     }
@@ -254,6 +308,13 @@ export class NatsClient implements EventClient {
       throw error
     }
     logger.debug('Consumer resumed', { consumerName, streamName })
+    return {
+      status: 'running',
+      delivered: consumerInfo.delivered.consumer_seq,
+      pending: consumerInfo.num_pending,
+      redelivered: consumerInfo.num_redelivered,
+      waiting: consumerInfo.num_waiting,
+    }
   }
 
   async consumerStatus({
@@ -262,13 +323,19 @@ export class NatsClient implements EventClient {
   }: {
     streamName: string
     consumerName: string
-  }): Promise<'paused' | 'running'> {
+  }): Promise<{ status: EventQueueStatus; delivered: number; redelivered: number; pending: number; waiting: number }> {
     if (!this.jsm) {
       throw new Error('Not connected to NATS')
     }
 
     const consumerInfo = await this.jsm.consumers.info(streamName, consumerName)
-    return consumerInfo.paused ? 'paused' : 'running'
+    return {
+      delivered: consumerInfo.delivered.consumer_seq,
+      pending: consumerInfo.num_pending,
+      redelivered: consumerInfo.num_redelivered,
+      waiting: consumerInfo.num_waiting,
+      status: consumerInfo.paused ? 'paused' : 'running',
+    }
   }
 
   async deleteConsumer(params: { streamName: string; consumerName: string }): Promise<void> {
@@ -285,19 +352,21 @@ export class NatsClient implements EventClient {
     logger.debug('Deleted consumer on stream', { consumerName, streamName })
   }
 
-  async publish(params: {
+  async publish<T>(params: {
     subject: string
-    payload: Uint8Array<ArrayBufferLike>
+    event: T
     timeoutMs?: number
   }): Promise<{ streamName: string; msgId: string; inbox: string }> {
     if (!this.js) {
       throw new Error('Not connected to NATS')
     }
 
-    const { subject, payload, timeoutMs } = params
+    const { subject, event, timeoutMs } = params
 
     const inbox = createInbox() // Generate a unique inbox string to allow replying if needed
     const msgID = crypto.randomUUID()
+
+    const payload = new TextEncoder().encode(JSON.stringify(event))
     // Publish to JetStream
     const ack = await this.js.publish(subject, payload, {
       msgID,
@@ -307,23 +376,24 @@ export class NatsClient implements EventClient {
     return { streamName: ack.stream, msgId: msgID, inbox }
   }
 
-  async startWorkerLoop(params: {
+  async startWorkerLoop<T extends z.ZodTypeAny>(params: {
+    schema: T
     streamName: string
     consumerGlobPattern: string
-    handler: ({ subject, payload }: { subject: string; payload: Uint8Array<ArrayBufferLike> }) => Promise<void>
+    handler: (params: { subject: string; event: z.infer<T> }) => Promise<void>
   }): Promise<() => Promise<void>> {
     if (!this.js || !this.jsm) {
       logger.error('Cannot start worker loop, not connected to NATS', params)
       throw new Error('Not connected to NATS')
     }
 
-    const { streamName, consumerGlobPattern, handler } = params
+    const { schema, streamName, consumerGlobPattern, handler } = params
 
     const abortController = new AbortController()
     const signal = abortController.signal
 
     logger.debug('Starting worker loop', { streamName, consumerGlobPattern })
-    const processingLoop = this.processWorkerLoop({ streamName, consumerGlobPattern, handler, signal }).catch(
+    const processingLoop = this.processWorkerLoop({ schema, streamName, consumerGlobPattern, handler, signal }).catch(
       (error) => {
         logger.error('Error in worker processing loop', { error, params })
       },
@@ -336,17 +406,20 @@ export class NatsClient implements EventClient {
     }
   }
 
-  private async processWorkerLoop(parameters: {
+  private async processWorkerLoop<T extends z.ZodTypeAny>(parameters: {
+    schema: T
     streamName: string
     consumerGlobPattern: string
+    handler: (params: { subject: string; event: z.infer<T> }) => Promise<void>
     signal: AbortSignal
-    handler: ({ subject, payload }: { subject: string; payload: Uint8Array<ArrayBufferLike> }) => Promise<void>
   }): Promise<void> {
     if (!this.js || !this.jsm) {
       logger.error('Cannot process worker loop, not connected to NATS', { parameters })
       throw new Error('Not connected to NATS')
     }
-    const { streamName, consumerGlobPattern, signal, handler } = parameters
+    const { schema, streamName, consumerGlobPattern, signal, handler } = parameters
+
+    // TODO: use consumer.consume() instead for event-driven handling
     while (true) {
       if (signal.aborted) {
         logger.debug('Worker loop aborted', { parameters })
@@ -390,9 +463,13 @@ export class NatsClient implements EventClient {
               subject: msg.subject,
               consumerName: consumerInfo.name,
             })
+
             try {
+              const raw = new TextDecoder().decode(msg.data)
+              const json = JSON.parse(raw)
+              const event = schema.parse(json)
               // Call handler
-              await handler({ subject: msg.subject, payload: msg.data })
+              await handler({ subject: msg.subject, event })
               // Acknowledge message
               msg.ack()
               logger.debug('Message processed and acknowledged', {
@@ -401,7 +478,10 @@ export class NatsClient implements EventClient {
                 consumerName: consumerInfo.name,
               })
             } catch (error) {
-              if (msg.info.deliveryCount >= (consumerInfo.config.max_deliver || 3)) {
+              if (error instanceof SyntaxError || error instanceof z.ZodError) {
+                logger.error('Permanent error: malformed payload - removing from stream', { msg, error: error.message })
+                msg.ack() // ACK - stop trying
+              } else if (msg.info.deliveryCount >= (consumerInfo.config.max_deliver || 3)) {
                 // Log and drop the message
                 logger.error('Message reached max delivery attempts, dropping message', {
                   streamName,
@@ -409,18 +489,17 @@ export class NatsClient implements EventClient {
                   subject: msg.subject,
                   error,
                 })
-
-                // Acknowledge to drop the message
-                msg.ack()
+                msg.ack() // ACK - stop trying
+              } else {
+                logger.error('Error processing event - will be redelivered', {
+                  streamName,
+                  consumerName: consumerInfo.name,
+                  subject: msg.subject,
+                  error,
+                })
+                // Negative acknowledge to retry later
+                msg.nak()
               }
-              logger.error('Error processing event - will be redelivered', {
-                streamName,
-                consumerName: consumerInfo.name,
-                subject: msg.subject,
-                error,
-              })
-              // Negative acknowledge to retry later
-              msg.nak()
             }
           }
         } catch (error) {
@@ -431,16 +510,17 @@ export class NatsClient implements EventClient {
     }
   }
 
-  async subscribe(params: {
+  async subscribe<T extends z.AnyZodObject>(params: {
+    schema: T
     consumerName: string
     streamName: string
-    handler: (payload: Uint8Array<ArrayBufferLike>) => Promise<void>
+    handler: (params: { subject: string; event: z.infer<T> }) => Promise<void>
   }): Promise<() => Promise<void>> {
     if (!this.js || !this.jsm) {
       throw new Error('Not connected to NATS')
     }
 
-    const { consumerName, streamName, handler } = params
+    const { schema, consumerName, streamName, handler } = params
 
     const stream = await this.getStream(streamName)
 
@@ -448,6 +528,7 @@ export class NatsClient implements EventClient {
       throw new Error(`Stream does not exist: ${streamName}`)
     }
 
+    const consumerInfo = await this.jsm.consumers.info(streamName, consumerName)
     const consumer = await this.js.consumers.get(streamName, consumerName)
     const messages = await consumer.consume()
 
@@ -455,13 +536,40 @@ export class NatsClient implements EventClient {
     const processMessages = async () => {
       for await (const msg of messages) {
         try {
+          const raw = new TextDecoder().decode(msg.data)
+          const json = JSON.parse(raw)
+          const event = schema.parse(json)
           // Call handler
-          await handler(msg.data)
-
+          await handler({ subject: msg.subject, event })
           // Acknowledge message
           msg.ack()
+          logger.debug('Message processed and acknowledged', {
+            streamName,
+            subject: msg.subject,
+          })
         } catch (error) {
-          logger.error(`Error processing event:`, { error, streamName, consumerName })
+          if (error instanceof SyntaxError || error instanceof z.ZodError) {
+            logger.error('Permanent error: malformed payload - removing from stream', { msg, error: error.message })
+            msg.ack() // ACK - stop trying
+            return
+          }
+          if (msg.info.deliveryCount >= (consumerInfo.config.max_deliver || 3)) {
+            // Log and drop the message
+            logger.error('Message reached max delivery attempts, dropping message', {
+              streamName,
+              consumerName: consumerInfo.name,
+              subject: msg.subject,
+              error,
+            })
+            msg.ack() // ACK - stop trying
+            return
+          }
+          logger.error('Error processing event - will be redelivered', {
+            streamName,
+            consumerName: consumerInfo.name,
+            subject: msg.subject,
+            error,
+          })
           // Negative acknowledge to retry later
           msg.nak()
         }
@@ -480,84 +588,77 @@ export class NatsClient implements EventClient {
   }
 
   async getStreamStatistics(params: {
-    consumerName: string
     streamName: string
-  }): Promise<{ totalMessages: number; processedMessages: number; pendingMessages: number }> {
+    subjectFilter?: string
+  }): Promise<{ totalMessages: number; filteredMessages: number }> {
     if (!this.js || !this.jsm) {
       throw new Error('Not connected to NATS')
     }
 
-    const { streamName, consumerName } = params
+    const { streamName, subjectFilter } = params
 
-    const consumer = await this.js.consumers.get(streamName, consumerName)
-    const consumerInfo = await consumer.info(true)
-    const streamInfo = await this.jsm.streams.info(streamName)
-    const stats = {
+    const streamInfo = await this.jsm.streams.info(streamName, {
+      subjects_filter: subjectFilter,
+    })
+
+    return {
       totalMessages: streamInfo.state.messages,
-      processedMessages: consumerInfo.ack_floor.stream_seq,
-      pendingMessages: consumerInfo.num_pending,
-      inProgressMessages: consumerInfo.num_ack_pending,
-      paused: consumerInfo.paused,
-      failedMessages: consumerInfo.ack_floor.stream_seq - consumerInfo.num_ack_pending - consumerInfo.num_pending,
+      filteredMessages: streamInfo.state.subjects ? Object.keys(streamInfo.state.subjects).length : 0,
     }
-    return stats
   }
 
-  async getMessages(parameters: {
+  async getMessages<T extends z.ZodTypeAny>(parameters: {
     streamName: string
+    schema: T
     subjectFilter: string
     startSequence?: number
     take?: number
   }): Promise<{
-    rawMessages: Array<{ id: string; subject: string; deliveryCount: number; data: Uint8Array<ArrayBufferLike> }>
-    totalCount: number
+    messages: Array<{ sequence: number; subject: string; entry: z.infer<T> }>
+    totalMessages: number
     lastSequence: number
   }> {
     if (!this.js || !this.jsm) {
       logger.error('Cannot get messages, not connected to NATS', { parameters })
       throw new Error('Not connected to NATS')
     }
-    const { streamName, subjectFilter, startSequence, take = 20 } = parameters
+    const { schema, streamName, subjectFilter, startSequence = 1, take = 20 } = parameters
 
-    // Get accurate total count from stream info
     const streamInfo = await this.jsm.streams.info(streamName, {
       subjects_filter: subjectFilter,
     })
 
-    const totalCount = Object.values(streamInfo.state.subjects ?? {}).reduce((sum, count) => sum + count, 0)
+    const totalMessages = streamInfo.state.subjects ? Object.keys(streamInfo.state.subjects).length : 0
 
-    if (totalCount < 1) {
-      return { rawMessages: [], totalCount: 0, lastSequence: startSequence ?? 0 }
-    }
+    const messages: { sequence: number; subject: string; entry: z.infer<T> }[] = []
+    const textDecoder = new TextDecoder()
 
-    const consumer = await this.js.consumers.get(streamName, {
-      filterSubjects: [subjectFilter],
-      ...(startSequence ? { opt_start_seq: startSequence } : {}),
-    })
+    const firstSeq = streamInfo.state.first_seq
+    const lastSeq = streamInfo.state.last_seq
 
-    const messages: { id: string; subject: string; deliveryCount: number; data: Uint8Array<ArrayBufferLike> }[] = []
+    let currentSequence = Math.max(startSequence, firstSeq)
 
-    let lastSequence = startSequence ?? 0
+    while (messages.length < take && currentSequence <= lastSeq) {
+      try {
+        const msg = await this.jsm.streams.getMessage(streamName, { seq: currentSequence })
+        if (this.matchesSubjectFilter({ subject: msg.subject, filter: subjectFilter })) {
+          const raw = textDecoder.decode(msg.data)
+          const json = JSON.parse(raw)
+          const entry = schema.parse(json)
 
-    const max_messages = Math.min(take, totalCount) // Ensure we don't request more messages than exist
-
-    const fetchBatch = await consumer.fetch({ max_messages, expires: 1000 })
-
-    for await (const msg of fetchBatch) {
-      lastSequence = msg.info.streamSequence
-      logger.debug('Fetched message', { streamName, msg, lastSequence })
-      messages.push({
-        id: msg.info.streamSequence.toString(),
-        subject: msg.subject,
-        deliveryCount: msg.info.deliveryCount,
-        data: msg.data,
-      })
-      if (messages.length >= max_messages) {
-        break
+          messages.push({
+            sequence: msg.seq,
+            subject: msg.subject,
+            entry,
+          })
+        }
+      } catch (error) {
+        logger.warn('error parsing msg', { error, schema })
       }
+      currentSequence++
     }
 
-    return { rawMessages: messages, totalCount, lastSequence }
+    return { messages, totalMessages, lastSequence: currentSequence - 1 }
   }
 
   async request(params: {
@@ -588,7 +689,7 @@ export class NatsClient implements EventClient {
 
   async respond(params: {
     subject: string
-    handler: (payload: Uint8Array<ArrayBufferLike>) => Promise<Uint8Array<ArrayBufferLike>>
+    handler: (subject: string, payload: Uint8Array<ArrayBufferLike>) => Promise<Uint8Array<ArrayBufferLike>>
   }): Promise<() => Promise<void>> {
     const { subject, handler } = params
 
@@ -604,8 +705,9 @@ export class NatsClient implements EventClient {
         }
 
         try {
+          const subject = msg.subject
           const request = msg.data
-          const response = await handler(request)
+          const response = await handler(subject, request)
           msg.respond(response)
         } catch (error) {
           const errorResponse = {
@@ -665,95 +767,300 @@ export class NatsClient implements EventClient {
     }
   }
 
-  async getBucketKeys(params: { bucketName: string; filter?: string; limit?: number }): Promise<string[]> {
+  async deleteBucket(params: { name: string }): Promise<void> {
     if (!this.js) {
       throw new Error('Not connected to NATS')
     }
 
-    const { bucketName, limit, filter } = params
+    const kvBucket = await this.js.views.kv(params.name)
+    await kvBucket.destroy()
+  }
+
+  async putBucketEntry<T>(params: {
+    bucketName: string
+    key: string
+    item: T
+    revision?: number
+  }): Promise<{ revision: number }> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, key, item, revision } = params
 
     const kvBucket = await this.js.views.kv(bucketName)
 
-    const keys = await kvBucket.keys(filter)
-    const result: string[] = []
-    for await (const key of keys) {
-      if (limit && result.length >= limit) {
-        break
-      }
-      result.push(key)
+    const value = new TextEncoder().encode(JSON.stringify(item))
+
+    const putResult = await kvBucket.put(key, value, { previousSeq: revision }).catch((error) => {
+      logger.error('Error putting bucket entry', { error, bucketName, key, revision })
+      throw error
+    })
+    return { revision: putResult }
+  }
+
+  async getBucketEntry<T>(params: {
+    bucketName: string
+    key: string
+    schema: z.ZodSchema<T>
+  }): Promise<{ revision: number; value: T } | null> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
     }
 
+    const { bucketName, key, schema } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    let latest: { revision: number; value: T } | null = null
+
+    try {
+      const history = await kvBucket.history({ key })
+
+      for await (const entry of history) {
+        const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
+        if (isDelete) {
+          latest = null
+          continue
+        }
+
+        if (!entry.value || entry.value.length < 1) {
+          continue
+        }
+
+        try {
+          const raw = new TextDecoder().decode(entry.value)
+          const json = JSON.parse(raw)
+          const parsed = schema.parse(json)
+          latest = { revision: entry.revision, value: parsed }
+        } catch (error) {
+          logger.error('Corrupt history entry', { bucketName, error, entry, schema })
+          return null
+        }
+      }
+    } catch (error) {
+      logger.warn('Error reading the history', { bucketName, key, schema, error })
+      return null
+    }
+    return latest
+  }
+
+  async getBucketEntries<T>(params: {
+    bucketName: string
+    filter: string
+    schema: z.ZodSchema<T>
+  }): Promise<{ revision: number; key: string; value: T }[]> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, filter, schema } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    const latestEntries = new Map<string, { revision: number; key: string; value: T }>()
+
+    const decoder = new TextDecoder()
+
+    const history = await kvBucket.history({ key: filter })
+
+    for await (const entry of history) {
+      const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
+      if (isDelete) {
+        latestEntries.delete(entry.key)
+        continue
+      }
+
+      if (!entry.value || entry.value.length < 1) {
+        continue
+      }
+
+      try {
+        const raw = decoder.decode(entry.value)
+        const json = JSON.parse(raw)
+        const parsed = schema.parse(json)
+        latestEntries.set(entry.key, { key: entry.key, revision: entry.revision, value: parsed })
+      } catch (error) {
+        logger.warn('Bucket entry could not be parsed, skipping', { bucketName, entry, error })
+      }
+    }
+
+    return Array.from(latestEntries.values())
+  }
+
+  async getBucketKeys(params: { bucketName: string; filter?: string }): Promise<string[]> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, filter } = params
+
+    const result: string[] = []
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    try {
+      const keys = await kvBucket.keys(filter)
+      for await (const key of keys) {
+        result.push(key)
+      }
+    } catch (error) {
+      logger.error('error getting bucket keys', { bucketName, filter, error })
+    }
     return result
   }
 
-  async putBucketEntry(params: { bucketName: string; key: string; value: Uint8Array<ArrayBufferLike> }): Promise<void> {
-    if (!this.js) {
-      throw new Error('Not connected to NATS')
-    }
-
-    const { bucketName, key, value } = params
-
-    const kvBucket = await this.js.views.kv(bucketName)
-
-    await kvBucket.put(key, value)
-  }
-
-  async getBucketEntry(params: { bucketName: string; key: string }): Promise<Uint8Array<ArrayBufferLike> | null> {
-    if (!this.js) {
-      throw new Error('Not connected to NATS')
-    }
-
-    const { bucketName, key } = params
-
-    const kvBucket = await this.js.views.kv(bucketName)
-
-    const entry = await kvBucket.get(key).catch(() => null)
-    if (!entry || entry.value.length === 0) {
-      return null
-    }
-
-    return entry.value
-  }
-
-  async watchBucket(params: {
+  async getBucketEntriesStats(params: {
     bucketName: string
-    key: string
+    filter: string
+  }): Promise<{ key: string; revision: number; created: Date }[]> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const latestByKeys = new Map<string, { key: string; revision: number; created: Date }>()
+    const { bucketName, filter } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+    const history = await kvBucket.history({ key: filter })
+
+    for await (const entry of history) {
+      if (entry.delta !== 0) {
+        continue
+      }
+      if (entry.operation === 'DEL' || entry.operation === 'PURGE') {
+        latestByKeys.delete(entry.key)
+        continue
+      }
+      latestByKeys.set(entry.key, { key: entry.key, revision: entry.revision, created: entry.created })
+    }
+
+    return Array.from(latestByKeys)
+      .map(([, item]) => item)
+      .sort((a, b) => a.revision - b.revision)
+  }
+
+  async watchBucketKeys(params: {
+    bucketName: string
+    filter: string | string[]
     handler: (handlerParams: {
       key: string
-      operation: 'update' | 'delete'
-      value: Uint8Array<ArrayBufferLike>
+      operation: 'update' | 'delete' | 'synced'
+      revision: number
+      delta?: number
+      stopWatching: () => void
     }) => Promise<void>
   }): Promise<() => Promise<void>> {
     if (!this.js) {
       throw new Error('Not connected to NATS')
     }
 
-    const { bucketName, key, handler } = params
+    const { bucketName, filter, handler } = params
 
     const kvBucket = await this.js.views.kv(bucketName)
 
-    const watcher = await kvBucket.watch({ key })
+    const watcher = await kvBucket.watch({ key: filter })
+
+    const processWatch = async () => {
+      for await (const entry of watcher) {
+        if (entry === null) {
+          await handler({
+            key: '',
+            operation: 'synced',
+            revision: 0,
+            delta: 0,
+            stopWatching: () => watcher.stop(),
+          })
+        }
+        const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
+        await handler({
+          key: entry.key,
+          operation: isDelete ? 'delete' : 'update',
+          revision: entry.revision,
+          delta: entry.delta,
+          stopWatching: () => watcher.stop(),
+        })
+      }
+    }
+
+    processWatch()
+      .then(() => logger.debug('watchBucketKeys worker loop finished'))
+      .catch((error) => logger.error('Error in watchBucketKeys loop', { bucketName, filter, error }))
+
+    return () => {
+      return new Promise((resolve, reject) => {
+        try {
+          watcher.stop()
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
+    }
+  }
+
+  async watchBucket<T extends z.ZodTypeAny>(params: {
+    bucketName: string
+    filter: string
+    schema: T
+    handler: (handlerParams: {
+      key: string
+      operation: 'update' | 'delete'
+      revision: number
+      entry: z.infer<T> | null
+    }) => Promise<void>
+  }): Promise<() => Promise<void>> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { schema, bucketName, filter, handler } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    const watcher = await kvBucket.watch({ key: filter })
 
     const processBucketWatch = async () => {
       for await (const entry of watcher) {
-        if (entry.operation !== 'DEL' && entry.operation !== 'PURGE' && (!entry.value || entry.value.length === 0)) {
+        const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
+
+        if (!isDelete && (!entry.value || entry.value.length === 0)) {
           // Treat empty value as delete
-          logger.warn('Received empty bucket entry - will be ignored', { bucketName, key, entry })
+          logger.warn('Received empty bucket entry - ignoring', { bucketName, filter, key: entry.key })
           continue
         }
-        await handler({
-          key: entry.key,
-          operation: entry.operation === 'DEL' || entry.operation === 'PURGE' ? 'delete' : 'update',
-          value: entry.value,
-        }).catch((error) => {
+
+        if (isDelete) {
+          await handler({
+            key: entry.key,
+            operation: 'delete',
+            revision: entry.revision,
+            entry: null,
+          })
+          continue
+        }
+
+        try {
+          const raw = new TextDecoder().decode(entry.value)
+          const json = JSON.parse(raw)
+          const parsedEntry = schema.parse(json)
+          await handler({
+            key: entry.key,
+            operation: 'update',
+            revision: entry.revision,
+            entry: parsedEntry,
+          })
+        } catch (error) {
+          const valueSnippet = entry.value ? new TextDecoder().decode(entry.value.slice(0, 100)) : 'N/A'
+
           logger.error('Error in bucket watch handler', {
             error,
             bucketName,
-            key,
+            filter,
             entry,
-            value: new TextDecoder().decode(entry.value),
+            valueSnippet,
           })
-        })
+        }
       }
     }
 
@@ -781,7 +1088,79 @@ export class NatsClient implements EventClient {
 
     const kvBucket = await this.js.views.kv(bucketName)
 
+    const status = await kvBucket.status()
+
+    if (status.values < 1) {
+      return
+    }
+
     await kvBucket.purge(key)
+  }
+
+  async deleteBucketEntries(params: { bucketName: string; filter: string | string[] }): Promise<void> {
+    if (!this.js) {
+      throw new Error('Not connected to NATS')
+    }
+
+    const { bucketName, filter } = params
+
+    const kvBucket = await this.js.views.kv(bucketName)
+
+    const status = await kvBucket.status()
+
+    if (status.values < 1) {
+      logger.warn('Nothing to delete in bucket', { params, status })
+      return
+    }
+
+    const filters: Array<string> = Array.isArray(filter) ? filter : [filter]
+
+    const keysToDelete = new Set<string>()
+
+    let done = () => {
+      logger.warn('Should not show up')
+    }
+
+    const donePromise = new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => reject('timeout'), 10000)
+      done = () => {
+        clearTimeout(timeout)
+        resolve()
+      }
+    })
+
+    const unwatch = await this.watchBucketKeys({
+      bucketName,
+      filter: filters,
+      handler: async ({ key, operation, delta }) => {
+        if (operation === 'synced') {
+          done()
+        }
+        if (operation === 'delete') {
+          if (delta === 0) {
+            done()
+          }
+          return
+        }
+
+        keysToDelete.add(key)
+        if (delta === 0) {
+          done()
+        }
+      },
+    })
+
+    try {
+      await donePromise
+    } catch (error) {
+      logger.warn('collecting delete keys timed out', { params, keysToDelete, error })
+    } finally {
+      unwatch()
+    }
+
+    for (const key of keysToDelete.keys()) {
+      await kvBucket.purge(key)
+    }
   }
 
   async getBucketStatus(params: { bucketName: string }): Promise<{

@@ -1,4 +1,4 @@
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod } from '@george-ai/app-schema'
 
 import { DocumentIdentifier, ExtractionIdentifier, LibraryIdentifier, WorkspaceIdentifier } from '../schema'
 
@@ -33,23 +33,23 @@ export function getUri(
 export function parseUri(uri: string): {
   workspaceId: string
   libraryId?: string
-  fileId?: string
+  documentId?: string
   extractionMethod?: ExtractionMethod
   attachmentFileName?: string
   fragment?: number
 } {
   const regex =
-    /^georgeai:\/\/workspaces\/([^/]+)(?:\/libraries\/([^/]+))?(?:\/files\/([^/]+))?(?:\/extractions\/([^/]+))?(?:\/fragments\/(\d+))?(?:\/attachments\/(.+))?$/
+    /^georgeai:\/\/workspaces\/([^/]+)(?:\/libraries\/([^/]+))?(?:\/documents\/([^/]+))?(?:\/extractions\/([^/]+))?(?:\/fragments\/(\d+))?(?:\/attachments\/(.+))?$/
   const match = uri.match(regex)
   if (!match) {
     throw new Error(`Invalid URI format: ${uri}`)
   }
-  const [, workspaceId, libraryId, fileId, extractionMethod, fragmentStr, attachmentFileName] = match
+  const [, workspaceId, libraryId, documentId, extractionMethod, fragmentStr, attachmentFileName] = match
   const fragment = fragmentStr ? parseInt(fragmentStr, 10) : undefined
   return {
     workspaceId,
     libraryId,
-    fileId,
+    documentId,
     extractionMethod: extractionMethod as ExtractionMethod,
     attachmentFileName,
     fragment,

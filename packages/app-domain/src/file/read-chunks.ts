@@ -1,4 +1,4 @@
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod } from '@george-ai/app-schema'
 import { FileChunk, vectorStore } from '@george-ai/vector-store'
 
 export async function* readChunks(params: {

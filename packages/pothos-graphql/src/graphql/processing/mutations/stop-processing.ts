@@ -1,31 +1,27 @@
 import { GraphQLError } from 'graphql/error/GraphQLError'
 
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
-import workspaceProcessing from '@george-ai/event-service-client/src/workspace-processing'
+import { pauseEventProcessing } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
 import { logger } from '../../common'
 
 builder.mutationField('stopProcessing', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
-    type: builder.simpleObject('StopEventProcessingResult', {
-      fields: (t) => ({
-        success: t.boolean(),
-      }),
-    }),
+    type: ['EventQueue'],
     nullable: false,
     args: {
-      requestType: t.arg({ type: 'ProcessingRequestType', required: true }),
+      action: t.arg({ type: 'EventQueueAction' }),
     },
-    resolve: async (_parent, { requestType }, { workspaceId, session }) => {
-      logger.debug('Stopping processing', { workspaceId, requestType })
+    resolve: async (_parent, { action }, { workspaceId, session }) => {
+      logger.debug('Stop processing', { workspaceId })
       await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
       try {
-        await workspaceProcessing.stopProcessing({ workspaceId, requestTypes: [requestType] })
-        return { success: true }
+        const result = await pauseEventProcessing({ workspaceId, action })
+        return result
       } catch (error) {
-        logger.error('Error stopping processing', { error, workspaceId, requestType })
-        throw new GraphQLError('Failed to stop processing', { originalError: error as Error })
+        logger.error('Error stopp processing', { error, workspaceId })
+        throw new GraphQLError('Failed to stopp processing', { originalError: error as Error })
       }
     },
   }),

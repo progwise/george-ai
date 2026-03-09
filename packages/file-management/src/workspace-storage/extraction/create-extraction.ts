@@ -1,4 +1,4 @@
-import { ExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethod } from '@george-ai/app-schema'
 
 import { logger } from '../commons'
 import { DocumentManifest, ExtractionManifest, StorageStatsSchema } from '../schema'

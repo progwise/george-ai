@@ -1,3 +1,7 @@
+import z from 'zod'
+
+import { EventQueueStatus } from '@george-ai/app-schema'
+
 export interface EventClientConfig {
   servers?: string | string[]
   user?: string
@@ -7,6 +11,8 @@ export interface EventClientConfig {
 
 export interface EventClient {
   isConnected(): Promise<boolean>
+
+  matchesSubjectFilter(args: { subject: string; filter: string }): boolean
 
   ensureWorkerStream(args: { streamName: string; subjects: string[]; description?: string }): Promise<void>
 
@@ -22,41 +28,48 @@ export interface EventClient {
   }): Promise<void>
 
   deleteConsumer(params: { streamName: string; consumerName: string }): Promise<void>
-  purgeStream(params: { streamName: string; subjectFilter: string }): Promise<void>
-  getStreamStatistics(params: {
-    consumerName: string
-    streamName: string
-  }): Promise<{ totalMessages: number; processedMessages: number; pendingMessages: number }>
+  purgeStream(params: { streamName: string; subjectFilter: string | string[] }): Promise<void>
 
-  publish(params: {
+  getStreamStatistics(params: {
+    streamName: string
+    subjectFilter?: string
+  }): Promise<{ totalMessages: number; filteredMessages: number }>
+
+  publish<T>(params: {
     subject: string
-    payload: Uint8Array<ArrayBufferLike>
+    event: T
     timeoutMs?: number
   }): Promise<{ streamName: string; msgId: string; inbox: string }>
 
-  startWorkerLoop(params: {
+  startWorkerLoop<T extends z.ZodTypeAny>(params: {
+    schema: T
     streamName: string
     consumerGlobPattern: string
-    handler: ({
-      subject,
-      payload,
-      error,
-    }: {
-      subject: string
-      payload: Uint8Array<ArrayBufferLike>
-      error?: unknown
-    }) => Promise<void>
+    handler: (params: { subject: string; event: z.infer<T> }) => Promise<void>
   }): Promise<() => Promise<void>>
 
-  subscribe(params: {
+  subscribe<T extends z.AnyZodObject>(params: {
+    schema: T
     streamName: string
     consumerName: string
-    handler: (payload: Uint8Array<ArrayBufferLike>) => Promise<void>
+    handler: (params: { subject: string; event: z.infer<T> }) => Promise<void>
   }): Promise<() => Promise<void>>
 
-  resumeConsumer({ streamName, consumerName }: { streamName: string; consumerName: string }): Promise<void>
+  resumeConsumer({
+    streamName,
+    consumerName,
+  }: {
+    streamName: string
+    consumerName: string
+  }): Promise<{ status: EventQueueStatus; delivered: number; redelivered: number; pending: number; waiting: number }>
 
-  pauseConsumer({ streamName, consumerName }: { streamName: string; consumerName: string }): Promise<void>
+  pauseConsumer({
+    streamName,
+    consumerName,
+  }: {
+    streamName: string
+    consumerName: string
+  }): Promise<{ status: EventQueueStatus; delivered: number; redelivered: number; pending: number; waiting: number }>
 
   consumerStatus({
     streamName,
@@ -64,11 +77,17 @@ export interface EventClient {
   }: {
     streamName: string
     consumerName: string
-  }): Promise<'paused' | 'running'>
+  }): Promise<{ status: EventQueueStatus; delivered: number; redelivered: number; pending: number; waiting: number }>
 
-  getMessages(params: { streamName: string; subjectFilter: string; startSequence?: number; take?: number }): Promise<{
-    rawMessages: Array<{ id: string; subject: string; deliveryCount: number; data: Uint8Array<ArrayBufferLike> }>
-    totalCount: number
+  getMessages<T extends z.ZodTypeAny>(parameters: {
+    streamName: string
+    schema: T
+    subjectFilter: string
+    startSequence?: number
+    take?: number
+  }): Promise<{
+    messages: Array<{ sequence: number; subject: string; entry: z.infer<T> }>
+    totalMessages: number
     lastSequence: number
   }>
 
@@ -86,14 +105,31 @@ export interface EventClient {
    */
   respond(params: {
     subject: string
-    handler: (payload: Uint8Array<ArrayBufferLike>) => Promise<Uint8Array<ArrayBufferLike>>
+    handler: (subject: string, payload: Uint8Array<ArrayBufferLike>) => Promise<Uint8Array<ArrayBufferLike>>
   }): Promise<() => Promise<void>>
 
   ensureBucket(params: { name: string; options?: { ttlMs?: number; history?: number } }): Promise<void>
 
-  putBucketEntry(params: { bucketName: string; key: string; value: Uint8Array<ArrayBufferLike> }): Promise<void>
+  deleteBucket(params: { name: string }): Promise<void>
 
-  getBucketEntry(params: { bucketName: string; key: string }): Promise<Uint8Array<ArrayBufferLike> | null>
+  putBucketEntry<T>(params: {
+    bucketName: string
+    key: string
+    item: T
+    revision?: number
+  }): Promise<{ revision: number }>
+
+  getBucketEntry<T extends z.ZodTypeAny>(params: {
+    bucketName: string
+    key: string
+    schema: T
+  }): Promise<{ revision: number; value: z.infer<T> } | null>
+
+  getBucketEntries<T extends z.ZodTypeAny>(params: {
+    bucketName: string
+    filter: string
+    schema: T
+  }): Promise<{ revision: number; key: string; value: z.infer<T> }[]>
 
   getBucketStatus(params: { bucketName: string }): Promise<{
     valueCount: number
@@ -101,21 +137,39 @@ export interface EventClient {
     ttlMs: number
   }>
 
-  watchBucket(params: {
+  watchBucket<T extends z.ZodTypeAny>(params: {
     bucketName: string
-    key: string
+    filter: string
+    schema: T
     handler: (handlerParams: {
       key: string
       operation: 'update' | 'delete'
-      value: Uint8Array<ArrayBufferLike> | null
+      revision: number
+      entry: z.infer<T> | null
+    }) => Promise<void>
+  }): Promise<() => Promise<void>>
+
+  watchBucketKeys(params: {
+    bucketName: string
+    filter: string
+    handler: (handlerParams: {
+      key: string
+      operation: 'update' | 'delete' | 'synced'
+      revision: number
+      stopWatching: () => void
     }) => Promise<void>
   }): Promise<() => Promise<void>>
 
   deleteBucketEntry(params: { bucketName: string; key: string }): Promise<void>
 
-  getBucketKeys(params: { bucketName: string; filter?: string; limit?: number }): Promise<string[]>
-  /**
-   * Disconnect from event service
-   */
+  deleteBucketEntries(params: { bucketName: string; filter: string | string[] }): Promise<void>
+
+  getBucketKeys(params: { bucketName: string; filter?: string }): Promise<string[]>
+
+  getBucketEntriesStats(params: {
+    bucketName: string
+    filter: string
+  }): Promise<{ key: string; revision: number; created: Date }[]>
+
   disconnect(): Promise<void>
 }

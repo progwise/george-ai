@@ -1,4 +1,4 @@
-import { EmbeddingStatus } from '@george-ai/app-commons'
+import { EmbeddingStatus } from '@george-ai/app-schema'
 
 import { getCollection, getCollectionName, logger } from './common'
 

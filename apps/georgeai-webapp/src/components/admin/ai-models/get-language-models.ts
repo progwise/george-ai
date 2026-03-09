@@ -2,8 +2,6 @@ import { queryOptions } from '@tanstack/react-query'
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 
-import { MODEL_PROVIDERS } from '@george-ai/app-commons'
-
 import { graphql } from '../../../gql'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
@@ -15,7 +13,7 @@ const getLanguageModels = createServerFn({ method: 'GET' })
       .object({
         skip: z.number().int().min(0).default(0),
         take: z.number().int().min(1).default(20),
-        providers: z.array(z.enum(MODEL_PROVIDERS)).optional(),
+        providers: z.array(z.enum(['ollama', 'openai'])).optional(),
         capabilities: z.array(z.string()).optional(),
         onlyUsed: z.boolean().default(false),
         showDisabled: z.boolean().default(false),
@@ -28,7 +26,7 @@ const getLanguageModels = createServerFn({ method: 'GET' })
         query GetAiLanguageModels(
           $skip: Int = 0
           $take: Int = 20
-          $providers: [ModelProvider!]
+          $providers: [InferenceDriver!]
           $canDoEmbedding: Boolean
           $canDoChatCompletion: Boolean
           $canDoVision: Boolean

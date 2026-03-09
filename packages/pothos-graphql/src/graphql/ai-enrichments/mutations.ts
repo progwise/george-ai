@@ -1,7 +1,7 @@
-import { ModelProvider } from '@george-ai/app-commons'
 import { Prisma, prisma } from '@george-ai/app-database'
 import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 import { ValidatedFieldSchema, getEnrichmentTaskInputMetadata, getListFiltersWhere } from '@george-ai/app-domain'
+import { InferenceDriver } from '@george-ai/app-schema'
 
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
@@ -182,7 +182,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
       // Transform field to match validation schema (convert languageModel relation to string)
       const fieldWithRelation = listField as typeof listField & {
-        languageModel?: { id: string; provider: ModelProvider; name: string } | null
+        languageModel?: { id: string; provider: InferenceDriver; name: string } | null
       }
       const fieldForValidation = {
         ...fieldWithRelation,

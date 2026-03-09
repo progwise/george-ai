@@ -1,14 +1,13 @@
 import { createServerFn } from '@tanstack/react-start'
 import z from 'zod'
 
-import { MODEL_PROVIDERS } from '@george-ai/app-commons'
-
 import { graphql } from '../../../gql'
+import { InferenceDriverSchema } from '../../../gql/validation'
 import { backendRequest } from '../../../server-functions/backend'
 
 const testProviderConnectionMutationDocument = graphql(`
-  mutation TestProviderConnection($providerId: String, $provider: ModelProvider!, $baseUrl: String, $apiKey: String) {
-    testProviderConnection(providerId: $providerId, provider: $provider, baseUrl: $baseUrl, apiKey: $apiKey) {
+  mutation TestProviderConnection($providerId: String, $driver: InferenceDriver!, $baseUrl: String, $apiKey: String) {
+    testProviderConnection(providerId: $providerId, driver: $driver, baseUrl: $baseUrl, apiKey: $apiKey) {
       success
       isOnline
       isHealthy
@@ -22,7 +21,7 @@ export const testProviderConnectionFn = createServerFn({ method: 'POST' })
     z
       .object({
         providerId: z.string().optional(),
-        provider: z.enum(MODEL_PROVIDERS).or(z.string()),
+        provider: InferenceDriverSchema,
         baseUrl: z.string().optional(),
         apiKey: z.string().optional(),
       })

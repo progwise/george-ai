@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { ExtractionMethod } from '@george-ai/app-commons'
-
+import { ExtractionMethod } from '../../../gql/graphql'
 import { convertExtractionMarkdownToHtml } from './convert-extraction-markdown'
 import { useMarkdownDownload } from './use-markdown-download'
 

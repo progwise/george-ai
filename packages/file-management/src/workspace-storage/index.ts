@@ -1,6 +1,6 @@
 import attachment from './attachment'
 import backup from './backup'
-import { getUri } from './commons'
+import { getUri, parseUri } from './commons'
 import document from './document'
 import entry from './entry'
 import extraction from './extraction'
@@ -9,14 +9,15 @@ import migrate from './migrate-legacy'
 import reconcile from './reconcile'
 import workspace from './workspace'
 
-export * from './extraction'
+export * from './attachment'
 export * from './document'
+export * from './extraction'
 export * from './library'
 export * from './migrate-legacy'
-export * from './workspace'
 export * from './schema'
+export * from './workspace'
 
-export { attachment, backup, extraction, document, library, migrate, reconcile, workspace, entry, getUri }
+export { attachment, backup, extraction, document, library, migrate, reconcile, workspace, entry, getUri, parseUri }
 
 export default {
   attachment,
@@ -28,4 +29,6 @@ export default {
   workspace,
   entry,
   backup,
+  getUri,
+  parseUri,
 }

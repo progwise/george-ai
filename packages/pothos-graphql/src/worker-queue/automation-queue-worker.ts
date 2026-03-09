@@ -2,7 +2,7 @@ import { createLogger } from '@george-ai/app-commons'
 import type { AiAutomationItem, AiAutomationItemExecution, AiListItemCache } from '@george-ai/app-database'
 import { prisma } from '@george-ai/app-database'
 import { getConnectorAction, getConnectorTypeFactory, rawActionConfigSchema } from '@george-ai/connector-types'
-import type { ActionInput, ConnectorConfig } from '@george-ai/connector-types'
+import type { ConnectorActionInput, ConnectorConfig } from '@george-ai/connector-types'
 
 const logger = createLogger('Automation Worker')
 
@@ -132,7 +132,7 @@ async function processAutomationItem(
     }
 
     // Prepare action input
-    const actionInput: ActionInput = {
+    const actionInput: ConnectorActionInput = {
       item: {
         id: item.listItem.id,
         name: item.listItem.itemName,

@@ -1,4 +1,4 @@
-import { EXTRACTION_METHODS } from '@george-ai/app-commons'
+import { EXTRACTION_METHODS } from '@george-ai/app-schema'
 import { isMethodAvailableForMimeType } from '@george-ai/file-converter'
 
 export function getExtractionMethods(parameters: { mimeType?: string }) {

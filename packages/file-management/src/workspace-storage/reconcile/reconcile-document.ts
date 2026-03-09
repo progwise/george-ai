@@ -1,4 +1,4 @@
-import { getExtractionMethod } from '@george-ai/app-commons'
+import { ExtractionMethodSchema } from '@george-ai/app-schema'
 
 import { fs, logger } from '../commons'
 import { calculateSourceHash } from '../document'
@@ -33,7 +33,7 @@ export async function reconcileDocument(identifier: DocumentIdentifier): Promise
 
   const extractionManifests = await Promise.all(
     (extractionFolderNames || []).map((folderName) => {
-      const extractionMethod = getExtractionMethod(folderName)
+      const { data: extractionMethod } = ExtractionMethodSchema.safeParse(folderName)
       if (!extractionMethod) {
         logger.warn('Unknown extraction folder found during reconciliation, skipping this extraction', {
           identifier,

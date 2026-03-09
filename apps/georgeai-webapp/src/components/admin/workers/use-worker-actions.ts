@@ -1,14 +1,13 @@
 import { useMutation } from '@tanstack/react-query'
 import toast from 'react-hot-toast'
 
-import { ProcessingRequestType } from '@george-ai/app-commons'
-
+import { EventQueueAction } from '../../../gql/graphql'
 import { startProcessingFn } from '../server-functions/start-processing'
 import { stopProcessingFn } from '../server-functions/stop-processing'
 
 export const useWorkerActions = () => {
   const startProcessingMutation = useMutation({
-    mutationFn: (requestType: ProcessingRequestType) => startProcessingFn({ data: { requestType } }),
+    mutationFn: (action: EventQueueAction) => startProcessingFn({ data: { action } }),
     onSuccess: (_data, variables) => {
       toast.success(`Started processing: ${variables}`)
     },
@@ -18,7 +17,7 @@ export const useWorkerActions = () => {
   })
 
   const stopProcessingMutation = useMutation({
-    mutationFn: (requestType: ProcessingRequestType) => stopProcessingFn({ data: { requestType } }),
+    mutationFn: (action: EventQueueAction) => stopProcessingFn({ data: { action } }),
     onSuccess: (_data, variables) => {
       toast.success(`Stopped processing: ${variables}`)
     },

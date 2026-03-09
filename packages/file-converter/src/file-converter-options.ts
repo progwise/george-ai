@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-commons'
+import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-schema'
 
 import { SUPPORTED_MIME_TYPES, SupportedMimeType } from './constants'
 

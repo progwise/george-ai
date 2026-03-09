@@ -1,15 +1,14 @@
-import { OpenAiProviderConnection } from '@george-ai/app-commons'
+import { EmbeddingResult, OpenAIHostConnection } from '@george-ai/app-schema'
 
-import { EmbeddingsResult } from '../common'
 import { openAIApiPost } from './openai-rest-api'
 import { OpenAIEmbeddingResponseSchema } from './schema'
 
 export async function generateOpenAIEmbeddings(
-  connection: OpenAiProviderConnection,
+  connection: OpenAIHostConnection,
   modelName: string,
   input: string | string[],
   abortSignal?: AbortSignal,
-): Promise<EmbeddingsResult> {
+): Promise<EmbeddingResult> {
   const data = await openAIApiPost(
     connection,
     '/embeddings',
@@ -22,12 +21,10 @@ export async function generateOpenAIEmbeddings(
 
   return {
     embeddings: data.data.map((item, index) => ({
-      embedding: item.embedding,
-      inputText: inputTexts[index],
+      vector: item.embedding,
+      chunk: inputTexts[index],
     })),
-    usage: {
-      promptTokens: data.usage.prompt_tokens,
-      totalTokens: data.usage.total_tokens,
-    },
+    chunkTokens: data.usage.prompt_tokens,
+    totalTokens: data.usage.total_tokens,
   }
 }

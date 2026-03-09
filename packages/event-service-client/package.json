@@ -27,6 +27,8 @@
   },
   "dependencies": {
     "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-schema": "workspace:*",
+    "p-retry": "^7.1.1",
     "dotenv": "^16.4.5",
     "nats": "^2.29.3",
     "zod": "^3.23.8"

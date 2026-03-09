@@ -1,0 +1,44 @@
+import { eventClient } from '../client'
+import { logger } from '../common'
+import { SyncAction, SyncRequest, SyncRequestSchema, SyncResponse } from './schema'
+import { getSyncSubjectFilter, parseSyncSubject } from './subject'
+
+export async function fulfillInvokes(args: {
+  workspaceId?: string
+  action?: SyncAction
+  handler: (handlerParams: { workspaceId: string; action: SyncAction; request: SyncRequest }) => Promise<SyncResponse>
+}) {
+  const { workspaceId, action, handler } = args
+
+  const cleanup = await eventClient.respond({
+    subject: getSyncSubjectFilter({
+      workspaceId,
+      action,
+    }),
+    handler: async (subject, payload) => {
+      try {
+        const parsedSubject = parseSyncSubject(subject)
+        if (!parsedSubject) {
+          logger.error('Cannot fulfill invoke because of unknown subject - skipping', { subject, parsedSubject })
+          throw new Error(`Fulfill handler cannot parse subject ${subject}`)
+        }
+        const { action, workspaceId } = parsedSubject
+        const decoded = new TextDecoder().decode(payload)
+        const json = JSON.parse(decoded)
+
+        const request = SyncRequestSchema.parse(json)
+
+        const result = await handler({ workspaceId, action, request })
+
+        return new TextEncoder().encode(JSON.stringify(result))
+      } catch (error) {
+        logger.error('Error fulfillModelCall event', { error, subject })
+        throw error
+      }
+    },
+  })
+
+  return async () => {
+    await cleanup()
+  }
+}

@@ -2,7 +2,7 @@
  * Authentication module
  * Dispatches to appropriate auth method based on type
  */
-import { ApiAuthType } from '@george-ai/app-commons'
+import { ConnectorApiAuthType } from '@george-ai/app-schema'
 
 import { ApiAuthConfig } from '../api-crawler-config'
 import { authenticateApiKey } from './api-key'
@@ -15,7 +15,10 @@ import { authenticateOAuth2 } from './oauth2'
  * Pure function for non-async auth types
  * Async function for OAuth2 (needs to fetch token)
  */
-export async function authenticate(authType: ApiAuthType, authConfig: ApiAuthConfig): Promise<Record<string, string>> {
+export async function authenticate(
+  authType: ConnectorApiAuthType,
+  authConfig: ApiAuthConfig,
+): Promise<Record<string, string>> {
   switch (authType) {
     case 'none':
       return {}

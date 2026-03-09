@@ -1,5 +1,5 @@
-import { ExtractionMethod } from '@george-ai/app-commons'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+import { ExtractionMethod } from '@george-ai/app-schema'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'

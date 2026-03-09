@@ -1,17 +1,11 @@
 import {
-  EMBEDDING_STATUS,
-  EXTRACTION_METHODS,
-  PROCESSING_REQUEST_TYPES,
-  PROVIDER_HEALTH_STATUS,
-} from '@george-ai/app-commons'
-import {
   CRAWLER_URI_TYPES,
   LIST_FIELD_CONTEXT_TYPES,
   LIST_FIELD_FILE_PROPERTIES,
   LIST_FIELD_SOURCE_TYPES,
   LIST_FIELD_TYPES,
 } from '@george-ai/app-domain'
-import { modelCalls, workspaceProcessing } from '@george-ai/event-service-client'
+import { EMBEDDING_STATUS, EVENT_QUEUE_STATUS, EXTRACTION_METHODS, INFERENCE_ACTIONS } from '@george-ai/app-schema'
 
 import { builder } from '../builder'
 
@@ -25,8 +19,8 @@ builder.enumType('EmbeddingStatus', {
   values: EMBEDDING_STATUS,
 })
 
-builder.enumType('EventProcessingStatus', {
-  values: workspaceProcessing.EVENT_PROCESSING_STATUS,
+builder.enumType('EventQueueStatus', {
+  values: EVENT_QUEUE_STATUS,
 })
 
 builder.enumType('ExtractionMethod', {
@@ -49,16 +43,8 @@ builder.enumType('ListFieldContextType', {
   values: LIST_FIELD_CONTEXT_TYPES,
 })
 
-builder.enumType('ModelCallType', {
-  values: modelCalls.MODEL_CALL_TYPES,
-})
-
-builder.enumType('ProviderHealthStatus', {
-  values: PROVIDER_HEALTH_STATUS,
-})
-
-builder.enumType('ProcessingRequestType', {
-  values: PROCESSING_REQUEST_TYPES,
+builder.enumType('InferenceAction', {
+  values: INFERENCE_ACTIONS,
 })
 
 builder.enumType('SortOrder', {

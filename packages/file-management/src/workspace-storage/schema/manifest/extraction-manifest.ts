@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { EXTRACTION_METHODS } from '@george-ai/app-commons'
+import { EXTRACTION_METHODS } from '@george-ai/app-schema'
 
 import { BaseManifestSchema } from './base-manifest-schema'
 import { DateTimeSchema } from './common'

@@ -1,12 +1,3 @@
-import {
-  EmbeddingStatus,
-  ExtractionMethod,
-  ModelProvider,
-  ProcessingRequestType,
-  ProviderHealthStatus,
-  WorkerType,
-  WorkspaceRole,
-} from '@george-ai/app-commons'
 import { AutomationItemStatus } from '@george-ai/app-database'
 import {
   AutomationBatchStatus,
@@ -17,25 +8,34 @@ import {
   ListFieldSourceType,
   ListFieldType,
 } from '@george-ai/app-domain'
-import { EventProcessingStatus, ModelCallType, ProcessingStatus } from '@george-ai/event-service-client'
+import {
+  EnrichmentAction,
+  EventQueueAction,
+  EventQueueStatus,
+  ExtractionMethod,
+  InferenceAction,
+  InferenceDriver,
+  WorkerActionResult,
+  WorkerRole,
+  WorkspaceRole,
+} from '@george-ai/app-schema'
 
 export type GeorgeEnumTypes = {
   AutomationBatchStatus: AutomationBatchStatus
   AutomationTriggerType: AutomationTriggerType
   AutomationItemStatus: AutomationItemStatus
   CrawlerUriType: CrawlerUriType
-  EmbeddingStatus: EmbeddingStatus
-  EventProcessingStatus: EventProcessingStatus
+  EnrichmentAction: EnrichmentAction
+  EventQueueStatus: EventQueueStatus
   ExtractionMethod: ExtractionMethod
+  EventQueueAction: EventQueueAction
   ListFieldSourceType: ListFieldSourceType
   ListFieldType: ListFieldType
   ListFieldContextType: ListFieldContextType
   ListFieldFileProperty: ListFieldFileProperty
-  ModelCallType: ModelCallType
-  ModelProvider: ModelProvider
-  ProviderHealthStatus: ProviderHealthStatus
-  ProcessingStatus: ProcessingStatus
-  ProcessingRequestType: ProcessingRequestType
-  WorkerType: WorkerType
+  InferenceAction: InferenceAction
+  InferenceDriver: InferenceDriver
+  WorkerActionResult: WorkerActionResult
+  WorkerRole: WorkerRole
   WorkspaceRole: WorkspaceRole
 }

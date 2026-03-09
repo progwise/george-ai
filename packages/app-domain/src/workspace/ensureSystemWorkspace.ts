@@ -1,5 +1,5 @@
 import { prisma } from '@george-ai/app-database'
-import { writeWorkspaceConfig } from '@george-ai/event-service-client'
+import { writeRegistryEntry } from '@george-ai/event-service-client'
 import { createWorkspace } from '@george-ai/file-management'
 
 import { SYSTEM_WORKSPACE_ID, logger } from './common'
@@ -36,11 +36,12 @@ export async function ensureSystemWorkspace(): Promise<void> {
     logger.info('System workspace manifest already exists, no action needed')
   }
 
-  await writeWorkspaceConfig({
-    languageModels: [],
-    providerInstances: [],
+  await writeRegistryEntry({
+    activeModels: [],
+    modelHosts: [],
     version: 1,
     workspaceId: SYSTEM_WORKSPACE_ID,
     lastUpdate: new Date(),
+    type: 'workspace',
   })
 }

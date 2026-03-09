@@ -1,9 +1,9 @@
-import { ExtractionMethod, ModelProvider, getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
+import { ExtractionMethod, InferenceDriver, InferenceDriverSchema } from '@george-ai/app-schema'
 
 export interface ProcessingSettings {
   extractionMethods: Array<ExtractionMethod>
-  embeddingModelProvider: ModelProvider
+  embeddingModelDriver: InferenceDriver
   embeddingModelName: string
 }
 
@@ -60,7 +60,7 @@ export async function getProcessingSettings(parameters: {
       'htmlExtraction',
       'excelExtraction',
     ],
-    embeddingModelProvider: getModelProvider(embeddingModel.provider),
+    embeddingModelDriver: InferenceDriverSchema.parse(embeddingModel.provider),
     embeddingModelName: embeddingModel.name,
   }
 

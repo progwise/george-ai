@@ -18,6 +18,7 @@ import { SparklesIcon } from '../../../icons/sparkles-icon'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { ClientDate } from '../../client-date'
 import { DialogForm } from '../../dialog-form'
+import { toastSuccess } from '../../georgeToaster'
 import { useLibraryActions } from '../use-library-actions'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
@@ -97,7 +98,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
     return () => clearTimeout(timeout)
   }, [libraryId])
 
-  const { deleteFile, deleteFiles, processDocument, processDocuments, isPending } = useLibraryActions(libraryId)
+  const { deleteFile, deleteFiles, triggerExtraction, triggerVectorization, isPending } = useLibraryActions(libraryId)
 
   const dropDialogRef = useRef<HTMLDialogElement>(null)
   const processDialogRef = useRef<HTMLDialogElement>(null)
@@ -139,19 +140,17 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
   }
 
   const handleExtractSelectedFiles = () => {
-    processDocuments({
-      requestType: 'extractFile',
-      libraryId,
-      documentIds: selectedFileIds,
-    })
+    for (const documentId of selectedFileIds) {
+      triggerExtraction({ documentId })
+    }
+    toastSuccess(`Extraction of ${selectedFileIds.length} documents triggered. `)
   }
 
   const handleEmbedSelectedFiles = () => {
-    processDocuments({
-      requestType: 'embedFile',
-      libraryId,
-      documentIds: selectedFileIds,
-    })
+    for (const documentId of selectedFileIds) {
+      triggerVectorization({ documentId })
+    }
+    toastSuccess(`Vectorizatrion of ${selectedFileIds.length} documents triggered. `)
   }
 
   return (
@@ -372,7 +371,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                         type="button"
                         className="tooltip btn tooltip-right btn-square btn-xs"
                         data-tip={t('actions.reprocess')}
-                        onClick={() => processDocument({ requestType: 'embedFile', libraryId, documentId: file.id })}
+                        onClick={() => triggerExtraction({ documentId: file.id })}
                       >
                         <ReprocessIcon className="size-4" />
                       </button>

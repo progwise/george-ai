@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 
-import { ProcessingRequestType } from '@george-ai/app-commons'
-
+import { ExtractionMethod } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { logger } from './common'
@@ -19,8 +18,8 @@ import {
   deleteLibraryFn,
   dropAllLibraryFilesFn,
   prepareDesktopFileUploadsFn,
-  processDocumentFn,
-  processDocumentsFn,
+  triggerExtractionFn,
+  triggerVectorizationFn,
   updateLibraryFn,
 } from './server-functions'
 
@@ -81,31 +80,6 @@ export const useLibraryActions = (libraryId: string) => {
         queryClient.removeQueries(getLibraryQueryOptions(libraryId)),
       ])
       navigate({ to: '/libraries' })
-    },
-  })
-
-  const processDocumentMutation = useMutation({
-    mutationFn: (data: { requestType: ProcessingRequestType; libraryId: string; documentId: string }) =>
-      processDocumentFn({ data }),
-    onSuccess: (_data, { requestType }) => {
-      logger.debug('processFileMutation success', { requestType })
-      toastSuccess(`${requestType} successfully triggered`)
-    },
-    onError: (error, variables) => {
-      logger.error('processFileMutation', { error, variables })
-      toastError(`Failed to trigger processing: ${error.message}`)
-    },
-  })
-
-  const processDocumentsMutation = useMutation({
-    mutationFn: (data: { requestType: ProcessingRequestType; libraryId: string; documentIds: string[] }) =>
-      processDocumentsFn({ data }),
-    onSuccess: (_data, { requestType }) => {
-      toastSuccess(`${requestType} successfully triggered`)
-    },
-    onError: (error, variables) => {
-      logger.error('processFileMutation', { error, variables })
-      toastError(`Failed to trigger processing: ${error.message}`)
     },
   })
 
@@ -176,24 +150,35 @@ export const useLibraryActions = (libraryId: string) => {
     },
   })
 
+  const triggerExtractionMutation = useMutation({
+    mutationFn: (options: { documentId: string; extractionMethod?: ExtractionMethod }) =>
+      triggerExtractionFn({ data: { libraryId, ...options } }),
+  })
+
+  const triggerVectorizationMutation = useMutation({
+    mutationFn: (options: { documentId: string; extractionMethod?: ExtractionMethod }) =>
+      triggerVectorizationFn({ data: { libraryId, ...options } }),
+  })
+
   return {
     updateLibrary: updateLibraryMutation.mutate,
     deleteLibrary: deleteLibraryMutation.mutate,
-    processDocument: processDocumentMutation.mutate,
-    processDocuments: processDocumentsMutation.mutate,
     deleteFile: deleteFileMutation.mutate,
     deleteFiles: deleteFilesMutation.mutate,
     dropAllFiles: dropFilesMutation.mutate,
+    triggerExtraction: triggerExtractionMutation.mutate,
+    triggerVectorization: triggerVectorizationMutation.mutate,
     prepareDesktopFileUploads: prepareDesktopFileUploadsMutate,
     cancelFileUpload: cancelFileUploadMutate,
     isPending:
       updateLibraryMutation.isPending ||
       deleteLibraryMutation.isPending ||
-      processDocumentMutation.isPending ||
       deleteFileMutation.isPending ||
       deleteFilesMutation.isPending ||
       dropFilesMutation.isPending ||
       cancelFileUploadPending ||
-      prepareDesktopFilesIsPending,
+      prepareDesktopFilesIsPending ||
+      triggerExtractionMutation.isPending ||
+      triggerVectorizationMutation.isPending,
   }
 }

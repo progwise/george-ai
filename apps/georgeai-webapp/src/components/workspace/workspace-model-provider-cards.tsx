@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
+import { useMemo } from 'react'
 
 import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { getModelProviderStatusQueryOptions } from './queries'
+import { getInferenceHostConfigQueryOptions, getInferenceHostStatusQueryOptions } from './queries'
 import { useWorkspace } from './use-workspace'
 
 interface WorkspaceModelProviderCardsProps {
@@ -14,9 +15,34 @@ export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCard
 
   const { currentWorkspace } = useWorkspace(user)
 
-  const { data: modelProviderStatus, isLoading, error } = useQuery(getModelProviderStatusQueryOptions())
+  const {
+    data: modelHostStatus,
+    isLoading: statusIsLoading,
+    error: statusError,
+  } = useQuery(getInferenceHostStatusQueryOptions())
+  const {
+    data: modelHostConfig,
+    isLoading: configIsLoading,
+    error: configError,
+  } = useQuery(getInferenceHostConfigQueryOptions())
 
-  if (!currentWorkspace || isLoading) {
+  const isLoading = statusIsLoading || configIsLoading
+
+  const modelHost = useMemo(() => {
+    const merged = modelHostConfig
+      ? modelHostConfig.map((config) => {
+          const status = modelHostStatus?.find((status) => status.hostId === config.hostId)
+          return {
+            ...config,
+            isOnline: !!status,
+            availableModels: status ? status.models : [],
+          }
+        })
+      : []
+    return merged
+  }, [modelHostConfig, modelHostStatus])
+
+  if (!modelHost || isLoading) {
     return (
       <div className="stats min-w-50 flex-1 shadow-sm">
         <div className="stat py-3">
@@ -28,7 +54,7 @@ export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCard
     )
   }
 
-  if (error || !modelProviderStatus) {
+  if (statusError || configError) {
     return (
       <div className="stats min-w-50 flex-1 shadow-sm">
         <div className="stat py-3">
@@ -39,7 +65,7 @@ export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCard
   }
   return (
     <>
-      {modelProviderStatus.instances.map((instance) => {
+      {modelHost.map((instance) => {
         const instanceCard = (
           <div className="stat py-3">
             <div className="stat-title text-sm">{instance.name}</div>
@@ -47,7 +73,7 @@ export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCard
               {instance.isOnline ? t('dashboard.status.online') : t('dashboard.status.offline')}
             </div>
             <div className={`stat-desc text-xs ${instance.isOnline ? 'text-success' : 'text-error'}`}>
-              {instance.type} ·{' '}
+              {instance.driver} ·{' '}
               {instance.isOnline
                 ? t('dashboard.labels.models', { count: instance.availableModels?.length || 0 })
                 : t('dashboard.status.offline')}
@@ -55,7 +81,7 @@ export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCard
           </div>
         )
 
-        if (currentWorkspace.role === 'admin' || currentWorkspace.role === 'owner') {
+        if (currentWorkspace?.role === 'admin' || currentWorkspace?.role === 'owner') {
           return (
             <Link
               key={instance.name}

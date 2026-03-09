@@ -1,6 +1,6 @@
 import z from 'zod'
 
-import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-commons'
+import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-schema'
 
 export const VectorStoreChunkIdentifierSchema = z.object({
   libraryId: z.string(),

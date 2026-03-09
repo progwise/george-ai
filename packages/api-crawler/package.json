@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-schema": "workspace:*",
     "zod": "^3.23.8",
     "jsonpath-plus": "^10.2.0"
   },

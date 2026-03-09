@@ -1,6 +1,6 @@
-import { getModelProvider } from '@george-ai/app-commons'
 import { AiLibraryInclude, AiLibrarySelect } from '@george-ai/app-database'
 import { prisma } from '@george-ai/app-database'
+import { InferenceDriverSchema } from '@george-ai/app-schema'
 import { getLibrary, saveLibrary } from '@george-ai/file-management'
 
 import { logger } from '../common'
@@ -57,10 +57,10 @@ export async function updateLibrary(parameters: {
       const ocrModel = aiModels.find((model) => model.id === aiLibrary.ocrModelId)
 
       const embeddingSettings = embeddingModel
-        ? { modelName: embeddingModel.name, provider: getModelProvider(embeddingModel.provider) }
+        ? { modelName: embeddingModel.name, modelDriver: InferenceDriverSchema.parse(embeddingModel.provider) }
         : libraryManifest.settings?.embedding
       const imageAnalysisSettings = ocrModel
-        ? { modelName: ocrModel.name, provider: getModelProvider(ocrModel.provider) }
+        ? { modelName: ocrModel.name, modelDriver: InferenceDriverSchema.parse(ocrModel.provider) }
         : libraryManifest.settings?.imageAnalysis
 
       libraryManifest.settings = {

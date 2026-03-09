@@ -1,17 +1,17 @@
 import pRetry from 'p-retry'
 import { Readable } from 'stream'
 
-import { OllamaProviderConnection, decryptValue } from '@george-ai/app-commons'
+import { decryptValue } from '@george-ai/app-commons'
+import { ChatAttachment, ChatMessage, ChatResponseChunk, OllamaHostConnection } from '@george-ai/app-schema'
 
 import { Base64Encoder } from '../base64-encoder'
-import { ChatAttachment, ChatCompletionResult, ChatCompletionStreamChunk, ChatMessage, ChatOptions } from '../common'
 import { logger } from './common'
 import { OllamaChatStreamChunkSchema } from './schema'
 
 export const ollamaChatJsonBodyGenerator = async function* (options: {
   model: string
   messages: ChatMessage[]
-  attachments?: ChatAttachment[]
+  attachments?: (ChatAttachment & { stream: Readable })[]
 }) {
   const { model, messages, attachments } = options
   const encoder = new TextEncoder()
@@ -53,35 +53,37 @@ export const ollamaChatJsonBodyGenerator = async function* (options: {
 }
 
 export async function getOllamaChatCompletion(
-  connection: OllamaProviderConnection,
-  options: ChatOptions,
+  connection: OllamaHostConnection,
+  modelName: string,
+  messages: ChatMessage[],
+  attachments?: (ChatAttachment & { stream: Readable })[],
   abortSignal?: AbortSignal,
-): Promise<ChatCompletionResult> {
-  const stream = await getOllamaChatCompletionStream(connection, options, abortSignal)
+): Promise<ChatResponseChunk> {
+  const stream = await getOllamaChatCompletionStream(connection, modelName, messages, attachments, abortSignal)
 
-  const bufferedResult: Array<ChatCompletionStreamChunk> = []
+  const bufferedResult: Array<ChatResponseChunk> = []
   for await (const chunk of stream) {
     bufferedResult.push(chunk)
   }
 
-  const result: ChatCompletionResult = {
-    model: options.modelName,
-    content: bufferedResult.map((c) => c.chunk).join(''),
+  const result: ChatResponseChunk = {
+    chunk: bufferedResult.map((c) => c.chunk).join(''),
     created: new Date(),
-    completionTokens: bufferedResult.reduce((acc, c) => acc + (c.metadata?.completionTokens || 0), 0),
-    promptTokens: bufferedResult.reduce((acc, c) => acc + (c.metadata?.promptTokens || 0), 0),
+    completionTokens: bufferedResult.reduce((acc, c) => acc + (c.completionTokens || 0), 0),
+    promptTokens: bufferedResult.reduce((acc, c) => acc + (c.promptTokens || 0), 0),
   }
 
   return result
 }
 
 export async function getOllamaChatCompletionStream(
-  connection: OllamaProviderConnection,
-  options: ChatOptions,
+  connection: OllamaHostConnection,
+  modelName: string,
+  messages: ChatMessage[],
+  attachments?: (ChatAttachment & { stream: Readable })[],
   abortSignal?: AbortSignal,
-): Promise<ReadableStream<ChatCompletionStreamChunk>> {
+): Promise<ReadableStream<ChatResponseChunk>> {
   const { baseUrl, encryptedApiKey } = connection
-  const { messages, modelName, attachments } = options
 
   const requestInit: RequestInit & { duplex: 'half' } = {
     method: 'POST',
@@ -112,14 +114,16 @@ export async function getOllamaChatCompletionStream(
   if (!response.body) {
     logger.error('Failed to retrieve streaming body for ollama chat streaming api', {
       connection,
-      options,
+      messages,
+      modelName,
+      attachments,
       status: response.status,
     })
     throw new Error(`Failed to retrieve streaming body for ollama chat streaming api on ${connection.baseUrl}/api/chat`)
   }
 
   // Create a transform stream that parses JSON chunks and respects abort signal
-  const transformStream = new TransformStream<string, ChatCompletionStreamChunk>({
+  const transformStream = new TransformStream<string, ChatResponseChunk>({
     start(controller) {
       // Listen for abort signal and close the stream
       abortSignal?.addEventListener('abort', () => {
@@ -140,22 +144,11 @@ export async function getOllamaChatCompletionStream(
         try {
           const jsonData = JSON.parse(line)
           const parsedChunk = OllamaChatStreamChunkSchema.parse({ ...jsonData, modelName: modelName })
-          const commonChunk: ChatCompletionStreamChunk = {
+          const commonChunk: ChatResponseChunk = {
+            created: new Date(),
             chunk: parsedChunk.message?.content || '',
-            metadata: {
-              instanceUrl: baseUrl, // Track which instance processed this
-            },
-          }
-          // Map Ollama's token counts to common format
-          if (parsedChunk.prompt_eval_count !== undefined) {
-            commonChunk.metadata!.promptTokens = parsedChunk.prompt_eval_count
-          }
-          if (parsedChunk.eval_count !== undefined) {
-            commonChunk.metadata!.completionTokens = parsedChunk.eval_count
-          }
-          // Calculate total tokens if both are available
-          if (parsedChunk.prompt_eval_count !== undefined && parsedChunk.eval_count !== undefined) {
-            commonChunk.metadata!.tokensProcessed = parsedChunk.prompt_eval_count + parsedChunk.eval_count
+            promptTokens: parsedChunk.prompt_eval_count,
+            completionTokens: parsedChunk.eval_count,
           }
 
           controller.enqueue(commonChunk)

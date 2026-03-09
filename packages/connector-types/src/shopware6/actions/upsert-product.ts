@@ -6,7 +6,12 @@
 import { z } from 'zod'
 
 import { transformValue } from '../../transforms'
-import type { ActionExecutionResult, ActionInput, ConnectorAction, ConnectorConfig } from '../../types'
+import type {
+  ConnectorAction,
+  ConnectorActionExecutionResult,
+  ConnectorActionInput,
+  ConnectorConfig,
+} from '../../types'
 import type { TransformType } from '../../validation'
 import {
   createApiClient,
@@ -53,7 +58,10 @@ export type UpsertProductConfig = z.infer<typeof UpsertProductConfigSchema>
 /**
  * Execute the upsert product action
  */
-async function execute(connectorConfig: ConnectorConfig, input: ActionInput): Promise<ActionExecutionResult> {
+async function execute(
+  connectorConfig: ConnectorConfig,
+  input: ConnectorActionInput,
+): Promise<ConnectorActionExecutionResult> {
   const config = UpsertProductConfigSchema.parse(input.actionConfig)
 
   // Get product number from enrichment field
@@ -171,7 +179,10 @@ async function execute(connectorConfig: ConnectorConfig, input: ActionInput): Pr
 /**
  * Preview what will be written without executing
  */
-async function preview(connectorConfig: ConnectorConfig, input: ActionInput): Promise<Record<string, unknown>> {
+async function preview(
+  connectorConfig: ConnectorConfig,
+  input: ConnectorActionInput,
+): Promise<Record<string, unknown>> {
   const config = UpsertProductConfigSchema.parse(input.actionConfig)
 
   const productNumber = input.item.fieldValues[config.productNumberField]

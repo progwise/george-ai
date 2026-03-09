@@ -1,10 +1,8 @@
+import { ensureActionStream } from './action'
 import { logger } from './common'
-import { ensureModelCallsStream } from './model-calls'
-import { ensureProviderInstanceBucket } from './provider-instance'
-import { ensureWorkerRegistryBucket } from './worker-registry'
-import { ensureWorkspaceProcessingStream } from './workspace-processing'
-import { ensureWorkspaceConfigBucket } from './workspace-registry'
-import { ensureWorkspaceUsageStream } from './workspace-usage'
+import { ensureRegistryBucket } from './registry'
+import { ensureStateBucket } from './state'
+import { ensureWorkerSlotBucket } from './worker-slot'
 
 let initializeOncePromise: Promise<void> | null = null
 
@@ -23,28 +21,20 @@ export function initializeOnce(): Promise<void> {
 
 const initializeEventServiceClient = async () => {
   await Promise.all([
-    ensureModelCallsStream().catch((error) => {
-      logger.error('Error initializing provider calls stream:', error)
+    ensureWorkerSlotBucket().catch((error) => {
+      logger.error('Error initializing worker slot bucket:', error)
       throw error
     }),
-    ensureProviderInstanceBucket().catch((error) => {
-      logger.error('Error initializing provider instance bucket:', error)
+    ensureRegistryBucket().catch((error) => {
+      logger.error('Error initializing registry bucket:', error)
       throw error
     }),
-    ensureWorkerRegistryBucket().catch((error) => {
-      logger.error('Error initializing worker registry bucket:', error)
+    ensureActionStream().catch((error) => {
+      logger.error('Error initializing action stream:', error)
       throw error
     }),
-    ensureWorkspaceConfigBucket().catch((error) => {
-      logger.error('Error initializing management stream:', error)
-      throw error
-    }),
-    ensureWorkspaceProcessingStream().catch((error) => {
-      logger.error('Error initializing workspace processing stream:', error)
-      throw error
-    }),
-    ensureWorkspaceUsageStream().catch((error) => {
-      logger.error('Error initializing usage stream:', error)
+    ensureStateBucket().catch((error) => {
+      logger.error('Error initializing state bucket', error)
       throw error
     }),
   ])

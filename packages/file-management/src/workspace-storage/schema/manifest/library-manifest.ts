@@ -12,13 +12,13 @@ export const LibraryManifestSchema = BaseManifestSchema.extend({
       storageLimitBytes: z.number().optional(),
       embedding: z
         .object({
-          provider: z.enum(['openai', 'ollama']),
+          modelDriver: z.enum(['openai', 'ollama']),
           modelName: z.string(),
         })
         .optional(),
       imageAnalysis: z
         .object({
-          provider: z.enum(['openai', 'ollama']),
+          modelDriver: z.enum(['openai', 'ollama']),
           modelName: z.string(),
           prompt: z.string().optional(),
         })

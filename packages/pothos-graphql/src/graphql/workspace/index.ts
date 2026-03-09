@@ -1,7 +1,6 @@
 import './mutations'
 import './queries'
 import './workspace-role'
-import './workspace-process-statistics'
 import './workspace'
 import './workspace-invitation'
 import './workspace-member'

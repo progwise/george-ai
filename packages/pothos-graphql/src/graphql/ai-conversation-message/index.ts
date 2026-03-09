@@ -1,6 +1,6 @@
-import type { ModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { callConversationMessagesUpdateSubscriptions } from '@george-ai/app-domain'
+import { InferenceDriverSchema } from '@george-ai/app-schema'
 import { askAssistantChain } from '@george-ai/langchain-chat'
 
 import { builder } from '../builder'
@@ -267,7 +267,7 @@ builder.mutationField('sendMessage', (t) =>
           })),
           assistant: {
             ...assistant,
-            languageModelProvider: (assistant.languageModel?.provider || 'ollama') as ModelProvider,
+            languageModelProvider: InferenceDriverSchema.parse(assistant.languageModel?.provider || 'ollama'),
             languageModel: assistant.languageModel?.name || '',
             description:
               assistant.description ||
@@ -278,7 +278,7 @@ builder.mutationField('sendMessage', (t) =>
             name: usage.library.name,
             description: usage.library.description || '',
             usedFor: usage.usedFor || '',
-            embeddingModelProvider: (usage.library.embeddingModel?.provider || 'ollama') as ModelProvider,
+            embeddingModelProvider: InferenceDriverSchema.parse(usage.library.embeddingModel?.provider || 'ollama'),
             embeddingModelName: usage.library.embeddingModel?.name || '',
           })),
         })) {

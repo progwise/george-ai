@@ -1,13 +1,12 @@
 import { createServerFn } from '@tanstack/react-start'
 import z from 'zod'
 
-import { EXTRACTION_METHODS } from '@george-ai/app-commons'
-
 import { graphql } from '../../../gql'
+import { ExtractionMethodSchema } from '../../../gql/validation'
 import { backendRequest } from '../../../server-functions/backend'
 
 const triggerExtractionGraphqlDocument = graphql(`
-  mutation triggerExtraction($extractionMethod: ExtractionMethod!, $libraryId: String!, $documentId: String!) {
+  mutation triggerExtraction($extractionMethod: ExtractionMethod, $libraryId: String!, $documentId: String!) {
     triggerExtraction(extractionMethod: $extractionMethod, libraryId: $libraryId, documentId: $documentId) {
       success
     }
@@ -15,7 +14,7 @@ const triggerExtractionGraphqlDocument = graphql(`
 `)
 
 const TriggerExtractionParameterSchema = z.object({
-  extractionMethod: z.enum(EXTRACTION_METHODS),
+  extractionMethod: ExtractionMethodSchema.optional(),
   libraryId: z.string(),
   documentId: z.string(),
 })

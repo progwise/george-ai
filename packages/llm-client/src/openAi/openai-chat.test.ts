@@ -1,10 +1,10 @@
 import { createReadStream } from 'fs'
 import { Readable } from 'stream'
 
-import { OpenAiProviderConnection, encryptValue } from '@george-ai/app-commons'
+import { encryptValue } from '@george-ai/app-commons'
+import { ChatAttachment, ChatMessage, ChatResponseChunk, OpenAIHostConnection } from '@george-ai/app-schema'
 import { getTestAssetLocalPath } from '@george-ai/test-utils/src/test-files'
 
-import { ChatAttachment, ChatCompletionStreamChunk, ChatMessage, ChatOptions } from '../common'
 import { getOpenAIChatCompletion, getOpenAIChatCompletionStream, openAIChatJsonGenerator } from './get-chat-completion'
 
 const GITHUB_TOKEN = process.env['GITHUB_TOKEN']
@@ -15,7 +15,7 @@ const readJsonGenerator = async (options: {
   messages: ChatMessage[]
   model: string
   stream: boolean
-  attachments?: ChatAttachment[]
+  attachments?: (ChatAttachment & { stream: Readable })[]
 }) => {
   const chunks: Uint8Array[] = []
 
@@ -39,10 +39,10 @@ const readJsonGenerator = async (options: {
 }
 
 describe('Testing openAI chat endpoints', () => {
-  const openAIConnection: OpenAiProviderConnection | null = !OPENAI_API_KEY
+  const openAIConnection: OpenAIHostConnection | null = !OPENAI_API_KEY
     ? null
     : {
-        modelProvider: 'openai',
+        driver: 'openai',
         baseUrl: 'https://api.openai.com/v1',
         encryptedApiKey: encryptValue(OPENAI_API_KEY),
       }
@@ -84,7 +84,7 @@ describe('Testing openAI chat endpoints', () => {
         {
           fileName: 'test-file1.txt',
           mimeType: 'image/png',
-          size: 23,
+          uri: 'testuri',
           stream: Readable.from(['happy', 'streaming']),
         },
       ],
@@ -104,28 +104,27 @@ describe('Testing openAI chat endpoints', () => {
 
       const readStream = createReadStream(filePath)
 
-      const chatOptions: ChatOptions = {
-        messages: [
+      const result = await getOpenAIChatCompletion(
+        openAIConnection!,
+        'gpt-5-nano',
+        [
           {
             role: 'user',
             content: 'Please describe the image.',
           },
         ],
-        modelName: 'gpt-5-nano',
-        attachments: [
+        [
           {
             fileName: 'example.png',
             mimeType: 'image/png',
-            size: 0,
+            uri: 'testuri',
             stream: readStream,
           },
         ],
-      }
-
-      const result = await getOpenAIChatCompletion(openAIConnection!, chatOptions)
+      )
 
       const searchFor = ['vancouver', 'city', 'skyline', 'mountains', 'harbour', 'urban', 'building']
-      expect(searchFor.some((term) => result.content.includes(term))).toBe(true)
+      expect(searchFor.some((term) => result.chunk.includes(term))).toBe(true)
     })
 
     it('Testing a second image to be sure', async () => {
@@ -133,28 +132,27 @@ describe('Testing openAI chat endpoints', () => {
 
       const readStream = createReadStream(filePath)
 
-      const chatOptions: ChatOptions = {
-        messages: [
+      const result = await getOpenAIChatCompletion(
+        openAIConnection!,
+        'gpt-5-nano',
+        [
           {
             role: 'user',
             content: 'Please describe the image.',
           },
         ],
-        modelName: 'gpt-5-nano',
-        attachments: [
+        [
           {
             fileName: 'example.png',
             mimeType: 'image/png',
-            size: 0,
+            uri: 'testuri',
             stream: readStream,
           },
         ],
-      }
-
-      const result = await getOpenAIChatCompletion(openAIConnection!, chatOptions)
+      )
       expect(result).toBeDefined()
-      expect(result.content).not.toContain('city')
-      expect(result.content).toContain('cat')
+      expect(result.chunk).not.toContain('city')
+      expect(result.chunk).toContain('cat')
     })
 
     it('Testing streaming endpoint', async () => {
@@ -162,27 +160,26 @@ describe('Testing openAI chat endpoints', () => {
 
       const readStream = createReadStream(filePath)
 
-      const chatOptions: ChatOptions = {
-        messages: [
+      const stream = await getOpenAIChatCompletionStream(
+        openAIConnection!,
+        'gpt-5-nano',
+        [
           {
             role: 'user',
             content: 'Please describe the image.',
           },
         ],
-        modelName: 'gpt-5-nano',
-        attachments: [
+        [
           {
             fileName: 'example.png',
             mimeType: 'image/png',
-            size: 0,
+            uri: 'testuri',
             stream: readStream,
           },
         ],
-      }
+      )
 
-      const stream = await getOpenAIChatCompletionStream(openAIConnection!, chatOptions)
-
-      const bufferedResult: Array<ChatCompletionStreamChunk> = []
+      const bufferedResult: Array<ChatResponseChunk> = []
       for await (const chunk of stream) {
         bufferedResult.push(chunk)
       }

@@ -1,26 +1,13 @@
-import { ProviderConnection } from '@george-ai/app-commons'
+import { InferenceHostConnection, InferenceHostStatusReport } from '@george-ai/app-schema'
 
 import { logger } from './common'
 import { getOllamaModels, getOllamaRunningModels, getOllamaVersion } from './ollama'
 import { getOpenAIModels } from './openAi'
 
-export interface StatusReport {
-  url: string
-  isConnected: boolean
-  version?: string
-  latencyMs?: number
-  connectionErrorMessage?: string
-  totalMemoryMb?: number
-  usedMemoryMb?: number
-  processorUsagePercent?: number
-  loadedModelNames?: string[]
-  availableModelNames?: string[]
-}
-
-export async function statusReport(connection: ProviderConnection): Promise<StatusReport> {
+export async function statusReport(connection: InferenceHostConnection): Promise<InferenceHostStatusReport> {
   const abortController = new AbortController()
 
-  switch (connection.modelProvider) {
+  switch (connection.driver) {
     case 'ollama': {
       const startTime = Date.now()
       const [ollamaVersion, ollamaModels, ollamaRunningModels] = await Promise.allSettled([

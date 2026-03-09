@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { OpenAiProviderConnection } from '@george-ai/app-commons'
+import { ChatResponseChunk, OpenAIHostConnection } from '@george-ai/app-schema'
 
 import { generateOpenAIEmbeddings, getOpenAIChatCompletionStream, getOpenAIModels } from '.'
-import type { ChatCompletionStreamChunk } from '../common'
 
 // Skip tests if required environment variables are not set (e.g., in Dependabot PRs)
 describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () => {
-  const connection: OpenAiProviderConnection = {
-    modelProvider: 'openai',
+  const connection: OpenAIHostConnection = {
+    driver: 'openai',
     baseUrl: process.env.OPENAI_BASE_URL,
     encryptedApiKey: process.env.OPENAI_API_KEY!,
   }
@@ -62,17 +61,14 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
       const result = await generateOpenAIEmbeddings(connection, modelName, 'Hello world')
 
       expect(result).toHaveProperty('embeddings')
-      expect(result).toHaveProperty('usage')
       expect(result.embeddings.length).toBe(1)
-      expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
+      expect(result.embeddings[0].chunk.length).toBeGreaterThan(0)
 
       // Validate usage data
-      expect(result.usage).toHaveProperty('promptTokens')
-      expect(result.usage).toHaveProperty('totalTokens')
-      expect(result.usage.promptTokens).toBeTypeOf('number')
-      expect(result.usage.totalTokens).toBeTypeOf('number')
-      expect(result.usage.promptTokens).toBeGreaterThan(0)
-      expect(result.usage.totalTokens).toBeGreaterThan(0)
+      expect(result).toHaveProperty('chunkTokens')
+      expect(result).toHaveProperty('totalTokens')
+      expect(result.chunkTokens).toBeGreaterThan(0)
+      expect(result.totalTokens).toBeGreaterThan(0)
     }, 15000)
 
     it('should generate embeddings for multiple inputs', async () => {
@@ -81,17 +77,17 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
       const result = await generateOpenAIEmbeddings(connection, modelName, inputs)
 
       expect(result.embeddings).toHaveLength(3)
-      expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
-      expect(result.embeddings[1].embedding.length).toBeGreaterThan(0)
-      expect(result.embeddings[2].embedding.length).toBeGreaterThan(0)
+      expect(result.embeddings[0].chunk.length).toBeGreaterThan(0)
+      expect(result.embeddings[1].chunk.length).toBeGreaterThan(0)
+      expect(result.embeddings[2].chunk.length).toBeGreaterThan(0)
 
       // All embeddings should have the same dimension
-      const dimension = result.embeddings[0].embedding.length
-      expect(result.embeddings[1].embedding.length).toBe(dimension)
-      expect(result.embeddings[2].embedding.length).toBe(dimension)
+      const dimension = result.embeddings[0].vector.length
+      expect(result.embeddings[1].vector.length).toBe(dimension)
+      expect(result.embeddings[2].vector.length).toBe(dimension)
 
       // Usage should reflect multiple inputs
-      expect(result.usage.promptTokens).toBeGreaterThan(0)
+      expect(result.chunkTokens).toBeGreaterThan(0)
     }, 20000)
 
     it('should work with text-embedding-3-large model', async () => {
@@ -99,11 +95,11 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
       const result = await generateOpenAIEmbeddings(connection, modelName, 'Test embedding')
 
       expect(result.embeddings).toHaveLength(1)
-      expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
+      expect(result.embeddings[0].vector.length).toBeGreaterThan(0)
 
       // text-embedding-3-large should have larger dimensions than small
       // Default is 3072 for large, 1536 for small
-      expect(result.embeddings[0].embedding.length).toBeGreaterThanOrEqual(1536)
+      expect(result.embeddings[0].vector.length).toBeGreaterThanOrEqual(1536)
     }, 15000)
 
     it('should handle empty string input', async () => {
@@ -111,8 +107,8 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
       const result = await generateOpenAIEmbeddings(connection, modelName, '')
 
       expect(result.embeddings).toHaveLength(1)
-      expect(result.embeddings[0].embedding.length).toBeGreaterThan(0)
-      expect(result.usage.promptTokens).toBeGreaterThanOrEqual(0)
+      expect(result.embeddings[0].vector.length).toBeGreaterThan(0)
+      expect(result.chunkTokens).toBeGreaterThanOrEqual(0)
     }, 10000)
   })
 
@@ -121,16 +117,15 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
     const chatModel = 'gpt-5-nano'
 
     it('should create chat response stream with basic message', async () => {
-      const stream = await getOpenAIChatCompletionStream(connection, {
-        modelName: chatModel,
-        messages: [{ role: 'user', content: 'Say hello in one word' }],
-      })
+      const stream = await getOpenAIChatCompletionStream(connection, chatModel, [
+        { role: 'user', content: 'Say hello in one word' },
+      ])
 
       expect(stream).toBeDefined()
 
       // Test that we can read from the stream until completion
       const reader = stream.getReader()
-      const chunks: ChatCompletionStreamChunk[] = []
+      const chunks: ChatResponseChunk[] = []
       let fullContent = ''
 
       try {
@@ -144,7 +139,7 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
 
             // Validate chunk structure
             expect(typeof value.chunk).toBe('string')
-            expect(value.metadata).toBeDefined()
+            expect(value.created).toBeDefined()
           }
         }
       } finally {
@@ -157,15 +152,13 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
     }, 30000)
 
     it('should include token usage when includeUsage is true', async () => {
-      const stream = await getOpenAIChatCompletionStream(connection, {
-        modelName: chatModel,
-        messages: [{ role: 'user', content: 'Count to 3' }],
-      })
+      const stream = await getOpenAIChatCompletionStream(connection, chatModel, [
+        { role: 'user', content: 'Count to 3' },
+      ])
 
       const reader = stream.getReader()
-      const chunks: ChatCompletionStreamChunk[] = []
+      const chunks: ChatResponseChunk[] = []
       let fullContent = ''
-      let foundUsageChunk = false
 
       try {
         while (true) {
@@ -175,36 +168,29 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
           if (value) {
             chunks.push(value)
             fullContent += value.chunk
-
-            // Check if this chunk has usage metadata
-            if (value.metadata?.tokensProcessed !== undefined) {
-              foundUsageChunk = true
-              expect(value.metadata.promptTokens).toBeTypeOf('number')
-              expect(value.metadata.completionTokens).toBeTypeOf('number')
-              expect(value.metadata.tokensProcessed).toBeTypeOf('number')
-              expect(value.metadata.tokensProcessed).toBeGreaterThan(0)
-            }
           }
         }
       } finally {
         reader.releaseLock()
       }
 
+      const totalCompletionTokens = chunks.reduce((prev, acc) => prev + (acc.completionTokens || 0), 0)
+      const totalPromptTokens = chunks.reduce((prev, acc) => prev + (acc.promptTokens || 0), 0)
+
+      expect(totalCompletionTokens).toBeGreaterThan(0)
+      expect(totalPromptTokens).toBeGreaterThan(0)
+
       expect(chunks.length).toBeGreaterThan(0)
       expect(fullContent.length).toBeGreaterThan(0)
-      expect(foundUsageChunk).toBe(true) // Must have received usage stats
     }, 30000)
 
     it('should handle multi-turn conversations', async () => {
-      const stream = await getOpenAIChatCompletionStream(connection, {
-        modelName: chatModel,
-        messages: [
-          { role: 'system', content: 'You are a helpful assistant.' },
-          { role: 'user', content: 'What is 2+2?' },
-          { role: 'assistant', content: '4' },
-          { role: 'user', content: 'What is 3+3?' },
-        ],
-      })
+      const stream = await getOpenAIChatCompletionStream(connection, chatModel, [
+        { role: 'system', content: 'You are a helpful assistant.' },
+        { role: 'user', content: 'What is 2+2?' },
+        { role: 'assistant', content: '4' },
+        { role: 'user', content: 'What is 3+3?' },
+      ])
 
       const reader = stream.getReader()
       let fullContent = ''
@@ -232,7 +218,9 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
       // Create stream with abort signal attached
       const stream = await getOpenAIChatCompletionStream(
         connection,
-        { modelName: chatModel, messages: [{ role: 'user', content: 'Say hello' }] },
+        chatModel,
+        [{ role: 'user', content: 'Say hello' }],
+        [],
         abortController.signal,
       )
 
@@ -267,17 +255,18 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
       await expect(
         getOpenAIChatCompletionStream(
           connection,
-          { modelName: chatModel, messages: [{ role: 'user', content: 'This should not execute' }] },
+          chatModel,
+          [{ role: 'user', content: 'This should not execute' }],
+          [],
           abortController.signal,
         ),
       ).rejects.toThrow()
     }, 10000)
 
     it('should handle empty assistant response gracefully', async () => {
-      const stream = await getOpenAIChatCompletionStream(connection, {
-        modelName: chatModel,
-        messages: [{ role: 'user', content: 'Say nothing. Just acknowledge with a period.' }],
-      })
+      const stream = await getOpenAIChatCompletionStream(connection, chatModel, [
+        { role: 'user', content: 'Say nothing. Just acknowledge with a period.' },
+      ])
 
       const reader = stream.getReader()
       let fullContent = ''

@@ -1,8 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 
-import { ExtractionMethod, ProcessingRequestType } from '@george-ai/app-commons'
-
-import { prepareSourceUpload, processDocumentFn, triggerExtractionFn } from '../server-functions'
+import { ExtractionMethod } from '../../../gql/graphql'
+import { prepareSourceUpload, triggerExtractionFn, triggerVectorizationFn } from '../server-functions'
 
 export const useDocumentActions = (parameters: { libraryId: string; documentId: string }) => {
   const { libraryId, documentId } = parameters
@@ -11,21 +10,23 @@ export const useDocumentActions = (parameters: { libraryId: string; documentId: 
       prepareSourceUpload({ data: { ...data, libraryId, documentId } }),
   })
 
-  const processDocumentMutation = useMutation({
-    mutationFn: (requestType: ProcessingRequestType) =>
-      processDocumentFn({ data: { libraryId, documentId, requestType } }),
+  const triggerExtractionMutation = useMutation({
+    mutationFn: (options: { extractionMethod?: ExtractionMethod }) =>
+      triggerExtractionFn({ data: { libraryId, documentId, ...options } }),
   })
 
-  const triggerExtractionMutation = useMutation({
-    mutationFn: (extractionMethod: ExtractionMethod) =>
-      triggerExtractionFn({ data: { libraryId, documentId, extractionMethod } }),
+  const triggerVectorizationMutation = useMutation({
+    mutationFn: (options: { extractionMethod?: ExtractionMethod }) =>
+      triggerVectorizationFn({ data: { libraryId, documentId, ...options } }),
   })
 
   return {
     prepareSourceUpload: prepareSourceUploadMutation.mutate,
-    processDocument: processDocumentMutation.mutate,
     triggerExtraction: triggerExtractionMutation.mutate,
+    triggerVectorization: triggerVectorizationMutation.mutate,
     isPending:
-      prepareSourceUploadMutation.isPending || processDocumentMutation.isPending || triggerExtractionMutation.isPending,
+      prepareSourceUploadMutation.isPending ||
+      triggerExtractionMutation.isPending ||
+      triggerVectorizationMutation.isPending,
   }
 }

@@ -4,18 +4,17 @@ import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { EXTRACTION_METHODS } from '@george-ai/app-commons'
-
 import { DocumentExtractionViewer, ExtractionSelector } from '../../../../../../components/library/files'
 import { getExtractionQueryOptions, getFileQueryOptions } from '../../../../../../components/library/queries'
 import { Pagination } from '../../../../../../components/table/pagination'
+import { ExtractionMethodSchema } from '../../../../../../gql/validation'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 import { getBackendPublicUrlQueryOptions } from '../../../../../../queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/')({
   component: RouteComponent,
   validateSearch: z.object({
-    extractionMethod: z.enum(EXTRACTION_METHODS).optional(),
+    extractionMethod: ExtractionMethodSchema.optional(),
     fragment: z.coerce.number().optional(),
   }),
   loaderDeps: ({ search: { extractionMethod, fragment } }) => ({

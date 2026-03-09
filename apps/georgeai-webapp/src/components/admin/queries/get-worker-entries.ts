@@ -11,7 +11,7 @@ const getWorkersFn = createServerFn({ method: 'GET' }).handler(async () => {
       query workers {
         workers {
           workerId
-          workerType
+          workerRole
           lastHeartbeat
         }
       }

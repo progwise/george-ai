@@ -1,6 +1,6 @@
-import { ProviderConnectionSchema, getModelProvider } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
-import { WorkspaceConfig, writeWorkspaceConfig } from '@george-ai/event-service-client'
+import { InferenceDriverSchema, InferenceHostConnectionSchema } from '@george-ai/app-schema'
+import { WorkspaceConfig, writeRegistryEntry } from '@george-ai/event-service-client'
 
 export async function invalidateWorkspace(workspaceId: string) {
   const entity = await prisma.workspace.findUniqueOrThrow({
@@ -14,24 +14,24 @@ export async function invalidateWorkspace(workspaceId: string) {
   const config: WorkspaceConfig = {
     version: 1,
     workspaceId,
-    providerInstances: entity.providers.map((provider) => ({
-      connection: ProviderConnectionSchema.parse({
-        modelProvider: getModelProvider(provider.provider),
+    modelHosts: entity.providers.map((provider) => ({
+      connection: InferenceHostConnectionSchema.parse({
+        driver: provider.provider,
         baseUrl: provider.baseUrl,
         encryptedApiKey: provider.apiKey,
       }),
-      modelProvider: getModelProvider(provider.provider),
-      providerInstanceId: provider.id,
+      hostId: provider.id,
       version: 1,
       workspaceId,
       name: provider.name,
     })),
-    languageModels: entity.languageModels.map((model) => ({
+    activeModels: entity.languageModels.map((model) => ({
       ...model,
-      modelProvider: getModelProvider(model.provider),
+      driver: InferenceDriverSchema.parse(model.provider),
       version: 1,
     })),
+    type: 'workspace',
   }
 
-  await writeWorkspaceConfig(config)
+  await writeRegistryEntry(config)
 }

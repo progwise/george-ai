@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-schema": "workspace:*",
     "dotenv": "^16.4.5",
     "mime-types": "^2.1.35",
     "p-limit": "^7.2.0",

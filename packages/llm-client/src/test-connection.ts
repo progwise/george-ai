@@ -1,12 +1,12 @@
-import { ProviderConnection } from '@george-ai/app-commons'
+import { InferenceHostConnection } from '@george-ai/app-schema'
 
-import { TestResult, logger } from './common'
+import { logger } from './common'
 import { getOllamaVersion } from './ollama'
 import { getOpenAIModels } from './openAi'
 
-export const testConnection = async (connection: ProviderConnection): Promise<TestResult> => {
+export const testConnection = async (connection: InferenceHostConnection): Promise<{ success: boolean }> => {
   const abortController = new AbortController()
-  switch (connection.modelProvider) {
+  switch (connection.driver) {
     case 'ollama':
       return await getOllamaVersion(connection, abortController.signal)
         .then(() => ({ success: true }))

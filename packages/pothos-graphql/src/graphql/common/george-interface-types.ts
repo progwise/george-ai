@@ -1,5 +1,5 @@
-import { ProcessingRequest } from '@george-ai/event-service-client'
+import { EventQueueRequest } from '@george-ai/event-service-client'
 
-export interface GeorgeInterfaceTypes {
-  ProcessingRequest: ProcessingRequest
+export type GeorgeInterfaceTypes = {
+  EventQueueRequest: EventQueueRequest
 }

@@ -3,8 +3,8 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { getWorkerEntriesQueryOptions } from '../../../components/admin/queries'
 import { ManageWorkersMenu } from '../../../components/admin/workers/manage-workers-menu'
-import { getWorkspaceProcessStatisticsQueryOptions } from '../../../components/workspace/queries'
-import { WorkerType } from '../../../gql/graphql'
+import { getEventProcessingStatusQueryOptions } from '../../../components/workspace/queries'
+import { WorkerRole } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CpuIcon } from '../../../icons/cpu-icon'
 import { ProcessingIcon } from '../../../icons/processing-icon'
@@ -14,9 +14,7 @@ export const Route = createFileRoute('/_authenticated/admin/workers')({
   component: RouteComponent,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(
-        getWorkspaceProcessStatisticsQueryOptions({ workspaceId: context.workspaceId }),
-      ),
+      context.queryClient.ensureQueryData(getEventProcessingStatusQueryOptions({ workspaceId: context.workspaceId })),
       context.queryClient.ensureQueryData(getWorkerEntriesQueryOptions()),
     ])
   },
@@ -27,7 +25,7 @@ function RouteComponent() {
   const { workspaceId } = Route.useRouteContext()
 
   const { data: processStatistics } = useSuspenseQuery({
-    ...getWorkspaceProcessStatisticsQueryOptions({ workspaceId }),
+    ...getEventProcessingStatusQueryOptions({ workspaceId }),
     refetchInterval: 5000, // Override refetch interval for auto-refresh
   })
 
@@ -56,11 +54,11 @@ function RouteComponent() {
       acc.set(key, [])
     }
     acc.get(key)!.push({
-      workerType: entry.workerType,
+      workerRole: entry.workerRole,
       lastHeartBeat: entry.lastHeartbeat ? new Date(entry.lastHeartbeat) : null,
     })
     return acc
-  }, new Map<string, Array<{ workerType?: WorkerType | null; lastHeartBeat?: Date | null }>>())
+  }, new Map<string, Array<{ workerRole?: WorkerRole | null; lastHeartBeat?: Date | null }>>())
 
   const workers = Array.from(groupedWorkerEntries.entries()).map(([workerId, entries]) => {
     const healthy = entries.some(
@@ -172,10 +170,10 @@ function RouteComponent() {
                           <div className="flex flex-wrap items-center gap-2">
                             {worker.entries.map((entry) => (
                               <div
-                                key={`${worker.workerId}_${entry.workerType}_${entry.lastHeartBeat}`}
+                                key={`${worker.workerId}_${entry.workerRole}_${entry.lastHeartBeat}`}
                                 className="badge badge-sm badge-info"
                               >
-                                {`${entry.workerType}`}
+                                {`${entry.workerRole}`}
                               </div>
                             ))}
                           </div>

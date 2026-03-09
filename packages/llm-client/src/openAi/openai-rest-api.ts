@@ -1,12 +1,13 @@
 import pRetry from 'p-retry'
 import z from 'zod'
 
-import { OpenAiProviderConnection, decryptValue } from '@george-ai/app-commons'
+import { decryptValue } from '@george-ai/app-commons'
+import { OpenAIHostConnection } from '@george-ai/app-schema'
 
 import { DEFAULT_BASE_URL, logger } from './common'
 
 export async function openAIApiGet<T>(
-  connection: OpenAiProviderConnection,
+  connection: OpenAIHostConnection,
   endpoint: string,
   schema: z.ZodSchema<T>,
   abortSignal?: AbortSignal,
@@ -40,7 +41,7 @@ export async function openAIApiGet<T>(
 }
 
 export async function openAIApiPost<T>(
-  connection: OpenAiProviderConnection,
+  connection: OpenAIHostConnection,
   endpoint: string,
   params: unknown,
   schema: z.ZodSchema<T>,
