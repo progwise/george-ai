@@ -57,11 +57,11 @@ export function WorkspaceStatusCard({ user, currentWorkspace }: WorkspaceStatusC
       <div className="stat-value text-2xl">{`${currentWorkspace.name} `}</div>
       <div className={twMerge('stat-desc text-xs', !isLegacy ? 'text-success' : 'text-error')}>
         {!isLegacy ? (
-          <div className="flex gap-1">
-            <span>{formatBytes(currentWorkspace.manifest?.storageStats.physicalBytes)}</span>
-            <span>, {currentWorkspace.manifest?.storageStats.physicalFileCount} Files</span>
-            <span>, {currentWorkspace.manifest?.storageStats.extractionFileCount} Extraction files</span>
-            <span>, {currentWorkspace.chunksCount} Chunks</span>
+          <div className="flex flex-wrap gap-1">
+            <span>{formatBytes(currentWorkspace.manifest?.storageStats.physicalBytes)}, </span>
+            <span>{currentWorkspace.manifest?.storageStats.physicalFileCount} Files, </span>
+            <span>{currentWorkspace.manifest?.storageStats.extractionFileCount} Extraction files, </span>
+            <span>{currentWorkspace.chunksCount} Chunks</span>
           </div>
         ) : isAdmin ? (
           <span>Needs migration</span>

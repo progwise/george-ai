@@ -1,24 +1,115 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
+import { Link, createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
 
-import { useWorkspace } from '../../../components/workspace'
+import { getFilesQueryOptions, getLibrariesQueryOptions } from '../../../components/library/queries'
+import { getListsQueryOptions } from '../../../components/lists/queries'
 import { useTranslation } from '../../../i18n/use-translation-hook'
+import { CrossIcon } from '../../../icons/cross-icon'
 import { SearchIcon } from '../../../icons/search-icon'
 
 const RouteComponent = () => {
   const { t } = useTranslation()
-  const { user } = Route.useRouteContext()
-  const { currentWorkspace } = useWorkspace(user)
+  const [query, setQuery] = useState('')
+
+  const { data: libraries } = useSuspenseQuery(getLibrariesQueryOptions())
+  const {
+    data: { aiLists },
+  } = useSuspenseQuery(getListsQueryOptions())
+
+  const filesQueries = useSuspenseQueries({
+    queries: libraries.items
+      .filter((lib) => lib.filesCount > 0)
+      .map((lib) => getFilesQueryOptions({ libraryId: lib.id, skip: 0, take: lib.filesCount })),
+  })
+
+  const librariesWithFiles = (() => {
+    const filteredLibs = libraries.items.filter((lib) => lib.filesCount > 0)
+    const filesMap = new Map(filteredLibs.map((lib, index) => [lib.id, filesQueries[index]?.data?.items ?? []]))
+    return libraries.items.map((lib) => ({
+      ...lib,
+      files: filesMap.get(lib.id) ?? [],
+    }))
+  })()
+
+  const filtered = {
+    libraries: librariesWithFiles
+      .map((lib) => {
+        const libMatches = lib.name.toLowerCase().includes(query.toLowerCase())
+        return {
+          ...lib,
+          libMatches,
+          files: libMatches
+            ? lib.files
+            : lib.files.filter((file) => file.name.toLowerCase().includes(query.toLowerCase())),
+        }
+      })
+      .filter((lib) => lib.name.toLowerCase().includes(query.toLowerCase()) || lib.files.length > 0),
+
+    lists: aiLists.filter((list) => list.name.toLowerCase().includes(query.toLowerCase())),
+  }
 
   return (
-    <div className="flex flex-col items-center pt-24">
-      <SearchIcon />
-      <h1>{t('Search')}</h1>
-      <p>Coming soon™</p>
-      {currentWorkspace ? (
-        <p>Current Workspace loaded successfully</p>
-      ) : (
-        <div className="h-6 w-72 skeleton rounded-lg"></div>
-      )}
+    <div className="flex h-[calc(100dvh-6rem)] flex-col overflow-hidden px-10">
+      <div className="mx-auto flex w-full flex-col items-center lg:w-2xl">
+        <h1 className="mr-auto px-3 pt-5 pb-7 text-2xl font-medium not-md:hidden" title={t('search.title')}>
+          {t('search.title')}
+        </h1>
+        <label className="input h-12 w-full gap-5 rounded-4xl border-gray-400 text-lg outline-none lg:w-2xl">
+          <SearchIcon className="size-5.5" />
+          <input
+            id="search"
+            autoFocus
+            type="search"
+            aria-label={t('search.label')}
+            value={query}
+            placeholder={t('search.placeholder')}
+            onChange={(e) => setQuery(e.target.value)}
+            className="[&::-webkit-search-cancel-button]:hidden"
+          />
+          {query && (
+            <button type="button" className="btn btn-circle btn-ghost" onClick={() => setQuery('')}>
+              <CrossIcon className="size-6" />
+            </button>
+          )}
+        </label>
+      </div>
+
+      <div className="mx-auto mt-4 min-h-0 w-full flex-1 overflow-y-auto lg:w-2xl">
+        {filtered.libraries.map((lib) => (
+          <div className="flex flex-col rounded-lg" key={lib.id}>
+            {lib.libMatches && (
+              <Link
+                className="rounded-lg px-2 py-2 hover:bg-base-300"
+                to="/libraries/$libraryId"
+                params={{ libraryId: lib.id }}
+              >
+                <span>{lib.name}</span>
+              </Link>
+            )}
+
+            {lib.files.map((file) => (
+              <Link
+                className="flex flex-col rounded-lg px-2 py-2 hover:bg-base-300"
+                key={file.id}
+                to="/libraries/$libraryId/files/$fileId"
+                params={{ libraryId: lib.id, fileId: file.id }}
+              >
+                <span>{file.name}</span>
+                <span className="text-sm text-base-content/50">{lib.name}</span>
+              </Link>
+            ))}
+          </div>
+        ))}
+
+        {filtered.lists.map((list) => (
+          <div className="flex flex-col rounded-lg" key={list.id}>
+            <Link className="rounded-lg px-2 py-2 hover:bg-base-300" to="/lists/$listId" params={{ listId: list.id }}>
+              <span>{list.name}</span>
+            </Link>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

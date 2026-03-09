@@ -974,6 +974,10 @@ export default {
     systemMode: 'Theme: System',
     theme: 'Theme',
   },
+  search: {
+    placeholder: 'Search',
+    title: 'Search',
+  },
   sidebar: {
     ariaLabel: 'Main menu',
     automations: 'Automations',

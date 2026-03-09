@@ -979,6 +979,10 @@ export default {
     systemMode: 'Farbschema: System',
     theme: 'Farbschema',
   },
+  search: {
+    placeholder: 'Suche',
+    title: 'Suche',
+  },
   sidebar: {
     ariaLabel: 'Hauptmenü',
     assistants: 'Assistenten',
