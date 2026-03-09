@@ -18,11 +18,11 @@ export function getStreamSubjects() {
 }
 
 export function getSyncSubject(request: SyncRequest) {
-  return `george.ws.${request.workspaceId}.invoke.${request.action}.`
+  return `george.ws.${request.workspaceId}.invoke.${request.action}`
 }
 
 export function getSyncSubjectFilter(args: { workspaceId?: string; action?: SyncAction }) {
-  return `george.ws.${args.workspaceId ? args.workspaceId : '*'}.invoke.${args.action ? args.action : '*'}.>`
+  return `george.ws.${args.workspaceId ? args.workspaceId : '*'}.invoke.${args.action ? args.action : '*'}`
 }
 
 export function getAsyncSubject(event: WorkspaceRequest | WorkspaceStatus | WorkspaceResponse) {
