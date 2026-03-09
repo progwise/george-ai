@@ -1,15 +1,15 @@
-import { Link, useRouteContext } from '@tanstack/react-router'
-import { useEffect, useRef } from 'react'
+import { useRouteContext } from '@tanstack/react-router'
+import { useCallback, useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
-import { ListMenu_AiListFragment, ListMenu_AiListsFragment } from '../../gql/graphql'
+import { ListMenu_AiListFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { ClipboardIcon } from '../../icons/clipboard-icon'
 import { DownloadIcon } from '../../icons/download-icon'
-import { ListPlusIcon } from '../../icons/list-plus-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { DialogForm } from '../dialog-form'
+import { toastSuccess } from '../georgeToaster'
 import { ListExportDialog } from './list-export-dialog'
-import { NewListDialog } from './new-list-dialog'
 import { useListActions } from './use-list-actions'
 
 graphql(`
@@ -19,20 +19,11 @@ graphql(`
   }
 `)
 
-graphql(`
-  fragment ListMenu_AiLists on AiList {
-    id
-    name
-  }
-`)
-
 interface ListMenuProps {
   list: ListMenu_AiListFragment
-  selectableLists: ListMenu_AiListsFragment[]
 }
 
-export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
-  const newListDialogRef = useRef<HTMLDialogElement | null>(null)
+export const ListMenu = ({ list }: ListMenuProps) => {
   const deleteDialogRef = useRef<HTMLDialogElement | null>(null)
   const listSelectorDetailsRef = useRef<HTMLDetailsElement | null>(null)
   const exportListDialogRef = useRef<HTMLDialogElement | null>(null)
@@ -59,80 +50,91 @@ export const ListMenu = ({ list, selectableLists }: ListMenuProps) => {
     }
   }, [])
 
+  const copyListLink = useCallback(async () => {
+    const path = `/lists/${list.id}`
+    const fullUrl = `${window.location.origin}${path}`
+
+    try {
+      await navigator.clipboard.writeText(fullUrl)
+      const popoverElement = document.getElementById('popoverListMenu')
+      if (popoverElement) {
+        popoverElement.hidePopover()
+      }
+
+      toastSuccess(t('sidebar.copyItemLinkSuccess'))
+    } catch (err) {
+      console.error('Failed to copy the link:', err)
+    }
+  }, [list.id, t])
+
   if (!user) return null
   return (
-    <div>
-      <ul className="menu menu-horizontal w-full rounded-box">
+    <>
+      <button
+        popoverTarget="popoverListMenu"
+        tabIndex={0}
+        type="button"
+        className={'btn btn-circle bg-base-300 btn-xs'}
+        style={{ anchorName: 'anchorListMenu' } as React.CSSProperties}
+      >
+        <span className="size-3">…</span>
+      </button>
+
+      <ul
+        className="dropdown rounded-xl bg-base-200 p-1.5 shadow-sm"
+        popover="auto"
+        id="popoverListMenu"
+        style={
+          {
+            positionAnchor: 'anchorListMenu',
+            transition: 'none',
+            top: 'calc(anchor(bottom) + 3px)',
+            left: 'calc(anchor(left) - 12px)',
+          } as React.CSSProperties
+        }
+      >
         <li>
-          <span className="menu-title text-xl font-semibold text-nowrap text-primary/50">{t('lists.title')}</span>
-        </li>
-        <li>
-          <details aria-label={t('lists.switcherTitle')} ref={listSelectorDetailsRef} className="z-50">
-            <summary className="min-w-68 rounded-2xl border border-base-content/30 text-xl font-semibold text-nowrap text-primary">
-              {list.name}
-            </summary>
-            <ul role="listbox" className="min-w-68 rounded-box bg-base-200 p-2 shadow-lg">
-              {selectableLists.map((l) => (
-                <li role="option" key={l.id} aria-selected={l.id === list.id}>
-                  <Link
-                    to="."
-                    className="text-nowrap"
-                    params={{ listId: l.id }}
-                    activeProps={{ className: 'font-bold' }}
-                    onClick={() => {
-                      listSelectorDetailsRef.current?.removeAttribute('open')
-                    }}
-                  >
-                    {l.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </details>
-        </li>
-        <li className="grow items-end">
           <button
             type="button"
-            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
+            className="btn w-full justify-start rounded-lg border-none px-3 py-1.5 font-medium btn-ghost btn-success"
             onClick={() => exportListDialogRef.current?.showModal()}
             title={t('lists.export.button')}
-            data-tip={t('lists.export.button')}
           >
-            <DownloadIcon className="size-5" />
-            <span className="max-lg:hidden">{t('lists.export.button')}</span>
+            <DownloadIcon />
+            {t('lists.export.button')}
           </button>
         </li>
         <li>
           <button
             type="button"
-            onClick={() => newListDialogRef.current?.showModal()}
-            className="btn btn-ghost btn-sm btn-success max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-            title={t('lists.newList')}
-            data-tip={t('lists.newList')}
+            onClick={copyListLink}
+            className="btn w-full justify-start rounded-lg border-none px-3 py-1.5 font-medium btn-ghost hover:bg-base-100"
           >
-            <ListPlusIcon className="size-5" />
-            <span className="max-lg:hidden">{t('lists.newList')}</span>
+            <ClipboardIcon />
+            {t('sidebar.copyItemLink')}
           </button>
         </li>
         <li>
           <button
             type="button"
-            className="btn btn-ghost btn-sm btn-error max-lg:tooltip max-lg:tooltip-bottom max-lg:tooltip-info"
-            onClick={() => deleteDialogRef.current?.showModal()}
+            className="btn w-full justify-start rounded-lg px-3 py-1.5 font-medium text-error btn-ghost hover:bg-error/20"
+            onClick={() => {
+              deleteDialogRef.current?.showModal()
+            }}
             disabled={isPending}
             title={t('lists.delete')}
             data-tip={t('lists.delete')}
           >
-            <TrashIcon className="size-4" />
-            <span className="max-lg:hidden">{t('lists.delete')}</span>
+            <TrashIcon />
+            {t('lists.delete')}
           </button>
         </li>
       </ul>
-      <NewListDialog ref={newListDialogRef} />
+
       <DialogForm ref={deleteDialogRef} title={t('lists.deleteDialogTitle')} onSubmit={() => deleteList()}>
         {t('lists.deleteDialogConfirmation', { name: list.name })}
       </DialogForm>
       <ListExportDialog listId={list.id} ref={exportListDialogRef} />
-    </div>
+    </>
   )
 }

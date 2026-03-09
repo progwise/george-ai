@@ -73,27 +73,31 @@ test.describe('Workspace Switching - All Pages', () => {
   })
 
   test('should switch workspace from Libraries page without errors', async ({ page }) => {
+    const pageContent = page.getByRole('main')
+
     await page.getByRole('tab', { name: /libraries/i }).click()
     await page.waitForLoadState('networkidle')
 
     await switchWorkspace(page, 'E2E Test Workspace 1')
-    await expect(page.getByText('E2E Test Library', { exact: true })).toBeVisible()
+    await expect(pageContent.getByText('E2E Test Library', { exact: true })).toBeVisible()
 
     await switchWorkspace(page, 'E2E Test Workspace 2')
-    await expect(page.getByText('E2E Test Library - WS2')).toBeVisible()
-    await expect(page.getByText('E2E Test Library', { exact: true })).not.toBeVisible()
+    await expect(pageContent.getByText('E2E Test Library - WS2', { exact: true })).toBeVisible()
+    await expect(pageContent.getByText('E2E Test Library', { exact: true })).not.toBeVisible()
 
     expectNoErrors()
   })
 
   test('should switch workspace from Library detail page without errors', async ({ page }) => {
+    const pageContent = page.getByRole('main')
+
     await page.getByRole('tab', { name: /libraries/i }).click()
     await page.waitForLoadState('networkidle')
 
     await switchWorkspace(page, 'E2E Test Workspace 1')
 
     // Go to library detail
-    await page.getByText('E2E Test Library', { exact: true }).click()
+    await pageContent.getByText('E2E Test Library', { exact: true }).click()
     await page.waitForLoadState('networkidle')
     expect(page.url()).toContain('/libraries/')
 
@@ -102,21 +106,23 @@ test.describe('Workspace Switching - All Pages', () => {
     await page.waitForLoadState('networkidle')
 
     // Should show WS2 content
-    await expect(page.getByText('E2E Test Library - WS2')).toBeVisible()
+    await expect(pageContent.getByText('E2E Test Library - WS2')).toBeVisible()
 
     expectNoErrors()
   })
 
   test('should switch workspace from Lists page without errors', async ({ page }) => {
+    const pageContent = page.getByRole('main')
+
     await page.getByRole('tab', { name: /lists/i }).click()
     await page.waitForLoadState('networkidle')
 
     await switchWorkspace(page, 'E2E Test Workspace 1')
-    await expect(page.getByText('E2E Test List', { exact: true })).toBeVisible()
+    await expect(pageContent.getByText('E2E Test List', { exact: true })).toBeVisible()
 
     await switchWorkspace(page, 'E2E Test Workspace 2')
-    await expect(page.getByText('E2E Test List - WS2')).toBeVisible()
-    await expect(page.getByText('E2E Test List', { exact: true })).not.toBeVisible()
+    await expect(pageContent.getByText('E2E Test List - WS2')).toBeVisible()
+    await expect(pageContent.getByText('E2E Test List', { exact: true })).not.toBeVisible()
 
     expectNoErrors()
   })

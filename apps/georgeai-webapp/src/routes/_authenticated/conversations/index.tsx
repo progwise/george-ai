@@ -34,7 +34,7 @@ function RouteComponent() {
   }, [latestConversation, navigate])
 
   return (
-    <div className="absolute flex h-screen w-full">
+    <div className="absolute flex w-full">
       <div className="mx-auto prose mt-8">
         <p>{t('conversations.firstConversation')}</p>
         <ConversationParticipantsDialogButton

@@ -44,48 +44,42 @@ function RouteComponent() {
   const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   return (
-    <div className="grid size-full grid-rows-[auto_1fr] gap-2 bg-base-100">
-      <div>
-        <div className="align-text-top text-xs text-nowrap text-primary italic">
-          {showArchived
-            ? t('files.allFilesForLibrary', { count: files.totalCount })
-            : t('files.activeFilesForLibrary', {
-                count: files.totalCount,
-              })}
+    <div className="grid h-full grid-rows-[auto_1fr] justify-center gap-14 bg-base-100">
+      <div className="flex justify-between align-top">
+        <div className="z-49 md:flex">
+          <FilesActionsBar
+            hasLegacyData={library.manifest?.version !== 1}
+            libraryId={libraryId}
+            totalItems={files.totalCount}
+            showArchived={showArchived}
+            archivedCount={files.archivedCount}
+          />
         </div>
-        <div className="relative flex justify-between align-top">
-          <div className="flex flex-row items-center gap-1 overflow-y-auto">
-            <h3 className="text-xl font-bold text-nowrap text-base-content">{library.name}</h3>
+
+        <div>
+          <div className="text-sm text-base-content/70">
+            {showArchived
+              ? t('files.allFilesForLibrary', { count: files.totalCount })
+              : t('files.activeFilesForLibrary', {
+                  count: files.totalCount,
+                })}
           </div>
-          <div className="absolute right-0 z-49 md:flex">
-            <FilesActionsBar
-              hasLegacyData={library.manifest?.version !== 1}
-              libraryId={libraryId}
-              totalItems={files.totalCount}
-              showArchived={showArchived}
-              archivedCount={files.archivedCount}
-            />
-          </div>
-        </div>
-        <div className="mt-10 flex flex-col">
-          <div className="flex flex-col md:items-end">
-            <Pagination
-              totalItems={files.totalCount}
-              itemsPerPage={take}
-              currentPage={1 + skip / take}
-              onPageChange={(page) => {
-                // TODO: Add prefetching here
-                navigate({ search: { skip: (page - 1) * take, take, showArchived } })
-              }}
-              showPageSizeSelector={true}
-              onPageSizeChange={(newPageSize) => {
-                navigate({ search: { skip: 0, take: newPageSize, showArchived } })
-              }}
-            />
-          </div>
+          <Pagination
+            totalItems={files.totalCount}
+            itemsPerPage={take}
+            currentPage={1 + skip / take}
+            onPageChange={(page) => {
+              // TODO: Add prefetching here
+              navigate({ search: { skip: (page - 1) * take, take, showArchived } })
+            }}
+            showPageSizeSelector={true}
+            onPageSizeChange={(newPageSize) => {
+              navigate({ search: { skip: 0, take: newPageSize, showArchived } })
+            }}
+          />
         </div>
       </div>
-      <div className="overflow-auto">
+      <div className="max-h-[80vh] min-h-24">
         <FilesTable firstItemNumber={skip + 1} files={files.items} />
       </div>
     </div>

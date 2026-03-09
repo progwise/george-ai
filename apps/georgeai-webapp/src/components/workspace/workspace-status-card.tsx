@@ -3,17 +3,33 @@ import { twMerge } from 'tailwind-merge'
 
 import { formatBytes } from '@george-ai/web-utils'
 
-import { CurrentUserFragment } from '../../gql/graphql'
+import { graphql } from '../../gql'
+import { CurrentUserFragment, WorkspaceStatusCard_CurrentWorkspaceFragment } from '../../gql/graphql'
 import { MigrateWorkspaceDialog } from './migrate-workspace-dialog'
-import { useWorkspace } from './use-workspace'
+
+graphql(`
+  fragment WorkspaceStatusCard_CurrentWorkspace on Workspace {
+    manifest {
+      version
+      storageStats {
+        physicalBytes
+        physicalFileCount
+        extractionFileCount
+      }
+    }
+    role
+    name
+    chunksCount
+  }
+`)
 
 interface WorkspaceStatusCardProps {
   user: CurrentUserFragment
+  currentWorkspace: WorkspaceStatusCard_CurrentWorkspaceFragment | undefined
 }
 
-export function WorkspaceStatusCard({ user }: WorkspaceStatusCardProps) {
+export function WorkspaceStatusCard({ user, currentWorkspace }: WorkspaceStatusCardProps) {
   const [showMigrationDialog, setShowMigrationDialog] = useState(false)
-  const { currentWorkspace } = useWorkspace(user)
   if (!currentWorkspace) {
     return (
       <div className="stats min-w-50 flex-1 shadow-sm">
@@ -41,11 +57,11 @@ export function WorkspaceStatusCard({ user }: WorkspaceStatusCardProps) {
       <div className="stat-value text-2xl">{`${currentWorkspace.name} `}</div>
       <div className={twMerge('stat-desc text-xs', !isLegacy ? 'text-success' : 'text-error')}>
         {!isLegacy ? (
-          <div className="flex gap-1">
-            <span>{formatBytes(currentWorkspace.manifest?.storageStats.physicalBytes)}</span>
-            <span>, {currentWorkspace.manifest?.storageStats.physicalFileCount} Files</span>
-            <span>, {currentWorkspace.manifest?.storageStats.extractionFileCount} Extraction files</span>
-            <span>, {currentWorkspace.chunksCount} Chunks</span>
+          <div className="flex flex-wrap gap-1">
+            <span>{formatBytes(currentWorkspace.manifest?.storageStats.physicalBytes)}, </span>
+            <span>{currentWorkspace.manifest?.storageStats.physicalFileCount} Files, </span>
+            <span>{currentWorkspace.manifest?.storageStats.extractionFileCount} Extraction files, </span>
+            <span>{currentWorkspace.chunksCount} Chunks</span>
           </div>
         ) : isAdmin ? (
           <span>Needs migration</span>

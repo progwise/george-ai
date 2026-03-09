@@ -283,12 +283,12 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden size-full overflow-auto lg:block">
-        <table className="table-pin-rows table-pin-cols table table-zebra table-sm">
+      <div className="hidden h-full overflow-auto lg:block lg:w-3xl xl:w-5xl 2xl:w-7xl">
+        <table className="table-pin-rows table-pin-cols table table-zebra">
           <thead>
             <tr>
               <th>
-                <div className="flex flex-row flex-nowrap justify-between text-sm">
+                <div className="flex flex-row flex-nowrap items-center justify-between text-sm">
                   <input
                     type="checkbox"
                     className="checkbox m-0 checkbox-xs p-0 text-xs"
@@ -299,7 +299,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
 
                   <button
                     type="button"
-                    className="tooltip btn tooltip-right btn-square btn-xs"
+                    className="tooltip btn tooltip-right z-20 btn-square btn-xs"
                     onClick={() => embedDialogRef.current?.showModal()}
                     data-tip={t('actions.embedSelected', { count: selectedFileIds.length })}
                     disabled={selectedFileIds.length === 0}
@@ -308,7 +308,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                   </button>
                   <button
                     type="button"
-                    className="tooltip btn tooltip-right btn-square btn-xs"
+                    className="tooltip btn tooltip-right z-10 btn-square btn-xs"
                     onClick={() => dropDialogRef.current?.showModal()}
                     data-tip={t('actions.dropSelected', { count: selectedFileIds.length })}
                     disabled={selectedFileIds.length === 0}
@@ -353,7 +353,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       <Link
                         to="/libraries/$libraryId/files/$fileId"
                         params={{ libraryId: file.libraryId, fileId: file.id }}
-                        className="tooltip btn tooltip-right btn-square btn-xs"
+                        className="tooltip btn tooltip-right z-20 btn-square btn-xs"
                         data-tip={t('actions.view')}
                       >
                         <EyeIcon className="size-4" />
@@ -361,7 +361,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       <button
                         type="button"
                         disabled={isPending}
-                        className="tooltip btn tooltip-right btn-square btn-xs"
+                        className="tooltip btn tooltip-right z-10 btn-square btn-xs"
                         data-tip={t('actions.drop')}
                         onClick={() => deleteFile(file.id)}
                       >
@@ -385,7 +385,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                   </div>
                 </th>
 
-                <td className="flex flex-col truncate" title={file.name}>
+                <td className="truncate" title={file.name}>
                   <div className="flex items-center gap-2">
                     <Link
                       to="/libraries/$libraryId/files/$fileId"
@@ -400,9 +400,6 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       </span>
                     )}
                   </div>
-                  <a href={file.originUri || '#'} target="_blank" className="link text-xs" rel="noopener noreferrer">
-                    {file.originUri || 'n/a'}
-                  </a>
                 </td>
                 <td className="text-nowrap">{formatBytes(file.size) ?? '-'}</td>
                 <td>

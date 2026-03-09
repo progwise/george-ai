@@ -51,7 +51,13 @@ export const UserAvatar = ({ user, className }: UserAvatarProps) => {
     return (
       <div className={twMerge('avatar avatar-placeholder', className)}>
         <div className="flex w-full items-center justify-center rounded-full border border-base-content/20 bg-base-300 text-base-content">
-          {user.name ? <span>{user.name.charAt(0).toUpperCase()}</span> : <UserIcon />}
+          {user.name ? (
+            <span>{user.name.charAt(0).toUpperCase()}</span>
+          ) : (
+            <div className={twMerge('size-4', className)}>
+              <UserIcon />
+            </div>
+          )}
         </div>
       </div>
     )

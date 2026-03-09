@@ -2,18 +2,16 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
-import { CurrentUserFragment } from '../../gql/graphql'
+import { WorkspaceRole } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { getInferenceHostConfigQueryOptions, getInferenceHostStatusQueryOptions } from './queries'
-import { useWorkspace } from './use-workspace'
 
 interface WorkspaceModelProviderCardsProps {
-  user: CurrentUserFragment
+  currentWorkspaceRole?: WorkspaceRole
 }
-export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCardsProps) => {
-  const { t } = useTranslation()
 
-  const { currentWorkspace } = useWorkspace(user)
+export const WorkspaceModelProviderCards = ({ currentWorkspaceRole }: WorkspaceModelProviderCardsProps) => {
+  const { t } = useTranslation()
 
   const {
     data: modelHostStatus,
@@ -81,7 +79,7 @@ export const WorkspaceModelProviderCards = ({ user }: WorkspaceModelProviderCard
           </div>
         )
 
-        if (currentWorkspace?.role === 'admin' || currentWorkspace?.role === 'owner') {
+        if (currentWorkspaceRole === 'admin' || currentWorkspaceRole === 'owner') {
           return (
             <Link
               key={instance.name}

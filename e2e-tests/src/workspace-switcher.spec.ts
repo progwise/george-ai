@@ -156,7 +156,9 @@ test.describe('Workspace Switcher', () => {
       await page.getByRole('tab', { name: /libraries/i }).click()
       await page.waitForLoadState('networkidle')
       await page.getByRole('button', { name: /create library/i }).click()
-      await page.getByLabel('Library Name').fill(libraryName)
+
+      dialog = page.getByRole('dialog')
+      await dialog.getByLabel('Library Name').fill(libraryName)
 
       dialog = page.getByRole('dialog')
       await dialog.getByRole('button', { name: /create library/i }).click()

@@ -50,7 +50,7 @@ function RouteComponent() {
 
   return (
     <div className="grid size-full grid-rows-[auto_1fr] gap-2 bg-base-100">
-      <div className="grid w-full grid-cols-2 items-center gap-4">
+      <div className="grid w-full grid-cols-2 items-center gap-4 pt-2">
         <ExtractionSelector
           documentId={fileId}
           libraryId={libraryId}

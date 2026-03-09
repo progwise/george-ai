@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { ListMenu } from '../../../../components/lists/list-menu'
-import { getListQueryOptions, getListsQueryOptions } from '../../../../components/lists/queries'
+import { getListQueryOptions } from '../../../../components/lists/queries'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { EditIcon } from '../../../../icons/edit-icon'
 import { ListViewIcon } from '../../../../icons/list-view-icon'
@@ -11,10 +11,7 @@ import { StatisticsIcon } from '../../../../icons/statistics-icon'
 export const Route = createFileRoute('/_authenticated/lists/$listId')({
   component: RouteComponent,
   loader: async ({ params, context }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(getListsQueryOptions()),
-      context.queryClient.ensureQueryData(getListQueryOptions(params.listId)),
-    ])
+    await Promise.all([context.queryClient.ensureQueryData(getListQueryOptions(params.listId))])
   },
 })
 
@@ -23,17 +20,20 @@ function RouteComponent() {
   const params = Route.useParams()
 
   const {
-    data: { aiLists },
-  } = useSuspenseQuery(getListsQueryOptions())
-  const {
     data: { aiList },
   } = useSuspenseQuery(getListQueryOptions(params.listId))
 
   return (
-    <div className="flex flex-col gap-4">
-      <ListMenu list={aiList} selectableLists={aiLists} />
-
+    <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-4 xl:px-10 2xl:px-20">
+      <div className="flex flex-row items-center justify-center gap-1">
+        <ListViewIcon className="mr-2" />
+        <h3 className="text-xl font-bold text-nowrap">{aiList.name}</h3>
+        <ListMenu list={aiList} />
+      </div>
       <div role="tablist" className="tabs-lift tabs justify-end">
+        <a className="tab tab-disabled flex-1 cursor-default text-center">
+          {/* Placeholder empty tab for filling up the line... */}
+        </a>
         <Link
           to="/lists/$listId"
           className="tab"
@@ -78,12 +78,12 @@ function RouteComponent() {
           <EditIcon />
           {t('lists.edit')}
         </Link>
-        <input type="radio" className="tab hidden" defaultChecked />
-        <div className="tab-content border border-base-300 bg-base-100 p-3">
-          <div className="relative overflow-scroll">
-            <Outlet />
-          </div>
-        </div>
+        <a className="tab tab-disabled flex-1 cursor-default text-center">
+          {/* Placeholder empty tab for filling up the line... */}
+        </a>
+      </div>
+      <div className="min-h-0 bg-base-100 p-3">
+        <Outlet />
       </div>
     </div>
   )

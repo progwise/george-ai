@@ -17,7 +17,7 @@ function RouteComponent() {
   const { data: file } = useSuspenseQuery(getFileQueryOptions(params))
 
   return (
-    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
+    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100 lg:px-5 xl:px-25 2xl:px-60">
       <div className="flex flex-col gap-2">
         <FileCaptionCard file={file} />
       </div>

@@ -6,6 +6,7 @@ import { useWorkspace } from '.'
 import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
+import { SearchIcon } from '../../icons/search-icon'
 import { AssistantNewDialog } from '../assistant/assistant-new-dialog'
 import { getAiAssistantsQueryOptions } from '../assistant/get-assistants'
 import { ClientDate } from '../client-date'
@@ -63,6 +64,7 @@ export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) 
       </div>
     )
   }
+  const TAB_LIST_MAX_HEIGHT = 'max-h-[46vh]'
 
   return (
     <>
@@ -120,7 +122,8 @@ export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) 
               {!libraries ? (
                 tabContentSkeleton
               ) : libraries.items.length > 0 ? (
-                <ul className="space-y-2">
+                // Height left available after top nav + status cards + tab chrome
+                <ul className={`${TAB_LIST_MAX_HEIGHT} space-y-2 overflow-y-auto`}>
                   {libraries.items.map((library) => (
                     <li key={library.id}>
                       <Link
@@ -140,6 +143,17 @@ export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) 
                       </Link>
                     </li>
                   ))}
+                  {libraries.items.length < libraries.totalCount && (
+                    <li className="text-base-content/75 hover:text-base-content">
+                      <Link
+                        to="/search"
+                        className="flex flex-1 place-content-center items-center gap-2 rounded-lg p-2 hover:bg-info/50"
+                      >
+                        Search through {libraries.totalCount - libraries.items.length} more libraries
+                        <SearchIcon />
+                      </Link>
+                    </li>
+                  )}
                 </ul>
               ) : (
                 <p className="text-base-content/50">{t('dashboard.emptyStates.noLibraries')}</p>
@@ -166,7 +180,7 @@ export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) 
               {!lists ? (
                 tabContentSkeleton
               ) : lists.aiLists.length > 0 ? (
-                <ul className="space-y-2">
+                <ul className={`${TAB_LIST_MAX_HEIGHT} space-y-2 overflow-y-auto`}>
                   {lists.aiLists.map((list) => (
                     <li key={list.id}>
                       <Link
@@ -191,7 +205,7 @@ export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) 
               {!conversations ? (
                 tabContentSkeleton
               ) : conversations.aiConversations.length > 0 ? (
-                <ul className="space-y-2">
+                <ul className={`${TAB_LIST_MAX_HEIGHT} space-y-2 overflow-y-auto`}>
                   {conversations.aiConversations.map((conversation) => (
                     <li key={conversation.id}>
                       <Link
@@ -234,7 +248,7 @@ export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) 
               {!assistants ? (
                 tabContentSkeleton
               ) : assistants.aiAssistants.length > 0 ? (
-                <ul className="space-y-2">
+                <ul className={`${TAB_LIST_MAX_HEIGHT} space-y-2 overflow-y-auto`}>
                   {assistants.aiAssistants.map((assistant) => (
                     <li key={assistant.id}>
                       <Link

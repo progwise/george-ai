@@ -85,7 +85,7 @@ export default {
     manageAiModels: 'AI-Modelle',
     manageAiModelsDescription: 'AI-Modelle von allen Anbietern entdecken, konfigurieren und verwalten.',
     manageQueues: 'Warteschlangen',
-    manageQueuesDescription: 'Queue-Worker steuern und fehlgeschlagene Verarbeitungsaufgaben verwalten.',
+    manageWorkersLabel: 'Worker-Übersicht',
     manageUsers: 'Benutzer',
     manageUsersDescription:
       'Alle Benutzer anzeigen, Konten aktivieren, Profile bearbeiten und Benutzer bei Bedarf löschen.',
@@ -212,6 +212,7 @@ export default {
     createDialogDescription: 'Erstellen Sie eine neue Automatisierung, um Daten in ein externes System zu exportieren.',
     createDialogTitle: 'Automatisierung erstellen',
     createError: 'Automatisierung konnte nicht erstellt werden: {message}',
+    createNew: 'Automatisierung erstellen',
     createSuccess: 'Automatisierung erfolgreich erstellt',
     delete: 'Lösche Automatisierung',
     deleteDialogConfirmation:
@@ -490,7 +491,7 @@ export default {
       owned: 'Eigene',
       shared: 'Geteilt',
     },
-    subtitle: 'Ihr Arbeitsbereich und Systemstatus',
+    subtitle: 'Derzeitiger Arbeitsbereich: ',
     tabs: {
       assistants: 'Assistenten',
       conversations: 'Konversationen',
@@ -641,6 +642,9 @@ export default {
     addNewButton: 'Neue Bibliothek',
     addNewDescription: 'Eine Bibliothek ist eine Sammlung von Dateien, die von Assistenten verwendet werden können.',
     addSingleFile: 'Füge 1 Datei hinzu',
+    createNew: 'Bibliothek erstellen',
+    deleteDialogConfirmation: '{name} wird gelöscht. Dies kann nicht rückgängig gemacht werden.',
+    deleteDialogTitle: 'Bibliothek {name} löschen',
     deleteError: 'Fehler beim Löschen der Bibliothek: {message}',
     deleteLibrary: 'Bibliothek {libraryName} löschen',
     deleteLibraryButton: 'Bibliothek löschen',
@@ -717,6 +721,7 @@ export default {
     createDialogTitle: 'Neue Liste',
     createError: 'Fehler beim Erstellen der Liste: {message}',
     createListButtonText: 'Erzeuge Liste',
+    createNew: 'Liste erstellen',
     createSuccess: 'Liste erfolgreich erstellt',
     delete: 'Löschen',
     deleteDialogConfirmation:
@@ -974,6 +979,25 @@ export default {
     systemMode: 'Farbschema: System',
     theme: 'Farbschema',
   },
+  search: {
+    placeholder: 'Suche',
+    title: 'Suche',
+  },
+  sidebar: {
+    ariaLabel: 'Hauptmenü',
+    assistants: 'Assistenten',
+    automations: 'Automatisierungen',
+    close: 'Seitenleise schließen',
+    conversations: 'Konversationen',
+    copyItemLink: 'Link kopieren',
+    copyItemLinkSuccess: 'Link erfolgreich kopiert.',
+    deleteItem: 'Löschen',
+    libraries: 'Bibliotheken',
+    lists: 'Listen',
+    open: 'Seitenleise öffnen',
+    select: { library: 'Bibliothek auswählen', list: 'Liste auswählen', automation: 'Automatisierung auswählen' },
+    toggleDescription: 'Menü umschalten',
+  },
   texts: {
     addGoogleDriveFiles: 'Google Drive-Dateien hinzufügen',
     addParticipants: 'Teilnehmer hinzufügen',
@@ -1019,11 +1043,6 @@ export default {
   },
   topNavigation: {
     admin: 'Verwaltung',
-    assistants: 'Assistenten',
-    automations: 'Automatisierungen',
-    conversations: 'Konversationen',
-    libraries: 'Bibliotheken',
-    lists: 'Listen',
   },
   updates: {
     added: 'Hinzugefügt',
@@ -1046,6 +1065,7 @@ export default {
     createLong: 'Neuen Arbeitsbereich erstellen',
     createSuccess: 'Arbeitsbereich erfolgreich erstellt',
     createTitle: 'Arbeitsbereich erstellen',
+    current: 'Arbeitsbereich: ',
     deleteBlockedDescription: 'Dieser Arbeitsbereich kann nicht gelöscht werden, da er Elemente enthält.',
     deleteDescription: 'Diese Aktion kann nicht rückgängig gemacht werden. Der Arbeitsbereich wird dauerhaft gelöscht.',
     deleteInstructions:

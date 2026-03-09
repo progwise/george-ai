@@ -9,7 +9,7 @@ interface ListFieldsTableFilterBadgesProps {
 export const ListFieldsTableFilterBadges = ({ listId, fields, selectedItem }: ListFieldsTableFilterBadgesProps) => {
   const { filters, clearFieldFilters, removeFilter, removeSelectedItem } = useListSettings(listId)
   return (
-    <div className="flex flex-row flex-wrap gap-2 p-2">
+    <div className="flex flex-wrap gap-2 p-2">
       {selectedItem && (
         <div key={selectedItem.id} className="badge badge-outline font-semibold badge-accent">
           <span>Selected Item:</span>
