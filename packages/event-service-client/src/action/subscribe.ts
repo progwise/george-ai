@@ -18,12 +18,17 @@ export const subscribeDocumentExtraction = async (parameters: {
   handler: (params: { event: DocumentExtractionEvent }) => Promise<void>
 }) => {
   const { handler } = parameters
+  logger.info('Subscribing to document extraction events', {
+    parameters,
+    streamName: ACTION_STREAM_NAME,
+    consumerGlobPattern: getConsumerGlobPattern({ action: 'documentExtraction' }),
+  })
   const unsubscribe = await eventClient.startWorkerLoop({
     schema: DocumentExtractionEventSchema,
     streamName: ACTION_STREAM_NAME,
     consumerGlobPattern: getConsumerGlobPattern({ action: 'documentExtraction' }),
     handler: async ({ subject, event }) => {
-      logger.debug('Action event received', { subject, event })
+      logger.debug('documentExtraction event received', { subject, event })
       try {
         return await handler({ event })
       } catch (error) {

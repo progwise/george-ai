@@ -53,7 +53,7 @@ export const getConsumerNames = (args: { workspaceId: string }): string[] => {
 
 export const getConsumerGlobPattern = (args: { workspaceId?: string; action?: AsyncAction }): string => {
   const { workspaceId, action } = args
-  return `consumer-workspace-${workspaceId ? workspaceId : '*'}-action-${action ? 'action' : '*'}`
+  return `consumer-workspace-${workspaceId ? workspaceId : '*'}-action-${action ? action : '*'}`
 }
 
 export async function pauseEventProcessing(args: {

@@ -34,14 +34,14 @@ export function getAsyncSubjectFilter(args: { workspaceId?: string; verb?: Works
 }
 
 export function getConsumerSubjectFilters(args: { workspaceId: string; action: AsyncAction }) {
-  return [`george.ws.${args.workspaceId}.*.${args.action}.>`]
+  return [`george.ws.${args.workspaceId}.*.${args.action}`, `george.ws.${args.workspaceId}.*.${args.action}.>`]
 }
 
 export function parseSyncSubject(subject: string) {
   const tokens = subject.split('.')
 
   if (tokens[0] !== 'george' || tokens[1] !== 'ws' || tokens.length < 5) {
-    logger.warn('Subject could not be parsed', { subject, tokens })
+    logger.warn('Sync subject could not be parsed', { subject, tokens })
     return null
   }
 
@@ -56,7 +56,7 @@ export function parseAsyncSubject(subject: string) {
   const tokens = subject.split('.')
 
   if (tokens[0] !== 'george' || tokens[1] !== 'ws' || tokens.length < 5) {
-    logger.warn('Subject could not be parsed', { subject, tokens })
+    logger.warn('Async subject could not be parsed', { subject, tokens })
     return null
   }
 

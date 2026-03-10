@@ -7,6 +7,7 @@ import { extractDocument } from './extract-document'
 import { handleStatus } from './handle-status'
 
 export async function startExtraction(): Promise<() => Promise<void>> {
+  logger.info('Starting document extraction subscription', { WORKER_ID })
   const unsubscribeExtraction = await subscribeDocumentExtraction({
     handler: async ({ event }) => {
       processingMap.updateStats('workspaceProcessing')

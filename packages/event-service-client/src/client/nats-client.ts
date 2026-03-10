@@ -214,12 +214,14 @@ export class NatsClient implements EventClient {
         max_deliver: maxDeliveryAttempts,
         ack_wait: timeoutMs * 1e6, // convert ms to nanoseconds
       })
-      await this.jsm.consumers.pause(
+      logger.info('Created new consumer', {
+        consumerName,
         streamName,
-        consumerInfo.name,
-        new Date(Date.now() + 1000 * 365 * 24 * 60 * 60 * 1000), // nats error using undefined - 1000 years should be enough
-      ) // Start paused by default
-      logger.debug('Created new consumer', { consumerName, streamName, consumerInfo })
+        consumerInfo: JSON.stringify(consumerInfo),
+        subjectFilters,
+        maxPendingMessages,
+        maxDeliveryAttempts,
+      })
     } else {
       const existingSubjects = consumerInfo.config.filter_subjects?.sort().join(',') || ''
       const desiredSubjects = subjectFilters.sort().join(',')
@@ -236,10 +238,10 @@ export class NatsClient implements EventClient {
         max_deliver: params.maxDeliveryAttempts,
         ack_wait: timeoutMs * 1e6, // 30 seconds
       })
-      logger.debug('Updated existing consumer', {
+      logger.info('Updated existing consumer', {
         consumerName,
         streamName,
-        consumerInfo,
+        consumerInfo: JSON.stringify(consumerInfo),
         subjectFilters,
         maxPendingMessages,
         maxDeliveryAttempts,
@@ -349,7 +351,7 @@ export class NatsClient implements EventClient {
       logger.error('Error deleting consumer on stream ', { error, consumerName, streamName })
       throw error
     })
-    logger.debug('Deleted consumer on stream', { consumerName, streamName })
+    logger.info('Deleted consumer on stream', { consumerName, streamName })
   }
 
   async publish<T>(params: {
@@ -774,6 +776,8 @@ export class NatsClient implements EventClient {
 
     const kvBucket = await this.js.views.kv(params.name)
     await kvBucket.destroy()
+
+    logger.info('Deleted bucket', params)
   }
 
   async putBucketEntry<T>(params: {
@@ -1109,7 +1113,7 @@ export class NatsClient implements EventClient {
     const status = await kvBucket.status()
 
     if (status.values < 1) {
-      logger.warn('Nothing to delete in bucket', { params, status })
+      logger.debug('Nothing to delete in bucket', { params, status })
       return
     }
 
