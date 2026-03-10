@@ -1,7 +1,9 @@
+import { Link } from '@tanstack/react-router'
 import { twMerge } from 'tailwind-merge'
 
 import { CurrentUserFragment } from '../gql/graphql'
 import { HamburgerMenuIcon } from '../icons/hamburger-menu-icon'
+import { SearchIcon } from '../icons/search-icon'
 import { SettingsDropdown } from './settings-dropdown'
 import { WorkspaceSwitcher } from './workspace/workspace-switcher'
 
@@ -29,6 +31,9 @@ export default function TopNavigation({ user, isDrawerOpen, setIsDrawerOpen }: T
             >
               <HamburgerMenuIcon />
             </button>
+            <Link to="/search" type="button" className="btn btn-circle p-1 btn-ghost">
+              <SearchIcon />
+            </Link>
             {user && <WorkspaceSwitcher user={user} />}
           </div>
           <div className="navbar-end flex md:pr-4">

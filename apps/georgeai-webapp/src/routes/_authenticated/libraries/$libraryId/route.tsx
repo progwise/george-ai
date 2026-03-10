@@ -100,7 +100,7 @@ function RouteComponent() {
           {/* Placeholder empty tab for filling up the line... */}
         </a>
       </div>
-      <div className="min-h-0 bg-base-100 p-3">
+      <div className="mx-auto flex min-h-0 overflow-hidden bg-base-100 p-3 lg:w-3xl xl:w-5xl 2xl:w-7xl">
         <Outlet />
       </div>
     </div>

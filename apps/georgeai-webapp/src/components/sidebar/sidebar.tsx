@@ -154,7 +154,7 @@ export function Sidebar({
             <button
               type="button"
               onClick={() => membersDialogRef.current?.showModal()}
-              className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 hover:animate-pulse is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 hover:bg-base-300 is-drawer-close:tooltip is-drawer-close:tooltip-right"
               data-tip={t('workspace.members.title')}
               aria-label={t('workspace.members.title')}
             >
@@ -166,7 +166,7 @@ export function Sidebar({
             <button
               type="button"
               onClick={() => createWorkspaceDialogRef.current?.showModal()}
-              className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 hover:animate-pulse is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 hover:bg-base-300 is-drawer-close:tooltip is-drawer-close:tooltip-right"
               data-tip={t('workspace.createLong')}
               aria-label={t('workspace.createTitle')}
             >
