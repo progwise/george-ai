@@ -39,7 +39,13 @@
           "editor.defaultFormatter": "Prisma.prisma"
         },
         "files.watcherExclude": {
+          "**/.git/objects/**": true,
+          "**/.git/subtree-cache/**": true,
           "**/node_modules/**": true,
+          "**/.turbo/**": true,
+          "**/dist/**": true,
+          "**/.next/**": true,
+          "**/.cache/**": true,
           "**/.storage/**": true,
           "**/.uploads/**": true,
           "**/.smb-credentials/**": true,
@@ -57,6 +63,8 @@
           "**/node_modules": true,
           "**/.turbo": true,
           "**/dist": true,
+          "**/.next": true,
+          "pnpm-lock.yaml": true,
           "**/.storage": true,
           "**/.uploads": true,
           "**/.smb-mounts": true,
