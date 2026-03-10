@@ -1,9 +1,9 @@
-import { ModelHostConfig, deleteState, getState, writeState } from '@george-ai/event-service-client'
+import { InferenceHostConfig, deleteState, getState, writeState } from '@george-ai/event-service-client'
 import { statusReport } from '@george-ai/llm-client'
 
 import { logger } from '../common'
 
-export async function handleInferenceHostUpdate(config: ModelHostConfig) {
+export async function handleInferenceHostUpdate(config: InferenceHostConfig) {
   logger.debug('update inference host config', { config })
 
   const { workspaceId, hostId } = config
