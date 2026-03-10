@@ -2,10 +2,9 @@ import z from 'zod'
 
 export const WORKER_ROLES = [
   'workerSlotManager',
-  'workspaceConfigManager',
+  'registryManager',
   'workspaceProcessing',
   'requestFulfillment',
-  'inferenceHostManager',
 ] as const
 export type WorkerRole = (typeof WORKER_ROLES)[number]
 export const WorkerRoleSchema = z.enum(WORKER_ROLES)

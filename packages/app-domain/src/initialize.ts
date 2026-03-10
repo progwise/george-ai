@@ -1,9 +1,7 @@
 import { prisma } from '@george-ai/app-database'
-import { InferenceDriverSchema, InferenceHostConnectionSchema } from '@george-ai/app-schema'
-import { WorkspaceConfig, WorkspaceConfigSchema, writeRegistryEntry } from '@george-ai/event-service-client'
 
 import { logger } from './common'
-import { ensureSystemWorkspace } from './workspace'
+import { ensureSystemWorkspace, invalidateWorkspace } from './workspace'
 
 let initializeOncePromise: Promise<void> | null = null
 
@@ -31,36 +29,9 @@ const initializeAppDomain = async () => {
   })
 
   const results = await Promise.allSettled(
-    workspaces.map((workspace) => {
+    workspaces.map(async (workspace) => {
       logger.info(`Found workspace for initialization: ${workspace.id} - ${workspace.name}`)
-      const entry: WorkspaceConfig = {
-        workspaceId: workspace.id,
-        modelHosts: workspace.providers.map((provider) => ({
-          version: 1,
-          hostId: provider.id,
-          workspaceId: workspace.id,
-          connection: InferenceHostConnectionSchema.parse({
-            driver: provider.provider,
-            baseUrl: provider.baseUrl || undefined,
-            encryptedApiKey: provider.apiKey || undefined,
-          }),
-        })),
-        activeModels: workspace.languageModels.map((model) => ({
-          version: 1,
-          id: model.id,
-          name: model.name,
-          driver: InferenceDriverSchema.parse(model.provider),
-          canDoEmbedding: model.canDoEmbedding,
-          canDoChatCompletion: model.canDoChatCompletion,
-          canDoVision: model.canDoVision,
-          canDoFunctionCalling: model.canDoFunctionCalling,
-        })),
-        version: 1,
-        lastUpdate: new Date(),
-        type: 'workspace',
-      }
-
-      return writeRegistryEntry(WorkspaceConfigSchema.parse(entry))
+      await invalidateWorkspace(workspace.id)
     }),
   )
 

@@ -1,4 +1,8 @@
 {
   "prisma.pinToPrisma6": false,
-  "vitest.maximumConfigs": 40
+  "vitest.maximumConfigs": 40,
+  "editor.hover.above": false,
+  "editor.hover.delay": 800,
+  "editor.hover.sticky": true,
+  "js/ts.updateImportsOnFileMove.enabled": "never"
 }

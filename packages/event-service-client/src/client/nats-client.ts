@@ -892,7 +892,7 @@ export class NatsClient implements EventClient {
     return Array.from(latestEntries.values())
   }
 
-  async getBucketKeys(params: { bucketName: string; filter?: string }): Promise<string[]> {
+  async getBucketKeys(params: { bucketName: string; filter?: string | string[] }): Promise<string[]> {
     if (!this.js) {
       throw new Error('Not connected to NATS')
     }
@@ -1005,7 +1005,7 @@ export class NatsClient implements EventClient {
 
   async watchBucket<T extends z.ZodTypeAny>(params: {
     bucketName: string
-    filter: string
+    filter: string | string[]
     schema: T
     handler: (handlerParams: {
       key: string

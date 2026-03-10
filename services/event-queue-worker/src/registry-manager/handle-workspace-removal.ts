@@ -2,7 +2,7 @@ import { deleteRegistryEntry, getRegistryEntries } from '@george-ai/event-servic
 
 import { logger } from './common'
 
-export async function handleWorkspaceConfigDeleted(workspaceId: string) {
+export async function handleWorkspaceRemoval(workspaceId: string) {
   logger.debug('Handle Workspace Config Deleted', { workspaceId })
 
   await deleteRegistryEntry({ type: 'workspace', workspaceId })

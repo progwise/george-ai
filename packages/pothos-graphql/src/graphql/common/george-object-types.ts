@@ -1,5 +1,11 @@
 import { AutomationPreviewValue } from '@george-ai/app-domain'
-import { EventQueue, ExtractionMethod, WorkspaceRole } from '@george-ai/app-schema'
+import {
+  EventQueue,
+  ExtractionMethod,
+  InferenceHostConnection,
+  InferenceModel,
+  WorkspaceRole,
+} from '@george-ai/app-schema'
 import {
   ConnectorActionConfig,
   ConnectorActionConfigValue,
@@ -44,6 +50,8 @@ export type GeorgeObjectTypes = {
   FileExtraction: DocumentManifest['extractions'][number]
   InferenceHostState: InferenceHostState
   InferenceHostConfig: InferenceHostConfig
+  InferenceHostConnection: InferenceHostConnection
+  InferenceModel: InferenceModel
   InferenceModelState: InferenceModelState
   LibraryManifest: LibraryManifest
   LibrarySettings: LibraryManifest['settings']

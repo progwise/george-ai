@@ -8,9 +8,9 @@ import { builder } from '../../builder'
 import { logger } from '../../common'
 
 // Test provider connection
-builder.mutationField('testProviderConnection', (t) =>
+builder.mutationField('testInferenceHostConnection', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
-    type: builder.simpleObject('TestProviderConnectionResult', {
+    type: builder.simpleObject('TestInferenceHostConnectionResult', {
       fields: (t) => ({
         success: t.boolean({ nullable: false }),
         isOnline: t.boolean({ nullable: true }),
@@ -20,21 +20,22 @@ builder.mutationField('testProviderConnection', (t) =>
     }),
     nullable: false,
     args: {
-      providerId: t.arg.string({ required: false }), // If provided, use stored credentials as fallback
+      workspaceId: t.arg.string({ required: true }),
+      hostId: t.arg.string({ required: false }), // If provided, use stored credentials as fallback
       driver: t.arg({ type: 'InferenceDriver', required: true }),
       baseUrl: t.arg.string({ required: false }),
       apiKey: t.arg.string({ required: false }),
     },
-    resolve: async (_source, { providerId, driver, baseUrl, apiKey }, { workspaceId, session }) => {
+    resolve: async (_source, { hostId, driver, baseUrl, apiKey }, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
 
-      if (!baseUrl && !apiKey && !providerId) {
+      if (!baseUrl && !apiKey && !hostId) {
         return {
           success: false,
           message: 'No connection details provided and no providerId for fallback',
         }
       }
-      const { baseUrl: storedBaseUrl, apiKey: storedEncryptedApiKey } = !providerId
+      const { baseUrl: storedBaseUrl, apiKey: storedEncryptedApiKey } = !hostId
         ? { baseUrl: undefined, apiKey: undefined }
         : await prisma.aiServiceProvider.findFirstOrThrow({
             select: {
@@ -42,7 +43,7 @@ builder.mutationField('testProviderConnection', (t) =>
               baseUrl: true,
             },
             where: {
-              id: providerId,
+              id: hostId,
               workspaceId,
             },
           })
@@ -66,7 +67,7 @@ builder.mutationField('testProviderConnection', (t) =>
         timestamp: new Date(),
       }
 
-      logger.debug('test provider connection mutation', { args: { providerId, driver, baseUrl, apiKey }, request })
+      logger.debug('test provider connection mutation', { args: { hostId, driver, baseUrl, apiKey }, request })
 
       // TODO: Check for alternative so we do not send apiKey
       const testResult = await invokeAction(request)

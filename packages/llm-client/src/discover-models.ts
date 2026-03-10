@@ -1,11 +1,11 @@
-import { InferenceHostConnection, InferenceModel } from '@george-ai/app-schema'
+import { InferenceHostConnection, InferenceModelBase } from '@george-ai/app-schema'
 
 import { getModelCapabilities } from './capabilities'
 import { logger } from './common'
 import { getOllamaModels } from './ollama'
 import { getOpenAIModels } from './openAi'
 
-export async function availableModels(connection: InferenceHostConnection): Promise<InferenceModel[]> {
+export async function availableModels(connection: InferenceHostConnection): Promise<InferenceModelBase[]> {
   const modelProviderInfo = `provider ${connection.driver} instance ${connection.baseUrl}`
   switch (connection.driver) {
     case 'ollama': {

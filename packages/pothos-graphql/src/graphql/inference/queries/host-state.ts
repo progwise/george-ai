@@ -1,16 +1,15 @@
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
-import { getRegistryEntries } from '@george-ai/event-service-client'
+import { getState } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
 
-// Query resolver for AI service status (workspace-scoped)
-builder.queryField('inferenceHostConfig', (t) =>
+builder.queryField('inferenceHostState', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
-    type: ['InferenceHostConfig'],
+    type: ['InferenceHostState'],
     nullable: false,
     resolve: async (_parent, _args, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
-      const hostStates = await getRegistryEntries({ type: 'inference-host', workspaceId })
+      const hostStates = await getState({ type: 'inferenceHost', workspaceId })
       return hostStates
     },
   }),

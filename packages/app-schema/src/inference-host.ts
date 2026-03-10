@@ -19,7 +19,7 @@ export const OllamaHostConnectionSchema = InferenceHostConnectionBaseSchema.exte
 export type OllamaHostConnection = z.infer<typeof OllamaHostConnectionSchema>
 
 export const OpenAIHostConnectionSchema = InferenceHostConnectionBaseSchema.extend({
-  driver: z.literal('openai'),
+  driver: z.literal('openai').default('openai'),
   baseUrl: z.string().url().optional(),
   encryptedApiKey: z.string().min(3),
 })

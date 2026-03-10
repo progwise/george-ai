@@ -2,7 +2,7 @@ import { deleteState } from '@george-ai/event-service-client'
 
 import { logger } from '../common'
 
-export async function handleInferenceHostRemoval(params: { workspaceId: string; hostId: string }) {
+export async function handleHostRemoval(params: { workspaceId: string; hostId: string }) {
   logger.debug('update inference host config', { params })
 
   const { workspaceId, hostId } = params

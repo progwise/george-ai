@@ -8,7 +8,7 @@ import {
 
 import { logger } from './common'
 
-export async function handleWorkspaceConfigUpdated(workspaceId: string, config: WorkspaceConfig) {
+export async function handleWorkspaceUpdate(workspaceId: string, config: WorkspaceConfig) {
   logger.debug('handle Workspace Config Updated', { workspaceId, config })
 
   const existingHostEntries = await getRegistryEntries({ type: 'inference-host', workspaceId })
@@ -16,7 +16,7 @@ export async function handleWorkspaceConfigUpdated(workspaceId: string, config: 
   logger.debug('Current model hosts for workspace', { workspaceId, existingHostEntries })
 
   const hostsToDelete = existingHostEntries.filter(
-    (entry) => !config.modelHosts.some((host) => host.hostId === entry.hostId),
+    (entry) => !config.inferenceHosts.some((host) => host.hostId === entry.hostId),
   )
 
   logger.debug('Provider health entries to delete based on updated config', { workspaceId, hostsToDelete })
@@ -38,7 +38,7 @@ export async function handleWorkspaceConfigUpdated(workspaceId: string, config: 
   )
 
   await Promise.all(
-    config.modelHosts.map(async (host) => {
+    config.inferenceHosts.map(async (host) => {
       const entry: InferenceHostConfig = {
         type: 'inference-host',
         workspaceId,
@@ -47,6 +47,7 @@ export async function handleWorkspaceConfigUpdated(workspaceId: string, config: 
         connection: host.connection,
         hostId: host.hostId,
         lastUpdate: new Date(),
+        enabled: host.enabled,
       }
       await writeRegistryEntry(entry)
       logger.debug('Ensured provider instance from updated workspace config', {

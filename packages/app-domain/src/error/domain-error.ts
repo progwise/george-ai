@@ -5,7 +5,16 @@ export class DomainError extends Error {
 
   constructor(
     message: string,
-    domain: 'workspace' | 'file' | 'document' | 'library' | 'extraction' | 'embedding' | 'validation' | 'authorization',
+    domain:
+      | 'workspace'
+      | 'file'
+      | 'document'
+      | 'library'
+      | 'extraction'
+      | 'embedding'
+      | 'inference'
+      | 'validation'
+      | 'authorization',
   ) {
     super(message)
 

@@ -2,6 +2,7 @@ import { invalidateWorkspace } from '@george-ai/ai-service-client'
 import { encryptValue, getConfigValue } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
 import { canAdminWorkspaceOrThrow } from '@george-ai/app-domain'
+import { InferenceHostConnectionSchema } from '@george-ai/app-schema'
 import { InferenceHostConfig } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
@@ -25,14 +26,31 @@ builder.objectType(RestoreDefaultProvidersResult, {
       nullable: false,
       resolve: (parent) => parent.skipped,
     }),
-    providers: t.prismaField({
-      type: ['AiServiceProvider'],
+    providers: t.field({
+      type: ['InferenceHostConfig'],
       nullable: { list: false, items: false },
-      resolve: async (query, parent) => {
-        return prisma.aiServiceProvider.findMany({
-          ...query,
+      resolve: async (parent) => {
+        const items = await prisma.aiServiceProvider.findMany({
           where: { id: { in: parent.providerIds } },
         })
+        return items.map(
+          (item) =>
+            ({
+              type: 'inference-host',
+              version: 1,
+              workspaceId: item.workspaceId,
+              hostId: item.id,
+              name: item.name,
+              connection: InferenceHostConnectionSchema.parse({
+                driver: item.provider,
+                baseUrl: item.baseUrl,
+                encryptedApiKey: item.apiKey,
+              }),
+              enabled: item.enabled,
+              configuredVramGb: item.vramGb ?? undefined,
+              lastUpdate: item.updatedAt,
+            }) satisfies InferenceHostConfig,
+        )
       },
     }),
   }),
@@ -61,6 +79,7 @@ builder.mutationField('restoreDefaultProviders', (t) =>
           version: 1,
           workspaceId,
           type: 'inference-host',
+          enabled: true,
         })
       }
 
@@ -78,6 +97,7 @@ builder.mutationField('restoreDefaultProviders', (t) =>
           version: 1,
           workspaceId,
           type: 'inference-host',
+          enabled: true,
         })
       }
 

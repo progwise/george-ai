@@ -3,6 +3,8 @@ import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
 
+// TODO: Needs refactoring
+
 // Usage tracking query result types
 const ModelUsageStats = builder.simpleObject('ModelUsageStats', {
   fields: (t) => ({
