@@ -17,7 +17,7 @@ export const SidebarCreateNewItemButton = ({
       e.stopPropagation()
       newItemDialogRef.current?.showModal()
     }}
-    className={`tooltip btn tooltip-left right-2 z-20 ml-auto btn-circle shrink-0 opacity-0 btn-ghost btn-xs [&::before]:text-xs ${hoverClass}`}
+    className={`tooltip btn tooltip-left right-1 z-20 ml-auto btn-circle shrink-0 opacity-0 btn-ghost btn-xs [&::before]:text-xs ${hoverClass}`}
     data-tip={createNewItemTooltip}
   >
     <PlusIcon />

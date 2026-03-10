@@ -12,7 +12,7 @@ export const FileNavigation = ({ fileId, libraryId }: FileNavigationProps) => {
       </a>
       <Link
         className="tab"
-        activeOptions={{ exact: true }}
+        activeOptions={{ exact: true, includeSearch: false }}
         activeProps={{ className: 'tab-active' }}
         role="tab"
         to="/libraries/$libraryId/files/$fileId"
