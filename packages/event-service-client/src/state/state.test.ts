@@ -56,6 +56,7 @@ describe.sequential(`Testing state bucket ${STATE_BUCKET_NAME}`, () => {
           callCount: 0,
           errorCount: 0,
           responseTimeMsPerToken: 0,
+          connected: false,
         }
         return await writeState(modelState)
       }),

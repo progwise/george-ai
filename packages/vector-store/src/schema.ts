@@ -14,7 +14,7 @@ export type VectorStoreChunkIdentifier = z.infer<typeof VectorStoreChunkIdentifi
 
 export const VectorStoreChunkSchema = VectorStoreChunkIdentifierSchema.extend({
   id: z.string(),
-  filename: z.string().optional(),
+  fileName: z.string().optional(),
   filePath: z.string().optional(),
   content: z.string().optional(),
   fileHash: z.string().optional(),

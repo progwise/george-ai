@@ -1,6 +1,5 @@
-import { invalidateWorkspace } from '@george-ai/ai-service-client'
 import { encryptValue } from '@george-ai/app-commons'
-import { canAdminWorkspaceOrThrow, updateInferenceHost } from '@george-ai/app-domain'
+import { canAdminWorkspaceOrThrow, invalidateWorkspace, updateInferenceHost } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
 

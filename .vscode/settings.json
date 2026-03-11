@@ -4,5 +4,14 @@
   "editor.hover.above": false,
   "editor.hover.delay": 800,
   "editor.hover.sticky": true,
-  "js/ts.updateImportsOnFileMove.enabled": "never"
+  "js/ts.updateImportsOnFileMove.enabled": "never",
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.next/**": true,
+    "**/coverage/**": true
+  }
 }

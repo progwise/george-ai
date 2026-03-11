@@ -61,7 +61,8 @@ export async function handleHostUpdate(config: InferenceHostConfig) {
       errorCount: existingModel?.errorCount || 0,
       loadState: loadedModels.has(discoveredModel) ? 'loaded' : 'installed',
       modelName: discoveredModel,
-      responseTimeMsPerToken: existingModel?.responseTimeMsPerToken,
+      responseTimeMsPerToken: existingModel?.responseTimeMsPerToken || 100_000,
+      connected: report.isConnected,
     })
   }
 }

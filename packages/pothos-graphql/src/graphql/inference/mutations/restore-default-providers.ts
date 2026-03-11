@@ -1,7 +1,6 @@
-import { invalidateWorkspace } from '@george-ai/ai-service-client'
 import { encryptValue, getConfigValue } from '@george-ai/app-commons'
 import { prisma } from '@george-ai/app-database'
-import { canAdminWorkspaceOrThrow } from '@george-ai/app-domain'
+import { canAdminWorkspaceOrThrow, invalidateWorkspace } from '@george-ai/app-domain'
 import { InferenceHostConnectionSchema } from '@george-ai/app-schema'
 import { InferenceHostConfig } from '@george-ai/event-service-client'
 

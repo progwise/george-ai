@@ -1,598 +1,599 @@
-import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
-import { createLogger } from '@george-ai/app-commons'
-import { Prisma, prisma } from '@george-ai/app-database'
-import { languageModel } from '@george-ai/app-domain'
-import {
-  EnrichmentMetadata,
-  readActiveExtractions,
-  substituteTemplate,
-  validateEnrichmentTask,
-} from '@george-ai/app-domain'
-import { fetchPageAsMarkdown } from '@george-ai/html-crawler-client'
-import { getSimilarChunks } from '@george-ai/langchain-chat'
-
-const logger = createLogger('Enrichment Worker')
-
-let isWorkerRunning = false
-let workerInterval: NodeJS.Timeout | null = null
-
-const WORKER_INTERVAL_MS = 2000 // Process queue every 2 seconds
-const BATCH_SIZE = 5 // Process up to 5 items at a time
-const MAX_CONCURRENT_ENRICHMENTS = 3 // Maximum concurrent getEnrichedValue calls
-
-async function processQueueItem({
-  enrichmentTask,
-  metadata,
-  workspaceId,
-}: {
-  enrichmentTask: Prisma.AiEnrichmentTaskGetPayload<object>
-  metadata: EnrichmentMetadata
-  workspaceId: string
-}) {
-  try {
-    if (!metadata.input) {
-      throw new Error(`no input data for processing for task ${enrichmentTask.id}`)
-    }
-
-    // Mark as processing - use updateMany to handle race conditions
-    const updated = await prisma.aiEnrichmentTask.updateMany({
-      where: {
-        id: enrichmentTask.id,
-        status: 'pending', // Only update if still pending
-      },
-      data: {
-        status: 'processing',
-        startedAt: new Date(),
-      },
-    })
-
-    // If no rows were updated, the item was likely deleted or already processing
-    if (updated.count === 0) {
-      logger.debug(`Task ${enrichmentTask.id} no longer pending, skipping`)
-      return
-    }
-
-    // Try to get enriched value, but handle errors gracefully
-    let computedValue: string | null = null
-    let enrichmentError: string | null = null
-    const messages: Array<Message> = []
-
-    const outputMetaData: EnrichmentMetadata['output'] = {
-      messages: [],
-      similarChunks: [],
-      webFetchResults: [],
-      issues: [],
-    }
-
-    messages.push({
-      role: 'user',
-      content: metadata.input.aiGenerationPrompt,
-    })
-
-    if (metadata.input.dataType === 'markdown') {
-      messages.push({
-        role: 'user',
-        content: `Output your response in Markdown format. Use appropriate headings, lists, code blocks, and formatting as needed.
-
-CRITICAL FORMATTING RULES - YOU MUST FOLLOW THESE EXACTLY:
-
-1. NEVER wrap your response in code fences. Do NOT use \`\`\`markdown, \`\`\`, or any code block syntax.
-2. NEVER include introductory sentences like "Here's a product description..." or "Based on the data...".
-3. Start IMMEDIATELY with the actual markdown content (e.g., ## Title or plain text).
-
-WRONG (DO NOT DO THIS):
-\`\`\`markdown
-## Product Name
-Description here...
-\`\`\`
-
-CORRECT (DO THIS):
-## Product Name
-Description here...
-
-WRONG (DO NOT DO THIS):
-Here's a product description based on the data:
-
-## Product Name
-
-CORRECT (DO THIS):
-## Product Name`,
-      })
-    } else {
-      messages.push({
-        role: 'user',
-        content: `The data type you must return is: ${metadata.input.dataType}
-
-CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.input.dataType}..." or "Based on the data...". Return ONLY the requested ${metadata.input.dataType} value directly, without any preamble or explanation.`,
-      })
-    }
-
-    messages.push({
-      role: 'user',
-      content: `Here comes the data you need to process:`,
-    })
-
-    try {
-      // Add field reference context sources
-      messages.push(
-        ...metadata.input.contextFields.map((ctx) => ({
-          role: 'user' as const,
-          content: `Here is the context for ${ctx.fieldName}: \n${ctx.value}`,
-        })),
-      )
-
-      // Process vector search context sources
-      if (metadata.input.contextVectorSearches && metadata.input.contextVectorSearches.length > 0) {
-        for (const vectorSearch of metadata.input.contextVectorSearches) {
-          try {
-            // Substitute {fieldName} placeholders in query template
-            const query = substituteTemplate(vectorSearch.queryTemplate, metadata.input.contextFields)
-
-            if (!query) {
-              const issue = `vectorSearchSkipped: template substitution failed for "${vectorSearch.queryTemplate}"`
-              logger.warn(issue)
-              outputMetaData.issues.push(issue)
-              continue
-            }
-
-            // Check if library has embedding model configured
-            if (!metadata.input.libraryEmbeddingModel || !metadata.input.libraryEmbeddingModelProvider) {
-              const issue = `vectorSearchSkipped: library has no embedding model configured`
-              logger.warn(issue)
-              outputMetaData.issues.push(issue)
-              continue
-            }
-
-            // Execute vector search
-            const maxChunks = vectorSearch.maxChunks || 5
-            const maxDistance = vectorSearch.maxDistance || 0.5
-            const scope = vectorSearch.scope || 'file-part'
-
-            const allChunks = await getSimilarChunks({
-              workspaceId,
-              libraryId: metadata.input.libraryId,
-              fileId: metadata.input.fileId,
-              part: metadata.input.fragment,
-              scope,
-              term: query,
-              embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider as ServiceProviderType,
-              embeddingsModelName: metadata.input.libraryEmbeddingModel,
-              hits: maxChunks,
-            })
-
-            // Filter chunks by distance threshold
-            const chunks = allChunks.filter((chunk) => chunk.distance <= maxDistance)
-
-            if (chunks.length > 0) {
-              // Truncate content if maxContentTokens is specified
-              // Rough estimate: 1 token ≈ 4 characters
-              const maxChars = vectorSearch.maxContentTokens ? vectorSearch.maxContentTokens * 4 : undefined
-              const content = chunks.map((chunk) => chunk.text).join('\n\n')
-              const truncatedContent =
-                maxChars && content.length > maxChars ? content.slice(0, maxChars) + '...' : content
-
-              messages.push({
-                role: 'user' as const,
-                content: `Here is relevant context from vector search (query: "${query}"):\n${truncatedContent}`,
-              })
-
-              // Store chunks in output metadata
-              outputMetaData.similarChunks?.push(
-                ...chunks.map((chunk) => ({
-                  id: chunk.id,
-                  fileName: chunk.fileName,
-                  fileId: chunk.fileId,
-                  text: chunk.text,
-                  distance: chunk.distance,
-                })),
-              )
-            } else {
-              const issue =
-                allChunks.length > 0
-                  ? `vectorSearchNoResults: found ${allChunks.length} chunks but all exceeded maxDistance ${maxDistance}`
-                  : `vectorSearchNoResults: no similar chunks found for query "${query}"`
-              logger.warn(issue)
-              outputMetaData.issues.push(issue)
-            }
-          } catch (error) {
-            const issue = `vectorSearchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
-            logger.warn(issue)
-            outputMetaData.issues.push(issue)
-          }
-        }
-      }
-
-      // Process web fetch context sources
-      if (metadata.input.contextWebFetches && metadata.input.contextWebFetches.length > 0) {
-        for (const webFetch of metadata.input.contextWebFetches) {
-          try {
-            // Substitute {fieldName} placeholders in URL template
-            const url = substituteTemplate(webFetch.urlTemplate, metadata.input.contextFields)
-
-            if (!url) {
-              const issue = `webFetchSkipped: template substitution failed for "${webFetch.urlTemplate}"`
-              logger.warn(issue)
-              outputMetaData.issues.push(issue)
-              continue
-            }
-
-            // Fetch page as markdown using Crawl4AI
-            let content = await fetchPageAsMarkdown(url)
-
-            // Truncate content if maxContentTokens is specified
-            // Rough estimate: 1 token ≈ 4 characters
-            const maxChars = webFetch.maxContentTokens ? webFetch.maxContentTokens * 4 : undefined
-            if (maxChars && content.length > maxChars) {
-              content = content.slice(0, maxChars) + '...'
-            }
-
-            messages.push({
-              role: 'user' as const,
-              content: `Here is context from web fetch (URL: "${url}"):\n${content}`,
-            })
-
-            // Store web fetch result in output metadata
-            outputMetaData.webFetchResults?.push({
-              url,
-              content,
-            })
-          } catch (error) {
-            const issue = `webFetchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
-            logger.warn(issue)
-            outputMetaData.issues.push(issue)
-          }
-        }
-      }
-
-      // Process full content context sources
-      if (metadata.input.contextFullContent) {
-        try {
-          const markdownReader = await readActiveExtractions(
-            {
-              version: 1,
-              type: 'document',
-              workspaceId,
-              libraryId: metadata.input.libraryId,
-              documentId: metadata.input.fileId,
-            },
-            metadata.input.fragment || undefined,
-          )
-
-          const maxTokens = metadata.input.contextFullContent.maxContentTokens || 3000
-          const maxChars = maxTokens * 4 // Rough estimate: 1 token ≈ 4 characters
-
-          let content = ''
-          for await (const chunk of markdownReader) {
-            content += chunk
-            if (content.length > maxChars) {
-              content = content.slice(0, maxChars) + '...'
-              break
-            }
-          }
-
-          messages.push({
-            role: 'user' as const,
-            content: `Here is the complete content from the source file "${metadata.input.fileName}":\n${content}`,
-          })
-
-          // Store full content in output metadata
-          outputMetaData.fullContent = {
-            fileName: metadata.input.fileName,
-            content,
-          }
-        } catch (error) {
-          const issue = `fullContentFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
-          logger.warn(issue)
-          outputMetaData.issues.push(issue)
-        }
-      }
-
-      outputMetaData.messages = messages
-
-      // Track start time for usage logging
-      const startTime = Date.now()
-
-      const chatResponse = await chat(
-        workspaceId,
-        (metadata.input.aiModelProvider || 'ollama') as ServiceProviderType,
-        {
-          messages: [{ role: 'user', content: messages.map((message) => message.content).join('\n\n') }],
-          modelName: metadata.input.aiModelName,
-        },
-      )
-      computedValue = chatResponse.content.trim()
-
-      // Log usage for enrichment (async, non-blocking)
-      const durationMs = Date.now() - startTime
-      await languageModel.logModelUsage({
-        modelId: metadata.input.aiModelId,
-        listId: enrichmentTask.listId,
-        libraryId: metadata.input.libraryId,
-        usageType: 'enrichment',
-        tokensInput: chatResponse.metadata?.promptTokens || chatResponse.metadata?.tokensProcessed,
-        tokensOutput: chatResponse.metadata?.completionTokens,
-        durationMs,
-      })
-
-      outputMetaData.aiInstance = chatResponse.metadata?.instanceUrl
-      outputMetaData.enrichedValue = computedValue
-      if (chatResponse.issues?.timeout) {
-        outputMetaData.issues.push('timeout')
-      }
-      if (chatResponse.issues?.partialResult) {
-        outputMetaData.issues.push('partialResult')
-      }
-      if (chatResponse.error) {
-        // Extract error message from error object
-        const errorMsg =
-          typeof chatResponse.error === 'object' && chatResponse.error && 'message' in chatResponse.error
-            ? String(chatResponse.error.message)
-            : JSON.stringify(chatResponse.error)
-        outputMetaData.issues.push(`error: ${errorMsg}`)
-      }
-
-      logger.debug(`Enrichment succeeded for item ${enrichmentTask.id}`)
-    } catch (error) {
-      enrichmentError = error instanceof Error ? error.message : 'Unknown enrichment error'
-      logger.warn(`Enrichment failed for item ${enrichmentTask.id}:`, {
-        error: enrichmentError,
-        stack: error instanceof Error ? error.stack : undefined,
-        fullError: error,
-        listId: enrichmentTask.listId,
-        fieldId: enrichmentTask.fieldId,
-      })
-    }
-
-    let failedEnrichmentValue: string | null = null
-    if (!computedValue || computedValue === '' || computedValue.length === 0) {
-      failedEnrichmentValue = 'empty'
-    } else if (metadata.input.failureTerms) {
-      const failureTerms = metadata.input.failureTerms.split(',').map((term) => term.trim().toLowerCase())
-      if (failureTerms.includes(computedValue.toLowerCase())) {
-        failedEnrichmentValue = computedValue
-      }
-    }
-
-    const enrichedValues = failedEnrichmentValue
-      ? {
-          failedEnrichmentValue,
-          // Clear all value fields when storing failed enrichment
-          valueString: null,
-          valueNumber: null,
-          valueBoolean: null,
-          valueDate: null,
-        }
-      : {
-          // Clear failedEnrichmentValue when storing successful enrichment
-          failedEnrichmentValue: null,
-          valueString: computedValue,
-          valueNumber:
-            metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
-          valueBoolean:
-            metadata.input.dataType === 'boolean'
-              ? computedValue
-                ? computedValue.toLowerCase() === 'true'
-                : null
-              : null,
-          valueDate:
-            metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
-              ? computedValue
-                ? new Date(computedValue)
-                : null
-              : null,
-        }
-
-    // Store the computed value or error in cache
-    await prisma.aiListItemCache.upsert({
-      where: {
-        itemId_fieldId: {
-          itemId: enrichmentTask.itemId,
-          fieldId: enrichmentTask.fieldId,
-        },
-      },
-      create: {
-        itemId: enrichmentTask.itemId,
-        fieldId: enrichmentTask.fieldId,
-        enrichmentErrorMessage: enrichmentError,
-        ...enrichedValues,
-      },
-      update: {
-        ...enrichedValues,
-        enrichmentErrorMessage: enrichmentError,
-      },
-    })
-
-    // Mark as completed - use updateMany to handle race conditions
-    const completedItem = await prisma.aiEnrichmentTask.updateMany({
-      where: {
-        id: enrichmentTask.id,
-        status: 'processing', // Only update if still processing
-      },
-      data: {
-        status: failedEnrichmentValue ? 'failed' : 'completed',
-        completedAt: new Date(),
-        metadata: JSON.stringify({ ...metadata, output: outputMetaData }),
-      },
-    })
-
-    // If no rows were updated, the item was likely deleted
-    if (completedItem.count === 0) {
-      logger.debug(`Queue item ${enrichmentTask.id} no longer exists for completion, skipping`)
-      return
-    }
-
-    logger.debug(`Processed enrichment queue item ${enrichmentTask.id}`)
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    const errorStack = error instanceof Error ? error.stack : undefined
-
-    logger.error(`Error processing queue item ${enrichmentTask.id}:`, {
-      error: errorMessage,
-      stack: errorStack,
-      fullError: error,
-      listId: enrichmentTask.listId,
-      fieldId: enrichmentTask.fieldId,
-      itemId: enrichmentTask.itemId,
-    })
-
-    // Mark as failed - use updateMany to handle race conditions
-    const failedItem = await prisma.aiEnrichmentTask.updateMany({
-      where: {
-        id: enrichmentTask.id,
-        status: { in: ['pending', 'processing'] }, // Only update if not already completed/failed
-      },
-      data: {
-        status: 'error',
-        completedAt: new Date(),
-        error: errorMessage,
-      },
-    })
-
-    // If no rows were updated, the item was likely deleted
-    if (failedItem.count === 0) {
-      logger.debug(`Queue item ${enrichmentTask.id} no longer exists for failure update, skipping`)
-      return
-    }
-  }
-}
-
-async function processQueue() {
-  if (!isWorkerRunning) return
-
-  try {
-    // Count currently processing items to calculate available capacity
-    const processingCount = await prisma.aiEnrichmentTask.count({
-      where: { status: 'processing' },
-    })
-    const availableCapacity = MAX_CONCURRENT_ENRICHMENTS - processingCount
-
-    if (availableCapacity <= 0) {
-      return
-    }
-
-    // Get pending items from the queue, limited by available capacity
-    const queueItems = await prisma.aiEnrichmentTask.findMany({
-      where: {
-        status: 'pending',
-      },
-      orderBy: [{ priority: 'desc' }, { requestedAt: 'asc' }],
-      take: Math.min(BATCH_SIZE, availableCapacity),
-      include: {
-        list: {
-          select: {
-            workspaceId: true,
-          },
-        },
-      },
-    })
-
-    if (queueItems.length === 0) {
-      return
-    }
-
-    logger.info(`Processing ${queueItems.length} enrichment queue items (capacity: ${availableCapacity})`)
-
-    // Process items in parallel
-    await Promise.all(
-      queueItems.map((enrichmentTask) => {
-        const validationResult = validateEnrichmentTask(enrichmentTask)
-        if (!validationResult.success) {
-          logger.error(`Validation failed for enrichment task ${enrichmentTask.id}: ${validationResult.error}`)
-          // Mark as failed due to validation error
-          return prisma.aiEnrichmentTask.update({
-            where: { id: enrichmentTask.id },
-            data: {
-              status: 'failed',
-              completedAt: new Date(),
-              error: validationResult.error
-                ? `Validation error: ${validationResult.error}`
-                : `no input data for processing for task ${enrichmentTask.id}`,
-            },
-          })
-        } else if (!validationResult.data.input) {
-          return prisma.aiEnrichmentTask.update({
-            where: { id: enrichmentTask.id },
-            data: {
-              status: 'failed',
-              completedAt: new Date(),
-              error: `no input data for processing for task ${enrichmentTask.id}`,
-            },
-          })
-        } else {
-          return processQueueItem({
-            enrichmentTask,
-            metadata: validationResult.data,
-            workspaceId: enrichmentTask.list.workspaceId,
-          })
-        }
-      }),
-    )
-  } catch (error) {
-    logger.error('Error processing enrichment queue:', error)
-  }
-}
-
-async function resetOrphanedProcessingItems() {
-  try {
-    // Reset any items that were stuck in "processing" status from previous server session
-    const resetResult = await prisma.aiEnrichmentTask.updateMany({
-      where: {
-        status: 'processing',
-      },
-      data: {
-        status: 'pending',
-        startedAt: null,
-      },
-    })
-
-    if (resetResult.count > 0) {
-      logger.info(`Reset ${resetResult.count} orphaned processing items back to pending`)
-    }
-  } catch (error) {
-    logger.error('Error resetting orphaned processing items:', error)
-  }
-}
-
-export async function startEnrichmentQueueWorker() {
-  if (isWorkerRunning) {
-    logger.warn('Enrichment queue worker is already running')
-    return
-  }
-
-  isWorkerRunning = true
-  logger.info('Starting enrichment queue worker...')
-
-  // First, reset any orphaned processing items from previous server sessions
-  await resetOrphanedProcessingItems()
-
-  // Process queue immediately
-  await processQueue()
-
-  // Set up interval to process queue
-  workerInterval = setInterval(async () => {
-    await processQueue()
-  }, WORKER_INTERVAL_MS)
-}
-
-export function stopEnrichmentQueueWorker() {
-  if (!isWorkerRunning) {
-    logger.warn('Enrichment queue worker is not running')
-    return
-  }
-
-  isWorkerRunning = false
-
-  if (workerInterval) {
-    clearInterval(workerInterval)
-    workerInterval = null
-  }
-
-  logger.info('Stopped enrichment queue worker')
-}
-
-export function isEnrichmentWorkerRunning(): boolean {
-  return isWorkerRunning
-}
-
-// Note: The worker is started explicitly by the server in server.ts
-// This ensures proper initialization order and error handling
+// // import { Message, type ServiceProviderType, chat } from '@george-ai/ai-service-client'
+// import { createLogger } from '@george-ai/app-commons'
+// import { Prisma, prisma } from '@george-ai/app-database'
+// import { languageModel } from '@george-ai/app-domain'
+// import {
+//   EnrichmentMetadata,
+//   readActiveExtractions,
+//   substituteTemplate,
+//   validateEnrichmentTask,
+// } from '@george-ai/app-domain'
+// import { ChatMessage } from '@george-ai/app-schema'
+// import { fetchPageAsMarkdown } from '@george-ai/html-crawler-client'
+// import { getSimilarChunks } from '@george-ai/langchain-chat'
+
+// const logger = createLogger('Enrichment Worker')
+
+// let isWorkerRunning = false
+// let workerInterval: NodeJS.Timeout | null = null
+
+// const WORKER_INTERVAL_MS = 2000 // Process queue every 2 seconds
+// const BATCH_SIZE = 5 // Process up to 5 items at a time
+// const MAX_CONCURRENT_ENRICHMENTS = 3 // Maximum concurrent getEnrichedValue calls
+
+// async function processQueueItem({
+//   enrichmentTask,
+//   metadata,
+//   workspaceId,
+// }: {
+//   enrichmentTask: Prisma.AiEnrichmentTaskGetPayload<object>
+//   metadata: EnrichmentMetadata
+//   workspaceId: string
+// }) {
+//   try {
+//     if (!metadata.input) {
+//       throw new Error(`no input data for processing for task ${enrichmentTask.id}`)
+//     }
+
+//     // Mark as processing - use updateMany to handle race conditions
+//     const updated = await prisma.aiEnrichmentTask.updateMany({
+//       where: {
+//         id: enrichmentTask.id,
+//         status: 'pending', // Only update if still pending
+//       },
+//       data: {
+//         status: 'processing',
+//         startedAt: new Date(),
+//       },
+//     })
+
+//     // If no rows were updated, the item was likely deleted or already processing
+//     if (updated.count === 0) {
+//       logger.debug(`Task ${enrichmentTask.id} no longer pending, skipping`)
+//       return
+//     }
+
+//     // Try to get enriched value, but handle errors gracefully
+//     let computedValue: string | null = null
+//     let enrichmentError: string | null = null
+//     const messages: Array<ChatMessage> = []
+
+//     const outputMetaData: EnrichmentMetadata['output'] = {
+//       messages: [],
+//       similarChunks: [],
+//       webFetchResults: [],
+//       issues: [],
+//     }
+
+//     messages.push({
+//       role: 'user',
+//       content: metadata.input.aiGenerationPrompt,
+//     })
+
+//     if (metadata.input.dataType === 'markdown') {
+//       messages.push({
+//         role: 'user',
+//         content: `Output your response in Markdown format. Use appropriate headings, lists, code blocks, and formatting as needed.
+
+// CRITICAL FORMATTING RULES - YOU MUST FOLLOW THESE EXACTLY:
+
+// 1. NEVER wrap your response in code fences. Do NOT use \`\`\`markdown, \`\`\`, or any code block syntax.
+// 2. NEVER include introductory sentences like "Here's a product description..." or "Based on the data...".
+// 3. Start IMMEDIATELY with the actual markdown content (e.g., ## Title or plain text).
+
+// WRONG (DO NOT DO THIS):
+// \`\`\`markdown
+// ## Product Name
+// Description here...
+// \`\`\`
+
+// CORRECT (DO THIS):
+// ## Product Name
+// Description here...
+
+// WRONG (DO NOT DO THIS):
+// Here's a product description based on the data:
+
+// ## Product Name
+
+// CORRECT (DO THIS):
+// ## Product Name`,
+//       })
+//     } else {
+//       messages.push({
+//         role: 'user',
+//         content: `The data type you must return is: ${metadata.input.dataType}
+
+// CRITICAL: Do NOT include any introductory sentences like "Here's the ${metadata.input.dataType}..." or "Based on the data...". Return ONLY the requested ${metadata.input.dataType} value directly, without any preamble or explanation.`,
+//       })
+//     }
+
+//     messages.push({
+//       role: 'user',
+//       content: `Here comes the data you need to process:`,
+//     })
+
+//     try {
+//       // Add field reference context sources
+//       messages.push(
+//         ...metadata.input.contextFields.map((ctx) => ({
+//           role: 'user' as const,
+//           content: `Here is the context for ${ctx.fieldName}: \n${ctx.value}`,
+//         })),
+//       )
+
+//       // Process vector search context sources
+//       if (metadata.input.contextVectorSearches && metadata.input.contextVectorSearches.length > 0) {
+//         for (const vectorSearch of metadata.input.contextVectorSearches) {
+//           try {
+//             // Substitute {fieldName} placeholders in query template
+//             const query = substituteTemplate(vectorSearch.queryTemplate, metadata.input.contextFields)
+
+//             if (!query) {
+//               const issue = `vectorSearchSkipped: template substitution failed for "${vectorSearch.queryTemplate}"`
+//               logger.warn(issue)
+//               outputMetaData.issues.push(issue)
+//               continue
+//             }
+
+//             // Check if library has embedding model configured
+//             if (!metadata.input.libraryEmbeddingModel || !metadata.input.libraryEmbeddingModelProvider) {
+//               const issue = `vectorSearchSkipped: library has no embedding model configured`
+//               logger.warn(issue)
+//               outputMetaData.issues.push(issue)
+//               continue
+//             }
+
+//             // Execute vector search
+//             const maxChunks = vectorSearch.maxChunks || 5
+//             const maxDistance = vectorSearch.maxDistance || 0.5
+//             const scope = vectorSearch.scope || 'file-part'
+
+//             const allChunks = await getSimilarChunks({
+//               workspaceId,
+//               libraryId: metadata.input.libraryId,
+//               fileId: metadata.input.fileId,
+//               part: metadata.input.fragment,
+//               scope,
+//               term: query,
+//               embeddingsModelProvider: metadata.input.libraryEmbeddingModelProvider,
+//               embeddingsModelName: metadata.input.libraryEmbeddingModel,
+//               hits: maxChunks,
+//             })
+
+//             // Filter chunks by distance threshold
+//             const chunks = allChunks.filter((chunk) => chunk.distance <= maxDistance)
+
+//             if (chunks.length > 0) {
+//               // Truncate content if maxContentTokens is specified
+//               // Rough estimate: 1 token ≈ 4 characters
+//               const maxChars = vectorSearch.maxContentTokens ? vectorSearch.maxContentTokens * 4 : undefined
+//               const content = chunks.map((chunk) => chunk.text).join('\n\n')
+//               const truncatedContent =
+//                 maxChars && content.length > maxChars ? content.slice(0, maxChars) + '...' : content
+
+//               messages.push({
+//                 role: 'user' as const,
+//                 content: `Here is relevant context from vector search (query: "${query}"):\n${truncatedContent}`,
+//               })
+
+//               // Store chunks in output metadata
+//               outputMetaData.similarChunks?.push(
+//                 ...chunks.map((chunk) => ({
+//                   id: chunk.id,
+//                   fileName: chunk.fileName,
+//                   fileId: chunk.fileId,
+//                   text: chunk.text,
+//                   distance: chunk.distance,
+//                 })),
+//               )
+//             } else {
+//               const issue =
+//                 allChunks.length > 0
+//                   ? `vectorSearchNoResults: found ${allChunks.length} chunks but all exceeded maxDistance ${maxDistance}`
+//                   : `vectorSearchNoResults: no similar chunks found for query "${query}"`
+//               logger.warn(issue)
+//               outputMetaData.issues.push(issue)
+//             }
+//           } catch (error) {
+//             const issue = `vectorSearchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
+//             logger.warn(issue)
+//             outputMetaData.issues.push(issue)
+//           }
+//         }
+//       }
+
+//       // Process web fetch context sources
+//       if (metadata.input.contextWebFetches && metadata.input.contextWebFetches.length > 0) {
+//         for (const webFetch of metadata.input.contextWebFetches) {
+//           try {
+//             // Substitute {fieldName} placeholders in URL template
+//             const url = substituteTemplate(webFetch.urlTemplate, metadata.input.contextFields)
+
+//             if (!url) {
+//               const issue = `webFetchSkipped: template substitution failed for "${webFetch.urlTemplate}"`
+//               logger.warn(issue)
+//               outputMetaData.issues.push(issue)
+//               continue
+//             }
+
+//             // Fetch page as markdown using Crawl4AI
+//             let content = await fetchPageAsMarkdown(url)
+
+//             // Truncate content if maxContentTokens is specified
+//             // Rough estimate: 1 token ≈ 4 characters
+//             const maxChars = webFetch.maxContentTokens ? webFetch.maxContentTokens * 4 : undefined
+//             if (maxChars && content.length > maxChars) {
+//               content = content.slice(0, maxChars) + '...'
+//             }
+
+//             messages.push({
+//               role: 'user' as const,
+//               content: `Here is context from web fetch (URL: "${url}"):\n${content}`,
+//             })
+
+//             // Store web fetch result in output metadata
+//             outputMetaData.webFetchResults?.push({
+//               url,
+//               content,
+//             })
+//           } catch (error) {
+//             const issue = `webFetchFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
+//             logger.warn(issue)
+//             outputMetaData.issues.push(issue)
+//           }
+//         }
+//       }
+
+//       // Process full content context sources
+//       if (metadata.input.contextFullContent) {
+//         try {
+//           const markdownReader = await readActiveExtractions(
+//             {
+//               version: 1,
+//               type: 'document',
+//               workspaceId,
+//               libraryId: metadata.input.libraryId,
+//               documentId: metadata.input.fileId,
+//             },
+//             metadata.input.fragment || undefined,
+//           )
+
+//           const maxTokens = metadata.input.contextFullContent.maxContentTokens || 3000
+//           const maxChars = maxTokens * 4 // Rough estimate: 1 token ≈ 4 characters
+
+//           let content = ''
+//           for await (const chunk of markdownReader) {
+//             content += chunk
+//             if (content.length > maxChars) {
+//               content = content.slice(0, maxChars) + '...'
+//               break
+//             }
+//           }
+
+//           messages.push({
+//             role: 'user' as const,
+//             content: `Here is the complete content from the source file "${metadata.input.fileName}":\n${content}`,
+//           })
+
+//           // Store full content in output metadata
+//           outputMetaData.fullContent = {
+//             fileName: metadata.input.fileName,
+//             content,
+//           }
+//         } catch (error) {
+//           const issue = `fullContentFailed: ${error instanceof Error ? error.message : 'Unknown error'}`
+//           logger.warn(issue)
+//           outputMetaData.issues.push(issue)
+//         }
+//       }
+
+//       outputMetaData.messages = messages
+
+//       // Track start time for usage logging
+//       const startTime = Date.now()
+
+//       const chatResponse = await chat(
+//         workspaceId,
+//         (metadata.input.aiModelProvider || 'ollama') as ServiceProviderType,
+//         {
+//           messages: [{ role: 'user', content: messages.map((message) => message.content).join('\n\n') }],
+//           modelName: metadata.input.aiModelName,
+//         },
+//       )
+//       computedValue = chatResponse.content.trim()
+
+//       // Log usage for enrichment (async, non-blocking)
+//       const durationMs = Date.now() - startTime
+//       await languageModel.logModelUsage({
+//         modelId: metadata.input.aiModelId,
+//         listId: enrichmentTask.listId,
+//         libraryId: metadata.input.libraryId,
+//         usageType: 'enrichment',
+//         tokensInput: chatResponse.metadata?.promptTokens || chatResponse.metadata?.tokensProcessed,
+//         tokensOutput: chatResponse.metadata?.completionTokens,
+//         durationMs,
+//       })
+
+//       outputMetaData.aiInstance = chatResponse.metadata?.instanceUrl
+//       outputMetaData.enrichedValue = computedValue
+//       if (chatResponse.issues?.timeout) {
+//         outputMetaData.issues.push('timeout')
+//       }
+//       if (chatResponse.issues?.partialResult) {
+//         outputMetaData.issues.push('partialResult')
+//       }
+//       if (chatResponse.error) {
+//         // Extract error message from error object
+//         const errorMsg =
+//           typeof chatResponse.error === 'object' && chatResponse.error && 'message' in chatResponse.error
+//             ? String(chatResponse.error.message)
+//             : JSON.stringify(chatResponse.error)
+//         outputMetaData.issues.push(`error: ${errorMsg}`)
+//       }
+
+//       logger.debug(`Enrichment succeeded for item ${enrichmentTask.id}`)
+//     } catch (error) {
+//       enrichmentError = error instanceof Error ? error.message : 'Unknown enrichment error'
+//       logger.warn(`Enrichment failed for item ${enrichmentTask.id}:`, {
+//         error: enrichmentError,
+//         stack: error instanceof Error ? error.stack : undefined,
+//         fullError: error,
+//         listId: enrichmentTask.listId,
+//         fieldId: enrichmentTask.fieldId,
+//       })
+//     }
+
+//     let failedEnrichmentValue: string | null = null
+//     if (!computedValue || computedValue === '' || computedValue.length === 0) {
+//       failedEnrichmentValue = 'empty'
+//     } else if (metadata.input.failureTerms) {
+//       const failureTerms = metadata.input.failureTerms.split(',').map((term) => term.trim().toLowerCase())
+//       if (failureTerms.includes(computedValue.toLowerCase())) {
+//         failedEnrichmentValue = computedValue
+//       }
+//     }
+
+//     const enrichedValues = failedEnrichmentValue
+//       ? {
+//           failedEnrichmentValue,
+//           // Clear all value fields when storing failed enrichment
+//           valueString: null,
+//           valueNumber: null,
+//           valueBoolean: null,
+//           valueDate: null,
+//         }
+//       : {
+//           // Clear failedEnrichmentValue when storing successful enrichment
+//           failedEnrichmentValue: null,
+//           valueString: computedValue,
+//           valueNumber:
+//             metadata.input.dataType === 'number' ? (computedValue ? parseFloat(computedValue) || null : null) : null,
+//           valueBoolean:
+//             metadata.input.dataType === 'boolean'
+//               ? computedValue
+//                 ? computedValue.toLowerCase() === 'true'
+//                 : null
+//               : null,
+//           valueDate:
+//             metadata.input.dataType === 'date' || metadata.input.dataType === 'datetime'
+//               ? computedValue
+//                 ? new Date(computedValue)
+//                 : null
+//               : null,
+//         }
+
+//     // Store the computed value or error in cache
+//     await prisma.aiListItemCache.upsert({
+//       where: {
+//         itemId_fieldId: {
+//           itemId: enrichmentTask.itemId,
+//           fieldId: enrichmentTask.fieldId,
+//         },
+//       },
+//       create: {
+//         itemId: enrichmentTask.itemId,
+//         fieldId: enrichmentTask.fieldId,
+//         enrichmentErrorMessage: enrichmentError,
+//         ...enrichedValues,
+//       },
+//       update: {
+//         ...enrichedValues,
+//         enrichmentErrorMessage: enrichmentError,
+//       },
+//     })
+
+//     // Mark as completed - use updateMany to handle race conditions
+//     const completedItem = await prisma.aiEnrichmentTask.updateMany({
+//       where: {
+//         id: enrichmentTask.id,
+//         status: 'processing', // Only update if still processing
+//       },
+//       data: {
+//         status: failedEnrichmentValue ? 'failed' : 'completed',
+//         completedAt: new Date(),
+//         metadata: JSON.stringify({ ...metadata, output: outputMetaData }),
+//       },
+//     })
+
+//     // If no rows were updated, the item was likely deleted
+//     if (completedItem.count === 0) {
+//       logger.debug(`Queue item ${enrichmentTask.id} no longer exists for completion, skipping`)
+//       return
+//     }
+
+//     logger.debug(`Processed enrichment queue item ${enrichmentTask.id}`)
+//   } catch (error) {
+//     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+//     const errorStack = error instanceof Error ? error.stack : undefined
+
+//     logger.error(`Error processing queue item ${enrichmentTask.id}:`, {
+//       error: errorMessage,
+//       stack: errorStack,
+//       fullError: error,
+//       listId: enrichmentTask.listId,
+//       fieldId: enrichmentTask.fieldId,
+//       itemId: enrichmentTask.itemId,
+//     })
+
+//     // Mark as failed - use updateMany to handle race conditions
+//     const failedItem = await prisma.aiEnrichmentTask.updateMany({
+//       where: {
+//         id: enrichmentTask.id,
+//         status: { in: ['pending', 'processing'] }, // Only update if not already completed/failed
+//       },
+//       data: {
+//         status: 'error',
+//         completedAt: new Date(),
+//         error: errorMessage,
+//       },
+//     })
+
+//     // If no rows were updated, the item was likely deleted
+//     if (failedItem.count === 0) {
+//       logger.debug(`Queue item ${enrichmentTask.id} no longer exists for failure update, skipping`)
+//       return
+//     }
+//   }
+// }
+
+// async function processQueue() {
+//   if (!isWorkerRunning) return
+
+//   try {
+//     // Count currently processing items to calculate available capacity
+//     const processingCount = await prisma.aiEnrichmentTask.count({
+//       where: { status: 'processing' },
+//     })
+//     const availableCapacity = MAX_CONCURRENT_ENRICHMENTS - processingCount
+
+//     if (availableCapacity <= 0) {
+//       return
+//     }
+
+//     // Get pending items from the queue, limited by available capacity
+//     const queueItems = await prisma.aiEnrichmentTask.findMany({
+//       where: {
+//         status: 'pending',
+//       },
+//       orderBy: [{ priority: 'desc' }, { requestedAt: 'asc' }],
+//       take: Math.min(BATCH_SIZE, availableCapacity),
+//       include: {
+//         list: {
+//           select: {
+//             workspaceId: true,
+//           },
+//         },
+//       },
+//     })
+
+//     if (queueItems.length === 0) {
+//       return
+//     }
+
+//     logger.info(`Processing ${queueItems.length} enrichment queue items (capacity: ${availableCapacity})`)
+
+//     // Process items in parallel
+//     await Promise.all(
+//       queueItems.map((enrichmentTask) => {
+//         const validationResult = validateEnrichmentTask(enrichmentTask)
+//         if (!validationResult.success) {
+//           logger.error(`Validation failed for enrichment task ${enrichmentTask.id}: ${validationResult.error}`)
+//           // Mark as failed due to validation error
+//           return prisma.aiEnrichmentTask.update({
+//             where: { id: enrichmentTask.id },
+//             data: {
+//               status: 'failed',
+//               completedAt: new Date(),
+//               error: validationResult.error
+//                 ? `Validation error: ${validationResult.error}`
+//                 : `no input data for processing for task ${enrichmentTask.id}`,
+//             },
+//           })
+//         } else if (!validationResult.data.input) {
+//           return prisma.aiEnrichmentTask.update({
+//             where: { id: enrichmentTask.id },
+//             data: {
+//               status: 'failed',
+//               completedAt: new Date(),
+//               error: `no input data for processing for task ${enrichmentTask.id}`,
+//             },
+//           })
+//         } else {
+//           return processQueueItem({
+//             enrichmentTask,
+//             metadata: validationResult.data,
+//             workspaceId: enrichmentTask.list.workspaceId,
+//           })
+//         }
+//       }),
+//     )
+//   } catch (error) {
+//     logger.error('Error processing enrichment queue:', error)
+//   }
+// }
+
+// async function resetOrphanedProcessingItems() {
+//   try {
+//     // Reset any items that were stuck in "processing" status from previous server session
+//     const resetResult = await prisma.aiEnrichmentTask.updateMany({
+//       where: {
+//         status: 'processing',
+//       },
+//       data: {
+//         status: 'pending',
+//         startedAt: null,
+//       },
+//     })
+
+//     if (resetResult.count > 0) {
+//       logger.info(`Reset ${resetResult.count} orphaned processing items back to pending`)
+//     }
+//   } catch (error) {
+//     logger.error('Error resetting orphaned processing items:', error)
+//   }
+// }
+
+// export async function startEnrichmentQueueWorker() {
+//   if (isWorkerRunning) {
+//     logger.warn('Enrichment queue worker is already running')
+//     return
+//   }
+
+//   isWorkerRunning = true
+//   logger.info('Starting enrichment queue worker...')
+
+//   // First, reset any orphaned processing items from previous server sessions
+//   await resetOrphanedProcessingItems()
+
+//   // Process queue immediately
+//   await processQueue()
+
+//   // Set up interval to process queue
+//   workerInterval = setInterval(async () => {
+//     await processQueue()
+//   }, WORKER_INTERVAL_MS)
+// }
+
+// export function stopEnrichmentQueueWorker() {
+//   if (!isWorkerRunning) {
+//     logger.warn('Enrichment queue worker is not running')
+//     return
+//   }
+
+//   isWorkerRunning = false
+
+//   if (workerInterval) {
+//     clearInterval(workerInterval)
+//     workerInterval = null
+//   }
+
+//   logger.info('Stopped enrichment queue worker')
+// }
+
+// export function isEnrichmentWorkerRunning(): boolean {
+//   return isWorkerRunning
+// }
+
+// // Note: The worker is started explicitly by the server in server.ts
+// // This ensures proper initialization order and error handling

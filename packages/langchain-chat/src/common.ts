@@ -1,3 +1,7 @@
+import { createLogger } from '@george-ai/app-commons'
+
+export const logger = createLogger('langchain-chat')
+
 export type FileMimeType =
   | 'application/pdf'
   | 'text/plain'

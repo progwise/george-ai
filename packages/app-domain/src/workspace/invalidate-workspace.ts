@@ -4,7 +4,6 @@ import { prisma } from '@george-ai/app-database'
 import { InferenceDriverSchema, InferenceHostConnectionSchema, InferenceModelSchema } from '@george-ai/app-schema'
 import {
   InferenceHostConfigBaseSchema,
-  InferenceHostConfigSchema,
   WorkspaceConfig,
   getRegistryEntry,
   writeRegistryEntry,

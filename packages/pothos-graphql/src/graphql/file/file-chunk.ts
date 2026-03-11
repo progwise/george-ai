@@ -7,7 +7,7 @@ builder.objectRef<FileChunk>('FileChunk').implement({
     id: t.exposeString('id', { nullable: false }),
     libraryId: t.exposeString('libraryId', { nullable: false }),
     fileId: t.exposeString('fileId', { nullable: false }),
-    filename: t.exposeString('filename', { nullable: true }),
+    fileName: t.exposeString('fileName', { nullable: true }),
     extractionMethod: t.exposeString('extractionMethod', { nullable: false }),
     chunk: t.exposeInt('chunk', { nullable: false }),
     fragment: t.exposeInt('fragment', { nullable: true }),

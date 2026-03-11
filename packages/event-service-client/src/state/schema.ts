@@ -16,11 +16,13 @@ export const InferenceModelStateSchema = StateBaseItemSchema.extend({
 
   loadState: InferenceModelLoadStateSchema,
   modelName: z.string().min(3),
+
   connection: InferenceHostConnectionSchema,
+  connected: z.boolean(),
 
   callCount: z.number().default(0),
   errorCount: z.number().default(0),
-  responseTimeMsPerToken: z.number().optional(),
+  responseTimeMsPerToken: z.number().default(100_000),
 })
 
 export type InferenceModelState = z.infer<typeof InferenceModelStateSchema>

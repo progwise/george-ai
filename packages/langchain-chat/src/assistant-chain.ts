@@ -1,14 +1,18 @@
 import { AIMessage, BaseMessage, HumanMessage, SystemMessage, trimMessages } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
 
+import { InferenceDriverSchema } from '@george-ai/app-schema'
+import { EmbeddingRequest, invokeAction } from '@george-ai/event-service-client'
+import { vectorStore } from '@george-ai/vector-store'
+
 import { Assistant, getAssistantBaseMessages } from './assistant'
 import { getApologyPrompt } from './assistant-apology'
 import { getLibraryRelevancePrompt } from './assistant-library'
 import { AssistantModel, getModel } from './assistant-model'
 import { getSanitizedQuestion } from './assistant-prompt'
 import { getRelevance } from './assistant-relevance'
+import { logger } from './common'
 import { Library } from './library'
-import { getSimilarChunks } from './typesense-vectorstore'
 
 export interface AssistantChainMessage {
   id: string
@@ -66,13 +70,34 @@ export async function* askAssistantChain(input: {
       libraryUsedFor: library.usedFor,
     })
 
-    const vectorStoreResult = await getSimilarChunks({
+    const driver = InferenceDriverSchema.parse(library.embeddingModelProvider)
+    const modelName = library.embeddingModelName
+
+    const request: EmbeddingRequest = {
+      version: 1,
+      workspaceId: input.workspaceId,
+      verb: 'request',
+      action: 'chunkEmbedding',
+      timestamp: new Date(),
+      driver,
+      modelName,
+      chunks: [libraryPromptResult.searchPrompt],
+    }
+
+    const embeddingResult = await invokeAction(request)
+
+    if (embeddingResult.embeddings.length < 1) {
+      logger.error('No embeddings returned from invoke', { request })
+    }
+
+    const vector = embeddingResult.embeddings[0].vector
+
+    const vectorStoreResult = await vectorStore.findSimilarChunks({
       workspaceId: input.workspaceId,
       libraryId: library.id,
-      term: libraryPromptResult.searchPrompt,
-      embeddingsModelProvider: library.embeddingModelProvider,
-      embeddingsModelName: library.embeddingModelName,
-      hits: 4,
+      vector,
+      topK: 4,
+      modelName: library.embeddingModelName,
     })
 
     const messages = vectorStoreResult.map(
@@ -82,7 +107,7 @@ export async function* askAssistantChain(input: {
 
         START OF DOCUMENT
 
-        Document content: ${result.text}
+        Document content: ${result.content}
         
         END OF DOCUMENT
         `,
