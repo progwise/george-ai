@@ -27,7 +27,7 @@ const queryFiles = createServerFn({ method: 'GET' })
               id
               libraryId
               fileId
-              filename
+              fileName
               extractionMethod
               chunk
               content

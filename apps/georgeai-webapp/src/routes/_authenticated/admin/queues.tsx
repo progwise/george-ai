@@ -2,16 +2,12 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import { QueueManagementPanel } from '../../../components/admin/queue-management/queue-management-panel'
 import { ClientDate } from '../../../components/client-date'
-import { getQueueStatusQueryOptions } from '../../../components/workspace/queries/get-queue-status'
 import { ListViewIcon } from '../../../icons/list-view-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/queues')({
   component: QueueManagementAdminPage,
-  loader: async ({ context }) => {
-    await Promise.all([context.queryClient.ensureQueryData(getQueueStatusQueryOptions())])
-  },
+  loader: async ({ context }) => {},
 })
 
 function QueueManagementAdminPage() {
@@ -19,15 +15,34 @@ function QueueManagementAdminPage() {
   const [autoRefresh, setAutoRefresh] = useState(false)
 
   // Use suspense query - data is guaranteed to be available
-  const { data: queueStatus } = useSuspenseQuery({
-    ...getQueueStatusQueryOptions(),
-    refetchInterval: autoRefresh ? 5000 : false, // Override refetch interval for auto-refresh
-  })
+  // const { data: queueStatus } = useSuspenseQuery({
+  //   ...getQueueStatusQueryOptions(),
+  //   refetchInterval: autoRefresh ? 5000 : false, // Override refetch interval for auto-refresh
+  // })
+
+  // Mock data for demonstration - replace with actual query
+  const queueStatus = {
+    lastUpdated: new Date().toISOString(),
+    queues: [
+      {
+        queueType: 'INFERENCE',
+        pendingTasks: 5,
+        processingTasks: 2,
+        failedTasks: 1,
+        isRunning: true,
+      },
+      {
+        queueType: 'EMBEDDING',
+        pendingTasks: 3,
+        processingTasks: 1,
+        failedTasks: 0,
+        isRunning: false,
+      },
+    ],
+  }
 
   // Manual refresh function
-  const handleRefresh = () => {
-    queryClient.invalidateQueries(getQueueStatusQueryOptions())
-  }
+  const handleRefresh = () => {}
 
   return (
     <div className="container mx-auto space-y-6">
@@ -57,8 +72,6 @@ function QueueManagementAdminPage() {
           </button>
         </div>
       </div>
-
-      <QueueManagementPanel queueStatus={queueStatus} />
 
       <div className="text-center text-sm opacity-50">
         Last updated: <ClientDate date={queueStatus.lastUpdated} />

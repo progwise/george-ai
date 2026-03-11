@@ -700,23 +700,6 @@ export type AiListSourceInput = {
   libraryId: Scalars['String']['input']
 }
 
-export type AiServiceProvider = {
-  __typename?: 'AiServiceProvider'
-  apiKeyHint?: Maybe<Scalars['String']['output']>
-  baseUrl?: Maybe<Scalars['String']['output']>
-  createdAt: Scalars['DateTime']['output']
-  createdBy?: Maybe<Scalars['String']['output']>
-  enabled: Scalars['Boolean']['output']
-  id: Scalars['ID']['output']
-  name: Scalars['String']['output']
-  provider: Scalars['String']['output']
-  updatedAt: Scalars['DateTime']['output']
-  updatedBy?: Maybe<Scalars['String']['output']>
-  vramGb?: Maybe<Scalars['Int']['output']>
-  workspace: Workspace
-  workspaceId: Scalars['String']['output']
-}
-
 export type ApiCrawlerTemplate = {
   __typename?: 'ApiCrawlerTemplate'
   config: Scalars['String']['output']
@@ -1231,7 +1214,7 @@ export type FileChunk = {
   embeddingModelNames?: Maybe<Array<Scalars['String']['output']>>
   extractionMethod: Scalars['String']['output']
   fileId: Scalars['String']['output']
-  filename?: Maybe<Scalars['String']['output']>
+  fileName?: Maybe<Scalars['String']['output']>
   fragment?: Maybe<Scalars['Int']['output']>
   id: Scalars['String']['output']
   libraryId: Scalars['String']['output']
@@ -1305,12 +1288,30 @@ export enum InferenceDriver {
 
 export type InferenceHostConfig = {
   __typename?: 'InferenceHostConfig'
-  apiKey?: Maybe<Scalars['String']['output']>
+  apiKeyHint?: Maybe<Scalars['String']['output']>
+  configuredVramGb?: Maybe<Scalars['Int']['output']>
+  connection: InferenceHostConnection
   driver: InferenceDriver
+  enabled: Scalars['Boolean']['output']
   hostId: Scalars['String']['output']
   lastUpdate?: Maybe<Scalars['DateTime']['output']>
   name?: Maybe<Scalars['String']['output']>
   url?: Maybe<Scalars['String']['output']>
+  workspaceId: Scalars['String']['output']
+}
+
+export type InferenceHostConnection = {
+  __typename?: 'InferenceHostConnection'
+  baseUrl?: Maybe<Scalars['String']['output']>
+  driver: InferenceDriver
+  encryptedApiKey?: Maybe<Scalars['String']['output']>
+}
+
+export type InferenceHostInput = {
+  apiKey?: InputMaybe<Scalars['String']['input']>
+  baseUrl?: InputMaybe<Scalars['String']['input']>
+  name: Scalars['String']['input']
+  vramGb?: InputMaybe<Scalars['Int']['input']>
 }
 
 export type InferenceHostState = {
@@ -1326,6 +1327,18 @@ export type InferenceHostState = {
   totalMemoryMb?: Maybe<Scalars['Int']['output']>
   url?: Maybe<Scalars['String']['output']>
   usedMemoryMb?: Maybe<Scalars['Int']['output']>
+}
+
+export type InferenceModel = {
+  __typename?: 'InferenceModel'
+  canDoChatCompletion: Scalars['Boolean']['output']
+  canDoEmbedding: Scalars['Boolean']['output']
+  canDoFunctionCalling: Scalars['Boolean']['output']
+  canDoVision: Scalars['Boolean']['output']
+  driver: InferenceDriver
+  enabled: Scalars['Boolean']['output']
+  name: Scalars['String']['output']
+  workspaceId: Scalars['String']['output']
 }
 
 export type InferenceModelState = {
@@ -1515,15 +1528,6 @@ export type ManagedUsersResponse = {
   users: Array<ManagedUser>
 }
 
-export type ModelProviderInput = {
-  apiKey?: InputMaybe<Scalars['String']['input']>
-  baseUrl?: InputMaybe<Scalars['String']['input']>
-  enabled?: InputMaybe<Scalars['Boolean']['input']>
-  name: Scalars['String']['input']
-  provider: Scalars['String']['input']
-  vramGb?: InputMaybe<Scalars['Int']['input']>
-}
-
 export type ModelUsageStats = {
   __typename?: 'ModelUsageStats'
   avgDurationMs: Scalars['Float']['output']
@@ -1557,9 +1561,9 @@ export type Mutation = {
   createConnector: AiConnector
   createConversationInvitations?: Maybe<AiConversation>
   createEnrichmentTasks: EnrichmentQueueTasksMutationResult
+  createInferenceHost: InferenceHostConfig
   createLibrary?: Maybe<AiLibrary>
   createList: AiList
-  createModelProvider: AiServiceProvider
   createWorkspace: CreateWorkspaceResult
   deleteAiAssistant?: Maybe<AiAssistant>
   deleteAiConversation?: Maybe<AiConversation>
@@ -1572,11 +1576,14 @@ export type Mutation = {
   deleteLibrary: Scalars['Boolean']['output']
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
-  deleteModelProvider: Scalars['Boolean']['output']
   deletePendingEnrichmentTasks: EnrichmentQueueTasksMutationResult
   deleteWorkspace: Scalars['Boolean']['output']
   disableConnectorType: Scalars['Boolean']['output']
+  disableInferenceHost: InferenceHostConfig
+  disableModel?: Maybe<InferenceModel>
   enableConnectorType: AiConnectorTypeWorkspace
+  enableInferenceHost: InferenceHostConfig
+  enableModel?: Maybe<InferenceModel>
   ensureUserProfile?: Maybe<UserProfile>
   generateApiKey: ApiKeyWithSecret
   hideMessage?: Maybe<AiConversationMessage>
@@ -1587,6 +1594,7 @@ export type Mutation = {
   migrateWorkspace?: Maybe<Scalars['Boolean']['output']>
   prepareUpload: PrepareUploadResult
   removeConversationParticipant?: Maybe<AiConversationParticipant>
+  removeInferenceHost: Scalars['Boolean']['output']
   removeLibraryUsage?: Maybe<AiLibraryUsage>
   removeListField: AiListField
   removeListSource: AiListSource
@@ -1599,19 +1607,13 @@ export type Mutation = {
   runAiLibraryCrawler: Scalars['String']['output']
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
-  startAllQueueWorkers: QueueOperationResult
   startProcessing: Array<EventQueue>
-  startQueueWorker: QueueOperationResult
   stopAiLibraryCrawler: Scalars['String']['output']
-  stopAllQueueWorkers: QueueOperationResult
   stopProcessing: Array<EventQueue>
-  stopQueueWorker: QueueOperationResult
   syncModels?: Maybe<SyncModelsResult>
   testConnectorConnection: TestConnectorConnectionResult
-  testProviderConnection: TestProviderConnectionResult
+  testInferenceHostConnection: TestInferenceHostConnectionResult
   toggleAdminStatus?: Maybe<User>
-  toggleModel?: Maybe<AiLanguageModel>
-  toggleModelProvider: AiServiceProvider
   triggerAutomation: TriggerAutomationResult
   triggerAutomationItem: TriggerAutomationResult
   triggerExtraction: TriggerExtractionResult
@@ -1622,13 +1624,13 @@ export type Mutation = {
   updateAssessmentQuestion: Scalars['DateTime']['output']
   updateAutomation: Automation
   updateConnector: AiConnector
+  updateInferenceHost: InferenceHostConfig
   updateLibrary: AiLibrary
   updateLibraryUsage?: Maybe<AiLibraryUsage>
   updateList?: Maybe<AiList>
   updateListField: AiListField
   updateMessage?: Maybe<AiConversationMessage>
   updateModel?: Maybe<AiLanguageModel>
-  updateModelProvider: AiServiceProvider
   updateUserAvatar?: Maybe<User>
   updateUserProfile?: Maybe<UserProfile>
   upsertAiBaseCases?: Maybe<Array<AiAssistantBaseCase>>
@@ -1735,6 +1737,11 @@ export type MutationCreateEnrichmentTasksArgs = {
   onlyMissingValues?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export type MutationCreateInferenceHostArgs = {
+  data: InferenceHostInput
+  driver: InferenceDriver
+}
+
 export type MutationCreateLibraryArgs = {
   description?: InputMaybe<Scalars['String']['input']>
   name: Scalars['String']['input']
@@ -1742,10 +1749,6 @@ export type MutationCreateLibraryArgs = {
 
 export type MutationCreateListArgs = {
   data: AiListInput
-}
-
-export type MutationCreateModelProviderArgs = {
-  data: ModelProviderInput
 }
 
 export type MutationCreateWorkspaceArgs = {
@@ -1799,10 +1802,6 @@ export type MutationDeleteMessageArgs = {
   messageId: Scalars['String']['input']
 }
 
-export type MutationDeleteModelProviderArgs = {
-  id: Scalars['ID']['input']
-}
-
 export type MutationDeletePendingEnrichmentTasksArgs = {
   fieldId?: InputMaybe<Scalars['String']['input']>
   filters?: InputMaybe<Array<AiListFilterInput>>
@@ -1814,8 +1813,26 @@ export type MutationDisableConnectorTypeArgs = {
   connectorType: Scalars['String']['input']
 }
 
+export type MutationDisableInferenceHostArgs = {
+  hostId: Scalars['String']['input']
+}
+
+export type MutationDisableModelArgs = {
+  driver: InferenceDriver
+  modelName: Scalars['ID']['input']
+}
+
 export type MutationEnableConnectorTypeArgs = {
   connectorType: Scalars['String']['input']
+}
+
+export type MutationEnableInferenceHostArgs = {
+  hostId: Scalars['String']['input']
+}
+
+export type MutationEnableModelArgs = {
+  driver: InferenceDriver
+  modelName: Scalars['ID']['input']
 }
 
 export type MutationEnsureUserProfileArgs = {
@@ -1855,6 +1872,10 @@ export type MutationPrepareUploadArgs = {
 
 export type MutationRemoveConversationParticipantArgs = {
   participantId: Scalars['String']['input']
+}
+
+export type MutationRemoveInferenceHostArgs = {
+  hostId: Scalars['String']['input']
 }
 
 export type MutationRemoveLibraryUsageArgs = {
@@ -1909,20 +1930,12 @@ export type MutationStartProcessingArgs = {
   action: EventQueueAction
 }
 
-export type MutationStartQueueWorkerArgs = {
-  queueType: QueueType
-}
-
 export type MutationStopAiLibraryCrawlerArgs = {
   crawlerId: Scalars['String']['input']
 }
 
 export type MutationStopProcessingArgs = {
   action: EventQueueAction
-}
-
-export type MutationStopQueueWorkerArgs = {
-  queueType: QueueType
 }
 
 export type MutationSyncModelsArgs = {
@@ -1933,25 +1946,16 @@ export type MutationTestConnectorConnectionArgs = {
   id: Scalars['ID']['input']
 }
 
-export type MutationTestProviderConnectionArgs = {
+export type MutationTestInferenceHostConnectionArgs = {
   apiKey?: InputMaybe<Scalars['String']['input']>
   baseUrl?: InputMaybe<Scalars['String']['input']>
   driver: InferenceDriver
-  providerId?: InputMaybe<Scalars['String']['input']>
+  hostId?: InputMaybe<Scalars['String']['input']>
+  workspaceId: Scalars['String']['input']
 }
 
 export type MutationToggleAdminStatusArgs = {
   userId: Scalars['String']['input']
-}
-
-export type MutationToggleModelArgs = {
-  enabled: Scalars['Boolean']['input']
-  id: Scalars['ID']['input']
-}
-
-export type MutationToggleModelProviderArgs = {
-  enabled: Scalars['Boolean']['input']
-  id: Scalars['String']['input']
 }
 
 export type MutationTriggerAutomationArgs = {
@@ -2006,6 +2010,11 @@ export type MutationUpdateConnectorArgs = {
   id: Scalars['ID']['input']
 }
 
+export type MutationUpdateInferenceHostArgs = {
+  data: InferenceHostInput
+  hostId: Scalars['ID']['input']
+}
+
 export type MutationUpdateLibraryArgs = {
   data: LibraryInput
   libraryId: Scalars['String']['input']
@@ -2033,11 +2042,6 @@ export type MutationUpdateMessageArgs = {
 
 export type MutationUpdateModelArgs = {
   data: UpdateAiLanguageModelInput
-  id: Scalars['ID']['input']
-}
-
-export type MutationUpdateModelProviderArgs = {
-  data: ModelProviderInput
   id: Scalars['ID']['input']
 }
 
@@ -2135,11 +2139,9 @@ export type Query = {
   libraries: LibrariesResponseType
   library: AiLibrary
   managedUsers: ManagedUsersResponse
-  modelProviders: Array<AiServiceProvider>
   models: AiLanguageModelsResult
   myWorkspaceInvitations: Array<WorkspaceInvitation>
   queryFileChunks: FileChunksQueryResult
-  queueSystemStatus: QueueSystemStatus
   similarChunks: Array<SimilarChunkResult>
   user?: Maybe<User>
   userProfile: UserProfile
@@ -2365,10 +2367,6 @@ export type QueryManagedUsersArgs = {
   take?: Scalars['Int']['input']
 }
 
-export type QueryModelProvidersArgs = {
-  enabled?: InputMaybe<Scalars['Boolean']['input']>
-}
-
 export type QueryModelsArgs = {
   canDoChatCompletion?: InputMaybe<Scalars['Boolean']['input']>
   canDoEmbedding?: InputMaybe<Scalars['Boolean']['input']>
@@ -2428,43 +2426,10 @@ export type QueryWorkspacesArgs = {
   take?: InputMaybe<Scalars['Int']['input']>
 }
 
-export type QueueOperationResult = {
-  __typename?: 'QueueOperationResult'
-  affectedCount?: Maybe<Scalars['Int']['output']>
-  message: Scalars['String']['output']
-  success: Scalars['Boolean']['output']
-}
-
-export type QueueStatus = {
-  __typename?: 'QueueStatus'
-  completedTasks: Scalars['Int']['output']
-  failedTasks: Scalars['Int']['output']
-  isRunning: Scalars['Boolean']['output']
-  lastProcessedAt?: Maybe<Scalars['String']['output']>
-  pendingTasks: Scalars['Int']['output']
-  processingTasks: Scalars['Int']['output']
-  queueType: QueueType
-}
-
-export type QueueSystemStatus = {
-  __typename?: 'QueueSystemStatus'
-  allWorkersRunning: Scalars['Boolean']['output']
-  lastUpdated: Scalars['String']['output']
-  queues: Array<QueueStatus>
-  totalFailedTasks: Scalars['Int']['output']
-  totalPendingTasks: Scalars['Int']['output']
-  totalProcessingTasks: Scalars['Int']['output']
-}
-
-export enum QueueType {
-  Automation = 'AUTOMATION',
-  Enrichment = 'ENRICHMENT',
-}
-
 export type RestoreDefaultProvidersResult = {
   __typename?: 'RestoreDefaultProvidersResult'
   created: Scalars['Int']['output']
-  providers: Array<AiServiceProvider>
+  providers: Array<InferenceHostConfig>
   skipped: Scalars['Int']['output']
 }
 
@@ -2484,7 +2449,7 @@ export type SimilarChunkResult = {
   embeddingModelNames?: Maybe<Array<Scalars['String']['output']>>
   extractionMethod: Scalars['String']['output']
   fileId: Scalars['String']['output']
-  filename?: Maybe<Scalars['String']['output']>
+  fileName?: Maybe<Scalars['String']['output']>
   fragment?: Maybe<Scalars['Int']['output']>
   id: Scalars['String']['output']
   libraryId: Scalars['String']['output']
@@ -2525,8 +2490,8 @@ export type TestConnectorConnectionResult = {
   success: Scalars['Boolean']['output']
 }
 
-export type TestProviderConnectionResult = {
-  __typename?: 'TestProviderConnectionResult'
+export type TestInferenceHostConnectionResult = {
+  __typename?: 'TestInferenceHostConnectionResult'
   isHealthy?: Maybe<Scalars['Boolean']['output']>
   isOnline?: Maybe<Scalars['Boolean']['output']>
   message: Scalars['String']['output']
@@ -2634,10 +2599,9 @@ export enum WorkerActionResult {
 }
 
 export enum WorkerRole {
-  InferenceHostManager = 'inferenceHostManager',
+  RegistryManager = 'registryManager',
   RequestFulfillment = 'requestFulfillment',
   WorkerSlotManager = 'workerSlotManager',
-  WorkspaceConfigManager = 'workspaceConfigManager',
   WorkspaceProcessing = 'workspaceProcessing',
 }
 
@@ -3226,28 +3190,6 @@ export type UpdateConnectorMutation = {
   }
 }
 
-export type GetAiServiceProvidersQueryVariables = Exact<{
-  enabled?: InputMaybe<Scalars['Boolean']['input']>
-}>
-
-export type GetAiServiceProvidersQuery = {
-  __typename?: 'Query'
-  modelProviders: Array<{
-    __typename?: 'AiServiceProvider'
-    id: string
-    createdAt: string
-    updatedAt: string
-    provider: string
-    name: string
-    enabled: boolean
-    baseUrl?: string | null
-    apiKeyHint?: string | null
-    vramGb?: number | null
-    createdBy?: string | null
-    updatedBy?: string | null
-  }>
-}
-
 export type WorkersQueryVariables = Exact<{ [key: string]: never }>
 
 export type WorkersQuery = {
@@ -3260,63 +3202,45 @@ export type WorkersQuery = {
   }>
 }
 
-export type StartQueueWorkerMutationVariables = Exact<{
-  queueType: QueueType
+export type CreateInferenceHostFnMutationVariables = Exact<{
+  driver: InferenceDriver
+  data: InferenceHostInput
 }>
 
-export type StartQueueWorkerMutation = {
+export type CreateInferenceHostFnMutation = {
   __typename?: 'Mutation'
-  startQueueWorker: { __typename?: 'QueueOperationResult'; success: boolean; message: string }
-}
-
-export type StopQueueWorkerMutationVariables = Exact<{
-  queueType: QueueType
-}>
-
-export type StopQueueWorkerMutation = {
-  __typename?: 'Mutation'
-  stopQueueWorker: { __typename?: 'QueueOperationResult'; success: boolean; message: string }
-}
-
-export type QueueSystemStatus_ManagementPanelFragment = {
-  __typename?: 'QueueSystemStatus'
-  allWorkersRunning: boolean
-  totalPendingTasks: number
-  totalProcessingTasks: number
-  totalFailedTasks: number
-  lastUpdated: string
-  queues: Array<{
-    __typename?: 'QueueStatus'
-    queueType: QueueType
-    isRunning: boolean
-    pendingTasks: number
-    processingTasks: number
-    failedTasks: number
-    completedTasks: number
-    lastProcessedAt?: string | null
-  }>
-}
-
-export type CreateModelProviderMutationVariables = Exact<{
-  data: ModelProviderInput
-}>
-
-export type CreateModelProviderMutation = {
-  __typename?: 'Mutation'
-  createModelProvider: {
-    __typename?: 'AiServiceProvider'
-    id: string
-    provider: string
-    name: string
+  createInferenceHost: {
+    __typename?: 'InferenceHostConfig'
+    hostId: string
+    driver: InferenceDriver
+    name?: string | null
     enabled: boolean
   }
 }
 
-export type DeleteModelProviderMutationVariables = Exact<{
-  id: Scalars['ID']['input']
+export type DeleteInferenceHostFnMutationVariables = Exact<{
+  hostId: Scalars['String']['input']
 }>
 
-export type DeleteModelProviderMutation = { __typename?: 'Mutation'; deleteModelProvider: boolean }
+export type DeleteInferenceHostFnMutation = { __typename?: 'Mutation'; removeInferenceHost: boolean }
+
+export type DisableInferenceHostFnMutationVariables = Exact<{
+  hostId: Scalars['String']['input']
+}>
+
+export type DisableInferenceHostFnMutation = {
+  __typename?: 'Mutation'
+  disableInferenceHost: { __typename?: 'InferenceHostConfig'; hostId: string; enabled: boolean }
+}
+
+export type EnableInferenceHostFnMutationVariables = Exact<{
+  hostId: Scalars['String']['input']
+}>
+
+export type EnableInferenceHostFnMutation = {
+  __typename?: 'Mutation'
+  enableInferenceHost: { __typename?: 'InferenceHostConfig'; hostId: string; enabled: boolean }
+}
 
 export type RestoreDefaultProvidersMutationVariables = Exact<{ [key: string]: never }>
 
@@ -3327,13 +3251,13 @@ export type RestoreDefaultProvidersMutation = {
     created: number
     skipped: number
     providers: Array<{
-      __typename?: 'AiServiceProvider'
-      id: string
-      name: string
-      provider: string
-      baseUrl?: string | null
+      __typename?: 'InferenceHostConfig'
+      hostId: string
+      name?: string | null
+      driver: InferenceDriver
+      url?: string | null
       enabled: boolean
-      vramGb?: number | null
+      configuredVramGb?: number | null
     }>
   }
 }
@@ -3374,17 +3298,18 @@ export type StopWorkspaceProcessingMutation = {
   }>
 }
 
-export type TestProviderConnectionMutationVariables = Exact<{
-  providerId?: InputMaybe<Scalars['String']['input']>
+export type TestInferenceHostConnectionFnMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+  hostId?: InputMaybe<Scalars['String']['input']>
   driver: InferenceDriver
   baseUrl?: InputMaybe<Scalars['String']['input']>
   apiKey?: InputMaybe<Scalars['String']['input']>
 }>
 
-export type TestProviderConnectionMutation = {
+export type TestInferenceHostConnectionFnMutation = {
   __typename?: 'Mutation'
-  testProviderConnection: {
-    __typename?: 'TestProviderConnectionResult'
+  testInferenceHostConnection: {
+    __typename?: 'TestInferenceHostConnectionResult'
     success: boolean
     isOnline?: boolean | null
     isHealthy?: boolean | null
@@ -3392,28 +3317,18 @@ export type TestProviderConnectionMutation = {
   }
 }
 
-export type ToggleAiServiceProviderMutationVariables = Exact<{
-  id: Scalars['String']['input']
-  enabled: Scalars['Boolean']['input']
+export type UpdateInferenceHostFnMutationVariables = Exact<{
+  hostId: Scalars['ID']['input']
+  data: InferenceHostInput
 }>
 
-export type ToggleAiServiceProviderMutation = {
+export type UpdateInferenceHostFnMutation = {
   __typename?: 'Mutation'
-  toggleModelProvider: { __typename?: 'AiServiceProvider'; id: string; enabled: boolean }
-}
-
-export type UpdateAiServiceProviderMutationVariables = Exact<{
-  id: Scalars['ID']['input']
-  data: ModelProviderInput
-}>
-
-export type UpdateAiServiceProviderMutation = {
-  __typename?: 'Mutation'
-  updateModelProvider: {
-    __typename?: 'AiServiceProvider'
-    id: string
-    provider: string
-    name: string
+  updateInferenceHost: {
+    __typename?: 'InferenceHostConfig'
+    hostId: string
+    driver: InferenceDriver
+    name?: string | null
     enabled: boolean
   }
 }
@@ -5122,7 +5037,7 @@ export type GetFileChunksQuery = {
       fileId: string
       chunk: number
       content?: string | null
-      filename?: string | null
+      fileName?: string | null
       extractionMethod: string
       embeddingModelNames?: Array<string> | null
       fragment?: number | null
@@ -5145,7 +5060,7 @@ export type GetSimilarChunksQuery = {
     id: string
     distance: number
     chunk: number
-    filename?: string | null
+    fileName?: string | null
     fileId: string
     extractionMethod: string
     content?: string | null
@@ -5362,7 +5277,7 @@ export type QueryLibraryFilesQuery = {
       id: string
       libraryId: string
       fileId: string
-      filename?: string | null
+      fileName?: string | null
       extractionMethod: string
       chunk: number
       content?: string | null
@@ -5376,7 +5291,7 @@ export type LibraryQueryResult_FileChunkFragment = {
   id: string
   libraryId: string
   fileId: string
-  filename?: string | null
+  fileName?: string | null
   extractionMethod: string
   chunk: number
   fragment?: number | null
@@ -6605,11 +6520,14 @@ export type GetInferenceHostConfigQuery = {
   __typename?: 'Query'
   inferenceHostConfig: Array<{
     __typename?: 'InferenceHostConfig'
+    workspaceId: string
     hostId: string
-    name?: string | null
     driver: InferenceDriver
+    name?: string | null
     url?: string | null
-    apiKey?: string | null
+    apiKeyHint?: string | null
+    enabled: boolean
+    configuredVramGb?: number | null
     lastUpdate?: string | null
   }>
 }
@@ -6704,30 +6622,6 @@ export type GetEventQueueQuery = {
     redelivered?: number | null
     waiting?: number | null
   }>
-}
-
-export type GetQueueStatusQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetQueueStatusQuery = {
-  __typename?: 'Query'
-  queueSystemStatus: {
-    __typename?: 'QueueSystemStatus'
-    allWorkersRunning: boolean
-    totalPendingTasks: number
-    totalProcessingTasks: number
-    totalFailedTasks: number
-    lastUpdated: string
-    queues: Array<{
-      __typename?: 'QueueStatus'
-      queueType: QueueType
-      isRunning: boolean
-      pendingTasks: number
-      processingTasks: number
-      failedTasks: number
-      completedTasks: number
-      lastProcessedAt?: string | null
-    }>
-  }
 }
 
 export type WorkspaceInvitationQueryVariables = Exact<{
@@ -8032,42 +7926,6 @@ export const ConnectorDetailFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<ConnectorDetailFragment, unknown>
-export const QueueSystemStatus_ManagementPanelFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'QueueSystemStatus_ManagementPanel' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'QueueSystemStatus' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'allWorkersRunning' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'totalPendingTasks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'totalProcessingTasks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'totalFailedTasks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'lastUpdated' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'queues' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'queueType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'pendingTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processingTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'failedTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'completedTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'lastProcessedAt' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<QueueSystemStatus_ManagementPanelFragment, unknown>
 export const ManagedUserFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -10732,7 +10590,7 @@ export const LibraryQueryResult_FileChunkFragmentDoc = {
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'filename' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunk' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fragment' } },
@@ -13640,55 +13498,6 @@ export const UpdateConnectorDocument = {
     },
   ],
 } as unknown as DocumentNode<UpdateConnectorMutation, UpdateConnectorMutationVariables>
-export const GetAiServiceProvidersDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetAiServiceProviders' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'enabled' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'modelProviders' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'enabled' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'enabled' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'updatedAt' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'baseUrl' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'apiKeyHint' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'vramGb' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'createdBy' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'updatedBy' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetAiServiceProvidersQuery, GetAiServiceProvidersQueryVariables>
 export const WorkersDocument = {
   kind: 'Document',
   definitions: [
@@ -13716,100 +13525,25 @@ export const WorkersDocument = {
     },
   ],
 } as unknown as DocumentNode<WorkersQuery, WorkersQueryVariables>
-export const StartQueueWorkerDocument = {
+export const CreateInferenceHostFnDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'StartQueueWorker' },
+      name: { kind: 'Name', value: 'createInferenceHostFn' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'queueType' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'QueueType' } } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'driver' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'InferenceDriver' } } },
         },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'startQueueWorker' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'queueType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'queueType' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'message' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<StartQueueWorkerMutation, StartQueueWorkerMutationVariables>
-export const StopQueueWorkerDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'StopQueueWorker' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'queueType' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'QueueType' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'stopQueueWorker' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'queueType' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'queueType' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'success' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'message' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<StopQueueWorkerMutation, StopQueueWorkerMutationVariables>
-export const CreateModelProviderDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'CreateModelProvider' },
-      variableDefinitions: [
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
           type: {
             kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ModelProviderInput' } },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'InferenceHostInput' } },
           },
         },
       ],
@@ -13818,8 +13552,13 @@ export const CreateModelProviderDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'createModelProvider' },
+            name: { kind: 'Name', value: 'createInferenceHost' },
             arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'driver' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'driver' } },
+              },
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
@@ -13829,8 +13568,8 @@ export const CreateModelProviderDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hostId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'driver' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
               ],
@@ -13840,19 +13579,19 @@ export const CreateModelProviderDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<CreateModelProviderMutation, CreateModelProviderMutationVariables>
-export const DeleteModelProviderDocument = {
+} as unknown as DocumentNode<CreateInferenceHostFnMutation, CreateInferenceHostFnMutationVariables>
+export const DeleteInferenceHostFnDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'DeleteModelProvider' },
+      name: { kind: 'Name', value: 'deleteInferenceHostFn' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -13860,12 +13599,12 @@ export const DeleteModelProviderDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'deleteModelProvider' },
+            name: { kind: 'Name', value: 'removeInferenceHost' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                name: { kind: 'Name', value: 'hostId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
               },
             ],
           },
@@ -13873,7 +13612,87 @@ export const DeleteModelProviderDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<DeleteModelProviderMutation, DeleteModelProviderMutationVariables>
+} as unknown as DocumentNode<DeleteInferenceHostFnMutation, DeleteInferenceHostFnMutationVariables>
+export const DisableInferenceHostFnDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'disableInferenceHostFn' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'disableInferenceHost' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'hostId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'hostId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<DisableInferenceHostFnMutation, DisableInferenceHostFnMutationVariables>
+export const EnableInferenceHostFnDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'enableInferenceHostFn' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'enableInferenceHost' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'hostId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'hostId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EnableInferenceHostFnMutation, EnableInferenceHostFnMutationVariables>
 export const RestoreDefaultProvidersDocument = {
   kind: 'Document',
   definitions: [
@@ -13898,12 +13717,12 @@ export const RestoreDefaultProvidersDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hostId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'baseUrl' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'driver' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'url' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'vramGb' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'configuredVramGb' } },
                     ],
                   },
                 },
@@ -14005,17 +13824,22 @@ export const StopWorkspaceProcessingDocument = {
     },
   ],
 } as unknown as DocumentNode<StopWorkspaceProcessingMutation, StopWorkspaceProcessingMutationVariables>
-export const TestProviderConnectionDocument = {
+export const TestInferenceHostConnectionFnDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'TestProviderConnection' },
+      name: { kind: 'Name', value: 'testInferenceHostConnectionFn' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'providerId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
           type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
         },
         {
@@ -14039,12 +13863,17 @@ export const TestProviderConnectionDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'testProviderConnection' },
+            name: { kind: 'Name', value: 'testInferenceHostConnection' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'providerId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'providerId' } },
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'hostId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
               },
               {
                 kind: 'Argument',
@@ -14076,68 +13905,18 @@ export const TestProviderConnectionDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<TestProviderConnectionMutation, TestProviderConnectionMutationVariables>
-export const ToggleAiServiceProviderDocument = {
+} as unknown as DocumentNode<TestInferenceHostConnectionFnMutation, TestInferenceHostConnectionFnMutationVariables>
+export const UpdateInferenceHostFnDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'ToggleAiServiceProvider' },
+      name: { kind: 'Name', value: 'updateInferenceHostFn' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'enabled' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'toggleModelProvider' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'enabled' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'enabled' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<ToggleAiServiceProviderMutation, ToggleAiServiceProviderMutationVariables>
-export const UpdateAiServiceProviderDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'UpdateAiServiceProvider' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
         },
         {
@@ -14145,7 +13924,7 @@ export const UpdateAiServiceProviderDocument = {
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
           type: {
             kind: 'NonNullType',
-            type: { kind: 'NamedType', name: { kind: 'Name', value: 'ModelProviderInput' } },
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'InferenceHostInput' } },
           },
         },
       ],
@@ -14154,12 +13933,12 @@ export const UpdateAiServiceProviderDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'updateModelProvider' },
+            name: { kind: 'Name', value: 'updateInferenceHost' },
             arguments: [
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'id' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'id' } },
+                name: { kind: 'Name', value: 'hostId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'hostId' } },
               },
               {
                 kind: 'Argument',
@@ -14170,8 +13949,8 @@ export const UpdateAiServiceProviderDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'hostId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'driver' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
               ],
@@ -14181,7 +13960,7 @@ export const UpdateAiServiceProviderDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<UpdateAiServiceProviderMutation, UpdateAiServiceProviderMutationVariables>
+} as unknown as DocumentNode<UpdateInferenceHostFnMutation, UpdateInferenceHostFnMutationVariables>
 export const EnsureUserProfileDocument = {
   kind: 'Document',
   definitions: [
@@ -17601,7 +17380,7 @@ export const GetFileChunksDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'chunk' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'content' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'filename' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelNames' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'fragment' } },
@@ -17689,7 +17468,7 @@ export const GetSimilarChunksDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'distance' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'chunk' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'filename' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
@@ -18414,7 +18193,7 @@ export const QueryLibraryFilesDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'id' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'filename' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'chunk' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'content' } },
@@ -18438,7 +18217,7 @@ export const QueryLibraryFilesDocument = {
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'filename' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
           { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
           { kind: 'Field', name: { kind: 'Name', value: 'chunk' } },
           { kind: 'Field', name: { kind: 'Name', value: 'fragment' } },
@@ -21555,11 +21334,14 @@ export const GetInferenceHostConfigDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'hostId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'driver' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'url' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'apiKey' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'apiKeyHint' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'enabled' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'configuredVramGb' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
               ],
             },
@@ -21788,76 +21570,6 @@ export const GetEventQueueDocument = {
     },
   ],
 } as unknown as DocumentNode<GetEventQueueQuery, GetEventQueueQueryVariables>
-export const GetQueueStatusDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'GetQueueStatus' },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'queueSystemStatus' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'FragmentSpread', name: { kind: 'Name', value: 'QueueSystemStatus_ManagementPanel' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'queues' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'queueType' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'pendingTasks' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'processingTasks' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'failedTasks' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'QueueSystemStatus_ManagementPanel' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'QueueSystemStatus' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'allWorkersRunning' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'totalPendingTasks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'totalProcessingTasks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'totalFailedTasks' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'lastUpdated' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'queues' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'queueType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'isRunning' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'pendingTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'processingTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'failedTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'completedTasks' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'lastProcessedAt' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetQueueStatusQuery, GetQueueStatusQueryVariables>
 export const WorkspaceInvitationDocument = {
   kind: 'Document',
   definitions: [

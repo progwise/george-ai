@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router'
 
 import { WorkspaceRole } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { getQueueStatusQueryOptions } from './queries'
 
 interface WorkspaceQueueCardsProps {
   currentWorkspaceRole?: WorkspaceRole
@@ -11,7 +10,28 @@ interface WorkspaceQueueCardsProps {
 export const WorkspaceQueueCards = ({ currentWorkspaceRole }: WorkspaceQueueCardsProps) => {
   const { t } = useTranslation()
 
-  const { data: queueSystemStatus, isLoading, error } = useQuery(getQueueStatusQueryOptions())
+  //const { data: queueSystemStatus, isLoading, error } = useQuery(getQueueStatusQueryOptions())
+
+  const isLoading = false
+  const error = null
+  const queueSystemStatus = {
+    queues: [
+      {
+        queueType: 'INFERENCE',
+        pendingTasks: 5,
+        processingTasks: 2,
+        failedTasks: 1,
+        isRunning: true,
+      },
+      {
+        queueType: 'EMBEDDING',
+        pendingTasks: 3,
+        processingTasks: 1,
+        failedTasks: 0,
+        isRunning: false,
+      },
+    ],
+  }
 
   if (!currentWorkspaceRole || isLoading) {
     return (

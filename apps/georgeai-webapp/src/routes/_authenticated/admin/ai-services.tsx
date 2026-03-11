@@ -2,17 +2,23 @@ import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useRef, useState } from 'react'
 
-import { getModelProvidersQueryOptions } from '../../../components/admin/queries'
-import { createProviderFn } from '../../../components/admin/server-functions/create-provider'
-import { deleteProviderFn } from '../../../components/admin/server-functions/delete-provider'
-import { restoreDefaultProvidersFn } from '../../../components/admin/server-functions/restore-default-providers'
-import { testProviderConnectionFn } from '../../../components/admin/server-functions/test-provider-connection'
-import { toggleProviderFn } from '../../../components/admin/server-functions/toggle-provider'
-import { updateProviderFn } from '../../../components/admin/server-functions/update-provider'
+import {
+  createInferenceHostFn,
+  deleteInferenceHostFn,
+  disableInferenceHostFn,
+  enableInferenceHostFn,
+  restoreDefaultProvidersFn,
+  testInferenceHostConnectionFn,
+  updateInferenceHostFn,
+} from '../../../components/admin/server-functions'
 import { DialogForm } from '../../../components/dialog-form'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
-import { getInferenceHostStatusQueryOptions } from '../../../components/workspace/queries'
-import { ModelProviderInput } from '../../../gql/graphql'
+import {
+  getInferenceHostConfigQueryOptions,
+  getInferenceHostStatusQueryOptions,
+} from '../../../components/workspace/queries'
+import { InferenceDriver, InferenceHostInput } from '../../../gql/graphql'
+import { InferenceDriverSchema } from '../../../gql/validation'
 import BotIcon from '../../../icons/bot-icon'
 import { EditIcon } from '../../../icons/edit-icon'
 import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
@@ -25,14 +31,14 @@ export const Route = createFileRoute('/_authenticated/admin/ai-services')({
   loader: async ({ context }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(getInferenceHostStatusQueryOptions()),
-      context.queryClient.ensureQueryData(getModelProvidersQueryOptions()),
+      context.queryClient.ensureQueryData(getInferenceHostConfigQueryOptions()),
     ])
   },
 })
 
 type ProviderFormData = {
-  id?: string
-  provider: string
+  hostId?: string
+  driver: string
   name: string
   enabled: boolean
   baseUrl?: string
@@ -65,7 +71,7 @@ const getProviderHealthBadge = (isOnline: boolean | null) => {
 }
 
 function AiServicesAdminPage() {
-  const { queryClient } = Route.useRouteContext()
+  const { queryClient, workspaceId } = Route.useRouteContext()
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [editingProvider, setEditingProvider] = useState<ProviderFormData | null>(null)
   const [deletingProviderId, setDeletingProviderId] = useState<string | null>(null)
@@ -79,12 +85,12 @@ function AiServicesAdminPage() {
     refetchInterval: autoRefresh ? 5000 : false,
   })
 
-  const { data: providers } = useSuspenseQuery(getModelProvidersQueryOptions())
+  const { data: providers } = useSuspenseQuery(getInferenceHostConfigQueryOptions())
 
   const statusWithProvider = useMemo(
     () =>
       serviceStatus.map((status) => {
-        const provider = providers.find((provider) => provider.id === status.hostId)
+        const provider = providers.find((provider) => provider.hostId === status.hostId)
         return {
           ...status,
           name: provider?.name,
@@ -96,10 +102,10 @@ function AiServicesAdminPage() {
   )
 
   const createMutation = useMutation({
-    mutationFn: (data: ModelProviderInput) => createProviderFn({ data }),
+    mutationFn: (data: { driver: InferenceDriver; input: InferenceHostInput }) => createInferenceHostFn({ data }),
     onSuccess: () => {
       toastSuccess('Provider created successfully')
-      queryClient.invalidateQueries(getModelProvidersQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
       queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
@@ -111,10 +117,10 @@ function AiServicesAdminPage() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: ModelProviderInput }) => updateProviderFn({ data: { id, data } }),
+    mutationFn: (data: { hostId: string; input: InferenceHostInput }) => updateInferenceHostFn({ data }),
     onSuccess: () => {
       toastSuccess('Provider updated successfully')
-      queryClient.invalidateQueries(getModelProvidersQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
       queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
@@ -126,10 +132,10 @@ function AiServicesAdminPage() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteProviderFn({ data: id }),
+    mutationFn: (data: { hostId: string }) => deleteInferenceHostFn({ data }),
     onSuccess: () => {
       toastSuccess('Provider deleted successfully')
-      queryClient.invalidateQueries(getModelProvidersQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
       queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
       deleteDialogRef.current?.close()
       setDeletingProviderId(null)
@@ -141,9 +147,10 @@ function AiServicesAdminPage() {
   })
 
   const toggleMutation = useMutation({
-    mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => toggleProviderFn({ data: { id, enabled } }),
+    mutationFn: (data: { hostId: string; enabled: boolean }) =>
+      data.enabled ? enableInferenceHostFn({ data }) : disableInferenceHostFn({ data }),
     onSuccess: () => {
-      queryClient.invalidateQueries(getModelProvidersQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
       queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
     },
     onError: (error) => {
@@ -156,7 +163,7 @@ function AiServicesAdminPage() {
     mutationFn: restoreDefaultProvidersFn,
     onSuccess: (result) => {
       toastSuccess(`Restored ${result.created} providers (${result.skipped} already existed)`)
-      queryClient.invalidateQueries(getModelProvidersQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
       queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
     },
     onError: (error) => {
@@ -166,8 +173,13 @@ function AiServicesAdminPage() {
   })
 
   const testConnectionMutation = useMutation({
-    mutationFn: (data: { providerId?: string; provider: string; baseUrl?: string; apiKey?: string }) =>
-      testProviderConnectionFn({ data }),
+    mutationFn: (data: {
+      workspaceId: string
+      hostId?: string
+      driver: InferenceDriver
+      baseUrl?: string
+      apiKey?: string
+    }) => testInferenceHostConnectionFn({ data }),
     onSuccess: (result) => {
       if (result.success) {
         toastSuccess(
@@ -188,14 +200,14 @@ function AiServicesAdminPage() {
       toastError(message || 'Connection test failed')
     },
     onSettled: () => {
-      queryClient.invalidateQueries(getModelProvidersQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
       queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
     },
   })
 
   const handleAddProvider = () => {
     setEditingProvider({
-      provider: 'ollama',
+      driver: 'ollama',
       name: '',
       enabled: true,
     })
@@ -205,15 +217,15 @@ function AiServicesAdminPage() {
 
   const handleEditProvider = (provider: (typeof providers)[0]) => {
     setEditingProvider({
-      id: provider.id,
-      provider: provider.provider,
-      name: provider.name,
+      hostId: provider.hostId,
+      driver: provider.driver,
+      name: provider.name ?? 'Host not named', // TODO
       enabled: provider.enabled,
-      baseUrl: provider.baseUrl ?? undefined,
+      baseUrl: provider.url ?? undefined,
       apiKeyHint: provider.apiKeyHint,
-      vramGb: provider.vramGb ?? undefined,
+      vramGb: provider.configuredVramGb ?? undefined,
     })
-    setSelectedProviderType(provider.provider)
+    setSelectedProviderType(provider.driver)
     providerDialogRef.current?.showModal()
   }
 
@@ -229,26 +241,27 @@ function AiServicesAdminPage() {
     const formBaseUrl = (formData.get('baseUrl') as string)?.trim()
     const formApiKey = (formData.get('apiKey') as string)?.trim()
 
-    const data: ModelProviderInput = {
-      provider: selectedProviderType,
+    const input: InferenceHostInput = {
       name: formData.get('name') as string,
-      enabled: formData.get('enabled') === 'on',
       baseUrl: formBaseUrl || undefined,
       // Send undefined if empty - backend will preserve existing value when updating
       apiKey: formApiKey || undefined,
       vramGb: formData.get('vramGb') ? Number(formData.get('vramGb')) : undefined,
     }
 
-    if (editingProvider?.id) {
-      updateMutation.mutate({ id: editingProvider.id, data })
+    if (editingProvider?.hostId) {
+      updateMutation.mutate({ hostId: editingProvider.hostId, input })
     } else {
-      createMutation.mutate(data)
+      createMutation.mutate({
+        driver: InferenceDriverSchema.parse(selectedProviderType),
+        input,
+      })
     }
   }
 
   const handleConfirmDelete = () => {
     if (deletingProviderId) {
-      deleteMutation.mutate(deletingProviderId)
+      deleteMutation.mutate({ hostId: deletingProviderId })
     }
   }
 
@@ -320,15 +333,15 @@ function AiServicesAdminPage() {
           ) : (
             providers.map((provider) => {
               // Find matching instance from service status
-              const instance = serviceStatus.find((inst) => inst.url === provider.baseUrl)
+              const instance = serviceStatus.find((inst) => inst.url === provider.url)
               const isOnline = instance ? instance.state === 'healthy' : null
 
               return (
-                <div key={provider.id} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+                <div key={provider.hostId} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
                   <div className="flex h-full flex-col items-start justify-between gap-2">
                     <h3 className="flex w-full items-start justify-between gap-2 text-base font-bold">
                       <div className="flex items-center gap-2">
-                        {getProviderIcon(provider.provider, 'h-6 w-6')}
+                        {getProviderIcon(provider.driver, 'h-6 w-6')}
                         {provider.name}
                       </div>
                       <div className="flex flex-wrap justify-end gap-1">
@@ -339,9 +352,9 @@ function AiServicesAdminPage() {
                       </div>
                     </h3>
                     <div className="flex-1">
-                      {provider.baseUrl && <p className="text-sm opacity-70">{provider.baseUrl}</p>}
-                      {typeof provider.vramGb === 'number' && !isNaN(provider.vramGb) && (
-                        <p className="text-sm opacity-70">VRAM: {provider.vramGb} GB</p>
+                      {provider.url && <p className="text-sm opacity-70">{provider.url}</p>}
+                      {typeof provider.configuredVramGb === 'number' && !isNaN(provider.configuredVramGb) && (
+                        <p className="text-sm opacity-70">VRAM: {provider.configuredVramGb} GB</p>
                       )}
                       {provider.apiKeyHint && (
                         <p className="text-sm opacity-50">API Key: **** **** **** {provider.apiKeyHint}</p>
@@ -354,7 +367,9 @@ function AiServicesAdminPage() {
                           type="checkbox"
                           className="toggle toggle-sm toggle-success"
                           checked={provider.enabled}
-                          onChange={(e) => toggleMutation.mutate({ id: provider.id, enabled: e.target.checked })}
+                          onChange={(e) =>
+                            toggleMutation.mutate({ hostId: provider.hostId, enabled: e.target.checked })
+                          }
                         />
                         <span className="text-sm">{provider.enabled ? 'Disable' : 'Enable'}</span>
                       </div>
@@ -369,7 +384,7 @@ function AiServicesAdminPage() {
                         </button>
                         <button
                           className="btn btn-ghost btn-sm btn-error"
-                          onClick={() => handleDeleteProvider(provider.id)}
+                          onClick={() => handleDeleteProvider(provider.hostId)}
                           type="button"
                         >
                           <TrashIcon className="mr-1 size-4" />
@@ -537,23 +552,23 @@ function AiServicesAdminPage() {
 
       <dialog className="modal" ref={providerDialogRef}>
         <div className="modal-box w-11/12 max-w-3xl">
-          <h3 className="mb-6 text-2xl font-bold">{editingProvider?.id ? 'Edit Provider' : 'Add Provider'}</h3>
-          <form key={editingProvider?.id || 'new'} onSubmit={handleSubmitProvider} className="space-y-6">
+          <h3 className="mb-6 text-2xl font-bold">{editingProvider?.hostId ? 'Edit Provider' : 'Add Provider'}</h3>
+          <form key={editingProvider?.hostId || 'new'} onSubmit={handleSubmitProvider} className="space-y-6">
             <div>
               <label className="mb-2 block text-sm font-semibold">Provider Type</label>
               <select
                 name="provider"
                 className="select w-full"
-                defaultValue={editingProvider?.provider}
+                defaultValue={editingProvider?.driver}
                 onChange={(e) => setSelectedProviderType(e.target.value)}
-                disabled={!!editingProvider?.id}
+                disabled={!!editingProvider?.hostId}
                 required
               >
                 <option value="ollama">Ollama - Self-hosted LLM runtime</option>
                 <option value="openai">OpenAI - GPT models</option>
               </select>
               <p className="mt-1 text-xs text-base-content/60">
-                {editingProvider?.id
+                {editingProvider?.hostId
                   ? 'Provider type cannot be changed. Only one non-Ollama provider of each type can be enabled.'
                   : 'Choose the AI service provider type. Only one non-Ollama provider of each type can be enabled.'}
               </p>
@@ -641,17 +656,18 @@ function AiServicesAdminPage() {
                 className="btn btn-outline btn-sm"
                 onClick={(e) => {
                   const form = e.currentTarget.form
-                  if (!form) return
+                  if (!form || !workspaceId) return
 
                   const formData = new FormData(form)
                   const formBaseUrl = (formData.get('baseUrl') as string)?.trim()
                   const formApiKey = (formData.get('apiKey') as string)?.trim()
 
                   testConnectionMutation.mutate({
-                    providerId: editingProvider?.id,
-                    provider: selectedProviderType,
+                    hostId: editingProvider?.hostId,
+                    driver: InferenceDriverSchema.parse(selectedProviderType),
                     baseUrl: formBaseUrl || undefined,
                     apiKey: formApiKey || undefined,
+                    workspaceId,
                   })
                 }}
                 disabled={testConnectionMutation.isPending}
@@ -707,10 +723,10 @@ function AiServicesAdminPage() {
                 {createMutation.isPending || updateMutation.isPending ? (
                   <>
                     <span className="loading loading-spinner" />
-                    {editingProvider?.id ? 'Updating...' : 'Creating...'}
+                    {editingProvider?.hostId ? 'Updating...' : 'Creating...'}
                   </>
                 ) : (
-                  <>{editingProvider?.id ? 'Update Provider' : 'Create Provider'}</>
+                  <>{editingProvider?.hostId ? 'Update Provider' : 'Create Provider'}</>
                 )}
               </button>
             </div>

@@ -25,6 +25,19 @@
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
+  "files.exclude": {
+    "**/.storage/**": true,
+    "**/.storage-*/**": true,
+    "**/.uploads/**": true,
+    "**/.uploads-*/**": true,
+    "**/.pgadmin-*/**": true,
+    "**/.postgres-*/**": true,
+    "**/.qdrant-*/**": true,
+    "**/.typesense-*/**": true,
+    "**/.cache/**": true,
+    "**/.turbo/**": true,
+    "**/.nats-data/**": true
+  },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,

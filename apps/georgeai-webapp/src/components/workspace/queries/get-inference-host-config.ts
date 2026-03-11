@@ -11,11 +11,14 @@ const getInferenceHostConfig = createServerFn({ method: 'GET' }).handler(async (
       graphql(`
         query GetInferenceHostConfig {
           inferenceHostConfig {
+            workspaceId
             hostId
-            name
             driver
+            name
             url
-            apiKey
+            apiKeyHint
+            enabled
+            configuredVramGb
             lastUpdate
           }
         }

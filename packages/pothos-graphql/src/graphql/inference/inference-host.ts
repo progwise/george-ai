@@ -24,7 +24,9 @@ builder.objectRef<InferenceHostConfig>('InferenceHostConfig').implement({
         return `${key.slice(0, 3)}...${key.slice(-2)}`
       },
     }),
+    url: t.field({ type: 'String', nullable: true, resolve: (config) => config.connection.baseUrl }),
     configuredVramGb: t.exposeInt('configuredVramGb', { nullable: true }),
+    lastUpdate: t.expose('lastUpdate', { type: 'DateTime', nullable: true }),
   }),
 })
 
