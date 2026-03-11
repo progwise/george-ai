@@ -5,13 +5,77 @@
   "editor.hover.delay": 800,
   "editor.hover.sticky": true,
   "js/ts.updateImportsOnFileMove.enabled": "never",
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "never"
+  },
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "remote.autoForwardPorts": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.associations": {
+    "*.mdx": "mdx"
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
     "**/node_modules/**": true,
+    "**/.turbo/**": true,
     "**/dist/**": true,
-    "**/build/**": true,
+    "**/.nats-*/**": true,
     "**/.next/**": true,
+    "**/.cache/**": true,
+    "**/.storage/**": true,
+    "**/.storage-*/**": true,
+    "**/.uploads/**": true,
+    "**/.uploads-*/**": true,
+    "**/.pgadmin-*/**": true,
+    "**/.postgres-*/**": true,
+    "**/.qdrant-*/**": true,
+    "**/.typesense-*/**": true,
+    "**/build/**": true,
     "**/coverage/**": true
-  }
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.turbo": true,
+    "**/dist": true,
+    "**/.next": true,
+    "pnpm-lock.yaml": true,
+    "**/.cache": true,
+    "**/.nats-*": true,
+    "**/.storage": true,
+    "**/.storage*": true,
+    "**/.uploads": true,
+    "**/.uploads*": true,
+    "**/.pgadmin-*": true,
+    "**/.postgres-*": true,
+    "**/.qdrant-*": true,
+    "**/.typesense-*": true
+  },
+  "tailwindCSS.files.exclude": [
+    "**/.git/**",
+    "**/.hg/**",
+    "**/.nats-*/**",
+    "**/.pgadmin-*/**",
+    "**/.postgres-*/**",
+    "**/.qdrant-*/**",
+    "**/.storage/**",
+    "**/.storage-*/**",
+    "**/.svn/**",
+    "**/.turbo/**",
+    "**/.typesense-*/**",
+    "**/.uploads/**",
+    "**/.uploads-*/**",
+    "**/node_modules/**"
+  ]
 }

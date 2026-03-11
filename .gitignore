@@ -23,4 +23,5 @@ venv
 .storage
 .test-uploads
 .uploads
+.uploads*
 *.pdf

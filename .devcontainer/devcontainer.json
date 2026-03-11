@@ -17,76 +17,7 @@
         "vitest.explorer",
         "astro-build.astro-vscode"
       ],
-      "settings": {
-        "terminal.integrated.defaultProfile.linux": "zsh",
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.codeActionsOnSave": {
-          "source.fixAll.eslint": "never"
-        },
-        "eslint.workingDirectories": [{ "mode": "auto" }],
-        "remote.autoForwardPorts": true,
-        "[typescript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[typescriptreact]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "files.associations": {
-          "*.mdx": "mdx"
-        },
-        "[prisma]": {
-          "editor.defaultFormatter": "Prisma.prisma"
-        },
-        "files.watcherExclude": {
-          "**/.git/objects/**": true,
-          "**/.git/subtree-cache/**": true,
-          "**/node_modules/**": true,
-          "**/.turbo/**": true,
-          "**/dist/**": true,
-          "**/.next/**": true,
-          "**/.cache/**": true,
-          "**/.storage/**": true,
-          "**/.uploads/**": true,
-          "**/.smb-credentials/**": true,
-          "**/.smb-mounts/**": true,
-          "**/.crawler-credentials/**": true,
-          "**/.postgres-data-chatweb/**": true,
-          "**/.postgres-data-keycloak/**": true,
-          "**/.typesense-data/**": true
-        },
-        "files.exclude": {
-          "**/.uploads/**": true,
-          "**/.storage/**": true
-        },
-        "search.exclude": {
-          "**/node_modules": true,
-          "**/.turbo": true,
-          "**/dist": true,
-          "**/.next": true,
-          "pnpm-lock.yaml": true,
-          "**/.storage": true,
-          "**/.uploads": true,
-          "**/.smb-mounts": true,
-          "**/.typesense-data": true,
-          "**/.postgres-data-chatweb": true,
-          "**/.postgres-data-keycloak": true,
-          "**/.crawler-credentials": true,
-          "**/.smb-credentials": true
-        },
-        "tailwindCSS.files.exclude": [
-          "**/.git/**",
-          "**/node_modules/**",
-          "**/.hg/**",
-          "**/.svn/**",
-          "**/.storage/**",
-          "**/.uploads/**",
-          "**/.smb-mounts/**",
-          "**/.turbo/**",
-          "**/.typesense-data/**",
-          "**/.postgres-data-*/**"
-        ]
-      }
+      "settings": {}
     }
   },
 
