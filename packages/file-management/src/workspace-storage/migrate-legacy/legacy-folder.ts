@@ -2,9 +2,7 @@ import { getConfigValue } from '@george-ai/app-commons'
 
 import { fs } from '../commons'
 
-export async function legacyFolderFiles(
-  libraryId: string,
-): Promise<Array<{
+export async function legacyFolderFiles(libraryId: string): Promise<Array<{
   fileId: string
   files: string[]
   subfolders: string[]
