@@ -25,3 +25,4 @@ venv
 .uploads
 .uploads*
 *.pdf
+.pnpm-store
