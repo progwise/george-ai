@@ -22,6 +22,7 @@ services:
     # Port mappings for host access (backend only - frontend uses Vite with dynamic HMR ports via VS Code forwarding)
     ports:
       - '3003:3003'
+      - '2222:22' # SSH access to container for development
 
   gai-nats:
     build:

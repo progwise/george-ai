@@ -28,7 +28,7 @@
 
   "postCreateCommand": "pnpm install",
 
-  "postStartCommand": "echo 'DevContainer started successfully'"
+  "postStartCommand": "sudo service ssh start"
 
   // Configure tool-specific properties.
   // "customizations": {},

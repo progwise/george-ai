@@ -2,6 +2,7 @@ FROM mcr.microsoft.com/devcontainers/javascript-node:22
 
 RUN apt-get update \
   && apt-get -y install --no-install-recommends  \
+    openssh-server \
     libcairo2-dev \
     libjpeg62-turbo-dev \
     libpango1.0-dev \
