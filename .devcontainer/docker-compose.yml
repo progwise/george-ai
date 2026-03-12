@@ -5,17 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - NATS_URL=nats://gai-nats:4222
-      - PNPM_HOME=/home/node/.local/share/pnpm
-      - PATH=/home/node/.local/share/pnpm:$PATH
-      - NODE_ENV=development
-      - TZ=UTC
     volumes:
-      - ~/.ssh:/home/node/.ssh:ro
-      - ..:/workspaces/george-ai:cached
       - george_ai_app_data:/home/node/app_data
-      - pnpm_store:/home/node/.local/share/pnpm
+      - ~/.ssh:/home/node/.ssh:ro
     user: node
     # Enable init process to reap zombie processes
     init: true
@@ -35,7 +27,6 @@ services:
     build:
       context: ../services/nats-service
       dockerfile: Dockerfile
-    container_name: gai-nats
     restart: unless-stopped
     ports:
       - '4222:4222' # Client connections
@@ -46,7 +37,6 @@ services:
 
   gai-qdrant:
     image: qdrant/qdrant:latest
-    container_name: gai-qdrant
     restart: unless-stopped
     environment:
       # Qdrant configuration
@@ -68,7 +58,6 @@ services:
 
   gai-chatweb-db:
     image: postgres:16
-    container_name: gai-chatweb-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: chatweb
@@ -81,7 +70,6 @@ services:
 
   gai-test-db:
     image: postgres:16
-    container_name: gai-test-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: postgres
@@ -94,7 +82,6 @@ services:
 
   gai-keycloak-db:
     image: postgres:16
-    container_name: gai-keycloak-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: keycloak
@@ -107,7 +94,6 @@ services:
 
   gai-keycloak:
     image: quay.io/keycloak/keycloak:26.4
-    container_name: gai-keycloak
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5432/keycloak
@@ -146,7 +132,6 @@ services:
     build:
       context: ..
       dockerfile: apps/smb-test-server/Dockerfile
-    container_name: gai-smb-test
     hostname: gai-smb-test
     ports:
       - '10445:445' # SMB over TCP
@@ -175,7 +160,6 @@ services:
     build:
       context: ..
       dockerfile: ./services/webcrawler-service/Dockerfile
-    container_name: gai-crawl4ai
     restart: unless-stopped
     ports:
       - '11245:11245'

@@ -4,9 +4,6 @@
   "service": "app",
   "workspaceFolder": "/workspaces/george-ai",
 
-  // Ensure VS Code uses the node user
-  "remoteUser": "node",
-
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": true
@@ -29,7 +26,7 @@
     }
   },
 
-  "postCreateCommand": "pnpm install --force --reporter=append-only",
+  "postCreateCommand": "pnpm install",
 
   "postStartCommand": "echo 'DevContainer started successfully'"
 

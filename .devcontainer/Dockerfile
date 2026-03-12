@@ -26,6 +26,8 @@ RUN curl -sL https://raw.githubusercontent.com/remotemobprogramming/mob/refs/hea
 
 ARG TARGETARCH
 
+ENV NODE_ENV=development
+ENV TZ=UTC
 # Install NATS CLI version 0.0.35
 RUN export NATS_VERSION="0.0.35" && \
     # Map Docker's architecture names to NATS release names
@@ -36,6 +38,8 @@ RUN export NATS_VERSION="0.0.35" && \
     unzip nats.zip && \
     mv nats-${NATS_VERSION}-linux-${ARCH}/nats /usr/local/bin/ && \
     rm -rf nats.zip nats-${NATS_VERSION}-linux-${ARCH}
+
+ENV NATS_URL=nats://gai-nats:4222
 
 ENV PNPM_VERSION=9.15.4
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
