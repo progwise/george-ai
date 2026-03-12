@@ -13,11 +13,11 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedOverviewRouteImport } from './routes/_authenticated/overview'
 import { Route as AuthenticatedConversationsRouteRouteImport } from './routes/_authenticated/conversations/route'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedSearchIndexRouteImport } from './routes/_authenticated/search/index'
 import { Route as AuthenticatedProfileIndexRouteImport } from './routes/_authenticated/profile/index'
-import { Route as AuthenticatedOverviewIndexRouteImport } from './routes/_authenticated/overview/index'
 import { Route as AuthenticatedListsIndexRouteImport } from './routes/_authenticated/lists/index'
 import { Route as AuthenticatedLibrariesIndexRouteImport } from './routes/_authenticated/libraries/index'
 import { Route as AuthenticatedConversationsIndexRouteImport } from './routes/_authenticated/conversations/index'
@@ -86,6 +86,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedOverviewRoute = AuthenticatedOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedConversationsRouteRoute =
   AuthenticatedConversationsRouteRouteImport.update({
     id: '/conversations',
@@ -107,12 +112,6 @@ const AuthenticatedProfileIndexRoute =
   AuthenticatedProfileIndexRouteImport.update({
     id: '/profile/',
     path: '/profile/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedOverviewIndexRoute =
-  AuthenticatedOverviewIndexRouteImport.update({
-    id: '/overview/',
-    path: '/overview/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedListsIndexRoute = AuthenticatedListsIndexRouteImport.update({
@@ -416,6 +415,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
+  '/overview': typeof AuthenticatedOverviewRoute
   '/automations/$automationId': typeof AuthenticatedAutomationsAutomationIdRouteRouteWithChildren
   '/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/lists/$listId': typeof AuthenticatedListsListIdRouteRouteWithChildren
@@ -434,7 +434,6 @@ export interface FileRoutesByFullPath {
   '/conversations/': typeof AuthenticatedConversationsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/lists': typeof AuthenticatedListsIndexRoute
-  '/overview': typeof AuthenticatedOverviewIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/search': typeof AuthenticatedSearchIndexRoute
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRouteRouteWithChildren
@@ -472,6 +471,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/changelog': typeof ChangelogRoute
   '/login': typeof LoginRoute
+  '/overview': typeof AuthenticatedOverviewRoute
   '/accept-invitation/$invitationId': typeof AuthenticatedAcceptInvitationInvitationIdRoute
   '/admin/ai-models': typeof AuthenticatedAdminAiModelsRoute
   '/admin/ai-services': typeof AuthenticatedAdminAiServicesRoute
@@ -487,7 +487,6 @@ export interface FileRoutesByTo {
   '/conversations': typeof AuthenticatedConversationsIndexRoute
   '/libraries': typeof AuthenticatedLibrariesIndexRoute
   '/lists': typeof AuthenticatedListsIndexRoute
-  '/overview': typeof AuthenticatedOverviewIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/search': typeof AuthenticatedSearchIndexRoute
   '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
@@ -525,6 +524,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/conversations': typeof AuthenticatedConversationsRouteRouteWithChildren
+  '/_authenticated/overview': typeof AuthenticatedOverviewRoute
   '/_authenticated/automations/$automationId': typeof AuthenticatedAutomationsAutomationIdRouteRouteWithChildren
   '/_authenticated/libraries/$libraryId': typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   '/_authenticated/lists/$listId': typeof AuthenticatedListsListIdRouteRouteWithChildren
@@ -543,7 +543,6 @@ export interface FileRoutesById {
   '/_authenticated/conversations/': typeof AuthenticatedConversationsIndexRoute
   '/_authenticated/libraries/': typeof AuthenticatedLibrariesIndexRoute
   '/_authenticated/lists/': typeof AuthenticatedListsIndexRoute
-  '/_authenticated/overview/': typeof AuthenticatedOverviewIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
   '/_authenticated/search/': typeof AuthenticatedSearchIndexRoute
   '/_authenticated/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersRouteRouteWithChildren
@@ -585,6 +584,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/admin'
     | '/conversations'
+    | '/overview'
     | '/automations/$automationId'
     | '/libraries/$libraryId'
     | '/lists/$listId'
@@ -603,7 +603,6 @@ export interface FileRouteTypes {
     | '/conversations/'
     | '/libraries'
     | '/lists'
-    | '/overview'
     | '/profile'
     | '/search'
     | '/libraries/$libraryId/crawlers'
@@ -641,6 +640,7 @@ export interface FileRouteTypes {
     | '/'
     | '/changelog'
     | '/login'
+    | '/overview'
     | '/accept-invitation/$invitationId'
     | '/admin/ai-models'
     | '/admin/ai-services'
@@ -656,7 +656,6 @@ export interface FileRouteTypes {
     | '/conversations'
     | '/libraries'
     | '/lists'
-    | '/overview'
     | '/profile'
     | '/search'
     | '/admin/users/$userId'
@@ -693,6 +692,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/_authenticated/admin'
     | '/_authenticated/conversations'
+    | '/_authenticated/overview'
     | '/_authenticated/automations/$automationId'
     | '/_authenticated/libraries/$libraryId'
     | '/_authenticated/lists/$listId'
@@ -711,7 +711,6 @@ export interface FileRouteTypes {
     | '/_authenticated/conversations/'
     | '/_authenticated/libraries/'
     | '/_authenticated/lists/'
-    | '/_authenticated/overview/'
     | '/_authenticated/profile/'
     | '/_authenticated/search/'
     | '/_authenticated/libraries/$libraryId/crawlers'
@@ -783,6 +782,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/overview': {
+      id: '/_authenticated/overview'
+      path: '/overview'
+      fullPath: '/overview'
+      preLoaderRoute: typeof AuthenticatedOverviewRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/conversations': {
       id: '/_authenticated/conversations'
       path: '/conversations'
@@ -809,13 +815,6 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AuthenticatedProfileIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/overview/': {
-      id: '/_authenticated/overview/'
-      path: '/overview'
-      fullPath: '/overview'
-      preLoaderRoute: typeof AuthenticatedOverviewIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/lists/': {
@@ -1365,6 +1364,7 @@ const AuthenticatedListsListIdRouteRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
   AuthenticatedConversationsRouteRoute: typeof AuthenticatedConversationsRouteRouteWithChildren
+  AuthenticatedOverviewRoute: typeof AuthenticatedOverviewRoute
   AuthenticatedAutomationsAutomationIdRouteRoute: typeof AuthenticatedAutomationsAutomationIdRouteRouteWithChildren
   AuthenticatedLibrariesLibraryIdRouteRoute: typeof AuthenticatedLibrariesLibraryIdRouteRouteWithChildren
   AuthenticatedListsListIdRouteRoute: typeof AuthenticatedListsListIdRouteRouteWithChildren
@@ -1375,7 +1375,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAutomationsIndexRoute: typeof AuthenticatedAutomationsIndexRoute
   AuthenticatedLibrariesIndexRoute: typeof AuthenticatedLibrariesIndexRoute
   AuthenticatedListsIndexRoute: typeof AuthenticatedListsIndexRoute
-  AuthenticatedOverviewIndexRoute: typeof AuthenticatedOverviewIndexRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
   AuthenticatedSearchIndexRoute: typeof AuthenticatedSearchIndexRoute
   AuthenticatedProfileProfileIdAdminConfirmRoute: typeof AuthenticatedProfileProfileIdAdminConfirmRoute
@@ -1386,6 +1385,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
   AuthenticatedConversationsRouteRoute:
     AuthenticatedConversationsRouteRouteWithChildren,
+  AuthenticatedOverviewRoute: AuthenticatedOverviewRoute,
   AuthenticatedAutomationsAutomationIdRouteRoute:
     AuthenticatedAutomationsAutomationIdRouteRouteWithChildren,
   AuthenticatedLibrariesLibraryIdRouteRoute:
@@ -1401,7 +1401,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAutomationsIndexRoute: AuthenticatedAutomationsIndexRoute,
   AuthenticatedLibrariesIndexRoute: AuthenticatedLibrariesIndexRoute,
   AuthenticatedListsIndexRoute: AuthenticatedListsIndexRoute,
-  AuthenticatedOverviewIndexRoute: AuthenticatedOverviewIndexRoute,
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
   AuthenticatedSearchIndexRoute: AuthenticatedSearchIndexRoute,
   AuthenticatedProfileProfileIdAdminConfirmRoute:

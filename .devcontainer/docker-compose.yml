@@ -5,15 +5,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - NATS_URL=nats://gai-nats:4222
+      - PNPM_HOME=/home/node/.local/share/pnpm
+      - PATH=/home/node/.local/share/pnpm:$PATH
+      - NODE_ENV=development
+      - TZ=UTC
     volumes:
-      - ../..:/workspaces:cached
-
+      - ~/.ssh:/home/node/.ssh:ro
+      - ..:/workspaces/george-ai:cached
+      - george_ai_app_data:/home/node/app_data
+      - pnpm_store:/home/node/.local/share/pnpm
+    user: node
     # Enable init process to reap zombie processes
     init: true
-
-    # Run in privileged mode for SMB mounting
-    # mount.cifs requires this to adjust capabilities at runtime
-    # privileged: true
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
@@ -26,11 +31,6 @@ services:
     ports:
       - '3003:3003'
 
-    # Runs app on the same network as the typesense container, allows "forwardPorts" in devcontainer.json function.
-
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
-
   gai-nats:
     build:
       context: ../services/nats-service
@@ -42,7 +42,7 @@ services:
       - '8222:8222' # HTTP monitoring
       - '6222:6222' # Cluster routing (for future clustering)
     volumes:
-      - ../.nats-data:/data
+      - nats_data:/data
 
   gai-qdrant:
     image: qdrant/qdrant:latest
@@ -64,22 +64,7 @@ services:
       - '6333:6333' # HTTP API
       - '6334:6334' # gRPC API
     volumes:
-      - ../.qdrant-data:/qdrant/storage
-
-  gai-typesense:
-    image: typesense/typesense:27.1
-    container_name: gai-typesense
-    restart: unless-stopped
-    environment:
-      - TYPESENSE_API_HOST=gai-typesense
-      - TYPESENSE_API_PORT=8108
-      - TYPESENSE_API_PROTOCOL=http
-      - TYPESENSE_API_KEY=xyz
-    ports:
-      - '8108:8108'
-    volumes:
-      - ../.typesense-data:/typesensedata
-    command: '--data-dir /typesensedata --api-key=xyz --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata --healthy-read-lag=2000 --healthy-write-lag=3000'
+      - qdrant_data:/qdrant/storage
 
   gai-chatweb-db:
     image: postgres:16
@@ -92,7 +77,7 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - ../.postgres-data-chatweb:/var/lib/postgresql/data
+      - chatweb_db_data:/var/lib/postgresql/data
 
   gai-test-db:
     image: postgres:16
@@ -105,7 +90,7 @@ services:
     ports:
       - '5434:5432'
     volumes:
-      - ../.postgres-data-test:/var/lib/postgresql/data
+      - test_db_data:/var/lib/postgresql/data
 
   gai-keycloak-db:
     image: postgres:16
@@ -118,7 +103,7 @@ services:
     ports:
       - '5433:5432'
     volumes:
-      - ../.postgres-data-keycloak:/var/lib/postgresql/data
+      - keycloak_db_data:/var/lib/postgresql/data
 
   gai-keycloak:
     image: quay.io/keycloak/keycloak:26.4
@@ -155,7 +140,7 @@ services:
     ports:
       - 15080:80
     volumes:
-      - ../.pgadmin-data:/var/lib/pgadmin/
+      - pgadmin_data:/var/lib/pgadmin/
 
   gai-smb-test:
     build:
@@ -184,7 +169,7 @@ services:
       # First-time setup - create owner account at http://localhost:5678
       # Recommended: dev@george-ai.net / yourStrongPassword
     volumes:
-      - n8n_data:/home/node/.n8n
+      - george_ai_n8n_data:/home/node/.n8n
 
   gai-crawl4ai:
     build:
@@ -202,4 +187,13 @@ services:
       start_period: 40s
 
 volumes:
-  n8n_data:
+  george_ai_app_data:
+  george_ai_n8n_data:
+  pgadmin_data:
+  chatweb_db_data:
+  qdrant_data:
+  typesense_data:
+  keycloak_db_data:
+  test_db_data:
+  pnpm_store:
+  nats_data:

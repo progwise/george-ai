@@ -14,7 +14,7 @@ import { LegacyFileInfo } from './legacy-file-loader'
 
 const { cp, lstat, readdir, rename, rm } = promises
 
-export async function migrateLegacyDocument(workspaceId: string, legacyFileInfo: LegacyFileInfo): Promise<void> {
+export async function migrateDocument(workspaceId: string, legacyFileInfo: LegacyFileInfo): Promise<void> {
   const { libraryId, fileId } = legacyFileInfo
 
   const documentIdentifier: DocumentIdentifier = {

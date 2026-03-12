@@ -40,7 +40,7 @@ function RouteComponent() {
         <ConversationParticipantsDialogButton
           assistants={assistantsQuery.data.aiAssistants}
           users={usersQuery.data.users}
-          userId={user.id}
+          userId={user.userId}
           variant="primary"
         />
       </div>

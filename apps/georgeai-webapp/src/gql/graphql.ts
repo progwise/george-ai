@@ -965,6 +965,19 @@ export type CreateWorkspaceResult = {
   workspaceId: Scalars['String']['output']
 }
 
+export type CurrentUser = {
+  __typename?: 'CurrentUser'
+  avatarUrl?: Maybe<Scalars['String']['output']>
+  defaultWorkspaceId: Scalars['ID']['output']
+  email: Scalars['String']['output']
+  isAdmin: Scalars['Boolean']['output']
+  lastLogin?: Maybe<Scalars['DateTime']['output']>
+  name: Scalars['String']['output']
+  selectedWorkspaceId: Scalars['ID']['output']
+  userId: Scalars['ID']['output']
+  username: Scalars['String']['output']
+}
+
 export type DateTimePeriod = {
   earliest?: InputMaybe<Scalars['DateTime']['input']>
   latest?: InputMaybe<Scalars['DateTime']['input']>
@@ -1353,6 +1366,22 @@ export type InferenceModelState = {
   workspaceId?: Maybe<Scalars['String']['output']>
 }
 
+export type LegacyFile = {
+  __typename?: 'LegacyFile'
+  error?: Maybe<Scalars['String']['output']>
+  fileId?: Maybe<Scalars['String']['output']>
+  files?: Maybe<Array<Scalars['String']['output']>>
+  subfolders?: Maybe<Array<Scalars['String']['output']>>
+}
+
+export type LegacyFilesResponse = {
+  __typename?: 'LegacyFilesResponse'
+  error?: Maybe<Scalars['String']['output']>
+  files?: Maybe<Array<LegacyFile>>
+  libraryId?: Maybe<Scalars['String']['output']>
+  libraryName?: Maybe<Scalars['String']['output']>
+}
+
 export type LibrariesResponseType = {
   __typename?: 'LibrariesResponseType'
   items: Array<AiLibrary>
@@ -1591,7 +1620,8 @@ export type Mutation = {
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveWorkspace: Scalars['Boolean']['output']
   login: LoginResult
-  migrateWorkspace?: Maybe<Scalars['Boolean']['output']>
+  migrateLibrary?: Maybe<LibraryManifest>
+  migrateWorkspace?: Maybe<WorkspaceManifest>
   prepareUpload: PrepareUploadResult
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeInferenceHost: Scalars['Boolean']['output']
@@ -1864,6 +1894,15 @@ export type MutationLoginArgs = {
   jwtToken: Scalars['String']['input']
 }
 
+export type MutationMigrateLibraryArgs = {
+  libraryId: Scalars['String']['input']
+  workspaceId: Scalars['String']['input']
+}
+
+export type MutationMigrateWorkspaceArgs = {
+  workspaceId: Scalars['String']['input']
+}
+
 export type MutationPrepareUploadArgs = {
   documentId?: InputMaybe<Scalars['String']['input']>
   input: PrepareUploadInput
@@ -2125,7 +2164,7 @@ export type Query = {
   connectorTypes: Array<ConnectorTypeInfo>
   connectors: Array<AiConnector>
   countFiles: Scalars['Int']['output']
-  currentUser: User
+  currentUser: CurrentUser
   embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
   eventQueueRequests: EventQueueRequestsResult
   eventQueueStats: Array<EventQueue>
@@ -2136,6 +2175,7 @@ export type Query = {
   inferenceHostConfig: Array<InferenceHostConfig>
   inferenceHostState: Array<InferenceHostState>
   inferenceModelState: Array<InferenceModelState>
+  legacyFiles: Array<LegacyFilesResponse>
   libraries: LibrariesResponseType
   library: AiLibrary
   managedUsers: ManagedUsersResponse
@@ -2153,6 +2193,7 @@ export type Query = {
   workspaceConnectorTypes: Array<AiConnectorTypeWorkspace>
   workspaceInvitation: WorkspaceInvitation
   workspaceInvitations: Array<WorkspaceInvitation>
+  workspaceLibraries: Array<AiLibrary>
   workspaceMembers: Array<WorkspaceMember>
   workspaces: WorkspacesResponseType
 }
@@ -2349,6 +2390,10 @@ export type QueryFilesArgs = {
   take?: InputMaybe<Scalars['Int']['input']>
 }
 
+export type QueryLegacyFilesArgs = {
+  workspaceId: Scalars['String']['input']
+}
+
 export type QueryLibrariesArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>
   sortField?: InputMaybe<LibrarySortField>
@@ -2413,6 +2458,10 @@ export type QueryWorkspaceInvitationArgs = {
 
 export type QueryWorkspaceInvitationsArgs = {
   workspaceId: Scalars['ID']['input']
+}
+
+export type QueryWorkspaceLibrariesArgs = {
+  workspaceId: Scalars['String']['input']
 }
 
 export type QueryWorkspaceMembersArgs = {
@@ -2900,13 +2949,14 @@ export enum __DirectiveLocation {
 }
 
 export type CurrentUserFragment = {
-  __typename?: 'User'
-  id: string
-  name?: string | null
+  __typename?: 'CurrentUser'
+  userId: string
+  name: string
   username: string
   email: string
   avatarUrl?: string | null
   isAdmin: boolean
+  selectedWorkspaceId: string
   defaultWorkspaceId: string
   lastLogin?: string | null
 }
@@ -2916,13 +2966,14 @@ export type CurrentUserQueryVariables = Exact<{ [key: string]: never }>
 export type CurrentUserQuery = {
   __typename?: 'Query'
   currentUser: {
-    __typename?: 'User'
-    id: string
-    name?: string | null
+    __typename?: 'CurrentUser'
+    userId: string
+    name: string
     username: string
     email: string
     avatarUrl?: string | null
     isAdmin: boolean
+    selectedWorkspaceId: string
     defaultWorkspaceId: string
     lastLogin?: string | null
   }
@@ -6558,6 +6609,48 @@ export type GetInferenceHostStatusQuery = {
   }>
 }
 
+export type GetLegacyFilesQueryVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+}>
+
+export type GetLegacyFilesQuery = {
+  __typename?: 'Query'
+  legacyFiles: Array<{
+    __typename?: 'LegacyFilesResponse'
+    libraryId?: string | null
+    libraryName?: string | null
+    files?: Array<{
+      __typename?: 'LegacyFile'
+      fileId?: string | null
+      files?: Array<string> | null
+      subfolders?: Array<string> | null
+      error?: string | null
+    }> | null
+  }>
+}
+
+export type GetWorkspaceLibrariesQueryVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+}>
+
+export type GetWorkspaceLibrariesQuery = {
+  __typename?: 'Query'
+  workspaceLibraries: Array<{
+    __typename?: 'AiLibrary'
+    id: string
+    name: string
+    filesCount: number
+    manifest?: {
+      __typename?: 'LibraryManifest'
+      version: number
+      updated?: string | null
+      created: string
+      creator?: string | null
+      storageStats?: { __typename?: 'StorageStats'; extractionFileCount: number; physicalFileCount: number } | null
+    } | null
+  }>
+}
+
 export type GetEventQueueRequestsQueryVariables = Exact<{
   workspaceId: Scalars['String']['input']
   action: EventQueueAction
@@ -6822,9 +6915,39 @@ export type LeaveWorkspaceMutationVariables = Exact<{
 
 export type LeaveWorkspaceMutation = { __typename?: 'Mutation'; leaveWorkspace: boolean }
 
-export type MigrateWorkspaceMutationVariables = Exact<{ [key: string]: never }>
+export type MigrateLibraryMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}>
 
-export type MigrateWorkspaceMutation = { __typename?: 'Mutation'; migrateWorkspace?: boolean | null }
+export type MigrateLibraryMutation = {
+  __typename?: 'Mutation'
+  migrateLibrary?: {
+    __typename?: 'LibraryManifest'
+    workspaceId: string
+    libraryId: string
+    version: number
+    name: string
+    created: string
+    storageStats?: { __typename?: 'StorageStats'; physicalFileCount: number; attachmentFileCount: number } | null
+  } | null
+}
+
+export type MigrateWorkspaceMutationVariables = Exact<{
+  workspaceId: Scalars['String']['input']
+}>
+
+export type MigrateWorkspaceMutation = {
+  __typename?: 'Mutation'
+  migrateWorkspace?: {
+    __typename?: 'WorkspaceManifest'
+    workspaceId: string
+    version: number
+    name: string
+    created: string
+    storageStats: { __typename?: 'StorageStats'; physicalFileCount: number; attachmentFileCount: number }
+  } | null
+}
 
 export type RemoveWorkspaceMemberMutationVariables = Exact<{
   workspaceId: Scalars['ID']['input']
@@ -7866,16 +7989,17 @@ export const CurrentUserFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'CurrentUser' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'CurrentUser' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'selectedWorkspaceId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'defaultWorkspaceId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastLogin' } },
         ],
@@ -12703,16 +12827,17 @@ export const CurrentUserDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'CurrentUser' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'User' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'CurrentUser' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'userId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
           { kind: 'Field', name: { kind: 'Name', value: 'username' } },
           { kind: 'Field', name: { kind: 'Name', value: 'email' } },
           { kind: 'Field', name: { kind: 'Name', value: 'avatarUrl' } },
           { kind: 'Field', name: { kind: 'Name', value: 'isAdmin' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'selectedWorkspaceId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'defaultWorkspaceId' } },
           { kind: 'Field', name: { kind: 'Name', value: 'lastLogin' } },
         ],
@@ -21398,6 +21523,124 @@ export const GetInferenceHostStatusDocument = {
     },
   ],
 } as unknown as DocumentNode<GetInferenceHostStatusQuery, GetInferenceHostStatusQueryVariables>
+export const GetLegacyFilesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetLegacyFiles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'legacyFiles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryName' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'files' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'fileId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'files' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'subfolders' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'error' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetLegacyFilesQuery, GetLegacyFilesQueryVariables>
+export const GetWorkspaceLibrariesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetWorkspaceLibraries' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspaceLibraries' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'manifest' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'creator' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'storageStats' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspaceLibrariesQuery, GetWorkspaceLibrariesQueryVariables>
 export const GetEventQueueRequestsDocument = {
   kind: 'Document',
   definitions: [
@@ -22183,6 +22426,70 @@ export const LeaveWorkspaceDocument = {
     },
   ],
 } as unknown as DocumentNode<LeaveWorkspaceMutation, LeaveWorkspaceMutationVariables>
+export const MigrateLibraryDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'MigrateLibrary' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'migrateLibrary' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'storageStats' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<MigrateLibraryMutation, MigrateLibraryMutationVariables>
 export const MigrateWorkspaceDocument = {
   kind: 'Document',
   definitions: [
@@ -22190,9 +22497,48 @@ export const MigrateWorkspaceDocument = {
       kind: 'OperationDefinition',
       operation: 'mutation',
       name: { kind: 'Name', value: 'MigrateWorkspace' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
       selectionSet: {
         kind: 'SelectionSet',
-        selections: [{ kind: 'Field', name: { kind: 'Name', value: 'migrateWorkspace' } }],
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'migrateWorkspace' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'storageStats' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
     },
   ],

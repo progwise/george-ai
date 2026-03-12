@@ -13,10 +13,9 @@ import { Sidebar } from './sidebar'
 
 interface SidebarLayoutProps {
   user: CurrentUserFragment | null
-  workspaceId: string | null | undefined
 }
 
-export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
+export function SidebarLayout({ user }: SidebarLayoutProps) {
   const newLibraryDialogRef = useRef<HTMLDialogElement | null>(null)
   const newListDialogRef = useRef<HTMLDialogElement | null>(null)
   const newAutomationDialogRef = useRef<HTMLDialogElement | null>(null)
@@ -49,7 +48,6 @@ export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
         <>
           <Sidebar
             user={user}
-            workspaceId={workspaceId}
             isDrawerOpen={isDrawerOpen}
             newLibraryDialogRef={newLibraryDialogRef}
             newListDialogRef={newListDialogRef}

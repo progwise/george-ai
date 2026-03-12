@@ -1,4 +1,3 @@
-import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
 import { WorkspaceRole } from '../../gql/graphql'
@@ -9,8 +8,6 @@ interface WorkspaceQueueCardsProps {
 }
 export const WorkspaceQueueCards = ({ currentWorkspaceRole }: WorkspaceQueueCardsProps) => {
   const { t } = useTranslation()
-
-  //const { data: queueSystemStatus, isLoading, error } = useQuery(getQueueStatusQueryOptions())
 
   const isLoading = false
   const error = null

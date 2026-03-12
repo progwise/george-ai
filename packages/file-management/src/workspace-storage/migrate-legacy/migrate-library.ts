@@ -4,29 +4,28 @@ import { fs, logger } from '../commons'
 import { entryExists } from '../entry/entry-exists'
 import { createLibrary } from '../library'
 import { reconcileLibrary } from '../reconcile'
-import { DocumentIdentifier, LibraryIdentifier, WorkspaceIdentifier } from '../schema'
-import { createWorkspace } from '../workspace'
+import { DocumentIdentifier, LibraryIdentifier, LibraryManifest, WorkspaceIdentifier } from '../schema'
 import { LegacyFileLoader } from './legacy-file-loader'
-import { migrateLegacyDocument } from './migrate-legacy-document'
+import { migrateDocument } from './migrate-document'
 
-export async function migrateLegacyLibrary(
+export async function migrateLibrary(
   workspaceId: string,
   args: {
     libraryId: string
     libraryName: string
-    workspaceName: string
     fileInfoLoader: LegacyFileLoader
   },
-): Promise<void> {
-  const { libraryId, libraryName, workspaceName } = args
+): Promise<LibraryManifest> {
+  const { libraryId, libraryName } = args
   const workspaceIdentifier: WorkspaceIdentifier = { workspaceId, type: 'workspace', version: 1 }
   const workspaceExists = await entryExists(workspaceIdentifier)
   if (!workspaceExists) {
-    logger.info('Workspace does not exist, creating workspace before upgrading legacy library', {
-      ...workspaceIdentifier,
-      workspaceName,
+    logger.error('Workspace does not exist, cannot continue', {
+      workspaceId,
+      args,
+      workspaceIdentifier,
     })
-    await createWorkspace(workspaceId, { name: workspaceName })
+    throw new Error('Workspace does not exist, cannot migrate library')
   }
   const libraryIdentifier: LibraryIdentifier = {
     ...workspaceIdentifier,
@@ -35,7 +34,7 @@ export async function migrateLegacyLibrary(
   }
   const libraryExists = await entryExists(libraryIdentifier)
   if (!libraryExists) {
-    logger.info('Library does not exist, creating', { ...libraryIdentifier, libraryName })
+    logger.info('Library Manifest does not exist, creating', { ...libraryIdentifier, libraryName })
     await createLibrary(workspaceId, { libraryId, name: libraryName })
   }
 
@@ -54,12 +53,11 @@ export async function migrateLegacyLibrary(
       continue
     }
     try {
-      await migrateLegacyDocument(workspaceId, legacyFileInfo)
+      await migrateDocument(workspaceId, legacyFileInfo)
     } catch (error) {
       logger.error('Error upgrading legacy file', { ...documentIdentifier, error })
     }
   }
 
-  await reconcileLibrary(libraryIdentifier)
-  return
+  return await reconcileLibrary(libraryIdentifier)
 }

@@ -36,11 +36,11 @@ builder.prismaObject('AiLibrary', {
     ocrModel: t.relation('ocrModel'),
     fileConverterOptions: t.exposeString('fileConverterOptions'),
     autoProcessCrawledFiles: t.exposeBoolean('autoProcessCrawledFiles', { nullable: false }),
-    manifest: t.withAuth({ isLoggedIn: true }).field({
+    manifest: t.field({
       type: 'LibraryManifest',
       nullable: true,
-      resolve: async (library, _args, { workspaceId }) => {
-        const manifest = await getLibrary({ workspaceId, libraryId: library.id })
+      resolve: async (library) => {
+        const manifest = await getLibrary({ workspaceId: library.workspaceId, libraryId: library.id })
         return manifest
       },
     }),

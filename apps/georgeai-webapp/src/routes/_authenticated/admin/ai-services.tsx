@@ -71,7 +71,7 @@ const getProviderHealthBadge = (isOnline: boolean | null) => {
 }
 
 function AiServicesAdminPage() {
-  const { queryClient, workspaceId } = Route.useRouteContext()
+  const { queryClient, user } = Route.useRouteContext()
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [editingProvider, setEditingProvider] = useState<ProviderFormData | null>(null)
   const [deletingProviderId, setDeletingProviderId] = useState<string | null>(null)
@@ -656,7 +656,7 @@ function AiServicesAdminPage() {
                 className="btn btn-outline btn-sm"
                 onClick={(e) => {
                   const form = e.currentTarget.form
-                  if (!form || !workspaceId) return
+                  if (!form) return
 
                   const formData = new FormData(form)
                   const formBaseUrl = (formData.get('baseUrl') as string)?.trim()
@@ -667,7 +667,7 @@ function AiServicesAdminPage() {
                     driver: InferenceDriverSchema.parse(selectedProviderType),
                     baseUrl: formBaseUrl || undefined,
                     apiKey: formApiKey || undefined,
-                    workspaceId,
+                    workspaceId: user.selectedWorkspaceId,
                   })
                 }}
                 disabled={testConnectionMutation.isPending}

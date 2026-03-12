@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
@@ -7,11 +6,9 @@ import { ListViewIcon } from '../../../icons/list-view-icon'
 
 export const Route = createFileRoute('/_authenticated/admin/queues')({
   component: QueueManagementAdminPage,
-  loader: async ({ context }) => {},
 })
 
 function QueueManagementAdminPage() {
-  const { queryClient } = Route.useRouteContext()
   const [autoRefresh, setAutoRefresh] = useState(false)
 
   // Use suspense query - data is guaranteed to be available

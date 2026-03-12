@@ -3,9 +3,11 @@ import { twMerge } from 'tailwind-merge'
 import { CurrentUserFragment } from '../../gql/graphql'
 import { CheckIcon } from '../../icons/check-icon'
 import { ExclamationIcon } from '../../icons/exclamation-icon'
+import { LibraryIcon } from '../../icons/library-icon'
 import { RefreshIcon } from '../../icons/refresh-icon'
-import { toastError } from '../georgeToaster'
-import { useWorkspace } from './use-workspace'
+import { UsersIcon } from '../../icons/users-icon'
+import { toastError, toastSuccess } from '../georgeToaster'
+import { useWorkspaceMigration } from './use-workspace-migration'
 
 interface MigrateWorkspaceDialogProps {
   user: CurrentUserFragment
@@ -13,59 +15,115 @@ interface MigrateWorkspaceDialogProps {
 }
 
 function MigrationStatusItem({
+  type,
   label,
-  version,
-  targetVersion,
+  status,
+  isLoading,
+  migrate,
 }: {
+  type: 'workspace' | 'library'
   label: string
-  version: number | string
-  targetVersion: number
+  status: string
+  isLoading: boolean
+  migrate: () => void
 }) {
-  const isUpToDate = version === targetVersion
+  const isUpToDate = status === 'ok'
 
   return (
     <div className="flex items-center gap-2">
-      {isUpToDate ? (
-        <CheckIcon className="size-5 shrink-0 text-success" />
+      {isLoading ? (
+        <span className="loading loading-xs loading-spinner"></span>
+      ) : type === 'workspace' ? (
+        <UsersIcon className={twMerge('size-5 shrink-0', isUpToDate ? 'text-success' : 'text-error')} />
       ) : (
-        <ExclamationIcon className="size-5 shrink-0 text-warning" />
+        <LibraryIcon className={twMerge('size-5 shrink-0', isUpToDate ? 'text-success' : 'text-warning')} />
       )}
       <span className="flex-1">{label}</span>
-      <span className="text-sm text-base-content/60">
-        {version !== targetVersion
-          ? version === 'unknown'
-            ? `? → ${targetVersion}`
-            : `${version} → ${targetVersion}`
-          : `v-${version}`}
-      </span>
+      <span className="text-sm text-base-content/60">{status}</span>
+      {isLoading ? (
+        <span className="loading loading-xs loading-spinner"></span>
+      ) : isUpToDate ? (
+        <button type="button" className="btn btn-ghost btn-sm" title="This item is up to date." disabled>
+          <CheckIcon className="size-5 shrink-0 text-success" />
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm"
+          title="This item requires migration to be up to date."
+          onClick={migrate}
+        >
+          <ExclamationIcon className="size-4 shrink-0 text-warning" />
+        </button>
+      )}
     </div>
   )
 }
 
-export function MigrateWorkspaceDialog({ user, onClose }: MigrateWorkspaceDialogProps) {
-  const { migrateWorkspace, migrationStatus, currentWorkspace, isPending } = useWorkspace(user)
+export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps) {
+  const {
+    workspace,
+    workspaceStatus,
+    workspaceStatusIsLoading,
+    librariesStatus,
+    librariesIsLoading,
+    migrateLibrary,
+    migrateWorkspace,
+    isMigrating,
+  } = useWorkspaceMigration()
 
-  const isLoaded = !!migrationStatus && !!currentWorkspace
+  const isLoaded = !workspaceStatusIsLoading && !!workspace
 
   const handleMigrateWorkspace = () => {
-    if (!migrationStatus) {
-      toastError('No migration status available.')
+    if (!workspace) {
+      toastError('Workspace not set.')
       return
     }
-    if (isPending) {
+    if (isMigrating) {
       toastError('Migration is already in progress.')
       return
     }
-    migrateWorkspace(undefined, {
-      onSuccess: () => {
-        window.location.reload()
-        onClose()
+    if (workspaceStatus.status === 'ok') {
+      toastError('No migration needed.')
+      return
+    }
+
+    migrateWorkspace(
+      { workspaceId: workspace.id },
+      {
+        onSuccess: () => {
+          toastSuccess('Workspace migrated successfully. Refreshing ...')
+        },
       },
-    })
+    )
+  }
+
+  const handleMigrateLibrary = (libraryStatus: { id: string; status: 'ok' | string }) => {
+    if (!workspace) {
+      toastError('Workspace not set.')
+      return
+    }
+    if (isMigrating) {
+      toastError('Migration is already in progress.')
+      return
+    }
+    if (libraryStatus.status === 'ok') {
+      toastError('No migration needed.')
+      return
+    }
+
+    migrateLibrary(
+      { workspaceId: workspace.id, libraryId: libraryStatus.id },
+      {
+        onSuccess: () => {
+          toastSuccess('Library migrated successfully. Refreshing workspace...')
+        },
+      },
+    )
   }
 
   const needsMigration =
-    isLoaded && (migrationStatus?.storageVersion !== 1 || migrationStatus?.vectorStoreVersion !== 1)
+    (isLoaded && workspaceStatus.status !== 'ok') || librariesStatus.some((lib) => lib.status !== 'ok')
 
   const Icon = needsMigration ? ExclamationIcon : CheckIcon
   const alertClass = needsMigration ? 'alert-warning' : 'alert-success'
@@ -76,7 +134,7 @@ export function MigrateWorkspaceDialog({ user, onClose }: MigrateWorkspaceDialog
 
   return (
     <dialog className="modal" open aria-label="Migrate Workspace">
-      <div className="modal-box max-w-md">
+      <div className="modal-box max-w-2xl">
         {!isLoaded ? (
           <>
             {/* Skeleton: Header */}
@@ -119,9 +177,7 @@ export function MigrateWorkspaceDialog({ user, onClose }: MigrateWorkspaceDialog
               <Icon className="size-6 shrink-0" />
               <div className="flex-1">
                 <h3 className="text-base font-bold">{title}</h3>
-                <p className="text-sm opacity-80">
-                  Workspace &quot;{currentWorkspace?.name || 'no current workspace'}&quot;
-                </p>
+                <p className="text-sm opacity-80">Workspace &quot;{workspace?.name || 'no current workspace'}&quot;</p>
               </div>
             </div>
 
@@ -130,25 +186,39 @@ export function MigrateWorkspaceDialog({ user, onClose }: MigrateWorkspaceDialog
 
             {/* Status checklist */}
             <div className="mb-6 space-y-3 rounded-lg bg-base-200 p-4">
-              <MigrationStatusItem label="File Storage" version={migrationStatus.storageVersion} targetVersion={1} />
-              <div className="divider my-0" />
-              <MigrationStatusItem
-                label="Search Index"
-                version={migrationStatus.vectorStoreVersion}
-                targetVersion={1}
-              />
+              <>
+                <MigrationStatusItem
+                  type="workspace"
+                  key={workspaceStatus.id}
+                  label={workspaceStatus.label}
+                  isLoading={workspaceStatus.isLoading}
+                  status={workspaceStatus.status}
+                  migrate={handleMigrateWorkspace}
+                />
+              </>
+              {librariesIsLoading && <span className="loading loading-sm loading-spinner" />}
+              {librariesStatus.map((libraryStatus) => (
+                <MigrationStatusItem
+                  type="library"
+                  key={libraryStatus.id}
+                  label={libraryStatus.label}
+                  isLoading={libraryStatus.isLoading}
+                  status={libraryStatus.status}
+                  migrate={() => handleMigrateLibrary(libraryStatus)}
+                />
+              ))}
             </div>
 
             {/* Actions */}
             <div className="flex items-center justify-end gap-2">
-              {isPending && <span className="loading loading-md loading-spinner" />}
+              {isMigrating && <span className="loading loading-md loading-spinner" />}
 
-              <button disabled={isPending} type="button" className="btn btn-ghost" onClick={onClose}>
+              <button disabled={isMigrating} type="button" className="btn btn-ghost" onClick={onClose}>
                 {needsMigration ? 'Later' : 'Close'}
               </button>
               {needsMigration && (
                 <button
-                  disabled={isPending}
+                  disabled={isMigrating}
                   type="button"
                   className="btn gap-2 btn-primary"
                   onClick={handleMigrateWorkspace}
@@ -161,7 +231,7 @@ export function MigrateWorkspaceDialog({ user, onClose }: MigrateWorkspaceDialog
           </>
         )}
       </div>
-      {!isPending && (
+      {!isMigrating && (
         <form method="dialog" className="modal-backdrop">
           <button aria-label="Close dialog" type="button">
             close

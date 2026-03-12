@@ -24,7 +24,7 @@ export const Route = createFileRoute('/_authenticated/assistants/$assistantId')(
 
 function RouteComponent() {
   const { user } = Route.useRouteContext()
-  const ownerId = user.id
+  const ownerId = user.userId
   const { assistantId } = Route.useParams()
 
   const {

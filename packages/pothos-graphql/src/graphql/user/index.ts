@@ -1,3 +1,4 @@
+import './current-user'
 import './user'
 import './user-profile'
 import './mutations'

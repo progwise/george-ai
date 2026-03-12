@@ -1,9 +1,5 @@
 FROM mcr.microsoft.com/devcontainers/javascript-node:22
 
-ENV PNPM_VERSION=9.15.4
-
-RUN npm install -g pnpm@${PNPM_VERSION}
-
 RUN apt-get update \
   && apt-get -y install --no-install-recommends  \
     libcairo2-dev \
@@ -41,6 +37,22 @@ RUN export NATS_VERSION="0.0.35" && \
     mv nats-${NATS_VERSION}-linux-${ARCH}/nats /usr/local/bin/ && \
     rm -rf nats.zip nats-${NATS_VERSION}-linux-${ARCH}
 
+ENV PNPM_VERSION=9.15.4
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
+
+RUN mkdir -p /workspaces/george-ai && chown -R node:node /workspaces/george-ai
+
+# Ensure the pnpm home and workspace exist and are owned by node
+RUN mkdir -p /home/node/.local/share/pnpm /workspaces/george-ai && \
+    chown -R node:node /home/node /workspaces/george-ai
+
+USER node
+
+ENV PNPM_HOME="/home/node/.local/share/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+
+WORKDIR /workspaces/george-ai
 # [Optional] Uncomment this section to install additional OS packages.
 # RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 #     && apt-get -y install --no-install-recommends <your-package-list-here>

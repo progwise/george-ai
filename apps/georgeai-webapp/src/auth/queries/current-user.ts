@@ -6,13 +6,14 @@ import { queryKeys } from '../../query-keys'
 import { backendRequest } from '../../server-functions/backend'
 
 graphql(`
-  fragment CurrentUser on User {
-    id
+  fragment CurrentUser on CurrentUser {
+    userId
     name
     username
     email
     avatarUrl
     isAdmin
+    selectedWorkspaceId
     defaultWorkspaceId
     lastLogin
   }

@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-import { useWorkspace } from '../../../components/workspace'
-import { WorkspaceDashboardTabs } from '../../../components/workspace/workspace-dashboard-tabs'
-import { WorkspaceModelProviderCards } from '../../../components/workspace/workspace-model-provider-cards'
-import { WorkspaceQueueCards } from '../../../components/workspace/workspace-queue-cards'
-import { WorkspaceStatusCard } from '../../../components/workspace/workspace-status-card'
-import { useTranslation } from '../../../i18n/use-translation-hook'
+import { useWorkspace } from '../../components/workspace'
+import { WorkspaceDashboardTabs } from '../../components/workspace/workspace-dashboard-tabs'
+import { WorkspaceModelProviderCards } from '../../components/workspace/workspace-model-provider-cards'
+import { WorkspaceQueueCards } from '../../components/workspace/workspace-queue-cards'
+import { WorkspaceStatusCard } from '../../components/workspace/workspace-status-card'
+import { useTranslation } from '../../i18n/use-translation-hook'
 
 const RouteComponent = () => {
   const { t } = useTranslation()
   const { user } = Route.useRouteContext()
-  const { currentWorkspace } = useWorkspace(user)
+  const { currentWorkspace } = useWorkspace(user.selectedWorkspaceId)
 
   return (
     <div className="mx-auto space-y-8 px-5 pt-0 xl:w-6xl">
@@ -40,6 +40,6 @@ const RouteComponent = () => {
   )
 }
 
-export const Route = createFileRoute('/_authenticated/overview/')({
+export const Route = createFileRoute('/_authenticated/overview')({
   component: RouteComponent,
 })

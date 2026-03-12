@@ -15,7 +15,7 @@ import * as types from './graphql'
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-  '\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n': typeof types.CurrentUserFragmentDoc
+  '\n  fragment CurrentUser on CurrentUser {\n    userId\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    selectedWorkspaceId\n    defaultWorkspaceId\n    lastLogin\n  }\n': typeof types.CurrentUserFragmentDoc
   '\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ': typeof types.CurrentUserDocument
   '\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ': typeof types.LoginDocument
   '\n  fragment EditModelButton_LanguageModel on AiLanguageModel {\n    id\n    provider\n    name\n    adminNotes\n    enabled\n  }\n': typeof types.EditModelButton_LanguageModelFragmentDoc
@@ -203,6 +203,8 @@ type Documents = {
   '\n        query GetWorkspaceEmbeddingStatistics($workspaceId: String!) {\n          embeddingStatistics(workspaceId: $workspaceId) {\n            extractionMethod\n            modelName\n            chunkCount\n          }\n        }\n      ': typeof types.GetWorkspaceEmbeddingStatisticsDocument
   '\n        query GetInferenceHostConfig {\n          inferenceHostConfig {\n            workspaceId\n            hostId\n            driver\n            name\n            url\n            apiKeyHint\n            enabled\n            configuredVramGb\n            lastUpdate\n          }\n        }\n      ': typeof types.GetInferenceHostConfigDocument
   '\n        query GetInferenceHostStatus {\n          inferenceHostState {\n            hostId\n            state\n            driver\n            url\n            apiKey\n            totalMemoryMb\n            usedMemoryMb\n            processorUsagePercent\n            lastHealthCheck\n            lastTestConnection\n            models {\n              modelName\n              callCount\n              errorCount\n              responseTimeMsPerToken\n            }\n          }\n        }\n      ': typeof types.GetInferenceHostStatusDocument
+  '\n        query GetLegacyFiles($workspaceId: String!) {\n          legacyFiles(workspaceId: $workspaceId) {\n            libraryId\n            libraryName\n            files {\n              fileId\n              files\n              subfolders\n              error\n            }\n          }\n        }\n      ': typeof types.GetLegacyFilesDocument
+  '\n        query GetWorkspaceLibraries($workspaceId: String!) {\n          workspaceLibraries(workspaceId: $workspaceId) {\n            id\n            name\n            filesCount\n            manifest {\n              version\n              updated\n              created\n              creator\n              storageStats {\n                extractionFileCount\n                physicalFileCount\n              }\n            }\n          }\n        }\n      ': typeof types.GetWorkspaceLibrariesDocument
   '\n        query getEventQueueRequests(\n          $workspaceId: String!\n          $action: EventQueueAction!\n          $take: Int\n          $startSequence: Int\n        ) {\n          eventQueueRequests(workspaceId: $workspaceId, action: $action, take: $take, startSequence: $startSequence) {\n            totalMessages\n            lastSequence\n            requests {\n              workspaceId\n              action\n              timestamp\n              ... on DocumentExtractionRequest {\n                extractionMethod\n                libraryId\n                documentId\n              }\n              ... on DocumentVectorizationRequest {\n                libraryId\n                documentId\n                splitMethod\n                extractionMethod\n                embeddingDriver\n                embeddingModel\n              }\n              ... on FieldEnrichmentRequest {\n                fieldId\n                chatModelDriver\n                chatModelName\n              }\n            }\n          }\n        }\n      ': typeof types.GetEventQueueRequestsDocument
   '\n        query getEventQueue($workspaceId: String!) {\n          eventQueueStats(workspaceId: $workspaceId) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ': typeof types.GetEventQueueDocument
   '\n        query WorkspaceInvitation($id: ID!) {\n          workspaceInvitation(invitationId: $id) {\n            id\n            email\n            expiresAt\n            acceptedAt\n            workspace {\n              id\n              name\n            }\n            inviter {\n              name\n              email\n            }\n          }\n        }\n      ': typeof types.WorkspaceInvitationDocument
@@ -217,7 +219,8 @@ type Documents = {
   '\n  mutation GenerateApiKey($name: String!) {\n    generateApiKey(name: $name) {\n      id\n      name\n      key\n      workspaceId\n      createdAt\n    }\n  }\n': typeof types.GenerateApiKeyDocument
   '\n  mutation InviteWorkspaceMember($workspaceId: ID!, $email: String!) {\n    inviteWorkspaceMember(workspaceId: $workspaceId, email: $email) {\n      id\n      email\n      createdAt\n      expiresAt\n    }\n  }\n': typeof types.InviteWorkspaceMemberDocument
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n': typeof types.LeaveWorkspaceDocument
-  '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n': typeof types.MigrateWorkspaceDocument
+  '\n        mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {\n          migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {\n            workspaceId\n            libraryId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ': typeof types.MigrateLibraryDocument
+  '\n        mutation MigrateWorkspace($workspaceId: String!) {\n          migrateWorkspace(workspaceId: $workspaceId) {\n            workspaceId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ': typeof types.MigrateWorkspaceDocument
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n': typeof types.RemoveWorkspaceMemberDocument
   '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': typeof types.RevokeApiKeyDocument
   '\n  mutation RevokeWorkspaceInvitation($invitationId: ID!) {\n    revokeWorkspaceInvitation(invitationId: $invitationId)\n  }\n': typeof types.RevokeWorkspaceInvitationDocument
@@ -246,7 +249,7 @@ type Documents = {
   '\n  query adminUserById($email: String!) {\n    user(email: $email) {\n      ...User\n      profile {\n        ...UserProfileForm_UserProfile\n      }\n    }\n  }\n': typeof types.AdminUserByIdDocument
 }
 const documents: Documents = {
-  '\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n':
+  '\n  fragment CurrentUser on CurrentUser {\n    userId\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    selectedWorkspaceId\n    defaultWorkspaceId\n    lastLogin\n  }\n':
     types.CurrentUserFragmentDoc,
   '\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ':
     types.CurrentUserDocument,
@@ -621,6 +624,10 @@ const documents: Documents = {
     types.GetInferenceHostConfigDocument,
   '\n        query GetInferenceHostStatus {\n          inferenceHostState {\n            hostId\n            state\n            driver\n            url\n            apiKey\n            totalMemoryMb\n            usedMemoryMb\n            processorUsagePercent\n            lastHealthCheck\n            lastTestConnection\n            models {\n              modelName\n              callCount\n              errorCount\n              responseTimeMsPerToken\n            }\n          }\n        }\n      ':
     types.GetInferenceHostStatusDocument,
+  '\n        query GetLegacyFiles($workspaceId: String!) {\n          legacyFiles(workspaceId: $workspaceId) {\n            libraryId\n            libraryName\n            files {\n              fileId\n              files\n              subfolders\n              error\n            }\n          }\n        }\n      ':
+    types.GetLegacyFilesDocument,
+  '\n        query GetWorkspaceLibraries($workspaceId: String!) {\n          workspaceLibraries(workspaceId: $workspaceId) {\n            id\n            name\n            filesCount\n            manifest {\n              version\n              updated\n              created\n              creator\n              storageStats {\n                extractionFileCount\n                physicalFileCount\n              }\n            }\n          }\n        }\n      ':
+    types.GetWorkspaceLibrariesDocument,
   '\n        query getEventQueueRequests(\n          $workspaceId: String!\n          $action: EventQueueAction!\n          $take: Int\n          $startSequence: Int\n        ) {\n          eventQueueRequests(workspaceId: $workspaceId, action: $action, take: $take, startSequence: $startSequence) {\n            totalMessages\n            lastSequence\n            requests {\n              workspaceId\n              action\n              timestamp\n              ... on DocumentExtractionRequest {\n                extractionMethod\n                libraryId\n                documentId\n              }\n              ... on DocumentVectorizationRequest {\n                libraryId\n                documentId\n                splitMethod\n                extractionMethod\n                embeddingDriver\n                embeddingModel\n              }\n              ... on FieldEnrichmentRequest {\n                fieldId\n                chatModelDriver\n                chatModelName\n              }\n            }\n          }\n        }\n      ':
     types.GetEventQueueRequestsDocument,
   '\n        query getEventQueue($workspaceId: String!) {\n          eventQueueStats(workspaceId: $workspaceId) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ':
@@ -648,7 +655,10 @@ const documents: Documents = {
     types.InviteWorkspaceMemberDocument,
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n':
     types.LeaveWorkspaceDocument,
-  '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n': types.MigrateWorkspaceDocument,
+  '\n        mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {\n          migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {\n            workspaceId\n            libraryId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ':
+    types.MigrateLibraryDocument,
+  '\n        mutation MigrateWorkspace($workspaceId: String!) {\n          migrateWorkspace(workspaceId: $workspaceId) {\n            workspaceId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ':
+    types.MigrateWorkspaceDocument,
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n':
     types.RemoveWorkspaceMemberDocument,
   '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': types.RevokeApiKeyDocument,
@@ -719,8 +729,8 @@ export function graphql(source: string): unknown
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n',
-): (typeof documents)['\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n']
+  source: '\n  fragment CurrentUser on CurrentUser {\n    userId\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    selectedWorkspaceId\n    defaultWorkspaceId\n    lastLogin\n  }\n',
+): (typeof documents)['\n  fragment CurrentUser on CurrentUser {\n    userId\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    selectedWorkspaceId\n    defaultWorkspaceId\n    lastLogin\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1847,6 +1857,18 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n        query GetLegacyFiles($workspaceId: String!) {\n          legacyFiles(workspaceId: $workspaceId) {\n            libraryId\n            libraryName\n            files {\n              fileId\n              files\n              subfolders\n              error\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetLegacyFiles($workspaceId: String!) {\n          legacyFiles(workspaceId: $workspaceId) {\n            libraryId\n            libraryName\n            files {\n              fileId\n              files\n              subfolders\n              error\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query GetWorkspaceLibraries($workspaceId: String!) {\n          workspaceLibraries(workspaceId: $workspaceId) {\n            id\n            name\n            filesCount\n            manifest {\n              version\n              updated\n              created\n              creator\n              storageStats {\n                extractionFileCount\n                physicalFileCount\n              }\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetWorkspaceLibraries($workspaceId: String!) {\n          workspaceLibraries(workspaceId: $workspaceId) {\n            id\n            name\n            filesCount\n            manifest {\n              version\n              updated\n              created\n              creator\n              storageStats {\n                extractionFileCount\n                physicalFileCount\n              }\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n        query getEventQueueRequests(\n          $workspaceId: String!\n          $action: EventQueueAction!\n          $take: Int\n          $startSequence: Int\n        ) {\n          eventQueueRequests(workspaceId: $workspaceId, action: $action, take: $take, startSequence: $startSequence) {\n            totalMessages\n            lastSequence\n            requests {\n              workspaceId\n              action\n              timestamp\n              ... on DocumentExtractionRequest {\n                extractionMethod\n                libraryId\n                documentId\n              }\n              ... on DocumentVectorizationRequest {\n                libraryId\n                documentId\n                splitMethod\n                extractionMethod\n                embeddingDriver\n                embeddingModel\n              }\n              ... on FieldEnrichmentRequest {\n                fieldId\n                chatModelDriver\n                chatModelName\n              }\n            }\n          }\n        }\n      ',
 ): (typeof documents)['\n        query getEventQueueRequests(\n          $workspaceId: String!\n          $action: EventQueueAction!\n          $take: Int\n          $startSequence: Int\n        ) {\n          eventQueueRequests(workspaceId: $workspaceId, action: $action, take: $take, startSequence: $startSequence) {\n            totalMessages\n            lastSequence\n            requests {\n              workspaceId\n              action\n              timestamp\n              ... on DocumentExtractionRequest {\n                extractionMethod\n                libraryId\n                documentId\n              }\n              ... on DocumentVectorizationRequest {\n                libraryId\n                documentId\n                splitMethod\n                extractionMethod\n                embeddingDriver\n                embeddingModel\n              }\n              ... on FieldEnrichmentRequest {\n                fieldId\n                chatModelDriver\n                chatModelName\n              }\n            }\n          }\n        }\n      ']
 /**
@@ -1931,8 +1953,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n',
-): (typeof documents)['\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n']
+  source: '\n        mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {\n          migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {\n            workspaceId\n            libraryId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {\n          migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {\n            workspaceId\n            libraryId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation MigrateWorkspace($workspaceId: String!) {\n          migrateWorkspace(workspaceId: $workspaceId) {\n            workspaceId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation MigrateWorkspace($workspaceId: String!) {\n          migrateWorkspace(workspaceId: $workspaceId) {\n            workspaceId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

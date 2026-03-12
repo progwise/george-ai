@@ -14,7 +14,9 @@ export const Route = createFileRoute('/_authenticated/admin/workers')({
   component: RouteComponent,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getEventProcessingStatusQueryOptions({ workspaceId: context.workspaceId })),
+      context.queryClient.ensureQueryData(
+        getEventProcessingStatusQueryOptions({ workspaceId: context.user.selectedWorkspaceId }),
+      ),
       context.queryClient.ensureQueryData(getWorkerEntriesQueryOptions()),
     ])
   },
@@ -22,10 +24,10 @@ export const Route = createFileRoute('/_authenticated/admin/workers')({
 
 function RouteComponent() {
   const { t } = useTranslation()
-  const { workspaceId } = Route.useRouteContext()
+  const { user } = Route.useRouteContext()
 
   const { data: processStatistics } = useSuspenseQuery({
-    ...getEventProcessingStatusQueryOptions({ workspaceId }),
+    ...getEventProcessingStatusQueryOptions({ workspaceId: user.selectedWorkspaceId }),
     refetchInterval: 5000, // Override refetch interval for auto-refresh
   })
 

@@ -915,6 +915,18 @@ type CreateWorkspaceResult {
   workspaceId: String!
 }
 
+type CurrentUser {
+  avatarUrl: String
+  defaultWorkspaceId: ID!
+  email: String!
+  isAdmin: Boolean!
+  lastLogin: DateTime
+  name: String!
+  selectedWorkspaceId: ID!
+  userId: ID!
+  username: String!
+}
+
 """
 A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
 """
@@ -1302,6 +1314,20 @@ type InferenceModelState {
   workspaceId: String
 }
 
+type LegacyFile {
+  error: String
+  fileId: String
+  files: [String!]
+  subfolders: [String!]
+}
+
+type LegacyFilesResponse {
+  error: String
+  files: [LegacyFile!]
+  libraryId: String
+  libraryName: String
+}
+
 type LibrariesResponseType {
   items: [AiLibrary!]!
   """
@@ -1581,7 +1607,8 @@ type Mutation {
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveWorkspace(workspaceId: ID!): Boolean!
   login(jwtToken: String!): LoginResult!
-  migrateWorkspace: Boolean
+  migrateLibrary(libraryId: String!, workspaceId: String!): LibraryManifest
+  migrateWorkspace(workspaceId: String!): WorkspaceManifest
   prepareUpload(documentId: String, input: PrepareUploadInput!, libraryId: String!): PrepareUploadResult!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeInferenceHost(hostId: String!): Boolean!
@@ -1745,7 +1772,7 @@ type Query {
   connectorTypes: [ConnectorTypeInfo!]!
   connectors(connectorType: String): [AiConnector!]!
   countFiles(libraryId: String!, namePrefix: String, originUriPrefix: String, showArchived: Boolean!): Int!
-  currentUser: User!
+  currentUser: CurrentUser!
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
   eventQueueRequests(
     action: EventQueueAction!
@@ -1775,6 +1802,7 @@ type Query {
   inferenceHostConfig: [InferenceHostConfig!]!
   inferenceHostState: [InferenceHostState!]!
   inferenceModelState: [InferenceModelState!]!
+  legacyFiles(workspaceId: String!): [LegacyFilesResponse!]!
   libraries(
     skip: Int
     sortField: LibrarySortField = name
@@ -1814,6 +1842,7 @@ type Query {
   workspaceConnectorTypes: [AiConnectorTypeWorkspace!]!
   workspaceInvitation(invitationId: ID!): WorkspaceInvitation!
   workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
+  workspaceLibraries(workspaceId: String!): [AiLibrary!]!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
   workspaces(
     skip: Int

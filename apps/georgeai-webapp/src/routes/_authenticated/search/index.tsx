@@ -83,7 +83,7 @@ const RouteComponent = () => {
           <div key={lib.id}>
             {lib.libMatches && (
               <Link
-                className="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-base-300"
+                className="flex items-center gap-2 rounded-lg p-2 hover:bg-base-300"
                 to="/libraries/$libraryId"
                 params={{ libraryId: lib.id }}
               >
@@ -94,7 +94,7 @@ const RouteComponent = () => {
 
             {lib.files.map((file) => (
               <Link
-                className="flex flex-col rounded-lg px-2 py-2 hover:bg-base-300"
+                className="flex flex-col rounded-lg p-2 hover:bg-base-300"
                 key={file.id}
                 to="/libraries/$libraryId/files/$fileId"
                 params={{ libraryId: lib.id, fileId: file.id }}
@@ -112,7 +112,7 @@ const RouteComponent = () => {
         {filtered.lists.map((list) => (
           <Link
             key={list.id}
-            className="flex items-center gap-2 rounded-lg px-2 py-2 hover:bg-base-300"
+            className="flex items-center gap-2 rounded-lg p-2 hover:bg-base-300"
             to="/lists/$listId"
             params={{ listId: list.id }}
           >

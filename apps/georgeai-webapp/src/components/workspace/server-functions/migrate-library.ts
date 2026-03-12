@@ -4,18 +4,20 @@ import { z } from 'zod'
 import { graphql } from '../../../gql'
 import { backendRequest } from '../../../server-functions/backend'
 
-const MigrateWorkspaceParamsSchema = z.object({
+const MigrateLibraryParamsSchema = z.object({
   workspaceId: z.string(),
+  libraryId: z.string(),
 })
 
-export const migrateWorkspaceFn = createServerFn({ method: 'POST' })
-  .inputValidator((data: z.infer<typeof MigrateWorkspaceParamsSchema>) => MigrateWorkspaceParamsSchema.parse(data))
+export const migrateLibraryFn = createServerFn({ method: 'POST' })
+  .inputValidator((data: z.infer<typeof MigrateLibraryParamsSchema>) => MigrateLibraryParamsSchema.parse(data))
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        mutation MigrateWorkspace($workspaceId: String!) {
-          migrateWorkspace(workspaceId: $workspaceId) {
+        mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {
+          migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {
             workspaceId
+            libraryId
             version
             name
             created
@@ -28,5 +30,5 @@ export const migrateWorkspaceFn = createServerFn({ method: 'POST' })
       `),
       data,
     )
-    return result.migrateWorkspace
+    return result.migrateLibrary
   })

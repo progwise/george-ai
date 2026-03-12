@@ -1,15 +1,17 @@
 {
   "prisma.pinToPrisma6": false,
   "vitest.maximumConfigs": 40,
-  "editor.hover.above": false,
-  "editor.hover.delay": 800,
-  "editor.hover.sticky": true,
-  "js/ts.updateImportsOnFileMove.enabled": "never",
   "terminal.integrated.defaultProfile.linux": "zsh",
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "never"
+    "source.fixAll.eslint": "explicit"
+  },
+  "pnpm.executionEnv": "container",
+  "eslint.packageManager": "pnpm",
+  "eslint.runtime": "node",
+  "eslint.options": {
+    "maxOldSpaceSize": 4096
   },
   "eslint.workingDirectories": [{ "mode": "auto" }],
   "remote.autoForwardPorts": true,
@@ -25,6 +27,7 @@
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
+  "search.followSymlinks": false,
   "files.exclude": {
     "**/.storage/**": true,
     "**/.storage-*/**": true,
@@ -34,14 +37,13 @@
     "**/.postgres-*/**": true,
     "**/.qdrant-*/**": true,
     "**/.typesense-*/**": true,
-    "**/.cache/**": true,
-    "**/.turbo/**": true,
     "**/.nats-data/**": true
   },
   "files.watcherExclude": {
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true,
     "**/node_modules/**": true,
+    "**/.pnpm-store/**": true,
     "**/.turbo/**": true,
     "**/dist/**": true,
     "**/.nats-*/**": true,
@@ -56,7 +58,9 @@
     "**/.qdrant-*/**": true,
     "**/.typesense-*/**": true,
     "**/build/**": true,
-    "**/coverage/**": true
+    "**/coverage/**": true,
+    "**/pnpm-lock.yaml": true,
+    "**/pnpm-workspace.yaml": true
   },
   "search.exclude": {
     "**/node_modules": true,
@@ -66,6 +70,7 @@
     "pnpm-lock.yaml": true,
     "**/.cache": true,
     "**/.nats-*": true,
+    "**/.pnpm-store/**": true,
     "**/.storage": true,
     "**/.storage*": true,
     "**/.uploads": true,
@@ -89,6 +94,7 @@
     "**/.typesense-*/**",
     "**/.uploads/**",
     "**/.uploads-*/**",
-    "**/node_modules/**"
+    "**/node_modules/**",
+    "**/.pnpm-store/**"
   ]
 }

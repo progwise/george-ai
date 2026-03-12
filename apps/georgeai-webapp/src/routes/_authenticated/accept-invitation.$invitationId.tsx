@@ -19,7 +19,7 @@ function AcceptInvitationPage() {
   const { user } = Route.useRouteContext()
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { setWorkspace } = useWorkspace(user)
+  const { setWorkspace } = useWorkspace(user.selectedWorkspaceId)
 
   const { data: invitation } = useSuspenseQuery(getWorkspaceInvitationQueryOptions(invitationId))
 

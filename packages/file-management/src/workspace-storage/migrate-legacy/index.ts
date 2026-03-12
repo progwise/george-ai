@@ -1,7 +1,8 @@
-import { migrateLegacyDocument } from './migrate-legacy-document'
-import { migrateLegacyLibrary } from './migrate-legacy-library'
+import { legacyFolderFiles } from './legacy-folder'
+import { migrateDocument } from './migrate-document'
+import { migrateLibrary } from './migrate-library'
 import { migrateWorkspace } from './migrate-workspace'
 
-export default { migrateWorkspace, migrateLegacyLibrary, migrateLegacyDocument }
+export default { migrateWorkspace, migrateLibrary, migrateDocument }
 
-export { migrateLegacyDocument, migrateLegacyLibrary, migrateWorkspace }
+export { migrateDocument, migrateLibrary, migrateWorkspace, legacyFolderFiles }

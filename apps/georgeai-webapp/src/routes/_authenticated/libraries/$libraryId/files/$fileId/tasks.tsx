@@ -20,13 +20,13 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 })
 
 function RouteComponent() {
-  const { workspaceId } = Route.useRouteContext()
+  const { user } = Route.useRouteContext()
   const { fileId } = Route.useParams()
   const { action, take, startSequence } = Route.useSearch()
 
   const { data, isLoading, error } = useQuery(
     getProcessingRequestsQueryOptions({
-      workspaceId,
+      workspaceId: user.selectedWorkspaceId,
       action: !action ? EventQueueAction.DocumentExtraction : action,
       take,
       startSequence,

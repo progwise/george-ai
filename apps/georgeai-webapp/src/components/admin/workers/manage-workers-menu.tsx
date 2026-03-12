@@ -10,9 +10,11 @@ import { useWorkerActions } from './use-worker-actions'
 
 export const ManageWorkersMenu = () => {
   const { t } = useTranslation()
-  const { workspaceId } = useRouteContext({ strict: false })
+  const { user } = useRouteContext({ from: '/_authenticated' })
 
-  const { data: eventProcessingStatus } = useSuspenseQuery(getEventProcessingStatusQueryOptions({ workspaceId }))
+  const { data: eventProcessingStatus } = useSuspenseQuery(
+    getEventProcessingStatusQueryOptions({ workspaceId: user.selectedWorkspaceId }),
+  )
 
   const { stopProcessing, startProcessing, pending } = useWorkerActions()
 
