@@ -53,12 +53,12 @@ const RouteComponent = () => {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-6rem)] flex-col overflow-hidden px-10">
-      <div className="mx-auto flex w-full flex-col items-center lg:w-2xl">
+    <div className="flex h-[calc(100dvh-6rem)] flex-col overflow-hidden">
+      <div className="mx-auto flex w-full flex-col items-center">
         <h1 className="mr-auto px-3 pt-5 pb-7 text-2xl font-medium not-md:hidden" title={t('search.title')}>
           {t('search.title')}
         </h1>
-        <label className="input h-12 w-full gap-5 rounded-4xl border-gray-400 text-lg outline-none lg:w-2xl">
+        <label className="input h-12 w-full gap-5 rounded-4xl border-gray-400 text-lg outline-none">
           <SearchIcon className="size-5.5" />
           <input
             id="search"
@@ -78,7 +78,7 @@ const RouteComponent = () => {
         </label>
       </div>
 
-      <div className="mx-auto mt-4 min-h-0 w-full flex-1 overflow-y-auto lg:w-2xl">
+      <div className="mx-auto mt-4 min-h-0 w-full flex-1 overflow-y-auto">
         {filtered.libraries.map((lib) => (
           <div key={lib.id}>
             {lib.libMatches && (
@@ -117,7 +117,10 @@ const RouteComponent = () => {
             params={{ listId: list.id }}
           >
             <ListViewIcon className="text-accent" />
-            <span>{list.name}</span>
+            <div className="flex flex-1 justify-between">
+              <div>{list.name}</div>
+              <div> </div>
+            </div>
           </Link>
         ))}
       </div>

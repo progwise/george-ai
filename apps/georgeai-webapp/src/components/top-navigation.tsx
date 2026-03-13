@@ -24,17 +24,21 @@ export default function TopNavigation({ user, isDrawerOpen, setIsDrawerOpen }: T
           )}
         >
           <div className="navbar-start flex pl-1 md:pl-4">
-            <button
-              type="button"
-              className="btn btn-circle pr-1 pb-1 btn-ghost md:hidden"
-              onClick={() => setIsDrawerOpen(true)}
-            >
-              <HamburgerMenuIcon />
-            </button>
-            <Link to="/search" type="button" className="btn btn-circle p-1 btn-ghost">
-              <SearchIcon />
-            </Link>
-            {user && <WorkspaceSwitcher user={user} />}
+            {user && (
+              <>
+                <button
+                  type="button"
+                  className="btn btn-circle pr-1 pb-1 btn-ghost md:hidden"
+                  onClick={() => setIsDrawerOpen(true)}
+                >
+                  <HamburgerMenuIcon />
+                </button>
+                <Link to="/search" type="button" className="btn btn-circle p-1 btn-ghost">
+                  <SearchIcon />
+                </Link>
+                <WorkspaceSwitcher user={user} />
+              </>
+            )}
           </div>
           <div className="navbar-end flex md:pr-4">
             <SettingsDropdown user={user} />

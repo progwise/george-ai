@@ -592,6 +592,7 @@ export default {
     languageModel: 'Sprachmodell',
     lastName: 'Nachname',
     libraryProcessingOptions: 'Bibliotheksverarbeitungsoptionen',
+    markdown: 'Markdown',
     modified: 'Geändert',
     monday: 'Montag',
     name: 'Name',
@@ -618,6 +619,7 @@ export default {
     reset: 'Zurücksetzen',
     saturday: 'Samstag',
     settings: 'Einstellungen',
+    similarity: 'Ähnlichkeiten',
     size: 'Größe',
     status: 'Status',
     sunday: 'Sonntag',
@@ -743,6 +745,7 @@ export default {
       error: 'Fehler',
       failedTerm: 'Fehlt',
       notEnriched: 'Nicht angereichert',
+      notFound: 'Keine Anreicherungen gefunden',
       processing: 'Wird verarbeitet',
       removing: 'Wird entfernt...',
       sidePanel: {

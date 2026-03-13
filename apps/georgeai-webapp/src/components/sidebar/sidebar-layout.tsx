@@ -41,7 +41,7 @@ export function SidebarLayout({ user, workspaceId }: SidebarLayoutProps) {
         )}
       >
         <TopNavigation user={user} isDrawerOpen={isDrawerOpen} setIsDrawerOpen={setIsDrawerOpen} />
-        <div role="main">
+        <div role="main" className="mx-auto block lg:w-3xl xl:w-5xl 2xl:w-7xl">
           <Outlet />
         </div>
       </div>

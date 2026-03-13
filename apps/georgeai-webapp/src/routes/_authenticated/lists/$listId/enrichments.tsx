@@ -143,7 +143,7 @@ function RouteComponent() {
       {enrichments.length === 0 ? (
         <div className="card bg-base-200">
           <div className="card-body text-center">
-            <p className="text-base-content/60">No Enrichment found</p>
+            <p className="text-base-content/60">{t('lists.enrichment.notFound')}</p>
           </div>
         </div>
       ) : (
