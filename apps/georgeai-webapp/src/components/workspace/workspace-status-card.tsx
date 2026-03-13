@@ -5,6 +5,7 @@ import { formatBytes } from '@george-ai/web-utils'
 
 import { graphql } from '../../gql'
 import { CurrentUserFragment, WorkspaceStatusCard_CurrentWorkspaceFragment } from '../../gql/graphql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { MigrateWorkspaceDialog } from './migrate-workspace-dialog'
 
 graphql(`
@@ -29,6 +30,7 @@ interface WorkspaceStatusCardProps {
 }
 
 export function WorkspaceStatusCard({ user, currentWorkspace }: WorkspaceStatusCardProps) {
+  const { t } = useTranslation()
   const [showMigrationDialog, setShowMigrationDialog] = useState(true)
   if (!currentWorkspace) {
     return (
@@ -53,20 +55,28 @@ export function WorkspaceStatusCard({ user, currentWorkspace }: WorkspaceStatusC
 
   const workspaceCard = (
     <div className="stat py-3">
-      <div className="stat-title text-sm">{!isLegacy ? `Workspace (V ${workspaceVersion})` : 'Legacy Workspace'}</div>
+      <div className="stat-title text-sm">
+        {!isLegacy ? `${t('workspace.title')} (V ${workspaceVersion})` : 'Legacy Workspace'}{' '}
+      </div>
       <div className="stat-value text-2xl">{`${currentWorkspace.name} `}</div>
       <div className={twMerge('stat-desc text-xs', !isLegacy ? 'text-success' : 'text-error')}>
         {!isLegacy ? (
           <div className="flex flex-wrap gap-1">
             <span>{formatBytes(currentWorkspace.manifest?.storageStats.physicalBytes)}, </span>
-            <span>{currentWorkspace.manifest?.storageStats.physicalFileCount} Files, </span>
-            <span>{currentWorkspace.manifest?.storageStats.extractionFileCount} Extraction files, </span>
-            <span>{currentWorkspace.chunksCount} Chunks</span>
+            <span>
+              {currentWorkspace.manifest?.storageStats.physicalFileCount} {t('labels.files')},
+            </span>
+            <span>
+              {currentWorkspace.manifest?.storageStats.extractionFileCount} {t('labels.extractedFiles')},
+            </span>
+            <span>
+              {currentWorkspace.chunksCount} {t('labels.chunks')}
+            </span>
           </div>
         ) : isAdmin ? (
-          <span>Needs migration</span>
+          <span>{t('workspace.needsMigration')}</span>
         ) : (
-          <span>Please contact your workspace administrator.</span>
+          <span>{t('workspace.contactAdmin')}</span>
         )}
       </div>
     </div>

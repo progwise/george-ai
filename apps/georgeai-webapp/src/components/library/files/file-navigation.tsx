@@ -32,7 +32,7 @@ export const FileNavigation = ({ fileId, libraryId }: FileNavigationProps) => {
         to="/libraries/$libraryId/files/$fileId/tasks"
         params={{ libraryId, fileId }}
       >
-        {t('label.tasks')}
+        {t('labels.tasks')}
       </Link>
       <Link
         className="tab"
@@ -42,7 +42,7 @@ export const FileNavigation = ({ fileId, libraryId }: FileNavigationProps) => {
         to="/libraries/$libraryId/files/$fileId/chunks"
         params={{ libraryId, fileId }}
       >
-        {t('label.chunks')}
+        {t('labels.chunks')}
       </Link>
       <Link
         className="tab"

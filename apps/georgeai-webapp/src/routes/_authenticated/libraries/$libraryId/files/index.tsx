@@ -44,7 +44,7 @@ function RouteComponent() {
   const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   return (
-    <div className="grid h-full grid-rows-[auto_1fr] gap-14 bg-base-100">
+    <div className="grid h-full grid-rows-[auto_1fr] gap-14 w-full">
       <div className="flex justify-between align-top">
         <div className="z-49 md:flex">
           <FilesActionsBar

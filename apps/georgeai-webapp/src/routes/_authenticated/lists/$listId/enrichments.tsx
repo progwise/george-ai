@@ -99,7 +99,7 @@ function RouteComponent() {
                 navigate({ search: { skip: 0, take, fieldId: selectedFieldId, status } })
               }}
             >
-              <option value="*">All fields</option>
+              <option value="*">{t('lists.enrichment.allFields')}</option>
               {aiList.fields
                 ?.filter((field) => field.sourceType === ListFieldSourceType.LlmComputed)
                 .map((field) => (
@@ -116,13 +116,13 @@ function RouteComponent() {
                 navigate({ search: { skip: 0, take, status: selectedStatus || undefined } })
               }}
             >
-              <option value="">All</option>
-              <option value={EnrichmentStatus.Pending}>Pending</option>
-              <option value={EnrichmentStatus.Processing}>In progress</option>
-              <option value={EnrichmentStatus.Canceled}>Cancelled</option>
-              <option value={EnrichmentStatus.Completed}>Completed</option>
-              <option value={EnrichmentStatus.Failed}>Failed</option>
-              <option value={EnrichmentStatus.Error}>Error</option>
+              <option value="">{t('lists.enrichment.status.all')}</option>
+              <option value={EnrichmentStatus.Pending}>{t('lists.enrichment.status.pending')}</option>
+              <option value={EnrichmentStatus.Processing}>{t('lists.enrichment.status.inProgress')}</option>
+              <option value={EnrichmentStatus.Canceled}>{t('lists.enrichment.status.cancelled')}</option>
+              <option value={EnrichmentStatus.Completed}>{t('lists.enrichment.status.completed')}</option>
+              <option value={EnrichmentStatus.Failed}>{t('lists.enrichment.status.failed')}</option>
+              <option value={EnrichmentStatus.Error}>{t('lists.enrichment.status.error')}</option>
             </select>
           </div>
           <Pagination

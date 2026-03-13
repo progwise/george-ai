@@ -28,7 +28,7 @@ function RouteComponent() {
     <article className="flex w-full flex-col gap-4">
       <ul className="menu-horizontal flex w-full items-center gap-2 rounded-box bg-base-200 p-2">
         <li>
-          <span className="badge badge-sm badge-primary">Pagination missing</span>
+          <span className="badge badge-sm badge-primary">{t('errors.paginationMissing')}</span>
         </li>
         <li>
           <h3 className="font-bold">{t('libraries.myLibraries', { count: data.totalCount })}</h3>

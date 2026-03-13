@@ -88,18 +88,20 @@ export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps)
               <ul className="mt-2 list-inside list-disc">
                 {currentWorkspace.librariesCount > 0 && (
                   <li>
-                    {currentWorkspace.librariesCount} {currentWorkspace.librariesCount === 1 ? 'library' : 'libraries'}
+                    {currentWorkspace.librariesCount}{' '}
+                    {currentWorkspace.librariesCount === 1 ? t('libraries.title') : t('libraries.plural')}
                   </li>
                 )}
                 {currentWorkspace.assistantsCount > 0 && (
                   <li>
                     {currentWorkspace.assistantsCount}{' '}
-                    {currentWorkspace.assistantsCount === 1 ? 'assistant' : 'assistants'}
+                    {currentWorkspace.assistantsCount === 1 ? t('assistants.singular') : t('assistants.title')}
                   </li>
                 )}
                 {currentWorkspace.listsCount > 0 && (
                   <li>
-                    {currentWorkspace.listsCount} {currentWorkspace.listsCount === 1 ? 'list' : 'lists'}
+                    {currentWorkspace.listsCount}{' '}
+                    {currentWorkspace.listsCount === 1 ? t('lists.view') : t('lists.plural')}
                   </li>
                 )}
               </ul>

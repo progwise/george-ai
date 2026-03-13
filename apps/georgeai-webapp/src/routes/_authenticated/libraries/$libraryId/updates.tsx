@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { getCrawlersQueryOptions } from '../../../../components/library/crawler/queries'
 import { UpdatesTable, getLibraryUpdateItemsQueryOptions } from '../../../../components/library/updates'
 import { Pagination } from '../../../../components/table/pagination'
+import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/updates')({
   component: RouteComponent,
@@ -33,10 +34,11 @@ function RouteComponent() {
   const {
     data: { aiLibraryUpdates },
   } = useSuspenseQuery(getLibraryUpdateItemsQueryOptions({ libraryId, skip, take }))
+  const { t } = useTranslation()
   return (
     <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <h1 className="mb-2 flex justify-between font-bold md:text-xl">
-        {aiLibraryUpdates.count} Updates
+        {aiLibraryUpdates.count} {t('labels.updates')}
         <Pagination
           totalItems={aiLibraryUpdates.count}
           itemsPerPage={take}
