@@ -58,8 +58,8 @@ graphql(`
 
 const InfoField = ({ label, value }: { label: string; value: ReactNode }) => (
   <div>
-    <div className="text-xs text-base-content/50">{label}</div>
-    <div className="overflow-auto text-sm">{value}</div>
+    <div className="text-xs text-base-content/60">{label}</div>
+    <div className="text-base-content/90 italic wrap-break-word">{value}</div>
   </div>
 )
 
@@ -70,11 +70,9 @@ interface FileInfoBoxProps {
 export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
   const { t } = useTranslation()
   return (
-    <div className="w-96 space-y-3 p-3 opacity-100">
+    <div className="text-xs lg:text-sm p-2">
       <section>
-        <h4 className="mb-2 text-xs font-semibold tracking-wide text-base-content/80 uppercase">{file.name}</h4>
-
-        <div className="grid grid-cols-1 gap-x-4 gap-y-2">
+        <div className="my-2 grid grid-cols-1 gap-x-4 gap-y-2">
           <InfoField label="Origin URI" value={file.originUri ?? '-'} />
         </div>
         <div className="grid grid-cols-1 gap-x-4 gap-y-2">

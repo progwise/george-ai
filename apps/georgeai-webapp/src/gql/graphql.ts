@@ -1558,6 +1558,26 @@ export type ManagedUsersResponse = {
   users: Array<ManagedUser>
 }
 
+export type MigrateFileRequest = EventQueueRequest & {
+  __typename?: 'MigrateFileRequest'
+  action: EventQueueAction
+  crawledByCrawlerId?: Maybe<Scalars['String']['output']>
+  createdAt: Scalars['String']['output']
+  docPath?: Maybe<Scalars['String']['output']>
+  fileId: Scalars['String']['output']
+  fileName: Scalars['String']['output']
+  hash?: Maybe<Scalars['String']['output']>
+  libraryId: Scalars['String']['output']
+  mimeType: Scalars['String']['output']
+  originFileHash?: Maybe<Scalars['String']['output']>
+  originModificationDate?: Maybe<Scalars['String']['output']>
+  originUri?: Maybe<Scalars['String']['output']>
+  timestamp: Scalars['DateTime']['output']
+  uploadedAt?: Maybe<Scalars['String']['output']>
+  version?: Maybe<Scalars['Int']['output']>
+  workspaceId: Scalars['String']['output']
+}
+
 export type MigrateLibraryResponse = {
   __typename?: 'MigrateLibraryResponse'
   fileMigrationsPublished: Scalars['Int']['output']
@@ -4790,13 +4810,13 @@ export type FileCaptionCard_FileFragment = {
   libraryId: string
   name: string
   originUri?: string | null
-  supportedExtractionMethods: Array<ExtractionMethod>
   size?: number | null
   status: string
   chunkCount?: number | null
   createdAt: string
   archivedAt?: string | null
   originModificationDate?: string | null
+  crawler?: { __typename?: 'AiLibraryCrawler'; uri: string; uriType: CrawlerUriType } | null
   manifest?: {
     __typename?: 'DocumentManifest'
     documentId: string
@@ -4805,13 +4825,6 @@ export type FileCaptionCard_FileFragment = {
     sourceHash?: string | null
     created: string
     version: number
-    extractions: Array<{
-      __typename?: 'DocumentExtraction'
-      extractionMethod: ExtractionMethod
-      sourceHash: string
-      created: string
-      updated?: string | null
-    }>
     origin?: {
       __typename?: 'DocumentOrigin'
       uri?: string | null
@@ -4820,6 +4833,13 @@ export type FileCaptionCard_FileFragment = {
       lastModifiedDate?: string | null
       author?: string | null
     } | null
+    extractions: Array<{
+      __typename?: 'DocumentExtraction'
+      extractionMethod: ExtractionMethod
+      sourceHash: string
+      created: string
+      updated?: string | null
+    }>
     storageStats: {
       __typename?: 'StorageStats'
       extractionBytes: number
@@ -4832,13 +4852,6 @@ export type FileCaptionCard_FileFragment = {
       lastReconcile?: string | null
     }
   } | null
-  embeddingStatistics: Array<{
-    __typename?: 'EmbeddingStatistic'
-    extractionMethod: ExtractionMethod
-    modelName?: string | null
-    chunkCount: number
-  }>
-  crawler?: { __typename?: 'AiLibraryCrawler'; uri: string; uriType: CrawlerUriType } | null
 }
 
 export type FileInfoBox_FileFragment = {
@@ -4930,13 +4943,6 @@ export type FileMenu_FileFragment = {
     sourceHash?: string | null
     created: string
     version: number
-    extractions: Array<{
-      __typename?: 'DocumentExtraction'
-      extractionMethod: ExtractionMethod
-      sourceHash: string
-      created: string
-      updated?: string | null
-    }>
     origin?: {
       __typename?: 'DocumentOrigin'
       uri?: string | null
@@ -4945,6 +4951,13 @@ export type FileMenu_FileFragment = {
       lastModifiedDate?: string | null
       author?: string | null
     } | null
+    extractions: Array<{
+      __typename?: 'DocumentExtraction'
+      extractionMethod: ExtractionMethod
+      sourceHash: string
+      created: string
+      updated?: string | null
+    }>
     storageStats: {
       __typename?: 'StorageStats'
       extractionBytes: number
@@ -4957,29 +4970,6 @@ export type FileMenu_FileFragment = {
       lastReconcile?: string | null
     }
   } | null
-}
-
-export type FileStatusLabels_FileFragment = {
-  __typename?: 'AiLibraryFile'
-  id: string
-  name: string
-  supportedExtractionMethods: Array<ExtractionMethod>
-  manifest?: {
-    __typename?: 'DocumentManifest'
-    extractions: Array<{
-      __typename?: 'DocumentExtraction'
-      extractionMethod: ExtractionMethod
-      sourceHash: string
-      created: string
-      updated?: string | null
-    }>
-  } | null
-  embeddingStatistics: Array<{
-    __typename?: 'EmbeddingStatistic'
-    extractionMethod: ExtractionMethod
-    modelName?: string | null
-    chunkCount: number
-  }>
 }
 
 export type AiLibrary_FilesTableFragment = {
@@ -5159,13 +5149,6 @@ export type GetFileQuery = {
       sourceHash?: string | null
       created: string
       version: number
-      extractions: Array<{
-        __typename?: 'DocumentExtraction'
-        extractionMethod: ExtractionMethod
-        sourceHash: string
-        created: string
-        updated?: string | null
-      }>
       origin?: {
         __typename?: 'DocumentOrigin'
         uri?: string | null
@@ -5174,6 +5157,13 @@ export type GetFileQuery = {
         lastModifiedDate?: string | null
         author?: string | null
       } | null
+      extractions: Array<{
+        __typename?: 'DocumentExtraction'
+        extractionMethod: ExtractionMethod
+        sourceHash: string
+        created: string
+        updated?: string | null
+      }>
       storageStats: {
         __typename?: 'StorageStats'
         extractionBytes: number
@@ -5193,12 +5183,6 @@ export type GetFileQuery = {
       message?: string | null
       updateType: string
     } | null
-    embeddingStatistics: Array<{
-      __typename?: 'EmbeddingStatistic'
-      extractionMethod: ExtractionMethod
-      modelName?: string | null
-      chunkCount: number
-    }>
     crawler?: { __typename?: 'AiLibraryCrawler'; uri: string; uriType: CrawlerUriType } | null
   }
 }
@@ -5237,13 +5221,6 @@ export type EmbeddingsTableQuery = {
         sourceHash?: string | null
         created: string
         version: number
-        extractions: Array<{
-          __typename?: 'DocumentExtraction'
-          extractionMethod: ExtractionMethod
-          sourceHash: string
-          created: string
-          updated?: string | null
-        }>
         origin?: {
           __typename?: 'DocumentOrigin'
           uri?: string | null
@@ -5252,6 +5229,13 @@ export type EmbeddingsTableQuery = {
           lastModifiedDate?: string | null
           author?: string | null
         } | null
+        extractions: Array<{
+          __typename?: 'DocumentExtraction'
+          extractionMethod: ExtractionMethod
+          sourceHash: string
+          created: string
+          updated?: string | null
+        }>
         storageStats: {
           __typename?: 'StorageStats'
           extractionBytes: number
@@ -6702,6 +6686,7 @@ export type GetEventQueueRequestsQuery = {
           action: EventQueueAction
           timestamp: string
         }
+      | { __typename?: 'MigrateFileRequest'; workspaceId: string; action: EventQueueAction; timestamp: string }
     >
   }
 }
@@ -9975,58 +9960,6 @@ export const RunCrawlerButton_CrawlerFragmentDoc = {
     },
   ],
 } as unknown as DocumentNode<RunCrawlerButton_CrawlerFragment, unknown>
-export const FileStatusLabels_FileFragmentDoc = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'FileStatusLabels_File' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'manifest' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'extractions' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'embeddingStatistics' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<FileStatusLabels_FileFragment, unknown>
 export const FileInfoBox_FileFragmentDoc = {
   kind: 'Document',
   definitions: [
@@ -10319,7 +10252,6 @@ export const FileCaptionCard_FileFragmentDoc = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FileStatusLabels_File' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FileMenu_File' } },
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
@@ -10448,53 +10380,6 @@ export const FileCaptionCard_FileFragmentDoc = {
                     ],
                   },
                 },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'FileStatusLabels_File' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'manifest' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'extractions' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'embeddingStatistics' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
               ],
             },
           },
@@ -17719,53 +17604,6 @@ export const GetFileDocument = {
     },
     {
       kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'FileStatusLabels_File' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'supportedExtractionMethods' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'manifest' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'extractions' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'embeddingStatistics' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'FileInfoBox_File' },
       typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
       selectionSet: {
@@ -17912,7 +17750,6 @@ export const GetFileDocument = {
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
-          { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FileStatusLabels_File' } },
           { kind: 'FragmentSpread', name: { kind: 'Name', value: 'FileMenu_File' } },
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },

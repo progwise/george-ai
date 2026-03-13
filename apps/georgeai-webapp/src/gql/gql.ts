@@ -118,11 +118,10 @@ type Documents = {
   '\n        mutation runCrawler($crawlerId: String!) {\n          runAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ': typeof types.RunCrawlerDocument
   '\n        mutation stopCrawler($crawlerId: String!) {\n          stopAiLibraryCrawler(crawlerId: $crawlerId)\n        }\n      ': typeof types.StopCrawlerDocument
   '\n        mutation updateAiLibraryCrawler(\n          $id: String!\n          $data: AiLibraryCrawlerInput!\n          $credentials: AiLibraryCrawlerCredentialsInput\n        ) {\n          updateAiLibraryCrawler(id: $id, data: $data, credentials: $credentials) {\n            id\n          }\n        }\n      ': typeof types.UpdateAiLibraryCrawlerDocument
-  '\n  fragment FileCaptionCard_File on AiLibraryFile {\n    ...FileStatusLabels_File\n    ...FileMenu_File\n    id\n    libraryId\n    name\n    originUri\n  }\n': typeof types.FileCaptionCard_FileFragmentDoc
+  '\n  fragment FileCaptionCard_File on AiLibraryFile {\n    ...FileMenu_File\n    id\n    libraryId\n    name\n    originUri\n  }\n': typeof types.FileCaptionCard_FileFragmentDoc
   '\n  fragment FileInfoBox_File on AiLibraryFile {\n    id\n    name\n    libraryId\n    size\n    status\n    chunkCount\n    originUri\n    createdAt\n    archivedAt\n    crawler {\n      uri\n      uriType\n    }\n    manifest {\n      documentId\n      name\n      mimeType\n      sourceHash\n      created\n      origin {\n        uri\n        hash\n        creationDate\n        lastModifiedDate\n        author\n      }\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n      storageStats {\n        extractionBytes\n        attachmentBytes\n        physicalBytes\n        extractionFileCount\n        physicalFileCount\n        attachmentFileCount\n        lastUpdate\n        lastReconcile\n      }\n    }\n    originModificationDate\n  }\n': typeof types.FileInfoBox_FileFragmentDoc
   '\n  fragment FileInfo_Files on AiLibraryFile {\n    id\n    libraryId\n    name\n    manifest {\n      version\n      sourceHash\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n    }\n  }\n': typeof types.FileInfo_FilesFragmentDoc
   '\n  fragment FileMenu_File on AiLibraryFile {\n    id\n    libraryId\n    name\n    ...FileInfoBox_File\n    ...FileInfo_Files\n  }\n': typeof types.FileMenu_FileFragmentDoc
-  '\n  fragment FileStatusLabels_File on AiLibraryFile {\n    id\n    name\n    supportedExtractionMethods\n    manifest {\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n    }\n    embeddingStatistics {\n      extractionMethod\n      modelName\n      chunkCount\n    }\n  }\n': typeof types.FileStatusLabels_FileFragmentDoc
   '\n  fragment AiLibrary_FilesTable on AiLibrary {\n    id\n    name\n    manifest {\n      name\n    }\n  }\n': typeof types.AiLibrary_FilesTableFragmentDoc
   '\n  fragment AiLibraryFile_FilesTable on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    dropError\n    createdAt\n    originModificationDate\n    archivedAt\n    chunkCount\n    manifest {\n      version\n      documentId\n      name\n      mimeType\n      sourceHash\n      created\n      origin {\n        uri\n        hash\n        creationDate\n        lastModifiedDate\n        author\n      }\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n      storageStats {\n        extractionBytes\n        attachmentBytes\n        physicalBytes\n        extractionFileCount\n        physicalFileCount\n        attachmentFileCount\n        lastUpdate\n        lastReconcile\n      }\n    }\n  }\n': typeof types.AiLibraryFile_FilesTableFragmentDoc
   '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n      provider\n    }\n    ocrModel {\n      id\n      name\n      provider\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
@@ -455,7 +454,7 @@ const documents: Documents = {
     types.StopCrawlerDocument,
   '\n        mutation updateAiLibraryCrawler(\n          $id: String!\n          $data: AiLibraryCrawlerInput!\n          $credentials: AiLibraryCrawlerCredentialsInput\n        ) {\n          updateAiLibraryCrawler(id: $id, data: $data, credentials: $credentials) {\n            id\n          }\n        }\n      ':
     types.UpdateAiLibraryCrawlerDocument,
-  '\n  fragment FileCaptionCard_File on AiLibraryFile {\n    ...FileStatusLabels_File\n    ...FileMenu_File\n    id\n    libraryId\n    name\n    originUri\n  }\n':
+  '\n  fragment FileCaptionCard_File on AiLibraryFile {\n    ...FileMenu_File\n    id\n    libraryId\n    name\n    originUri\n  }\n':
     types.FileCaptionCard_FileFragmentDoc,
   '\n  fragment FileInfoBox_File on AiLibraryFile {\n    id\n    name\n    libraryId\n    size\n    status\n    chunkCount\n    originUri\n    createdAt\n    archivedAt\n    crawler {\n      uri\n      uriType\n    }\n    manifest {\n      documentId\n      name\n      mimeType\n      sourceHash\n      created\n      origin {\n        uri\n        hash\n        creationDate\n        lastModifiedDate\n        author\n      }\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n      storageStats {\n        extractionBytes\n        attachmentBytes\n        physicalBytes\n        extractionFileCount\n        physicalFileCount\n        attachmentFileCount\n        lastUpdate\n        lastReconcile\n      }\n    }\n    originModificationDate\n  }\n':
     types.FileInfoBox_FileFragmentDoc,
@@ -463,8 +462,6 @@ const documents: Documents = {
     types.FileInfo_FilesFragmentDoc,
   '\n  fragment FileMenu_File on AiLibraryFile {\n    id\n    libraryId\n    name\n    ...FileInfoBox_File\n    ...FileInfo_Files\n  }\n':
     types.FileMenu_FileFragmentDoc,
-  '\n  fragment FileStatusLabels_File on AiLibraryFile {\n    id\n    name\n    supportedExtractionMethods\n    manifest {\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n    }\n    embeddingStatistics {\n      extractionMethod\n      modelName\n      chunkCount\n    }\n  }\n':
-    types.FileStatusLabels_FileFragmentDoc,
   '\n  fragment AiLibrary_FilesTable on AiLibrary {\n    id\n    name\n    manifest {\n      name\n    }\n  }\n':
     types.AiLibrary_FilesTableFragmentDoc,
   '\n  fragment AiLibraryFile_FilesTable on AiLibraryFile {\n    id\n    libraryId\n    name\n    originUri\n    mimeType\n    size\n    dropError\n    createdAt\n    originModificationDate\n    archivedAt\n    chunkCount\n    manifest {\n      version\n      documentId\n      name\n      mimeType\n      sourceHash\n      created\n      origin {\n        uri\n        hash\n        creationDate\n        lastModifiedDate\n        author\n      }\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n      storageStats {\n        extractionBytes\n        attachmentBytes\n        physicalBytes\n        extractionFileCount\n        physicalFileCount\n        attachmentFileCount\n        lastUpdate\n        lastReconcile\n      }\n    }\n  }\n':
@@ -1347,8 +1344,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment FileCaptionCard_File on AiLibraryFile {\n    ...FileStatusLabels_File\n    ...FileMenu_File\n    id\n    libraryId\n    name\n    originUri\n  }\n',
-): (typeof documents)['\n  fragment FileCaptionCard_File on AiLibraryFile {\n    ...FileStatusLabels_File\n    ...FileMenu_File\n    id\n    libraryId\n    name\n    originUri\n  }\n']
+  source: '\n  fragment FileCaptionCard_File on AiLibraryFile {\n    ...FileMenu_File\n    id\n    libraryId\n    name\n    originUri\n  }\n',
+): (typeof documents)['\n  fragment FileCaptionCard_File on AiLibraryFile {\n    ...FileMenu_File\n    id\n    libraryId\n    name\n    originUri\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1367,12 +1364,6 @@ export function graphql(
 export function graphql(
   source: '\n  fragment FileMenu_File on AiLibraryFile {\n    id\n    libraryId\n    name\n    ...FileInfoBox_File\n    ...FileInfo_Files\n  }\n',
 ): (typeof documents)['\n  fragment FileMenu_File on AiLibraryFile {\n    id\n    libraryId\n    name\n    ...FileInfoBox_File\n    ...FileInfo_Files\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  fragment FileStatusLabels_File on AiLibraryFile {\n    id\n    name\n    supportedExtractionMethods\n    manifest {\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n    }\n    embeddingStatistics {\n      extractionMethod\n      modelName\n      chunkCount\n    }\n  }\n',
-): (typeof documents)['\n  fragment FileStatusLabels_File on AiLibraryFile {\n    id\n    name\n    supportedExtractionMethods\n    manifest {\n      extractions {\n        extractionMethod\n        sourceHash\n        created\n        updated\n      }\n    }\n    embeddingStatistics {\n      extractionMethod\n      modelName\n      chunkCount\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

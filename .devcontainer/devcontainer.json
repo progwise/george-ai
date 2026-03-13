@@ -6,7 +6,8 @@
 
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
-      "configureZshAsDefaultShell": true
+      "configureZshAsDefaultShell": true,
+      "installZsh": "true"
     }
   },
 
@@ -26,7 +27,7 @@
     }
   },
 
-  "postCreateCommand": "pnpm install",
+  "postCreateCommand": "pnpm install; curl -sS https://starship.rs/install.sh | sh -s -- -y && echo 'eval \"$(starship init zsh)\"' >> ~/.zshrc",
 
   "postStartCommand": "sudo service ssh start"
 

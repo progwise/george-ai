@@ -23,11 +23,11 @@ graphql(`
   }
 `)
 
-interface FileInfoFilesProps {
+interface FileInfoFilesMenuProps {
   file: FileInfo_FilesFragment
 }
 
-export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
+export const FileInfoFilesMenu = ({ file }: FileInfoFilesMenuProps) => {
   const { t } = useTranslation()
 
   const { data: backendPublicUrl, isLoading } = useQuery(getBackendPublicUrlQueryOptions())
@@ -44,10 +44,10 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
   const fileUrl = new URL(`${backendPublicUrl}/library-files/${file.libraryId}/${file.id}`)
   const fileName = file.name || 'unknown'
   return (
-    <ul className="menu w-xs menu-xs rounded-box bg-base-200 shadow-lg">
+    <ul className="menu menu-xs">
       <li>
         {file.manifest ? (
-          <a href={`${fileUrl}`} className="link link-hover" download={fileName}>
+          <a href={`${fileUrl}`} className="link link-hover wrap-break-word" download={fileName}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -112,7 +112,7 @@ export const FileInfoFiles = ({ file }: FileInfoFilesProps) => {
             {file.manifest?.extractions.map((extraction) => (
               <li key={extraction.extractionMethod}>
                 <a
-                  className="link link-hover"
+                  className="link link-hover wrap-break-word"
                   href={`${fileUrl}?extractionMethod=${extraction.extractionMethod}`}
                   download
                 >

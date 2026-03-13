@@ -1496,6 +1496,25 @@ type ManagedUsersResponse {
   users: [ManagedUser!]!
 }
 
+type MigrateFileRequest implements EventQueueRequest {
+  action: EventQueueAction!
+  crawledByCrawlerId: String
+  createdAt: String!
+  docPath: String
+  fileId: String!
+  fileName: String!
+  hash: String
+  libraryId: String!
+  mimeType: String!
+  originFileHash: String
+  originModificationDate: String
+  originUri: String
+  timestamp: DateTime!
+  uploadedAt: String
+  version: Int
+  workspaceId: String!
+}
+
 type MigrateLibraryResponse {
   fileMigrationsPublished: Int!
   library: LibraryManifest!

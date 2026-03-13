@@ -81,3 +81,28 @@ dl.properties dt {
 dl.properties dd {
   @apply mb-1 ml-2 text-base-content/50;
 }
+
+/* 1. The state when the popover is OPEN */
+[popover]:popover-open {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 2. The state BEFORE it opens (The "Hidden" state) */
+@starting-style {
+  [popover]:popover-open {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* 3. The state when it is CLOSED (for the exit animation) */
+[popover] {
+  opacity: 0;
+  transform: scale(0.95);
+  /* transition-behavior: allow-discrete is the secret sauce for display: none */
+  transition:
+    opacity 0.2s ease-out,
+    transform 0.2s ease-out,
+    display 0.2s ease-out allow-discrete;
+}

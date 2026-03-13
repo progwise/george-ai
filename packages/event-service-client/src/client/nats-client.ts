@@ -453,7 +453,7 @@ export class NatsClient implements EventClient {
 
         logger.debug('Fetching message for consumer', { streamName, consumerName: consumerInfo.name })
         try {
-          const messages = await consumer.fetch({ max_messages: 10, expires: 1000 })
+          const messages = await consumer.fetch({ max_messages: 100, expires: 1000 })
 
           for await (const msg of messages) {
             if (signal.aborted) {
