@@ -44,7 +44,7 @@ const readGenerator = async (options: {
   return result
 }
 
-describe('Testing Ollama chat endpoints', () => {
+describe.skipIf(!OLLAMA_BASE_URL)('Testing Ollama chat endpoints', () => {
   const ollamaConnection: OllamaHostConnection | null = !OLLAMA_BASE_URL
     ? null
     : {

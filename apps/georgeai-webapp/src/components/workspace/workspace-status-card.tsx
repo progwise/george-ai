@@ -29,7 +29,7 @@ interface WorkspaceStatusCardProps {
 }
 
 export function WorkspaceStatusCard({ user, currentWorkspace }: WorkspaceStatusCardProps) {
-  const [showMigrationDialog, setShowMigrationDialog] = useState(false)
+  const [showMigrationDialog, setShowMigrationDialog] = useState(true)
   if (!currentWorkspace) {
     return (
       <div className="stats min-w-50 flex-1 shadow-sm">

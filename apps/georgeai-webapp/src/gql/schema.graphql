@@ -653,22 +653,6 @@ input AiListSourceInput {
   libraryId: String!
 }
 
-type AiServiceProvider {
-  apiKeyHint: String
-  baseUrl: String
-  createdAt: DateTime!
-  createdBy: String
-  enabled: Boolean!
-  id: ID!
-  name: String!
-  provider: String!
-  updatedAt: DateTime!
-  updatedBy: String
-  vramGb: Int
-  workspace: Workspace!
-  workspaceId: String!
-}
-
 type ApiCrawlerTemplate {
   config: String!
   description: String!
@@ -931,6 +915,18 @@ type CreateWorkspaceResult {
   workspaceId: String!
 }
 
+type CurrentUser {
+  avatarUrl: String
+  defaultWorkspaceId: ID!
+  email: String!
+  isAdmin: Boolean!
+  lastLogin: DateTime
+  name: String!
+  selectedWorkspaceId: ID!
+  userId: ID!
+  username: String!
+}
+
 """
 A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
 """
@@ -1096,6 +1092,7 @@ enum EventQueueAction {
   documentExtraction
   documentVectorization
   fieldEnrichment
+  migrateFile
 }
 
 interface EventQueueRequest {
@@ -1182,7 +1179,7 @@ type FileChunk {
   embeddingModelNames: [String!]
   extractionMethod: String!
   fileId: String!
-  filename: String
+  fileName: String
   fragment: Int
   id: String!
   libraryId: String!
@@ -1257,12 +1254,29 @@ enum InferenceDriver {
 }
 
 type InferenceHostConfig {
-  apiKey: String
+  apiKeyHint: String
+  configuredVramGb: Int
+  connection: InferenceHostConnection!
   driver: InferenceDriver!
+  enabled: Boolean!
   hostId: String!
   lastUpdate: DateTime
   name: String
   url: String
+  workspaceId: String!
+}
+
+type InferenceHostConnection {
+  baseUrl: String
+  driver: InferenceDriver!
+  encryptedApiKey: String
+}
+
+input InferenceHostInput {
+  apiKey: String
+  baseUrl: String
+  name: String!
+  vramGb: Int
 }
 
 type InferenceHostState {
@@ -1279,6 +1293,17 @@ type InferenceHostState {
   usedMemoryMb: Int
 }
 
+type InferenceModel {
+  canDoChatCompletion: Boolean!
+  canDoEmbedding: Boolean!
+  canDoFunctionCalling: Boolean!
+  canDoVision: Boolean!
+  driver: InferenceDriver!
+  enabled: Boolean!
+  name: String!
+  workspaceId: String!
+}
+
 type InferenceModelState {
   callCount: Int
   driver: InferenceDriver!
@@ -1288,6 +1313,20 @@ type InferenceModelState {
   modelName: String
   responseTimeMsPerToken: Int
   workspaceId: String
+}
+
+type LegacyFile {
+  error: String
+  fileId: String
+  files: [String!]
+  subfolders: [String!]
+}
+
+type LegacyFilesResponse {
+  error: String
+  files: [LegacyFile!]
+  libraryId: String
+  libraryName: String
 }
 
 type LibrariesResponseType {
@@ -1457,13 +1496,9 @@ type ManagedUsersResponse {
   users: [ManagedUser!]!
 }
 
-input ModelProviderInput {
-  apiKey: String
-  baseUrl: String
-  enabled: Boolean
-  name: String!
-  provider: String!
-  vramGb: Int
+type MigrateLibraryResponse {
+  fileMigrationsPublished: Int!
+  library: LibraryManifest!
 }
 
 type ModelUsageStats {
@@ -1534,9 +1569,9 @@ type Mutation {
     """
     onlyMissingValues: Boolean = true
   ): EnrichmentQueueTasksMutationResult!
+  createInferenceHost(data: InferenceHostInput!, driver: InferenceDriver!): InferenceHostConfig!
   createLibrary(description: String, name: String!): AiLibrary
   createList(data: AiListInput!): AiList!
-  createModelProvider(data: ModelProviderInput!): AiServiceProvider!
   createWorkspace(name: String!, slug: String!): CreateWorkspaceResult!
   deleteAiAssistant(assistantId: String!): AiAssistant
   deleteAiConversation(conversationId: String!): AiConversation
@@ -1549,7 +1584,6 @@ type Mutation {
   deleteLibrary(libraryId: String!): Boolean!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
-  deleteModelProvider(id: ID!): Boolean!
   deletePendingEnrichmentTasks(
     """
     Field ID to stop enrichment for
@@ -1567,7 +1601,11 @@ type Mutation {
   ): EnrichmentQueueTasksMutationResult!
   deleteWorkspace: Boolean!
   disableConnectorType(connectorType: String!): Boolean!
+  disableInferenceHost(hostId: String!): InferenceHostConfig!
+  disableModel(driver: InferenceDriver!, modelName: ID!): InferenceModel
   enableConnectorType(connectorType: String!): AiConnectorTypeWorkspace!
+  enableInferenceHost(hostId: String!): InferenceHostConfig!
+  enableModel(driver: InferenceDriver!, modelName: ID!): InferenceModel
   ensureUserProfile(userId: String!): UserProfile
   generateApiKey(name: String!): ApiKeyWithSecret!
   hideMessage(messageId: String!): AiConversationMessage
@@ -1575,9 +1613,11 @@ type Mutation {
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveWorkspace(workspaceId: ID!): Boolean!
   login(jwtToken: String!): LoginResult!
-  migrateWorkspace: Boolean
+  migrateLibrary(libraryId: String!, workspaceId: String!): MigrateLibraryResponse!
+  migrateWorkspace(workspaceId: String!): WorkspaceManifest!
   prepareUpload(documentId: String, input: PrepareUploadInput!, libraryId: String!): PrepareUploadResult!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
+  removeInferenceHost(hostId: String!): Boolean!
   removeLibraryUsage(assistantId: String!, libraryId: String!): AiLibraryUsage
   removeListField(id: String!): AiListField!
   removeListSource(id: String!): AiListSource!
@@ -1590,24 +1630,19 @@ type Mutation {
   runAiLibraryCrawler(crawlerId: String!): String!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
-  startAllQueueWorkers: QueueOperationResult!
   startProcessing(action: EventQueueAction!): [EventQueue!]!
-  startQueueWorker(queueType: QueueType!): QueueOperationResult!
   stopAiLibraryCrawler(crawlerId: String!): String!
-  stopAllQueueWorkers: QueueOperationResult!
   stopProcessing(action: EventQueueAction!): [EventQueue!]!
-  stopQueueWorker(queueType: QueueType!): QueueOperationResult!
   syncModels(driver: InferenceDriver): SyncModelsResult
   testConnectorConnection(id: ID!): TestConnectorConnectionResult!
-  testProviderConnection(
+  testInferenceHostConnection(
     apiKey: String
     baseUrl: String
     driver: InferenceDriver!
-    providerId: String
-  ): TestProviderConnectionResult!
+    hostId: String
+    workspaceId: String!
+  ): TestInferenceHostConnectionResult!
   toggleAdminStatus(userId: String!): User
-  toggleModel(enabled: Boolean!, id: ID!): AiLanguageModel
-  toggleModelProvider(enabled: Boolean!, id: String!): AiServiceProvider!
   triggerAutomation(id: ID!): TriggerAutomationResult!
   triggerAutomationItem(automationItemId: ID!): TriggerAutomationResult!
   triggerExtraction(
@@ -1636,13 +1671,13 @@ type Mutation {
   updateAssessmentQuestion(assistantId: String!, notes: String, questionId: String!, value: String): DateTime!
   updateAutomation(data: AutomationInput!, id: ID!): Automation!
   updateConnector(data: AiConnectorInput!, id: ID!): AiConnector!
+  updateInferenceHost(data: InferenceHostInput!, hostId: ID!): InferenceHostConfig!
   updateLibrary(data: LibraryInput!, libraryId: String!): AiLibrary!
   updateLibraryUsage(id: String!, usedFor: String): AiLibraryUsage
   updateList(data: AiListInput!, id: String!): AiList
   updateListField(data: AiListFieldInput!, id: String!): AiListField!
   updateMessage(content: String!, messageId: String!): AiConversationMessage
   updateModel(data: UpdateAiLanguageModelInput!, id: ID!): AiLanguageModel
-  updateModelProvider(data: ModelProviderInput!, id: ID!): AiServiceProvider!
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
@@ -1743,7 +1778,7 @@ type Query {
   connectorTypes: [ConnectorTypeInfo!]!
   connectors(connectorType: String): [AiConnector!]!
   countFiles(libraryId: String!, namePrefix: String, originUriPrefix: String, showArchived: Boolean!): Int!
-  currentUser: User!
+  currentUser: CurrentUser!
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
   eventQueueRequests(
     action: EventQueueAction!
@@ -1773,6 +1808,7 @@ type Query {
   inferenceHostConfig: [InferenceHostConfig!]!
   inferenceHostState: [InferenceHostState!]!
   inferenceModelState: [InferenceModelState!]!
+  legacyFiles(workspaceId: String!): [LegacyFilesResponse!]!
   libraries(
     skip: Int
     sortField: LibrarySortField = name
@@ -1781,7 +1817,6 @@ type Query {
   ): LibrariesResponseType!
   library(libraryId: String!): AiLibrary!
   managedUsers(filter: String, skip: Int! = 0, statusFilter: String, take: Int! = 100): ManagedUsersResponse!
-  modelProviders(enabled: Boolean): [AiServiceProvider!]!
   models(
     canDoChatCompletion: Boolean
     canDoEmbedding: Boolean
@@ -1796,7 +1831,6 @@ type Query {
   ): AiLanguageModelsResult!
   myWorkspaceInvitations: [WorkspaceInvitation!]!
   queryFileChunks(query: String!, selector: FileChunksSelector!, skip: Int, take: Int): FileChunksQueryResult!
-  queueSystemStatus: QueueSystemStatus!
   similarChunks(
     fileId: String
     fragment: Int
@@ -1814,6 +1848,7 @@ type Query {
   workspaceConnectorTypes: [AiConnectorTypeWorkspace!]!
   workspaceInvitation(invitationId: ID!): WorkspaceInvitation!
   workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
+  workspaceLibraries(workspaceId: String!): [AiLibrary!]!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
   workspaces(
     skip: Int
@@ -1823,39 +1858,9 @@ type Query {
   ): WorkspacesResponseType!
 }
 
-type QueueOperationResult {
-  affectedCount: Int
-  message: String!
-  success: Boolean!
-}
-
-type QueueStatus {
-  completedTasks: Int!
-  failedTasks: Int!
-  isRunning: Boolean!
-  lastProcessedAt: String
-  pendingTasks: Int!
-  processingTasks: Int!
-  queueType: QueueType!
-}
-
-type QueueSystemStatus {
-  allWorkersRunning: Boolean!
-  lastUpdated: String!
-  queues: [QueueStatus!]!
-  totalFailedTasks: Int!
-  totalPendingTasks: Int!
-  totalProcessingTasks: Int!
-}
-
-enum QueueType {
-  AUTOMATION
-  ENRICHMENT
-}
-
 type RestoreDefaultProvidersResult {
   created: Int!
-  providers: [AiServiceProvider!]!
+  providers: [InferenceHostConfig!]!
   skipped: Int!
 }
 
@@ -1873,7 +1878,7 @@ type SimilarChunkResult {
   embeddingModelNames: [String!]
   extractionMethod: String!
   fileId: String!
-  filename: String
+  fileName: String
   fragment: Int
   id: String!
   libraryId: String!
@@ -1913,7 +1918,7 @@ type TestConnectorConnectionResult {
   success: Boolean!
 }
 
-type TestProviderConnectionResult {
+type TestInferenceHostConnectionResult {
   isHealthy: Boolean
   isOnline: Boolean
   message: String!
@@ -2013,10 +2018,9 @@ enum WorkerActionResult {
 }
 
 enum WorkerRole {
-  inferenceHostManager
+  registryManager
   requestFulfillment
   workerSlotManager
-  workspaceConfigManager
   workspaceProcessing
 }
 

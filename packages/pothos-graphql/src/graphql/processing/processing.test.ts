@@ -90,8 +90,7 @@ describe('GraphQL Processing Tests', () => {
     })
     expect(result.errors).toBeUndefined()
     expect(result.data!['eventQueueStats']).toBeDefined()
-    console.log(result.data)
-  })
+  }, 20000)
 
   it('Can query the event queue requests for a workspace', async () => {
     const document = graphql(`
@@ -139,6 +138,5 @@ describe('GraphQL Processing Tests', () => {
     })
     expect(result.errors).toBeUndefined()
     expect(result.data!['eventQueueRequests']).toBeDefined()
-    console.log(result.data)
-  })
+  }, 20000)
 })

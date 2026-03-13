@@ -6,7 +6,7 @@ import { useWorkspace } from './use-workspace'
 
 export const WorkspaceSwitcher = ({ user }: { user: CurrentUserFragment }) => {
   const { t } = useTranslation()
-  const { workspaces, currentWorkspace, setWorkspace, isLoading } = useWorkspace(user)
+  const { workspaces, currentWorkspace, setWorkspace, isLoading } = useWorkspace(user.selectedWorkspaceId)
   const detailsRef = useRef<HTMLDetailsElement>(null)
 
   const handleWorkspaceChange = async (workspaceId: string) => {

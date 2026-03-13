@@ -29,7 +29,7 @@ describe.sequential('Vector Store with Qdrant  ', () => {
         extractionMethod: 'textExtraction',
         chunk: 0,
         content: 'This is a test chunk 1',
-        filename: 'testfile.md',
+        fileName: 'testfile.md',
       },
       {
         id: 'chunk2',
@@ -38,7 +38,7 @@ describe.sequential('Vector Store with Qdrant  ', () => {
         extractionMethod: 'textExtraction',
         chunk: 1,
         content: 'This is a test chunk 2',
-        filename: 'testfile.md',
+        fileName: 'testfile.md',
       },
     ]
     await upsertChunks({ workspaceId: TEST_WORKSPACE_ID, chunks })

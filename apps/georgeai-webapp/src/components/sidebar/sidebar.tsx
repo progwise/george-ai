@@ -25,7 +25,6 @@ import { SidebarNavigationLink } from './sidebar-navigation-link'
 
 interface SidebarProps {
   user: CurrentUserFragment
-  workspaceId: string | null | undefined
   isDrawerOpen: boolean
   newLibraryDialogRef: React.RefObject<HTMLDialogElement | null>
   newListDialogRef: React.RefObject<HTMLDialogElement | null>
@@ -36,7 +35,6 @@ interface SidebarProps {
 
 export function Sidebar({
   user,
-  workspaceId,
   isDrawerOpen,
   newLibraryDialogRef,
   newListDialogRef,
@@ -46,7 +44,7 @@ export function Sidebar({
 }: SidebarProps) {
   const { t } = useTranslation()
   const membersDialogRef = useRef<HTMLDialogElement>(null)
-  const { validate, isDefaultWorkspace, currentUserRole } = useWorkspace(user)
+  const { validate, isDefaultWorkspace, currentUserRole } = useWorkspace(user.selectedWorkspaceId)
 
   const {
     data: { items: libraries, totalCount: librariesCount },
@@ -96,8 +94,6 @@ export function Sidebar({
       count: 0,
     },
   ] as const
-
-  const activeWorkspaceId = workspaceId ?? user.defaultWorkspaceId
 
   const handleDeleteWorkspaceClick = async () => {
     await validate()
@@ -194,7 +190,7 @@ export function Sidebar({
         </ul>
       </label>
 
-      {activeWorkspaceId && <WorkspaceMembersDialog user={user} ref={membersDialogRef} />}
+      <WorkspaceMembersDialog user={user} ref={membersDialogRef} />
     </div>
   )
 }

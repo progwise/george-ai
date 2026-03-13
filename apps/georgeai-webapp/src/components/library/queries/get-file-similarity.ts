@@ -26,7 +26,7 @@ const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
             id
             distance
             chunk
-            filename
+            fileName
             fileId
             extractionMethod
             content

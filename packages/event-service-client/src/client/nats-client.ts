@@ -507,6 +507,8 @@ export class NatsClient implements EventClient {
         } catch (error) {
           logger.debug('no message available', { error, streamName, consumerName: consumerInfo.name })
         }
+        // Yield to the event loop between consumers to allow GC to run
+        await new Promise((resolve) => setImmediate(resolve))
       }
       await new Promise((resolve) => setTimeout(resolve, 1000)) // Prevent tight loop
     }
@@ -892,7 +894,7 @@ export class NatsClient implements EventClient {
     return Array.from(latestEntries.values())
   }
 
-  async getBucketKeys(params: { bucketName: string; filter?: string }): Promise<string[]> {
+  async getBucketKeys(params: { bucketName: string; filter?: string | string[] }): Promise<string[]> {
     if (!this.js) {
       throw new Error('Not connected to NATS')
     }
@@ -1005,7 +1007,7 @@ export class NatsClient implements EventClient {
 
   async watchBucket<T extends z.ZodTypeAny>(params: {
     bucketName: string
-    filter: string
+    filter: string | string[]
     schema: T
     handler: (handlerParams: {
       key: string

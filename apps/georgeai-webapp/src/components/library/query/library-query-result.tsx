@@ -9,7 +9,7 @@ graphql(`
     id
     libraryId
     fileId
-    filename
+    fileName
     extractionMethod
     chunk
     fragment

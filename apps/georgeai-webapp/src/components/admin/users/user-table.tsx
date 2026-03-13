@@ -84,7 +84,7 @@ export const UserTable = ({
                 <input
                   type="checkbox"
                   defaultChecked={user.isAdmin}
-                  disabled={user.id === currentUser.id}
+                  disabled={user.id === currentUser.userId}
                   aria-label="IsAdmin"
                   className="checkbox"
                   onClick={() => {

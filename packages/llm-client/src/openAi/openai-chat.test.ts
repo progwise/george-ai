@@ -38,7 +38,7 @@ const readJsonGenerator = async (options: {
   return result
 }
 
-describe('Testing openAI chat endpoints', () => {
+describe.skipIf(!OPENAI_API_KEY)('Testing openAI chat endpoints', () => {
   const openAIConnection: OpenAIHostConnection | null = !OPENAI_API_KEY
     ? null
     : {

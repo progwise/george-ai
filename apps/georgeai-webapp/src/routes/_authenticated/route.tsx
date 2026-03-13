@@ -11,7 +11,7 @@ export const Route = createFileRoute('/_authenticated')({
     }
 
     // make user in router context non nullable and add workspaceId
-    return { user: context.user, workspaceId: context.workspaceId }
+    return { user: context.user }
   },
 })
 

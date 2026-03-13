@@ -1,70 +1,83 @@
-import z from 'zod'
-
 import { eventClient } from '../client'
 import { REGISTRY_BUCKET_NAME, getRegistryFilter, parseRegistryKey } from './common'
 import { logger } from './common'
-import { RegistryEntry, RegistryEntrySchema } from './schema'
+import { InferenceHostConfig, RegistryEntrySchema, WorkspaceConfig } from './schema'
 
-export async function watchRegistry<T extends RegistryEntry['type']>(
-  entryType: T,
-  handler: (params: {
-    workspaceId: string
-    hostId: T extends 'inference-host' ? string : string | undefined
-    operation: 'update' | 'delete'
-    entry: Extract<RegistryEntry, { type: T }> | null
-  }) => Promise<void>,
+export type RegistryHandlerParams =
+  | { workspaceId: string; entryType: 'workspace'; hostId: undefined; operation: 'update'; entry: WorkspaceConfig }
+  | { workspaceId: string; entryType: 'workspace'; hostId: undefined; operation: 'delete'; entry: null }
+  | {
+      workspaceId: string
+      entryType: 'inference-host'
+      hostId: string
+      operation: 'update'
+      entry: InferenceHostConfig
+    }
+  | { workspaceId: string; entryType: 'inference-host'; hostId: string; operation: 'delete'; entry: null }
+
+export async function watchRegistry(
+  handler: (params: RegistryHandlerParams) => Promise<void>,
 ): Promise<() => Promise<void>> {
-  const narrowedSchema = RegistryEntrySchema.options.find(
-    (option) => option.shape.type._def.value === entryType,
-  ) as unknown as z.ZodType<Extract<RegistryEntry, { type: T }>>
-
-  if (!narrowedSchema) throw new Error(`Invalid entry type: ${entryType}`)
-
   return await eventClient.watchBucket({
-    schema: narrowedSchema,
+    schema: RegistryEntrySchema,
     bucketName: REGISTRY_BUCKET_NAME,
-    filter: getRegistryFilter({ type: entryType }),
+    filter: getRegistryFilter({}),
     handler: async ({ key, operation, entry }) => {
       const parsedKey = parseRegistryKey(key)
 
-      if (operation !== 'delete' && entry === null) {
-        logger.warn('Received non-delete operation without registry entry - skipping', {
-          key,
-          operation,
-          entryType,
-          parsedKey,
-        })
-        return
+      if (operation === 'delete') {
+        if (parsedKey.type === 'workspace') {
+          return await handler({
+            entryType: 'workspace',
+            workspaceId: parsedKey.workspaceId,
+            hostId: undefined,
+            operation: 'delete',
+            entry: null,
+          })
+        } else if (parsedKey.type === 'inference-host') {
+          return await handler({
+            entryType: 'inference-host',
+            workspaceId: parsedKey.workspaceId,
+            hostId: parsedKey.hostId,
+            operation: 'delete',
+            entry: null,
+          })
+        } else {
+          logger.warn('Received delete operation for unknown registry entry type - skipping', {
+            key,
+            operation,
+            parsedKey,
+          })
+          return
+        }
       }
-
-      if (parsedKey.type !== entryType) {
-        logger.warn('Recived registry entry key with different type - skipping', {
-          key,
-          operation,
-          entry,
-          entryType,
-          parsedKey,
-        })
-        return
+      if (operation === 'update' && entry) {
+        if (entry.type === 'workspace') {
+          return await handler({
+            entryType: 'workspace',
+            workspaceId: parsedKey.workspaceId,
+            hostId: undefined,
+            operation: 'update',
+            entry,
+          })
+        } else if (entry.type === 'inference-host' && parsedKey.hostId) {
+          return await handler({
+            entryType: 'inference-host',
+            workspaceId: parsedKey.workspaceId,
+            hostId: parsedKey.hostId,
+            operation: 'update',
+            entry,
+          })
+        } else {
+          logger.warn('Received update operation for unknown registry entry type - skipping', {
+            key,
+            operation,
+            entry,
+            parsedKey,
+          })
+          return
+        }
       }
-
-      if (entry && entry.type !== entryType) {
-        logger.warn('Recived registry entry with different type - skipping', {
-          key,
-          operation,
-          entry,
-          entryType,
-          parsedKey,
-        })
-        return
-      }
-
-      return await handler({
-        workspaceId: parsedKey.workspaceId,
-        hostId: parsedKey.hostId as T extends 'inference-host' ? string : string | undefined,
-        operation,
-        entry,
-      })
     },
   })
 }

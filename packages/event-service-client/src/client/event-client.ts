@@ -139,7 +139,7 @@ export interface EventClient {
 
   watchBucket<T extends z.ZodTypeAny>(params: {
     bucketName: string
-    filter: string
+    filter: string | string[]
     schema: T
     handler: (handlerParams: {
       key: string
@@ -164,7 +164,7 @@ export interface EventClient {
 
   deleteBucketEntries(params: { bucketName: string; filter: string | string[] }): Promise<void>
 
-  getBucketKeys(params: { bucketName: string; filter?: string }): Promise<string[]>
+  getBucketKeys(params: { bucketName: string; filter?: string | string[] }): Promise<string[]>
 
   getBucketEntriesStats(params: {
     bucketName: string

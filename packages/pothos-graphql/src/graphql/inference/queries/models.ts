@@ -3,6 +3,8 @@ import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
 
+// TODO: Needs refactoring
+
 // Type for provider capability counts
 const ProviderCapabilityCounts = builder.simpleObject('ProviderCapabilityCounts', {
   fields: (t) => ({

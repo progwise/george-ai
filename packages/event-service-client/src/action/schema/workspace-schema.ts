@@ -5,6 +5,8 @@ import {
   DocumentExtractionStatusSchema,
   DocumentVectorizationRequestSchema,
   DocumentVectorizationStatusSchema,
+  MigrateFileRequestSchema,
+  MigrateFileStatusSchema,
 } from './document'
 import { FieldEnrichmentRequestSchema, FieldEnrichmentStatusSchema } from './enrichment'
 import {
@@ -26,6 +28,7 @@ export const WorkspaceRequestSchema = z.discriminatedUnion('action', [
   FieldEnrichmentRequestSchema,
   ConnectionTestRequestSchema,
   HealthStatusRequestSchema,
+  MigrateFileRequestSchema,
   ModelDiscoveryRequestSchema,
 ])
 
@@ -45,6 +48,7 @@ export const WorkspaceStatusSchema = z.discriminatedUnion('action', [
   DocumentExtractionStatusSchema,
   DocumentVectorizationStatusSchema,
   FieldEnrichmentStatusSchema,
+  MigrateFileStatusSchema,
 ])
 
 export type WorkspaceStatus = z.infer<typeof WorkspaceStatusSchema>
@@ -75,6 +79,7 @@ export const EventQueueRequestSchema = z.discriminatedUnion('action', [
   DocumentExtractionRequestSchema,
   DocumentVectorizationRequestSchema,
   FieldEnrichmentRequestSchema,
+  MigrateFileRequestSchema,
 ])
 export type EventQueueRequest = z.infer<typeof EventQueueRequestSchema>
 
@@ -82,6 +87,9 @@ export const EventQueueStatusSchema = z.discriminatedUnion('action', [
   DocumentExtractionStatusSchema,
   DocumentVectorizationStatusSchema,
   FieldEnrichmentStatusSchema,
+  MigrateFileStatusSchema,
 ])
 
 export type EventQueueStatus = z.infer<typeof EventQueueStatusSchema>
+
+export const AsyncEventSchema = z.union([EventQueueRequestSchema, EventQueueStatusSchema])

@@ -69,12 +69,12 @@ describe.sequential('event-service-client worker slot tests', () => {
   test('should update worker heartbeat', async () => {
     await heartbeatWorkerSlot({
       workerId: TEST_WORKER_IDS[0],
-      role: 'inferenceHostManager',
+      role: 'registryManager',
     })
 
     const beforeUpdate = await getWorkerSlotEntry({
       workerId: TEST_WORKER_IDS[0],
-      role: 'inferenceHostManager',
+      role: 'registryManager',
     })
 
     expect(beforeUpdate?.entry).not.toBeNull()
@@ -86,12 +86,12 @@ describe.sequential('event-service-client worker slot tests', () => {
 
     await heartbeatWorkerSlot({
       workerId: TEST_WORKER_IDS[0],
-      role: 'inferenceHostManager',
+      role: 'registryManager',
     })
 
     const afterUpdate = await getWorkerSlotEntry({
       workerId: TEST_WORKER_IDS[0],
-      role: 'inferenceHostManager',
+      role: 'registryManager',
     })
     expect(afterUpdate?.entry).not.toBeNull()
     const afterHeartbeat = afterUpdate!.entry.lastHeartbeat!
@@ -126,7 +126,7 @@ describe.sequential('event-service-client worker slot tests', () => {
 
     const allWorkerTypes = signups.flatMap((signup) => signup.roles)
 
-    expect(allWorkerTypes.filter((type) => type === 'inferenceHostManager').length).toBe(2) // First worker should get the workspace manager slot
+    expect(allWorkerTypes.filter((type) => type === 'registryManager').length).toBe(2) // First worker should get the registry manager slot
 
     for (let i = 2; i < signups.length; i++) {
       const { roles } = signups[i]
@@ -141,12 +141,12 @@ describe.sequential('event-service-client worker slot tests', () => {
       Array.from({ length: 10 }, async (_, i) => await getWorkerSlots({ workerId: TEST_WORKER_IDS[i] })),
     ).then((results) => results.flat())
 
-    const hostManagers = allEntries.filter((entry) => entry.role === 'inferenceHostManager')
+    const registryManagers = allEntries.filter((entry) => entry.role === 'registryManager')
     const documentProcessors = allEntries.filter((entry) => entry.role === 'workspaceProcessing')
     const modelCallResponders = allEntries.filter((entry) => entry.role === 'requestFulfillment')
 
-    expect(hostManagers.length).toBeGreaterThanOrEqual(1)
-    expect(hostManagers.length).toBeLessThanOrEqual(2) // Because we only allow 2 max
+    expect(registryManagers.length).toBeGreaterThanOrEqual(1)
+    expect(registryManagers.length).toBeLessThanOrEqual(2) // Because we only allow 2 max
 
     expect(documentProcessors.length).toBeGreaterThanOrEqual(10)
     expect(modelCallResponders.length).toBeGreaterThanOrEqual(10)
@@ -162,26 +162,26 @@ describe.sequential('event-service-client worker slot tests', () => {
     expect(retrievedEntries.length).toBe(0)
   })
 
-  test('should signup for health management as replacement for the deleted worker', async () => {
+  test('should signup for registry management as replacement for the deleted worker', async () => {
     const entriesBefore = await getWorkerSlots({
       workerId: TEST_WORKER_IDS[4],
     })
 
     const workerTypesBefore = entriesBefore.map((entry) => entry.role)
-    expect(workerTypesBefore).not.toContain('inferenceHostManager') // Should not have the host manager slot before signup
+    expect(workerTypesBefore).not.toContain('registryManager') // Should not have the host manager slot before signup
     expect(workerTypesBefore).toContain('requestFulfillment') // Should have the model call responder slot before signup
 
     const signedUpTypes = await signupWorker({
       workerId: TEST_WORKER_IDS[4],
     })
 
-    expect(signedUpTypes).toContain('inferenceHostManager') // Should have the host manager slot after signup
+    expect(signedUpTypes).toContain('registryManager') // Should have the host manager slot after signup
     const entriesAfter = await getWorkerSlots({
       workerId: TEST_WORKER_IDS[4],
     })
     const workerTypesAfter = entriesAfter.map((entry) => entry.role)
     expect(workerTypesAfter.length).toBeGreaterThan(workerTypesBefore.length) // Should have more slots after signup
-    expect(workerTypesAfter).toContain('inferenceHostManager') // Should have the host manager slot after signup
+    expect(workerTypesAfter).toContain('registryManager') // Should have the host manager slot after signup
     expect(workerTypesAfter).toContain('requestFulfillment') // Should not have the model call responder slot after signup because it should have been replaced
 
     expect(new Set(workerTypesAfter).size).toBe(workerTypesAfter.length) // Ensure no duplicates
@@ -205,26 +205,20 @@ describe.sequential('event-service-client worker slot tests', () => {
     expect(signedUpTypes.sort()).toEqual(entriesBefore.map((entry) => entry.role).sort()) // Should return the same worker types
   })
 
-  test('Should delete all WORKSPACE_CONFIG_MANAGER slots and one inferenceHostManager and check the available slots', async () => {
+  test('Should delete  registryManager s and check the available slots', async () => {
     const allEntriesBefore = await Promise.all(
       Array.from({ length: 10 }, async (_, i) => await getWorkerSlots({ workerId: TEST_WORKER_IDS[i] })),
     ).then((results) => results.flat())
 
-    const workspaceConfigManagersBefore = allEntriesBefore.filter((entry) => entry.role === 'workspaceConfigManager')
-    const hostManagersBefore = allEntriesBefore.filter((entry) => entry.role === 'inferenceHostManager')
+    const registryManagersBefore = allEntriesBefore.filter((entry) => entry.role === 'registryManager')
 
-    expect(workspaceConfigManagersBefore.length).toBeGreaterThanOrEqual(1)
-    expect(hostManagersBefore.length).toBeGreaterThanOrEqual(1)
+    expect(registryManagersBefore.length).toBeGreaterThanOrEqual(1)
 
-    await Promise.all([
-      ...workspaceConfigManagersBefore.map((entry) => deleteWorkerSlots(entry.workerId)),
-      deleteWorkerSlots(hostManagersBefore[0].workerId),
-    ])
+    await Promise.all([...registryManagersBefore.map((entry) => deleteWorkerSlots(entry.workerId))])
 
     const stats = await workerSlotStats()
 
-    expect(stats['workspaceConfigManager'].current).toBe(0)
-    expect(stats['inferenceHostManager'].current).toBe(0)
+    expect(stats['registryManager'].current).toBe(0)
   })
 
   test('should mass signup for all available slots', async () => {
@@ -240,13 +234,11 @@ describe.sequential('event-service-client worker slot tests', () => {
       TEST_WORKER_IDS.map(async (workerId) => await getWorkerSlots({ workerId })),
     ).then((results) => results.flat())
 
-    const hostManagers = allEntries.filter((entry) => entry.role === 'inferenceHostManager')
-    const workspaceManagers = allEntries.filter((entry) => entry.role === 'workspaceConfigManager')
+    const registryManager = allEntries.filter((entry) => entry.role === 'registryManager')
     const modelCallResponders = allEntries.filter((entry) => entry.role === 'requestFulfillment')
     const documentProcessors = allEntries.filter((entry) => entry.role === 'workspaceProcessing')
 
-    expect(hostManagers.length).toBe(2) // Should only have 2 host managers
-    expect(workspaceManagers.length).toBe(2) // Should only have 2 workspace manager
+    expect(registryManager.length).toBe(2) // Should only have 2 registry managers
 
     expect(modelCallResponders.length).toBeGreaterThanOrEqual(20) // Should have at least 20 model call responders
     expect(documentProcessors.length).toBeGreaterThanOrEqual(20) // Should have at least 20 document processors

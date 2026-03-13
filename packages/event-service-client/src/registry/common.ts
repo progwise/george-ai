@@ -16,23 +16,21 @@ export const getRegistryKey = (args: { type: RegistryEntryType; workspaceId: str
   }
 }
 
-export function getRegistryFilter(args: { type: RegistryEntryType; workspaceId?: string; hostId?: string }): string
-export function getRegistryFilter(args: {
-  type?: RegistryEntryType | RegistryEntryType[]
-  workspaceId?: string
-  hostId?: string
-}): string | string[] {
+export function getRegistryFilter(args: { type?: RegistryEntryType; workspaceId?: string; hostId?: string }): string[] {
   if (!args.type) {
-    return REGISTRY_ENTRY_TYPES.map((t) => getRegistryFilter({ ...args, type: t }))
+    return REGISTRY_ENTRY_TYPES.flatMap((type) => getRegistryFilter({ ...args, type }))
   }
-  if (Array.isArray(args.type)) {
-    return args.type.map((t) => getRegistryFilter({ ...args, type: t }))
+
+  switch (args.type) {
+    case 'workspace':
+      return [`workspace.${args.workspaceId ? args.workspaceId : '*'}.config`]
+    case 'inference-host':
+      return [
+        `workspace.${args.workspaceId ? args.workspaceId : '*'}.inference-host.${args.hostId ? args.hostId : '*'}.config`,
+      ]
+    default:
+      throw new Error(`Unsupported registry entry type: ${args.type}`)
   }
-  if (args.type === 'workspace') {
-    return `workspace.${args.workspaceId ? args.workspaceId : '*'}.config`
-  } else if (args.type === 'inference-host') {
-    return `workspace.${args.workspaceId ? args.workspaceId : '*'}.inference-host.${args.hostId ? args.hostId : '*'}.config`
-  } else throw new Error(`Unsupported registry entry type: ${args.type}`)
 }
 
 export const parseRegistryKey = (

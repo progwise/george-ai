@@ -38,9 +38,9 @@ function RouteComponent() {
             <label htmlFor="conversation-drawer" className="btn btn-sm lg:hidden">
               <MenuIcon className="size-6" />
             </label>
-            <ConversationParticipantsDialogButton assistants={aiAssistants} users={users} userId={user.id} />
+            <ConversationParticipantsDialogButton assistants={aiAssistants} users={users} userId={user.userId} />
             <div>
-              <DeleteLeaveConversationDialog conversation={conversation} userId={user.id} />
+              <DeleteLeaveConversationDialog conversation={conversation} userId={user.userId} />
             </div>
           </div>
           <div className="flex justify-between">
@@ -48,14 +48,14 @@ function RouteComponent() {
               conversation={conversation}
               assistants={aiAssistants}
               users={users}
-              userId={user.id}
+              userId={user.userId}
             />
           </div>
         </div>
       </div>
 
       <div className="flex h-full flex-col">
-        <ConversationHistory conversation={conversation} userId={user.id} />
+        <ConversationHistory conversation={conversation} userId={user.userId} />
         <ConversationForm conversation={conversation} user={user} />
       </div>
     </div>

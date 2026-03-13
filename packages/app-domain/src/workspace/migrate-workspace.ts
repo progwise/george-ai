@@ -1,61 +1,20 @@
 import { prisma } from '@george-ai/app-database'
-import { migrate } from '@george-ai/file-management'
+import { WorkspaceManifest, getWorkspace, migrate } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { logger } from '../common'
 import { DomainError } from '../error'
 
-export async function migrateWorkspace(parameters: { workspaceId: string }): Promise<boolean> {
+export async function migrateWorkspace(parameters: { workspaceId: string }): Promise<WorkspaceManifest> {
   const { workspaceId } = parameters
 
-  const workspace = await prisma.workspace.findUnique({
+  const workspace = await prisma.workspace.findUniqueOrThrow({
     where: { id: workspaceId },
     select: { id: true, name: true, libraries: { select: { id: true, name: true, embeddingModel: true } } },
   })
 
-  if (!workspace) {
-    logger.error('Workspace not found for migration', { workspaceId })
-    throw new DomainError('Workspace not found', 'workspace')
-  }
-
   await migrate.migrateWorkspace(workspaceId, {
     workspaceName: workspace.name,
-    libraries: workspace.libraries,
-    fileInfoLoader: async (fileId: string) => {
-      const fileInfo = await prisma.aiLibraryFile.findUnique({
-        where: { id: fileId },
-        select: {
-          libraryId: true,
-          id: true,
-          name: true,
-          mimeType: true,
-          createdAt: true,
-          originFileHash: true,
-          originUri: true,
-          crawledByCrawlerId: true,
-          updatedAt: true,
-          originModificationDate: true,
-        },
-      })
-
-      if (!fileInfo) {
-        logger.error('File info not found during migration', { workspaceId, fileId })
-        throw new DomainError('File info not found', 'workspace')
-      }
-      return {
-        workspaceId,
-        libraryId: fileInfo.libraryId,
-        fileId,
-        name: fileInfo.name,
-        mimeType: fileInfo.mimeType,
-        createdAt: fileInfo.createdAt.toISOString(),
-        originUri: fileInfo.originUri,
-        originFileHash: fileInfo.originFileHash,
-        crawledByCrawlerId: fileInfo.crawledByCrawlerId,
-        updatedAt: fileInfo.updatedAt.toISOString(),
-        originModificationDate: fileInfo.originModificationDate?.toISOString() ?? null,
-      }
-    },
   })
 
   const vectorStoreExists = await vectorStore.existsWorkspace(workspaceId)
@@ -84,5 +43,11 @@ export async function migrateWorkspace(parameters: { workspaceId: string }): Pro
 
     await vectorStore.createWorkspace({ workspaceId, vectors })
   }
-  return true
+
+  const workspaceManifest = await getWorkspace(workspaceId)
+
+  if (!workspaceManifest) {
+    throw new DomainError('Failed to retrieve workspace manifest after migration', 'workspace')
+  }
+  return workspaceManifest
 }

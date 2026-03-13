@@ -1,9 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate, useRouteContext } from '@tanstack/react-router'
 import { useCallback, useMemo } from 'react'
 
-import { logger } from '../../common'
-import { CurrentUserFragment } from '../../gql/graphql'
 import { useLocalstorage } from '../../hooks/use-local-storage'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
@@ -24,7 +22,6 @@ import {
   generateApiKeyFn,
   inviteWorkspaceMemberFn,
   leaveWorkspaceFn,
-  migrateWorkspaceFn,
   removeWorkspaceMemberFn,
   revokeApiKeyFn,
   revokeWorkspaceInvitationFn,
@@ -34,53 +31,32 @@ import {
 
 const WORKSPACE_KEY = 'selectedWorkspaceId'
 
-export const useWorkspace = (user: CurrentUserFragment) => {
+export const useWorkspace = (workspaceId: string) => {
   const navigate = useNavigate()
+  const { user } = useRouteContext({ from: '/_authenticated' })
 
   const queryClient = useQueryClient()
   const { t } = useTranslation()
 
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useQuery(getWorkspacesQueryOptions())
 
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useLocalstorage<string>(WORKSPACE_KEY)
-
-  if (workspaces && selectedWorkspaceId) {
-    const workspaceExists = workspaces?.items?.some((w) => w.id === selectedWorkspaceId)
-    if (!workspaceExists) {
-      logger.warn('Selected workspace not found, resetting to default', {
-        selectedWorkspaceId,
-        userDefault: user.defaultWorkspaceId,
-      })
-      setSelectedWorkspaceId(user.defaultWorkspaceId)
-    }
-  }
+  const [, setSelectedWorkspaceId] = useLocalstorage<string>(WORKSPACE_KEY)
 
   const { data: currentWorkspace, isLoading: isLoadingCurrentWorkspace } = useQuery(
-    getWorkspaceQueryOptions({ workspaceId: selectedWorkspaceId || user.defaultWorkspaceId }),
+    getWorkspaceQueryOptions({ workspaceId: workspaceId }),
   )
 
   const { data: embeddingStatistics, isLoading: isLoadingEmbeddingStatistics } = useQuery(
     getWorkspaceEmbeddingStatisticsQueryOptions({ workspaceId: currentWorkspace?.id }),
   )
 
-  const { data: vectorStore, isLoading: isLoadingVectorStore } = useQuery(
+  const { isLoading: isLoadingVectorStore } = useQuery(
     getWorkspaceVectorStoreQueryOptions({ workspaceId: currentWorkspace?.id }),
   )
 
   const { data: processingStatus, isLoading: isLoadingProcessingStatus } = useQuery(
     getEventProcessingStatusQueryOptions({ workspaceId: currentWorkspace?.id }),
   )
-
-  const migrationStatus = useMemo(() => {
-    if (!currentWorkspace) return null
-    const storageVersion = currentWorkspace.manifest?.version
-    const vectorStoreVersion = vectorStore?.version
-    return {
-      storageVersion: storageVersion || 'unknown',
-      vectorStoreVersion: vectorStoreVersion || 'unknown',
-      needsMigration: storageVersion !== 1 || vectorStoreVersion !== 1,
-    }
-  }, [currentWorkspace, vectorStore])
 
   // Set workspace and update cookie
   const setWorkspace = useCallback(
@@ -133,7 +109,7 @@ export const useWorkspace = (user: CurrentUserFragment) => {
   const { data: members, isLoading: isLoadingMembers } = useQuery(getWorkspaceMembersQueryOptions(currentWorkspace?.id))
 
   const currentUserRole = useMemo(() => {
-    const membership = members?.find((m) => m.user.id === user.id)
+    const membership = members?.find((m) => m.user.id === user.userId)
     return !membership?.role
       ? null
       : membership.role === 'admin'
@@ -143,11 +119,11 @@ export const useWorkspace = (user: CurrentUserFragment) => {
           : membership.role === 'owner'
             ? ('owner' as const)
             : ('unknown' as const)
-  }, [members, user.id])
+  }, [members, user.userId])
 
   const currentUserMembership = useMemo(() => {
-    return members?.find((m) => m.user.id === user.id) || null
-  }, [members, user.id])
+    return members?.find((m) => m.user.id === user.userId) || null
+  }, [members, user.userId])
 
   const currentUserCanManage = useMemo(() => {
     return currentUserRole === 'admin' || currentUserRole === 'owner'
@@ -261,18 +237,6 @@ export const useWorkspace = (user: CurrentUserFragment) => {
     },
   })
 
-  const migrateWorkspaceMutation = useMutation({
-    mutationFn: async () => {
-      return await migrateWorkspaceFn()
-    },
-    onSuccess: () => {
-      toastSuccess(t('workspace.migrationSuccess'))
-    },
-    onError: (error) => {
-      toastError(error.message)
-    },
-  })
-
   const validate = async () => {
     if (!currentWorkspace) return null
     return await queryClient.invalidateQueries({
@@ -303,7 +267,6 @@ export const useWorkspace = (user: CurrentUserFragment) => {
   })
 
   return {
-    migrationStatus,
     workspaces: workspaces,
     embeddingStatistics,
     processingStatus,
@@ -323,7 +286,6 @@ export const useWorkspace = (user: CurrentUserFragment) => {
     revokeApiKey: revokeApiKeyMutation.mutate,
     revokeInvitation: revokeInvitationMutation.mutate,
     updateRole: updateRoleMutation.mutate,
-    migrateWorkspace: migrateWorkspaceMutation.mutate,
     validate,
     createWorkspace: createWorkspaceMutation.mutate,
     deleteWorkspace: deleteWorkspaceMutation.mutate,
@@ -342,7 +304,6 @@ export const useWorkspace = (user: CurrentUserFragment) => {
       updateRoleMutation.isPending ||
       inviteMutation.isPending ||
       deleteWorkspaceMutation.isPending ||
-      migrateWorkspaceMutation.isPending ||
       createWorkspaceMutation.isPending ||
       revokeApiKeyMutation.isPending ||
       generateApiKeyMutation.isPending,

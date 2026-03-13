@@ -1,13 +1,6 @@
-import { TypesenseConfig } from '@langchain/community/vectorstores/typesense'
-import fs from 'fs'
 import { Client } from 'typesense'
 import { CollectionCreateSchema } from 'typesense/lib/Typesense/Collections'
 import type { DocumentSchema } from 'typesense/lib/Typesense/Documents'
-
-import { type ServiceProviderType, getEmbedding } from '@george-ai/ai-service-client'
-
-import { getEmbeddingWithCache } from './embeddings-cache'
-import { splitMarkdownFile } from './split-markdown'
 
 const EMBEDDING_DIMENSIONS = 3072 // Assuming the embedding model has 3072 dimensions
 
@@ -46,41 +39,6 @@ const getTypesenseSchema = (libraryId: string): CollectionCreateSchema => ({
   default_sorting_field: 'points',
 })
 
-const getTypesenseVectorStoreConfig = (libraryId: string): TypesenseConfig => ({
-  typesenseClient: vectorTypesenseClient,
-  schemaName: getTypesenseSchemaName(libraryId),
-  columnNames: {
-    vector: 'vec',
-    pageContent: 'text',
-    metadataColumnNames: [
-      'points',
-      'docName',
-      'docType',
-      'docId',
-      'docPath',
-      'originUri',
-      'section',
-      'headingPath',
-      'chunkIndex',
-      'subChunkIndex',
-      'part',
-    ],
-  },
-
-  // Optional search parameters to be passed to Typesense when searching
-  searchParams: {
-    q: '*',
-    filter_by: '',
-    query_by: 'text,docName',
-  },
-  import: async (data, collectionName) => {
-    await vectorTypesenseClient
-      .collections(collectionName)
-      .documents()
-      .import(data, { action: 'emplace', dirty_values: 'drop' })
-  },
-})
-
 export const ensureVectorStore = async (libraryId: string) => {
   const schemaName = getTypesenseSchemaName(libraryId)
   const existingSchema = vectorTypesenseClient.collections(schemaName)
@@ -111,187 +69,11 @@ export const dropFileFromVectorstore = async (libraryId: string, fileId: string)
   await removeFileById(libraryId, fileId)
 }
 
-export const embedMarkdownFile = async ({
-  timeoutSignal,
-  workspaceId,
-  libraryId,
-  embeddingModelProvider,
-  embeddingModelName,
-  fileId,
-  fileName,
-  originUri,
-  mimeType,
-  markdownFilePath,
-  part,
-}: {
-  timeoutSignal: AbortSignal
-  workspaceId: string
-  libraryId: string
-  embeddingModelProvider: ServiceProviderType
-  embeddingModelName: string
-  fileId: string
-  fileName: string
-  originUri: string
-  mimeType: string
-  markdownFilePath: string
-  part?: number
-}) => {
-  await ensureVectorStore(libraryId)
-
-  const typesenseVectorStoreConfig = getTypesenseVectorStoreConfig(libraryId)
-
-  // Use the provided path (should be resolved by caller to point to successful conversion)
-  if (!fs.existsSync(markdownFilePath)) {
-    throw new Error(`Markdown file not found: ${markdownFilePath}`)
-  }
-
-  const chunks = splitMarkdownFile(markdownFilePath).map((chunk) => ({
-    pageContent: chunk.pageContent,
-    metadata: {
-      ...chunk.metadata,
-      points: 1,
-      docName: fileName,
-      docType: mimeType,
-      docId: fileId,
-      docPath: markdownFilePath,
-      originUri: originUri,
-      ...(part !== undefined ? { part } : {}),
-    },
-  }))
-
-  console.log(`🔍 Importing ${chunks.length} chunks into Typesense for file ${fileName}`)
-
-  const successfulCreatedChunks: typeof chunks = []
-  const failedChunks: Array<{ chunk: (typeof chunks)[number]; errorMessage: string }> = []
-
-  // Helper function to log problematic chunk content for debugging
-  const logProblematicChunk = (content: string) => {
-    console.error('📄 Problematic chunk content:', content.substring(0, 500))
-  }
-
-  try {
-    for (const chunk of chunks) {
-      if (timeoutSignal.aborted) {
-        console.warn('⚠️ Embedding process aborted due to timeout signal')
-        break
-      }
-
-      // Validate chunk content before sending to embedding model
-      // Empty or whitespace-only content can cause Ollama to return NaN embeddings
-      if (!chunk.pageContent.trim()) {
-        console.warn('⚠️ Skipping empty chunk:', {
-          workspaceId,
-          embeddingModelProvider,
-          embeddingModelName,
-          fileId,
-          fileName,
-          chunkIndex: chunk.metadata.chunkIndex,
-          subChunkIndex: chunk.metadata.subChunkIndex,
-        })
-        failedChunks.push({ chunk, errorMessage: 'Empty or whitespace-only content' })
-        continue
-      }
-
-      let embeddingResult
-      try {
-        embeddingResult = await getEmbedding(workspaceId, embeddingModelProvider, embeddingModelName, chunk.pageContent)
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        console.error('❌ Failed to generate embedding:', {
-          workspaceId,
-          embeddingModelProvider,
-          embeddingModelName,
-          fileId,
-          fileName,
-          chunkIndex: chunk.metadata.chunkIndex,
-          subChunkIndex: chunk.metadata.subChunkIndex,
-          chunkLength: chunk.pageContent.length,
-          errorMessage,
-        })
-        logProblematicChunk(chunk.pageContent)
-        failedChunks.push({ chunk, errorMessage: `Embedding failed: ${errorMessage}` })
-        continue
-      }
-
-      if (embeddingResult.embeddings.length === 0) {
-        console.error('❌ No embeddings returned from model:', {
-          workspaceId,
-          embeddingModelProvider,
-          embeddingModelName,
-          fileId,
-          fileName,
-        })
-        failedChunks.push({ chunk, errorMessage: 'No embeddings returned from model' })
-        continue
-      }
-      const vector = embeddingResult.embeddings[0]
-
-      // Validate vector doesn't contain NaN values
-      if (vector.some((value) => Number.isNaN(value))) {
-        console.error('❌ Vector contains NaN values:', {
-          workspaceId,
-          embeddingModelProvider,
-          embeddingModelName,
-          fileId,
-          fileName,
-          chunkIndex: chunk.metadata.chunkIndex,
-          subChunkIndex: chunk.metadata.subChunkIndex,
-          chunkLength: chunk.pageContent.length,
-        })
-        logProblematicChunk(chunk.pageContent)
-        failedChunks.push({ chunk, errorMessage: 'Embedding vector contains NaN values' })
-        continue
-      }
-
-      try {
-        // Generate deterministic ID to prevent duplicates on re-processing
-        const chunkId = `${fileId}-${chunk.metadata.chunkIndex}-${chunk.metadata.subChunkIndex}${part !== undefined ? `-${part}` : ''}`
-
-        await vectorTypesenseClient
-          .collections(typesenseVectorStoreConfig.schemaName)
-          .documents()
-          .upsert({
-            id: chunkId,
-            ...chunk.metadata,
-            vec: sanitizeVector(vector), // Do not use cache for file chunks
-            text: chunk.pageContent,
-            points: 1,
-            chunkIndex: chunk.metadata.chunkIndex,
-            subChunkIndex: chunk.metadata.subChunkIndex,
-            ...(part !== undefined ? { part } : {}),
-          })
-        successfulCreatedChunks.push(chunk)
-      } catch (error) {
-        console.error('❌ Error importing chunk into Typesense:', error, 'Chunk metadata:', chunk.metadata)
-        failedChunks.push({ chunk, errorMessage: (error as Error).message })
-      }
-    }
-
-    return {
-      chunks: successfulCreatedChunks.length,
-      chunkErrors: failedChunks,
-      size: chunks.reduce((acc, part) => acc + part.pageContent.length, 0),
-      timeout: timeoutSignal.aborted,
-    }
-  } catch (error) {
-    console.error('❌ Error importing documents into Typesense:', error)
-    throw error
-  }
-}
-
 const removeFileById = async (libraryId: string, fileId: string) => {
   return await vectorTypesenseClient
     .collections(getTypesenseSchemaName(libraryId))
     .documents()
     .delete({ filter_by: `docId:=${fileId}` })
-}
-
-const sanitizeVector = (vector: number[]) => {
-  const sanitizedVector: Array<number> = new Array(EMBEDDING_DIMENSIONS).fill(0)
-  for (let i = 0; i < Math.min(vector.length, sanitizedVector.length); i++) {
-    sanitizedVector[i] = vector[i]
-  }
-  return sanitizedVector
 }
 
 interface queryVectorStoreOptions {
@@ -436,85 +218,6 @@ export const querySimilarChunks = async (params: {
     collection: getTypesenseSchemaName(libraryId),
     q: `${term}`,
     query_by: 'text,docName',
-    exclude_fields: 'vec',
-    per_page: hits || 10,
-    ...(filterBy ? { filter_by: filterBy } : {}),
-  }
-  const multiSearchParams = {
-    searches: [searchParams],
-  }
-
-  const searchResponse = await vectorTypesenseClient.multiSearch.perform<DocumentSchema[]>(multiSearchParams)
-
-  const resultHits = searchResponse.results[0].hits
-  if (!resultHits || resultHits.length === 0) {
-    return []
-  }
-  const chunks = resultHits.map((hit: DocumentSchema) => ({
-    id: hit.document.id || 'no-id',
-    fileName: hit.document.docName || 'no-name',
-    fileId: hit.document.docId || 'no-file-id',
-    originUri: hit.document.originUri || 'no-uri',
-    text: hit.document.text || 'no-txt',
-    section: hit.document.section || 'no-section',
-    headingPath: hit.document.headingPath || 'no-path',
-    chunkIndex: hit.document.chunkIndex || 0,
-    subChunkIndex: hit.document.subChunkIndex || 0,
-    distance: hit.vector_distance || 0,
-    points: hit.document.points || 0,
-    part: hit.document.part || 0,
-  }))
-  return chunks
-}
-
-export const getSimilarChunks = async (params: {
-  workspaceId: string
-  libraryId: string
-  fileId?: string
-  part?: number | null
-  scope?: 'library' | 'file' | 'file-part'
-  term: string
-  embeddingsModelProvider: ServiceProviderType
-  embeddingsModelName: string
-  hits?: number
-}) => {
-  const {
-    workspaceId,
-    libraryId,
-    fileId,
-    part,
-    scope = 'file-part',
-    term,
-    embeddingsModelProvider,
-    embeddingsModelName,
-    hits,
-  } = params
-  const questionAsVector = await getEmbeddingWithCache({
-    workspaceId,
-    embeddingModelProvider: embeddingsModelProvider,
-    embeddingModelName: embeddingsModelName,
-    question: term,
-  })
-
-  const sanitizedVector = sanitizeVector(questionAsVector)
-  await ensureVectorStore(libraryId)
-
-  // Build filter based on scope
-  let filterBy = ''
-  if (scope === 'file-part' && fileId && part !== null && part !== undefined) {
-    // Filter by file AND part
-    filterBy = `docId: \`${fileId}\` && part:=${part}`
-  } else if ((scope === 'file' || scope === 'file-part') && fileId) {
-    // Filter by file only (fallback when no part or scope is 'file')
-    filterBy = `docId: \`${fileId}\``
-  }
-  // scope === 'library': no filter (search entire library)
-
-  const searchParams = {
-    collection: getTypesenseSchemaName(libraryId),
-    q: '*',
-    query_by: 'vec',
-    vector_query: `vec:([${sanitizedVector.join(',')}], k:${hits || 10})`,
     exclude_fields: 'vec',
     per_page: hits || 10,
     ...(filterBy ? { filter_by: filterBy } : {}),

@@ -24,7 +24,6 @@ import './graphql/file'
 import './graphql/inference'
 import './graphql/library'
 import './graphql/processing'
-import './graphql/queue-management'
 import './graphql/scalars'
 import './graphql/settings'
 import './graphql/user'
@@ -34,5 +33,3 @@ import './init'
 const schema = builder.toSchema()
 
 export { schema }
-
-export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'

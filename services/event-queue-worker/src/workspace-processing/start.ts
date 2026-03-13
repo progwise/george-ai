@@ -6,6 +6,7 @@ import './common'
 
 import { startEnrichment } from './start-enrichment'
 import { startExtraction } from './start-extraction'
+import { startMigration } from './start-migration'
 import { startVectorization } from './start-vectorization'
 
 export async function startWorkspaceProcessing(): Promise<() => Promise<void>> {
@@ -34,6 +35,10 @@ export async function startWorkspaceProcessing(): Promise<() => Promise<void>> {
     const unsubscribeEnrichField = await startEnrichment()
     cleanupFunctions.push(async () => {
       await unsubscribeEnrichField()
+    })
+    const unsubscribeMigrateFiles = await startMigration()
+    cleanupFunctions.push(async () => {
+      await unsubscribeMigrateFiles()
     })
 
     logger.info('Workspace processing started successfully', { WORKER_ID, role: 'workspaceProcessing' })

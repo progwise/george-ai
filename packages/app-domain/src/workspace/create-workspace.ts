@@ -54,12 +54,13 @@ export async function createWorkspace(params: {
       })
 
       await writeRegistryEntry({
-        activeModels: [],
-        modelHosts: [],
+        inferenceModels: [],
+        inferenceHosts: [],
         version: 1,
         workspaceId: workspace.id,
         lastUpdate: new Date(),
         type: 'workspace',
+        name,
       })
 
       return {

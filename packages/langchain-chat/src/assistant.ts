@@ -1,6 +1,6 @@
 import { SystemMessage } from '@langchain/core/messages'
 
-import type { ServiceProviderType } from '@george-ai/ai-service-client'
+import { InferenceDriver } from '@george-ai/app-schema'
 
 import { Library } from './library'
 
@@ -8,7 +8,7 @@ export interface Assistant {
   id: string
   name: string
   description: string | null
-  languageModelProvider: ServiceProviderType
+  languageModelProvider: InferenceDriver
   languageModel: string
   baseCases: Array<{ condition?: string | null; instruction?: string | null }>
 }

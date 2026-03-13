@@ -1,4 +1,4 @@
-import { subscribeFieldEnrichment } from '@george-ai/event-service-client'
+import { subscribe } from '@george-ai/event-service-client'
 
 import { WORKER_ID } from '../common'
 import { processingMap } from '../processing'
@@ -7,7 +7,8 @@ import { enrichField } from './enrich-field'
 import { handleStatus } from './handle-status'
 
 export async function startEnrichment(): Promise<() => Promise<void>> {
-  const ensubscribeEnrichment = await subscribeFieldEnrichment({
+  const ensubscribeEnrichment = await subscribe({
+    action: 'fieldEnrichment',
     handler: async ({ event }) => {
       processingMap.updateStats('workspaceProcessing')
       logger.debug('Received field enrichment event', {

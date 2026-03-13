@@ -1,4 +1,4 @@
-import { subscribeDocumentExtraction } from '@george-ai/event-service-client'
+import { subscribe } from '@george-ai/event-service-client'
 
 import { WORKER_ID } from '../common'
 import { processingMap } from '../processing'
@@ -8,7 +8,8 @@ import { handleStatus } from './handle-status'
 
 export async function startExtraction(): Promise<() => Promise<void>> {
   logger.info('Starting document extraction subscription', { WORKER_ID })
-  const unsubscribeExtraction = await subscribeDocumentExtraction({
+  const unsubscribeExtraction = await subscribe({
+    action: 'documentExtraction',
     handler: async ({ event }) => {
       processingMap.updateStats('workspaceProcessing')
       logger.debug('Received document extraction event', {

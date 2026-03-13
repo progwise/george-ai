@@ -1,4 +1,4 @@
-import { subscribeDocumentVectorization } from '@george-ai/event-service-client'
+import { subscribe } from '@george-ai/event-service-client'
 
 import { WORKER_ID } from '../common'
 import { processingMap } from '../processing'
@@ -7,7 +7,8 @@ import { handleStatus } from './handle-status'
 import { vectorizeDocument } from './vectorize-document'
 
 export async function startVectorization(): Promise<() => Promise<void>> {
-  const unsubscribeExtraction = await subscribeDocumentVectorization({
+  const unsubscribeVectorization = await subscribe({
+    action: 'documentVectorization',
     handler: async ({ event }) => {
       processingMap.updateStats('workspaceProcessing')
       logger.debug('Received document vectorization event', {
@@ -28,5 +29,5 @@ export async function startVectorization(): Promise<() => Promise<void>> {
     },
   })
 
-  return unsubscribeExtraction
+  return unsubscribeVectorization
 }

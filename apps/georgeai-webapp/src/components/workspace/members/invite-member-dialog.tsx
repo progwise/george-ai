@@ -16,7 +16,7 @@ export const InviteMemberDialog = ({ user, ref }: InviteMemberDialogProps) => {
   const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
 
-  const { inviteMember, isPending } = useWorkspace(user)
+  const { inviteMember, isPending } = useWorkspace(user.selectedWorkspaceId)
 
   const schema = z.object({
     email: z.string().email(t('workspace.members.emailInvalid')),

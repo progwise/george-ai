@@ -43,7 +43,7 @@ const getFileChunks = createServerFn({ method: 'GET' })
               fileId
               chunk
               content
-              filename
+              fileName
               extractionMethod
               embeddingModelNames
               fragment

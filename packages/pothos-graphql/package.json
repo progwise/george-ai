@@ -18,7 +18,6 @@
   },
   "dependencies": {
     "@george-ai/ai-act": "workspace:*",
-    "@george-ai/ai-service-client": "workspace:*",
     "@george-ai/api-crawler": "workspace:*",
     "@george-ai/app-commons": "workspace:*",
     "@george-ai/app-schema": "workspace:*",

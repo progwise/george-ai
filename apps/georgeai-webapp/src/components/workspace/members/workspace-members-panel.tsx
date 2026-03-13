@@ -38,7 +38,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
     isLoading,
     isPending,
     currentWorkspace,
-  } = useWorkspace(user)
+  } = useWorkspace(user.selectedWorkspaceId)
 
   const currentUserIsOwner = currentUserRole === 'owner'
 
@@ -82,7 +82,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
           <div className="p-4 text-center text-base-content/70">{t('workspace.members.noMembers')}</div>
         ) : (
           members?.map((member) => {
-            const isCurrentUser = member.user.id === user?.id
+            const isCurrentUser = member.user.id === user.userId
             const isMemberAdmin = member.role === 'admin' || member.role === 'owner'
 
             return (

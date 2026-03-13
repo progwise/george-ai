@@ -8,7 +8,6 @@ import { AuthProvider } from '../auth/auth-provider'
 import { currentUserQueryOptions } from '../auth/queries'
 import { GeorgeToaster } from '../components/georgeToaster'
 import { SidebarLayout } from '../components/sidebar/sidebar-layout'
-import { getWorkspacesQueryOptions } from '../components/workspace/queries'
 import { getThemeQueryOptions } from '../hooks/use-theme'
 import { getLanguageQueryOptions, useLanguage } from '../i18n/use-language-hook'
 import appCss from '../index.css?url'
@@ -18,7 +17,7 @@ interface RouterContext {
 }
 
 const RootDocument = () => {
-  const { user, workspaceId } = Route.useRouteContext()
+  const { user } = Route.useRouteContext()
   const { language } = useLanguage()
   const { data: theme } = useQuery(getThemeQueryOptions())
 
@@ -30,7 +29,7 @@ const RootDocument = () => {
       <body className="px-body">
         <AuthProvider>
           <>
-            <SidebarLayout user={user} workspaceId={workspaceId} />
+            <SidebarLayout user={user} />
             <Scripts />
             <Suspense>
               <TanStackRouterDevtools />
@@ -48,22 +47,14 @@ const RootDocument = () => {
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async ({ context }) => {
-    const [currentUserResult, workspacesResult, languageResult, themeResult] = await Promise.allSettled([
+    const [currentUserResult, languageResult, themeResult] = await Promise.allSettled([
       context.queryClient.ensureQueryData(currentUserQueryOptions()),
-      context.queryClient.ensureQueryData(getWorkspacesQueryOptions()),
       context.queryClient.ensureQueryData(getLanguageQueryOptions()),
       context.queryClient.ensureQueryData(getThemeQueryOptions()),
     ])
 
-    // TODO: Do not set workspaceId if user has no access to it
-    const selectedWorkspaceId = context.queryClient.getQueryData(['selectedWorkspaceId'])?.toString() || null
-
     return {
       user: currentUserResult.status === 'fulfilled' ? currentUserResult.value : null,
-      workspaceId:
-        workspacesResult.status === 'fulfilled'
-          ? workspacesResult?.value?.items?.find((workspace) => workspace.id === selectedWorkspaceId)?.id
-          : null,
       language: languageResult.status === 'fulfilled' ? languageResult.value : 'en',
       theme: themeResult.status === 'fulfilled' ? themeResult.value : 'light',
     }

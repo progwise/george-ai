@@ -15,7 +15,7 @@ import * as types from './graphql'
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-  '\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n': typeof types.CurrentUserFragmentDoc
+  '\n  fragment CurrentUser on CurrentUser {\n    userId\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    selectedWorkspaceId\n    defaultWorkspaceId\n    lastLogin\n  }\n': typeof types.CurrentUserFragmentDoc
   '\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ': typeof types.CurrentUserDocument
   '\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ': typeof types.LoginDocument
   '\n  fragment EditModelButton_LanguageModel on AiLanguageModel {\n    id\n    provider\n    name\n    adminNotes\n    enabled\n  }\n': typeof types.EditModelButton_LanguageModelFragmentDoc
@@ -32,19 +32,16 @@ type Documents = {
   '\n        mutation disableConnectorType($connectorType: String!) {\n          disableConnectorType(connectorType: $connectorType)\n        }\n      ': typeof types.DisableConnectorTypeDocument
   '\n        mutation testConnectorConnection($id: ID!) {\n          testConnectorConnection(id: $id) {\n            success\n            message\n            details\n          }\n        }\n      ': typeof types.TestConnectorConnectionDocument
   '\n        mutation updateConnector($id: ID!, $data: AiConnectorInput!) {\n          updateConnector(id: $id, data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ': typeof types.UpdateConnectorDocument
-  '\n  query GetAiServiceProviders($enabled: Boolean) {\n    modelProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n': typeof types.GetAiServiceProvidersDocument
   '\n      query workers {\n        workers {\n          workerId\n          workerRole\n          lastHeartbeat\n        }\n      }\n    ': typeof types.WorkersDocument
-  '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n': typeof types.StartQueueWorkerDocument
-  '\n  mutation StopQueueWorker($queueType: QueueType!) {\n    stopQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n': typeof types.StopQueueWorkerDocument
-  '\n  fragment QueueSystemStatus_ManagementPanel on QueueSystemStatus {\n    allWorkersRunning\n    totalPendingTasks\n    totalProcessingTasks\n    totalFailedTasks\n    lastUpdated\n    queues {\n      queueType\n      isRunning\n      pendingTasks\n      processingTasks\n      failedTasks\n      completedTasks\n      lastProcessedAt\n    }\n  }\n': typeof types.QueueSystemStatus_ManagementPanelFragmentDoc
-  '\n  mutation CreateModelProvider($data: ModelProviderInput!) {\n    createModelProvider(data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n': typeof types.CreateModelProviderDocument
-  '\n  mutation DeleteModelProvider($id: ID!) {\n    deleteModelProvider(id: $id)\n  }\n': typeof types.DeleteModelProviderDocument
-  '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n': typeof types.RestoreDefaultProvidersDocument
+  '\n        mutation createInferenceHostFn($driver: InferenceDriver!, $data: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ': typeof types.CreateInferenceHostFnDocument
+  '\n        mutation deleteInferenceHostFn($hostId: String!) {\n          removeInferenceHost(hostId: $hostId)\n        }\n      ': typeof types.DeleteInferenceHostFnDocument
+  '\n        mutation disableInferenceHostFn($hostId: String!) {\n          disableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ': typeof types.DisableInferenceHostFnDocument
+  '\n        mutation enableInferenceHostFn($hostId: String!) {\n          enableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ': typeof types.EnableInferenceHostFnDocument
+  '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        hostId\n        name\n        driver\n        url\n        enabled\n        configuredVramGb\n      }\n    }\n  }\n': typeof types.RestoreDefaultProvidersDocument
   '\n        mutation StartWorkspaceProcessing($action: EventQueueAction!) {\n          startProcessing(action: $action) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ': typeof types.StartWorkspaceProcessingDocument
   '\n        mutation StopWorkspaceProcessing($action: EventQueueAction!) {\n          stopProcessing(action: $action) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ': typeof types.StopWorkspaceProcessingDocument
-  '\n  mutation TestProviderConnection($providerId: String, $driver: InferenceDriver!, $baseUrl: String, $apiKey: String) {\n    testProviderConnection(providerId: $providerId, driver: $driver, baseUrl: $baseUrl, apiKey: $apiKey) {\n      success\n      isOnline\n      isHealthy\n      message\n    }\n  }\n': typeof types.TestProviderConnectionDocument
-  '\n  mutation ToggleAiServiceProvider($id: String!, $enabled: Boolean!) {\n    toggleModelProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n': typeof types.ToggleAiServiceProviderDocument
-  '\n  mutation UpdateAiServiceProvider($id: ID!, $data: ModelProviderInput!) {\n    updateModelProvider(id: $id, data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n': typeof types.UpdateAiServiceProviderDocument
+  '\n        mutation testInferenceHostConnectionFn(\n          $workspaceId: String!\n          $hostId: String\n          $driver: InferenceDriver!\n          $baseUrl: String\n          $apiKey: String\n        ) {\n          testInferenceHostConnection(\n            workspaceId: $workspaceId\n            hostId: $hostId\n            driver: $driver\n            baseUrl: $baseUrl\n            apiKey: $apiKey\n          ) {\n            success\n            isOnline\n            isHealthy\n            message\n          }\n        }\n      ': typeof types.TestInferenceHostConnectionFnDocument
+  '\n        mutation updateInferenceHostFn($hostId: ID!, $data: InferenceHostInput!) {\n          updateInferenceHost(hostId: $hostId, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ': typeof types.UpdateInferenceHostFnDocument
   '\n        mutation ensureUserProfile($userId: String!) {\n          ensureUserProfile(userId: $userId) {\n            id\n          }\n        }\n      ': typeof types.EnsureUserProfileDocument
   '\n  fragment ManagedUser on ManagedUser {\n    id\n    username\n    name\n    given_name\n    family_name\n    lastLogin\n    createdAt\n    updatedAt\n    email\n    isAdmin\n    registered\n    business\n    position\n    confirmationDate\n    activationDate\n    avatarUrl\n  }\n': typeof types.ManagedUserFragmentDoc
   '\n        query getManagedUsers($skip: Int!, $take: Int!, $filter: String, $statusFilter: String) {\n          managedUsers(skip: $skip, take: $take, filter: $filter, statusFilter: $statusFilter) {\n            skip\n            take\n            filter\n            userStatistics {\n              total\n              confirmed\n              unconfirmed\n              activated\n              unactivated\n            }\n            users {\n              ...ManagedUser\n            }\n          }\n        }\n      ': typeof types.GetManagedUsersDocument
@@ -131,15 +128,15 @@ type Documents = {
   '\n  fragment AiLibraryForm_Library on AiLibrary {\n    id\n    name\n    embeddingTimeoutMs\n    filesCount\n    description\n    embeddingModel {\n      id\n      name\n      provider\n    }\n    ocrModel {\n      id\n      name\n      provider\n    }\n    fileConverterOptions\n    autoProcessCrawledFiles\n  }\n': typeof types.AiLibraryForm_LibraryFragmentDoc
   '\n  fragment LibraryMenu_AiLibrary on AiLibrary {\n    id\n    name\n    filesCount\n  }\n': typeof types.LibraryMenu_AiLibraryFragmentDoc
   '\n        query getExtraction($fileId: String!, $libraryId: String!, $extractionMethod: ExtractionMethod) {\n          extraction(fileId: $fileId, libraryId: $libraryId, extractionMethod: $extractionMethod) {\n            version\n            extractionMethod\n            extracted\n            hasFragments\n            fragmentCount\n            sourceHash\n            attachments {\n              size\n              fileName\n              mimeType\n            }\n          }\n        }\n      ': typeof types.GetExtractionDocument
-  '\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              filename\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ': typeof types.GetFileChunksDocument
-  '\n        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {\n          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {\n            id\n            distance\n            chunk\n            filename\n            fileId\n            extractionMethod\n            content\n            embeddingModelNames\n            fragment\n          }\n        }\n      ': typeof types.GetSimilarChunksDocument
+  '\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              fileName\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ': typeof types.GetFileChunksDocument
+  '\n        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {\n          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {\n            id\n            distance\n            chunk\n            fileName\n            fileId\n            extractionMethod\n            content\n            embeddingModelNames\n            fragment\n          }\n        }\n      ': typeof types.GetSimilarChunksDocument
   '\n        query getFile($fileId: String!, $libraryId: String!) {\n          file(fileId: $fileId, libraryId: $libraryId) {\n            ...FileCaptionCard_File\n            id\n            createdAt\n            updatedAt\n            name\n            originUri\n            docPath\n            mimeType\n            size\n            libraryId\n            dropError\n            originModificationDate\n            archivedAt\n            manifest {\n              version\n              sourceHash\n              extractions {\n                extractionMethod\n                sourceHash\n                created\n                updated\n              }\n            }\n            supportedExtractionMethods\n            chunkCount\n            status\n            lastUpdate {\n              id\n              createdAt\n              message\n              updateType\n            }\n          }\n        }\n      ': typeof types.GetFileDocument
   '\n        query EmbeddingsTable($libraryId: String!, $skip: Int = 0, $take: Int = 20, $showArchived: Boolean = false) {\n          files(libraryId: $libraryId, skip: $skip, take: $take, showArchived: $showArchived) {\n            totalCount\n            archivedCount\n            items {\n              manifest {\n                version\n              }\n              ...AiLibraryFile_FilesTable\n            }\n          }\n        }\n      ': typeof types.EmbeddingsTableDocument
   '\n  fragment AiLibraryBase on AiLibrary {\n    id\n    name\n    filesCount\n    createdAt\n    updatedAt\n  }\n': typeof types.AiLibraryBaseFragmentDoc
   '\n  query aiLibraries {\n    libraries {\n      totalCount\n      items {\n        id\n        name\n        createdAt\n        updatedAt\n        ...AiLibraryBase\n      }\n    }\n  }\n': typeof types.AiLibrariesDocument
   '\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n': typeof types.AiLibraryDetailDocument
-  '\n        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {\n          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {\n            hitCount\n            results {\n              id\n              libraryId\n              fileId\n              filename\n              extractionMethod\n              chunk\n              content\n              ...LibraryQueryResult_FileChunk\n            }\n          }\n        }\n      ': typeof types.QueryLibraryFilesDocument
-  '\n  fragment LibraryQueryResult_FileChunk on FileChunk {\n    id\n    libraryId\n    fileId\n    filename\n    extractionMethod\n    chunk\n    fragment\n    content\n  }\n': typeof types.LibraryQueryResult_FileChunkFragmentDoc
+  '\n        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {\n          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {\n            hitCount\n            results {\n              id\n              libraryId\n              fileId\n              fileName\n              extractionMethod\n              chunk\n              content\n              ...LibraryQueryResult_FileChunk\n            }\n          }\n        }\n      ': typeof types.QueryLibraryFilesDocument
+  '\n  fragment LibraryQueryResult_FileChunk on FileChunk {\n    id\n    libraryId\n    fileId\n    fileName\n    extractionMethod\n    chunk\n    fragment\n    content\n  }\n': typeof types.LibraryQueryResult_FileChunkFragmentDoc
   '\n        mutation clearLibraryFiles($libraryId: String!) {\n          clearFiles(libraryId: $libraryId)\n        }\n      ': typeof types.ClearLibraryFilesDocument
   '\n        mutation deleteLibraryFile($libraryId: String!, $fileId: String!) {\n          deleteFile(libraryId: $libraryId, fileId: $fileId) {\n            id\n            name\n          }\n        }\n      ': typeof types.DeleteLibraryFileDocument
   '\n        mutation deleteLibraryFiles($libraryId: String!, $fileIds: [ID!]!) {\n          deleteFiles(libraryId: $libraryId, fileIds: $fileIds)\n        }\n      ': typeof types.DeleteLibraryFilesDocument
@@ -204,11 +201,12 @@ type Documents = {
   '\n        mutation saveUserProfile($profileId: String!, $userProfileInput: UserProfileInput!) {\n          updateUserProfile(profileId: $profileId, input: $userProfileInput) {\n            id\n          }\n        }\n      ': typeof types.SaveUserProfileDocument
   '\n  query GetApiKeys {\n    apiKeys {\n      id\n      name\n      createdAt\n      lastUsedAt\n      workspaceId\n    }\n  }\n': typeof types.GetApiKeysDocument
   '\n        query GetWorkspaceEmbeddingStatistics($workspaceId: String!) {\n          embeddingStatistics(workspaceId: $workspaceId) {\n            extractionMethod\n            modelName\n            chunkCount\n          }\n        }\n      ': typeof types.GetWorkspaceEmbeddingStatisticsDocument
-  '\n        query GetInferenceHostConfig {\n          inferenceHostConfig {\n            hostId\n            name\n            driver\n            url\n            apiKey\n            lastUpdate\n          }\n        }\n      ': typeof types.GetInferenceHostConfigDocument
+  '\n        query GetInferenceHostConfig {\n          inferenceHostConfig {\n            workspaceId\n            hostId\n            driver\n            name\n            url\n            apiKeyHint\n            enabled\n            configuredVramGb\n            lastUpdate\n          }\n        }\n      ': typeof types.GetInferenceHostConfigDocument
   '\n        query GetInferenceHostStatus {\n          inferenceHostState {\n            hostId\n            state\n            driver\n            url\n            apiKey\n            totalMemoryMb\n            usedMemoryMb\n            processorUsagePercent\n            lastHealthCheck\n            lastTestConnection\n            models {\n              modelName\n              callCount\n              errorCount\n              responseTimeMsPerToken\n            }\n          }\n        }\n      ': typeof types.GetInferenceHostStatusDocument
+  '\n        query GetLegacyFiles($workspaceId: String!) {\n          legacyFiles(workspaceId: $workspaceId) {\n            libraryId\n            libraryName\n            files {\n              fileId\n              files\n              subfolders\n              error\n            }\n          }\n        }\n      ': typeof types.GetLegacyFilesDocument
+  '\n        query GetWorkspaceLibraries($workspaceId: String!) {\n          workspaceLibraries(workspaceId: $workspaceId) {\n            id\n            name\n            filesCount\n            manifest {\n              version\n              updated\n              created\n              creator\n              storageStats {\n                extractionFileCount\n                physicalFileCount\n              }\n            }\n          }\n        }\n      ': typeof types.GetWorkspaceLibrariesDocument
   '\n        query getEventQueueRequests(\n          $workspaceId: String!\n          $action: EventQueueAction!\n          $take: Int\n          $startSequence: Int\n        ) {\n          eventQueueRequests(workspaceId: $workspaceId, action: $action, take: $take, startSequence: $startSequence) {\n            totalMessages\n            lastSequence\n            requests {\n              workspaceId\n              action\n              timestamp\n              ... on DocumentExtractionRequest {\n                extractionMethod\n                libraryId\n                documentId\n              }\n              ... on DocumentVectorizationRequest {\n                libraryId\n                documentId\n                splitMethod\n                extractionMethod\n                embeddingDriver\n                embeddingModel\n              }\n              ... on FieldEnrichmentRequest {\n                fieldId\n                chatModelDriver\n                chatModelName\n              }\n            }\n          }\n        }\n      ': typeof types.GetEventQueueRequestsDocument
   '\n        query getEventQueue($workspaceId: String!) {\n          eventQueueStats(workspaceId: $workspaceId) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ': typeof types.GetEventQueueDocument
-  '\n      query GetQueueStatus {\n        queueSystemStatus {\n          ...QueueSystemStatus_ManagementPanel\n          queues {\n            queueType\n            isRunning\n            pendingTasks\n            processingTasks\n            failedTasks\n          }\n        }\n      }\n    ': typeof types.GetQueueStatusDocument
   '\n        query WorkspaceInvitation($id: ID!) {\n          workspaceInvitation(invitationId: $id) {\n            id\n            email\n            expiresAt\n            acceptedAt\n            workspace {\n              id\n              name\n            }\n            inviter {\n              name\n              email\n            }\n          }\n        }\n      ': typeof types.WorkspaceInvitationDocument
   '\n  query GetWorkspaceInvitations($workspaceId: ID!) {\n    workspaceInvitations(workspaceId: $workspaceId) {\n      id\n      email\n      createdAt\n      expiresAt\n      inviter {\n        id\n        name\n        email\n      }\n    }\n  }\n': typeof types.GetWorkspaceInvitationsDocument
   '\n  query GetWorkspaceMembers($workspaceId: ID!) {\n    workspaceMembers(workspaceId: $workspaceId) {\n      id\n      role\n      createdAt\n      user {\n        id\n        name\n        email\n        username\n        avatarUrl\n      }\n    }\n  }\n': typeof types.GetWorkspaceMembersDocument
@@ -221,7 +219,8 @@ type Documents = {
   '\n  mutation GenerateApiKey($name: String!) {\n    generateApiKey(name: $name) {\n      id\n      name\n      key\n      workspaceId\n      createdAt\n    }\n  }\n': typeof types.GenerateApiKeyDocument
   '\n  mutation InviteWorkspaceMember($workspaceId: ID!, $email: String!) {\n    inviteWorkspaceMember(workspaceId: $workspaceId, email: $email) {\n      id\n      email\n      createdAt\n      expiresAt\n    }\n  }\n': typeof types.InviteWorkspaceMemberDocument
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n': typeof types.LeaveWorkspaceDocument
-  '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n': typeof types.MigrateWorkspaceDocument
+  '\n        mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {\n          migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {\n            fileMigrationsPublished\n            library {\n              workspaceId\n              libraryId\n              version\n              name\n              created\n              storageStats {\n                physicalFileCount\n                attachmentFileCount\n              }\n            }\n          }\n        }\n      ': typeof types.MigrateLibraryDocument
+  '\n        mutation MigrateWorkspace($workspaceId: String!) {\n          migrateWorkspace(workspaceId: $workspaceId) {\n            workspaceId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ': typeof types.MigrateWorkspaceDocument
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n': typeof types.RemoveWorkspaceMemberDocument
   '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': typeof types.RevokeApiKeyDocument
   '\n  mutation RevokeWorkspaceInvitation($invitationId: ID!) {\n    revokeWorkspaceInvitation(invitationId: $invitationId)\n  }\n': typeof types.RevokeWorkspaceInvitationDocument
@@ -250,7 +249,7 @@ type Documents = {
   '\n  query adminUserById($email: String!) {\n    user(email: $email) {\n      ...User\n      profile {\n        ...UserProfileForm_UserProfile\n      }\n    }\n  }\n': typeof types.AdminUserByIdDocument
 }
 const documents: Documents = {
-  '\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n':
+  '\n  fragment CurrentUser on CurrentUser {\n    userId\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    selectedWorkspaceId\n    defaultWorkspaceId\n    lastLogin\n  }\n':
     types.CurrentUserFragmentDoc,
   '\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ':
     types.CurrentUserDocument,
@@ -284,32 +283,26 @@ const documents: Documents = {
     types.TestConnectorConnectionDocument,
   '\n        mutation updateConnector($id: ID!, $data: AiConnectorInput!) {\n          updateConnector(id: $id, data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ':
     types.UpdateConnectorDocument,
-  '\n  query GetAiServiceProviders($enabled: Boolean) {\n    modelProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n':
-    types.GetAiServiceProvidersDocument,
   '\n      query workers {\n        workers {\n          workerId\n          workerRole\n          lastHeartbeat\n        }\n      }\n    ':
     types.WorkersDocument,
-  '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n':
-    types.StartQueueWorkerDocument,
-  '\n  mutation StopQueueWorker($queueType: QueueType!) {\n    stopQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n':
-    types.StopQueueWorkerDocument,
-  '\n  fragment QueueSystemStatus_ManagementPanel on QueueSystemStatus {\n    allWorkersRunning\n    totalPendingTasks\n    totalProcessingTasks\n    totalFailedTasks\n    lastUpdated\n    queues {\n      queueType\n      isRunning\n      pendingTasks\n      processingTasks\n      failedTasks\n      completedTasks\n      lastProcessedAt\n    }\n  }\n':
-    types.QueueSystemStatus_ManagementPanelFragmentDoc,
-  '\n  mutation CreateModelProvider($data: ModelProviderInput!) {\n    createModelProvider(data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n':
-    types.CreateModelProviderDocument,
-  '\n  mutation DeleteModelProvider($id: ID!) {\n    deleteModelProvider(id: $id)\n  }\n':
-    types.DeleteModelProviderDocument,
-  '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n':
+  '\n        mutation createInferenceHostFn($driver: InferenceDriver!, $data: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ':
+    types.CreateInferenceHostFnDocument,
+  '\n        mutation deleteInferenceHostFn($hostId: String!) {\n          removeInferenceHost(hostId: $hostId)\n        }\n      ':
+    types.DeleteInferenceHostFnDocument,
+  '\n        mutation disableInferenceHostFn($hostId: String!) {\n          disableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ':
+    types.DisableInferenceHostFnDocument,
+  '\n        mutation enableInferenceHostFn($hostId: String!) {\n          enableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ':
+    types.EnableInferenceHostFnDocument,
+  '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        hostId\n        name\n        driver\n        url\n        enabled\n        configuredVramGb\n      }\n    }\n  }\n':
     types.RestoreDefaultProvidersDocument,
   '\n        mutation StartWorkspaceProcessing($action: EventQueueAction!) {\n          startProcessing(action: $action) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ':
     types.StartWorkspaceProcessingDocument,
   '\n        mutation StopWorkspaceProcessing($action: EventQueueAction!) {\n          stopProcessing(action: $action) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ':
     types.StopWorkspaceProcessingDocument,
-  '\n  mutation TestProviderConnection($providerId: String, $driver: InferenceDriver!, $baseUrl: String, $apiKey: String) {\n    testProviderConnection(providerId: $providerId, driver: $driver, baseUrl: $baseUrl, apiKey: $apiKey) {\n      success\n      isOnline\n      isHealthy\n      message\n    }\n  }\n':
-    types.TestProviderConnectionDocument,
-  '\n  mutation ToggleAiServiceProvider($id: String!, $enabled: Boolean!) {\n    toggleModelProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n':
-    types.ToggleAiServiceProviderDocument,
-  '\n  mutation UpdateAiServiceProvider($id: ID!, $data: ModelProviderInput!) {\n    updateModelProvider(id: $id, data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n':
-    types.UpdateAiServiceProviderDocument,
+  '\n        mutation testInferenceHostConnectionFn(\n          $workspaceId: String!\n          $hostId: String\n          $driver: InferenceDriver!\n          $baseUrl: String\n          $apiKey: String\n        ) {\n          testInferenceHostConnection(\n            workspaceId: $workspaceId\n            hostId: $hostId\n            driver: $driver\n            baseUrl: $baseUrl\n            apiKey: $apiKey\n          ) {\n            success\n            isOnline\n            isHealthy\n            message\n          }\n        }\n      ':
+    types.TestInferenceHostConnectionFnDocument,
+  '\n        mutation updateInferenceHostFn($hostId: ID!, $data: InferenceHostInput!) {\n          updateInferenceHost(hostId: $hostId, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ':
+    types.UpdateInferenceHostFnDocument,
   '\n        mutation ensureUserProfile($userId: String!) {\n          ensureUserProfile(userId: $userId) {\n            id\n          }\n        }\n      ':
     types.EnsureUserProfileDocument,
   '\n  fragment ManagedUser on ManagedUser {\n    id\n    username\n    name\n    given_name\n    family_name\n    lastLogin\n    createdAt\n    updatedAt\n    email\n    isAdmin\n    registered\n    business\n    position\n    confirmationDate\n    activationDate\n    avatarUrl\n  }\n':
@@ -482,9 +475,9 @@ const documents: Documents = {
     types.LibraryMenu_AiLibraryFragmentDoc,
   '\n        query getExtraction($fileId: String!, $libraryId: String!, $extractionMethod: ExtractionMethod) {\n          extraction(fileId: $fileId, libraryId: $libraryId, extractionMethod: $extractionMethod) {\n            version\n            extractionMethod\n            extracted\n            hasFragments\n            fragmentCount\n            sourceHash\n            attachments {\n              size\n              fileName\n              mimeType\n            }\n          }\n        }\n      ':
     types.GetExtractionDocument,
-  '\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              filename\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ':
+  '\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              fileName\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ':
     types.GetFileChunksDocument,
-  '\n        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {\n          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {\n            id\n            distance\n            chunk\n            filename\n            fileId\n            extractionMethod\n            content\n            embeddingModelNames\n            fragment\n          }\n        }\n      ':
+  '\n        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {\n          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {\n            id\n            distance\n            chunk\n            fileName\n            fileId\n            extractionMethod\n            content\n            embeddingModelNames\n            fragment\n          }\n        }\n      ':
     types.GetSimilarChunksDocument,
   '\n        query getFile($fileId: String!, $libraryId: String!) {\n          file(fileId: $fileId, libraryId: $libraryId) {\n            ...FileCaptionCard_File\n            id\n            createdAt\n            updatedAt\n            name\n            originUri\n            docPath\n            mimeType\n            size\n            libraryId\n            dropError\n            originModificationDate\n            archivedAt\n            manifest {\n              version\n              sourceHash\n              extractions {\n                extractionMethod\n                sourceHash\n                created\n                updated\n              }\n            }\n            supportedExtractionMethods\n            chunkCount\n            status\n            lastUpdate {\n              id\n              createdAt\n              message\n              updateType\n            }\n          }\n        }\n      ':
     types.GetFileDocument,
@@ -496,9 +489,9 @@ const documents: Documents = {
     types.AiLibrariesDocument,
   '\n  query aiLibraryDetail($libraryId: String!) {\n    library(libraryId: $libraryId) {\n      id\n      ...AiLibraryBase\n      ...AiLibraryForm_Library\n      manifest {\n        version\n        name\n      }\n    }\n  }\n':
     types.AiLibraryDetailDocument,
-  '\n        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {\n          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {\n            hitCount\n            results {\n              id\n              libraryId\n              fileId\n              filename\n              extractionMethod\n              chunk\n              content\n              ...LibraryQueryResult_FileChunk\n            }\n          }\n        }\n      ':
+  '\n        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {\n          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {\n            hitCount\n            results {\n              id\n              libraryId\n              fileId\n              fileName\n              extractionMethod\n              chunk\n              content\n              ...LibraryQueryResult_FileChunk\n            }\n          }\n        }\n      ':
     types.QueryLibraryFilesDocument,
-  '\n  fragment LibraryQueryResult_FileChunk on FileChunk {\n    id\n    libraryId\n    fileId\n    filename\n    extractionMethod\n    chunk\n    fragment\n    content\n  }\n':
+  '\n  fragment LibraryQueryResult_FileChunk on FileChunk {\n    id\n    libraryId\n    fileId\n    fileName\n    extractionMethod\n    chunk\n    fragment\n    content\n  }\n':
     types.LibraryQueryResult_FileChunkFragmentDoc,
   '\n        mutation clearLibraryFiles($libraryId: String!) {\n          clearFiles(libraryId: $libraryId)\n        }\n      ':
     types.ClearLibraryFilesDocument,
@@ -627,16 +620,18 @@ const documents: Documents = {
     types.GetApiKeysDocument,
   '\n        query GetWorkspaceEmbeddingStatistics($workspaceId: String!) {\n          embeddingStatistics(workspaceId: $workspaceId) {\n            extractionMethod\n            modelName\n            chunkCount\n          }\n        }\n      ':
     types.GetWorkspaceEmbeddingStatisticsDocument,
-  '\n        query GetInferenceHostConfig {\n          inferenceHostConfig {\n            hostId\n            name\n            driver\n            url\n            apiKey\n            lastUpdate\n          }\n        }\n      ':
+  '\n        query GetInferenceHostConfig {\n          inferenceHostConfig {\n            workspaceId\n            hostId\n            driver\n            name\n            url\n            apiKeyHint\n            enabled\n            configuredVramGb\n            lastUpdate\n          }\n        }\n      ':
     types.GetInferenceHostConfigDocument,
   '\n        query GetInferenceHostStatus {\n          inferenceHostState {\n            hostId\n            state\n            driver\n            url\n            apiKey\n            totalMemoryMb\n            usedMemoryMb\n            processorUsagePercent\n            lastHealthCheck\n            lastTestConnection\n            models {\n              modelName\n              callCount\n              errorCount\n              responseTimeMsPerToken\n            }\n          }\n        }\n      ':
     types.GetInferenceHostStatusDocument,
+  '\n        query GetLegacyFiles($workspaceId: String!) {\n          legacyFiles(workspaceId: $workspaceId) {\n            libraryId\n            libraryName\n            files {\n              fileId\n              files\n              subfolders\n              error\n            }\n          }\n        }\n      ':
+    types.GetLegacyFilesDocument,
+  '\n        query GetWorkspaceLibraries($workspaceId: String!) {\n          workspaceLibraries(workspaceId: $workspaceId) {\n            id\n            name\n            filesCount\n            manifest {\n              version\n              updated\n              created\n              creator\n              storageStats {\n                extractionFileCount\n                physicalFileCount\n              }\n            }\n          }\n        }\n      ':
+    types.GetWorkspaceLibrariesDocument,
   '\n        query getEventQueueRequests(\n          $workspaceId: String!\n          $action: EventQueueAction!\n          $take: Int\n          $startSequence: Int\n        ) {\n          eventQueueRequests(workspaceId: $workspaceId, action: $action, take: $take, startSequence: $startSequence) {\n            totalMessages\n            lastSequence\n            requests {\n              workspaceId\n              action\n              timestamp\n              ... on DocumentExtractionRequest {\n                extractionMethod\n                libraryId\n                documentId\n              }\n              ... on DocumentVectorizationRequest {\n                libraryId\n                documentId\n                splitMethod\n                extractionMethod\n                embeddingDriver\n                embeddingModel\n              }\n              ... on FieldEnrichmentRequest {\n                fieldId\n                chatModelDriver\n                chatModelName\n              }\n            }\n          }\n        }\n      ':
     types.GetEventQueueRequestsDocument,
   '\n        query getEventQueue($workspaceId: String!) {\n          eventQueueStats(workspaceId: $workspaceId) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ':
     types.GetEventQueueDocument,
-  '\n      query GetQueueStatus {\n        queueSystemStatus {\n          ...QueueSystemStatus_ManagementPanel\n          queues {\n            queueType\n            isRunning\n            pendingTasks\n            processingTasks\n            failedTasks\n          }\n        }\n      }\n    ':
-    types.GetQueueStatusDocument,
   '\n        query WorkspaceInvitation($id: ID!) {\n          workspaceInvitation(invitationId: $id) {\n            id\n            email\n            expiresAt\n            acceptedAt\n            workspace {\n              id\n              name\n            }\n            inviter {\n              name\n              email\n            }\n          }\n        }\n      ':
     types.WorkspaceInvitationDocument,
   '\n  query GetWorkspaceInvitations($workspaceId: ID!) {\n    workspaceInvitations(workspaceId: $workspaceId) {\n      id\n      email\n      createdAt\n      expiresAt\n      inviter {\n        id\n        name\n        email\n      }\n    }\n  }\n':
@@ -660,7 +655,10 @@ const documents: Documents = {
     types.InviteWorkspaceMemberDocument,
   '\n  mutation LeaveWorkspace($workspaceId: ID!) {\n    leaveWorkspace(workspaceId: $workspaceId)\n  }\n':
     types.LeaveWorkspaceDocument,
-  '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n': types.MigrateWorkspaceDocument,
+  '\n        mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {\n          migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {\n            fileMigrationsPublished\n            library {\n              workspaceId\n              libraryId\n              version\n              name\n              created\n              storageStats {\n                physicalFileCount\n                attachmentFileCount\n              }\n            }\n          }\n        }\n      ':
+    types.MigrateLibraryDocument,
+  '\n        mutation MigrateWorkspace($workspaceId: String!) {\n          migrateWorkspace(workspaceId: $workspaceId) {\n            workspaceId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ':
+    types.MigrateWorkspaceDocument,
   '\n  mutation RemoveWorkspaceMember($workspaceId: ID!, $userId: ID!) {\n    removeWorkspaceMember(workspaceId: $workspaceId, userId: $userId) {\n      id\n      user {\n        id\n        name\n        email\n      }\n    }\n  }\n':
     types.RemoveWorkspaceMemberDocument,
   '\n  mutation RevokeApiKey($id: String!) {\n    revokeApiKey(id: $id)\n  }\n': types.RevokeApiKeyDocument,
@@ -731,8 +729,8 @@ export function graphql(source: string): unknown
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n',
-): (typeof documents)['\n  fragment CurrentUser on User {\n    id\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    defaultWorkspaceId\n    lastLogin\n  }\n']
+  source: '\n  fragment CurrentUser on CurrentUser {\n    userId\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    selectedWorkspaceId\n    defaultWorkspaceId\n    lastLogin\n  }\n',
+): (typeof documents)['\n  fragment CurrentUser on CurrentUser {\n    userId\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    selectedWorkspaceId\n    defaultWorkspaceId\n    lastLogin\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -833,50 +831,38 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  query GetAiServiceProviders($enabled: Boolean) {\n    modelProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n',
-): (typeof documents)['\n  query GetAiServiceProviders($enabled: Boolean) {\n    modelProviders(enabled: $enabled) {\n      id\n      createdAt\n      updatedAt\n      provider\n      name\n      enabled\n      baseUrl\n      apiKeyHint\n      vramGb\n      createdBy\n      updatedBy\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
   source: '\n      query workers {\n        workers {\n          workerId\n          workerRole\n          lastHeartbeat\n        }\n      }\n    ',
 ): (typeof documents)['\n      query workers {\n        workers {\n          workerId\n          workerRole\n          lastHeartbeat\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n',
-): (typeof documents)['\n  mutation StartQueueWorker($queueType: QueueType!) {\n    startQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n']
+  source: '\n        mutation createInferenceHostFn($driver: InferenceDriver!, $data: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation createInferenceHostFn($driver: InferenceDriver!, $data: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation StopQueueWorker($queueType: QueueType!) {\n    stopQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n',
-): (typeof documents)['\n  mutation StopQueueWorker($queueType: QueueType!) {\n    stopQueueWorker(queueType: $queueType) {\n      success\n      message\n    }\n  }\n']
+  source: '\n        mutation deleteInferenceHostFn($hostId: String!) {\n          removeInferenceHost(hostId: $hostId)\n        }\n      ',
+): (typeof documents)['\n        mutation deleteInferenceHostFn($hostId: String!) {\n          removeInferenceHost(hostId: $hostId)\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment QueueSystemStatus_ManagementPanel on QueueSystemStatus {\n    allWorkersRunning\n    totalPendingTasks\n    totalProcessingTasks\n    totalFailedTasks\n    lastUpdated\n    queues {\n      queueType\n      isRunning\n      pendingTasks\n      processingTasks\n      failedTasks\n      completedTasks\n      lastProcessedAt\n    }\n  }\n',
-): (typeof documents)['\n  fragment QueueSystemStatus_ManagementPanel on QueueSystemStatus {\n    allWorkersRunning\n    totalPendingTasks\n    totalProcessingTasks\n    totalFailedTasks\n    lastUpdated\n    queues {\n      queueType\n      isRunning\n      pendingTasks\n      processingTasks\n      failedTasks\n      completedTasks\n      lastProcessedAt\n    }\n  }\n']
+  source: '\n        mutation disableInferenceHostFn($hostId: String!) {\n          disableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation disableInferenceHostFn($hostId: String!) {\n          disableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation CreateModelProvider($data: ModelProviderInput!) {\n    createModelProvider(data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n',
-): (typeof documents)['\n  mutation CreateModelProvider($data: ModelProviderInput!) {\n    createModelProvider(data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n']
+  source: '\n        mutation enableInferenceHostFn($hostId: String!) {\n          enableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation enableInferenceHostFn($hostId: String!) {\n          enableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation DeleteModelProvider($id: ID!) {\n    deleteModelProvider(id: $id)\n  }\n',
-): (typeof documents)['\n  mutation DeleteModelProvider($id: ID!) {\n    deleteModelProvider(id: $id)\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n',
-): (typeof documents)['\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        id\n        name\n        provider\n        baseUrl\n        enabled\n        vramGb\n      }\n    }\n  }\n']
+  source: '\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        hostId\n        name\n        driver\n        url\n        enabled\n        configuredVramGb\n      }\n    }\n  }\n',
+): (typeof documents)['\n  mutation RestoreDefaultProviders {\n    restoreDefaultProviders {\n      created\n      skipped\n      providers {\n        hostId\n        name\n        driver\n        url\n        enabled\n        configuredVramGb\n      }\n    }\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -893,20 +879,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation TestProviderConnection($providerId: String, $driver: InferenceDriver!, $baseUrl: String, $apiKey: String) {\n    testProviderConnection(providerId: $providerId, driver: $driver, baseUrl: $baseUrl, apiKey: $apiKey) {\n      success\n      isOnline\n      isHealthy\n      message\n    }\n  }\n',
-): (typeof documents)['\n  mutation TestProviderConnection($providerId: String, $driver: InferenceDriver!, $baseUrl: String, $apiKey: String) {\n    testProviderConnection(providerId: $providerId, driver: $driver, baseUrl: $baseUrl, apiKey: $apiKey) {\n      success\n      isOnline\n      isHealthy\n      message\n    }\n  }\n']
+  source: '\n        mutation testInferenceHostConnectionFn(\n          $workspaceId: String!\n          $hostId: String\n          $driver: InferenceDriver!\n          $baseUrl: String\n          $apiKey: String\n        ) {\n          testInferenceHostConnection(\n            workspaceId: $workspaceId\n            hostId: $hostId\n            driver: $driver\n            baseUrl: $baseUrl\n            apiKey: $apiKey\n          ) {\n            success\n            isOnline\n            isHealthy\n            message\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation testInferenceHostConnectionFn(\n          $workspaceId: String!\n          $hostId: String\n          $driver: InferenceDriver!\n          $baseUrl: String\n          $apiKey: String\n        ) {\n          testInferenceHostConnection(\n            workspaceId: $workspaceId\n            hostId: $hostId\n            driver: $driver\n            baseUrl: $baseUrl\n            apiKey: $apiKey\n          ) {\n            success\n            isOnline\n            isHealthy\n            message\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation ToggleAiServiceProvider($id: String!, $enabled: Boolean!) {\n    toggleModelProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n',
-): (typeof documents)['\n  mutation ToggleAiServiceProvider($id: String!, $enabled: Boolean!) {\n    toggleModelProvider(id: $id, enabled: $enabled) {\n      id\n      enabled\n    }\n  }\n']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n  mutation UpdateAiServiceProvider($id: ID!, $data: ModelProviderInput!) {\n    updateModelProvider(id: $id, data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n',
-): (typeof documents)['\n  mutation UpdateAiServiceProvider($id: ID!, $data: ModelProviderInput!) {\n    updateModelProvider(id: $id, data: $data) {\n      id\n      provider\n      name\n      enabled\n    }\n  }\n']
+  source: '\n        mutation updateInferenceHostFn($hostId: ID!, $data: InferenceHostInput!) {\n          updateInferenceHost(hostId: $hostId, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation updateInferenceHostFn($hostId: ID!, $data: InferenceHostInput!) {\n          updateInferenceHost(hostId: $hostId, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1427,14 +1407,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              filename\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              filename\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ']
+  source: '\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              fileName\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query getFileChunks(\n          $libraryId: String!\n          $fileId: String!\n          $skip: Int\n          $take: Int\n          $extractionMethod: ExtractionMethod\n          $fragment: Int\n        ) {\n          fileChunks(\n            libraryId: $libraryId\n            fileId: $fileId\n            skip: $skip\n            take: $take\n            extractionMethod: $extractionMethod\n            fragment: $fragment\n          ) {\n            totalCount\n            chunks {\n              id\n              libraryId\n              fileId\n              chunk\n              content\n              fileName\n              extractionMethod\n              embeddingModelNames\n              fragment\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {\n          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {\n            id\n            distance\n            chunk\n            filename\n            fileId\n            extractionMethod\n            content\n            embeddingModelNames\n            fragment\n          }\n        }\n      ',
-): (typeof documents)['\n        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {\n          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {\n            id\n            distance\n            chunk\n            filename\n            fileId\n            extractionMethod\n            content\n            embeddingModelNames\n            fragment\n          }\n        }\n      ']
+  source: '\n        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {\n          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {\n            id\n            distance\n            chunk\n            fileName\n            fileId\n            extractionMethod\n            content\n            embeddingModelNames\n            fragment\n          }\n        }\n      ',
+): (typeof documents)['\n        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {\n          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {\n            id\n            distance\n            chunk\n            fileName\n            fileId\n            extractionMethod\n            content\n            embeddingModelNames\n            fragment\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1469,14 +1449,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {\n          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {\n            hitCount\n            results {\n              id\n              libraryId\n              fileId\n              filename\n              extractionMethod\n              chunk\n              content\n              ...LibraryQueryResult_FileChunk\n            }\n          }\n        }\n      ',
-): (typeof documents)['\n        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {\n          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {\n            hitCount\n            results {\n              id\n              libraryId\n              fileId\n              filename\n              extractionMethod\n              chunk\n              content\n              ...LibraryQueryResult_FileChunk\n            }\n          }\n        }\n      ']
+  source: '\n        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {\n          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {\n            hitCount\n            results {\n              id\n              libraryId\n              fileId\n              fileName\n              extractionMethod\n              chunk\n              content\n              ...LibraryQueryResult_FileChunk\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query queryLibraryFiles($selector: FileChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {\n          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {\n            hitCount\n            results {\n              id\n              libraryId\n              fileId\n              fileName\n              extractionMethod\n              chunk\n              content\n              ...LibraryQueryResult_FileChunk\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  fragment LibraryQueryResult_FileChunk on FileChunk {\n    id\n    libraryId\n    fileId\n    filename\n    extractionMethod\n    chunk\n    fragment\n    content\n  }\n',
-): (typeof documents)['\n  fragment LibraryQueryResult_FileChunk on FileChunk {\n    id\n    libraryId\n    fileId\n    filename\n    extractionMethod\n    chunk\n    fragment\n    content\n  }\n']
+  source: '\n  fragment LibraryQueryResult_FileChunk on FileChunk {\n    id\n    libraryId\n    fileId\n    fileName\n    extractionMethod\n    chunk\n    fragment\n    content\n  }\n',
+): (typeof documents)['\n  fragment LibraryQueryResult_FileChunk on FileChunk {\n    id\n    libraryId\n    fileId\n    fileName\n    extractionMethod\n    chunk\n    fragment\n    content\n  }\n']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1865,14 +1845,26 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        query GetInferenceHostConfig {\n          inferenceHostConfig {\n            hostId\n            name\n            driver\n            url\n            apiKey\n            lastUpdate\n          }\n        }\n      ',
-): (typeof documents)['\n        query GetInferenceHostConfig {\n          inferenceHostConfig {\n            hostId\n            name\n            driver\n            url\n            apiKey\n            lastUpdate\n          }\n        }\n      ']
+  source: '\n        query GetInferenceHostConfig {\n          inferenceHostConfig {\n            workspaceId\n            hostId\n            driver\n            name\n            url\n            apiKeyHint\n            enabled\n            configuredVramGb\n            lastUpdate\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetInferenceHostConfig {\n          inferenceHostConfig {\n            workspaceId\n            hostId\n            driver\n            name\n            url\n            apiKeyHint\n            enabled\n            configuredVramGb\n            lastUpdate\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
   source: '\n        query GetInferenceHostStatus {\n          inferenceHostState {\n            hostId\n            state\n            driver\n            url\n            apiKey\n            totalMemoryMb\n            usedMemoryMb\n            processorUsagePercent\n            lastHealthCheck\n            lastTestConnection\n            models {\n              modelName\n              callCount\n              errorCount\n              responseTimeMsPerToken\n            }\n          }\n        }\n      ',
 ): (typeof documents)['\n        query GetInferenceHostStatus {\n          inferenceHostState {\n            hostId\n            state\n            driver\n            url\n            apiKey\n            totalMemoryMb\n            usedMemoryMb\n            processorUsagePercent\n            lastHealthCheck\n            lastTestConnection\n            models {\n              modelName\n              callCount\n              errorCount\n              responseTimeMsPerToken\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query GetLegacyFiles($workspaceId: String!) {\n          legacyFiles(workspaceId: $workspaceId) {\n            libraryId\n            libraryName\n            files {\n              fileId\n              files\n              subfolders\n              error\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetLegacyFiles($workspaceId: String!) {\n          legacyFiles(workspaceId: $workspaceId) {\n            libraryId\n            libraryName\n            files {\n              fileId\n              files\n              subfolders\n              error\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        query GetWorkspaceLibraries($workspaceId: String!) {\n          workspaceLibraries(workspaceId: $workspaceId) {\n            id\n            name\n            filesCount\n            manifest {\n              version\n              updated\n              created\n              creator\n              storageStats {\n                extractionFileCount\n                physicalFileCount\n              }\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        query GetWorkspaceLibraries($workspaceId: String!) {\n          workspaceLibraries(workspaceId: $workspaceId) {\n            id\n            name\n            filesCount\n            manifest {\n              version\n              updated\n              created\n              creator\n              storageStats {\n                extractionFileCount\n                physicalFileCount\n              }\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1885,12 +1877,6 @@ export function graphql(
 export function graphql(
   source: '\n        query getEventQueue($workspaceId: String!) {\n          eventQueueStats(workspaceId: $workspaceId) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ',
 ): (typeof documents)['\n        query getEventQueue($workspaceId: String!) {\n          eventQueueStats(workspaceId: $workspaceId) {\n            action\n            status\n            error\n            pending\n            delivered\n            redelivered\n            waiting\n          }\n        }\n      ']
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(
-  source: '\n      query GetQueueStatus {\n        queueSystemStatus {\n          ...QueueSystemStatus_ManagementPanel\n          queues {\n            queueType\n            isRunning\n            pendingTasks\n            processingTasks\n            failedTasks\n          }\n        }\n      }\n    ',
-): (typeof documents)['\n      query GetQueueStatus {\n        queueSystemStatus {\n          ...QueueSystemStatus_ManagementPanel\n          queues {\n            queueType\n            isRunning\n            pendingTasks\n            processingTasks\n            failedTasks\n          }\n        }\n      }\n    ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -1967,8 +1953,14 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n',
-): (typeof documents)['\n  mutation MigrateWorkspace {\n    migrateWorkspace\n  }\n']
+  source: '\n        mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {\n          migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {\n            fileMigrationsPublished\n            library {\n              workspaceId\n              libraryId\n              version\n              name\n              created\n              storageStats {\n                physicalFileCount\n                attachmentFileCount\n              }\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {\n          migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {\n            fileMigrationsPublished\n            library {\n              workspaceId\n              libraryId\n              version\n              name\n              created\n              storageStats {\n                physicalFileCount\n                attachmentFileCount\n              }\n            }\n          }\n        }\n      ']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n        mutation MigrateWorkspace($workspaceId: String!) {\n          migrateWorkspace(workspaceId: $workspaceId) {\n            workspaceId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation MigrateWorkspace($workspaceId: String!) {\n          migrateWorkspace(workspaceId: $workspaceId) {\n            workspaceId\n            version\n            name\n            created\n            storageStats {\n              physicalFileCount\n              attachmentFileCount\n            }\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

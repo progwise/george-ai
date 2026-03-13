@@ -1,5 +1,11 @@
 import { AutomationPreviewValue } from '@george-ai/app-domain'
-import { EventQueue, ExtractionMethod, WorkspaceRole } from '@george-ai/app-schema'
+import {
+  EventQueue,
+  ExtractionMethod,
+  InferenceHostConnection,
+  InferenceModel,
+  WorkspaceRole,
+} from '@george-ai/app-schema'
 import {
   ConnectorActionConfig,
   ConnectorActionConfigValue,
@@ -25,12 +31,16 @@ import {
 } from '@george-ai/file-management'
 import { EmbeddingStatistic, FileChunk } from '@george-ai/vector-store'
 
+import { LegacyFile } from '../library'
+import { CurrentUser } from '../user/current-user'
+
 export type GeorgeObjectTypes = {
   Attachment: Attachment
   AutomationPreviewValue: AutomationPreviewValue
   ConnectorActionConfig: ConnectorActionConfig
   ConnectorActionConfigValue: ConnectorActionConfigValue
   ConnectorActionFieldMapping: ConnectorActionFieldMapping
+  CurrentUser: CurrentUser
   DocumentExtractionRequest: DocumentExtractionRequest
   DocumentVectorizationRequest: DocumentVectorizationRequest
   DocumentManifest: DocumentManifest
@@ -44,7 +54,10 @@ export type GeorgeObjectTypes = {
   FileExtraction: DocumentManifest['extractions'][number]
   InferenceHostState: InferenceHostState
   InferenceHostConfig: InferenceHostConfig
+  InferenceHostConnection: InferenceHostConnection
+  InferenceModel: InferenceModel
   InferenceModelState: InferenceModelState
+  LegacyFile: LegacyFile
   LibraryManifest: LibraryManifest
   LibrarySettings: LibraryManifest['settings']
   ProcessingRequestSettings: Record<string, string | number | boolean> | null

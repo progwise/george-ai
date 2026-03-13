@@ -18,7 +18,7 @@ describe('event-service-client workspace tests', () => {
     const configEntry: WorkspaceConfig = {
       version: 1,
       workspaceId: TEST_WORKSPACE_ID,
-      modelHosts: [
+      inferenceHosts: [
         {
           hostId: 'provider-1',
           connection: {
@@ -26,9 +26,12 @@ describe('event-service-client workspace tests', () => {
             encryptedApiKey: 'key-1',
             baseUrl: 'https://api.ollama.com',
           },
+          version: 1,
+          type: 'inference-host',
+          enabled: false,
         },
       ],
-      activeModels: [
+      inferenceModels: [
         {
           name: 'model-1',
           driver: 'ollama',
@@ -37,10 +40,13 @@ describe('event-service-client workspace tests', () => {
           canDoFunctionCalling: false,
           canDoVision: false,
           version: 1,
+          enabled: true,
+          workspaceId: TEST_WORKSPACE_ID,
         },
       ],
       lastUpdate: new Date(),
       type: 'workspace',
+      name: 'Test Workspace',
     }
     await writeRegistryEntry(configEntry)
 
@@ -52,7 +58,7 @@ describe('event-service-client workspace tests', () => {
     const updatedConfigEntry: WorkspaceConfig = {
       version: 1,
       workspaceId: TEST_WORKSPACE_ID,
-      modelHosts: [
+      inferenceHosts: [
         {
           hostId: 'provider-1',
           connection: {
@@ -60,6 +66,9 @@ describe('event-service-client workspace tests', () => {
             encryptedApiKey: 'updated-key-1',
             baseUrl: 'https://api.ollama.com',
           },
+          version: 1,
+          type: 'inference-host',
+          enabled: false,
         },
         {
           hostId: 'provider-2',
@@ -68,9 +77,12 @@ describe('event-service-client workspace tests', () => {
             encryptedApiKey: 'key-2',
             baseUrl: 'https://api.openai.com',
           },
+          version: 1,
+          type: 'inference-host',
+          enabled: false,
         },
       ],
-      activeModels: [
+      inferenceModels: [
         {
           name: 'model-1',
           driver: 'ollama',
@@ -79,10 +91,13 @@ describe('event-service-client workspace tests', () => {
           canDoChatCompletion: false,
           canDoVision: false,
           canDoFunctionCalling: false,
+          enabled: true,
+          workspaceId: TEST_WORKSPACE_ID,
         },
       ],
       lastUpdate: new Date(),
       type: 'workspace',
+      name: 'Test Workspace',
     }
     await writeRegistryEntry(updatedConfigEntry)
 
@@ -94,10 +109,11 @@ describe('event-service-client workspace tests', () => {
     const configEntry: WorkspaceConfig = {
       version: 1,
       workspaceId: TEST_WORKSPACE2_ID,
-      modelHosts: [],
-      activeModels: [],
+      inferenceHosts: [],
+      inferenceModels: [],
       lastUpdate: new Date(),
       type: 'workspace',
+      name: 'Test Workspace',
     }
     await writeRegistryEntry(configEntry)
 
@@ -124,8 +140,8 @@ describe('event-service-client workspace tests', () => {
       resolver = resolve
     })
 
-    const stopWatching = await watchRegistry('workspace', async ({ workspaceId, hostId, entry, operation }) => {
-      if (workspaceId === TEST_WATCH_WORKSPACE_ID) {
+    const stopWatching = await watchRegistry(async ({ entryType, workspaceId, hostId, entry, operation }) => {
+      if (entryType === 'workspace' && workspaceId === TEST_WATCH_WORKSPACE_ID) {
         changes.push({ workspaceId, hostId, operation, value: entry })
         if (changes.length > 2) {
           resolver(changes.length)
@@ -136,16 +152,17 @@ describe('event-service-client workspace tests', () => {
     const configEntry: WorkspaceConfig = {
       version: 1,
       workspaceId: TEST_WATCH_WORKSPACE_ID,
-      modelHosts: [],
-      activeModels: [],
+      inferenceHosts: [],
+      inferenceModels: [],
       lastUpdate: new Date(),
       type: 'workspace',
+      name: 'Test Workspace',
     }
     await writeRegistryEntry(configEntry)
 
     const updatedConfigEntry: WorkspaceConfig = {
       ...configEntry,
-      modelHosts: [
+      inferenceHosts: [
         {
           hostId: 'provider-1',
           connection: {
@@ -153,6 +170,9 @@ describe('event-service-client workspace tests', () => {
             encryptedApiKey: 'key-1',
             baseUrl: 'https://api.ollama.com',
           },
+          version: 1,
+          type: 'inference-host',
+          enabled: false,
         },
       ],
       lastUpdate: new Date(),

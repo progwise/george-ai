@@ -15,7 +15,7 @@ export const ApiKeyRevokeButton = (props: ApiKeyRevokeButtonProps) => {
   const { t } = useTranslation()
   const { apiKey } = props
 
-  const { revokeApiKey, isPending } = useWorkspace(user)
+  const { revokeApiKey, isPending } = useWorkspace(user.selectedWorkspaceId)
 
   return (
     <>

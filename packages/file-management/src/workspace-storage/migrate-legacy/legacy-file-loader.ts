@@ -1,9 +1,10 @@
 export interface LegacyFileInfo {
+  workspaceId: string
   libraryId: string
   fileId: string
   name: string
-  originUri?: string | null
   mimeType: string
+  originUri?: string | null
   crawledByCrawlerId?: string | null
   docPath?: string | null
   originFileHash?: string | null

@@ -34,6 +34,7 @@ import {
   FileChunksSelector,
   InferenceAction,
   InferenceDriver,
+  InferenceHostInput,
   LibraryFilesSortField,
   LibraryInput,
   LibrarySortField,
@@ -41,9 +42,7 @@ import {
   ListFieldFileProperty,
   ListFieldSourceType,
   ListFieldType,
-  ModelProviderInput,
   PrepareUploadInput,
-  QueueType,
   SortOrder,
   UpdateAiLanguageModelInput,
   UserProfileInput,
@@ -102,8 +101,6 @@ export const ListFieldFilePropertySchema = z.nativeEnum(ListFieldFileProperty)
 export const ListFieldSourceTypeSchema = z.nativeEnum(ListFieldSourceType)
 
 export const ListFieldTypeSchema = z.nativeEnum(ListFieldType)
-
-export const QueueTypeSchema = z.nativeEnum(QueueType)
 
 export const SortOrderSchema = z.nativeEnum(SortOrder)
 
@@ -307,6 +304,15 @@ export function FileChunksSelectorSchema(): z.ZodObject<Properties<FileChunksSel
   })
 }
 
+export function InferenceHostInputSchema(): z.ZodObject<Properties<InferenceHostInput>> {
+  return z.object({
+    apiKey: z.string().nullish(),
+    baseUrl: z.string().nullish(),
+    name: z.string(),
+    vramGb: z.number().nullish(),
+  })
+}
+
 export function LibraryInputSchema(): z.ZodObject<Properties<LibraryInput>> {
   return z.object({
     autoProcessCrawledFiles: z.boolean().nullish(),
@@ -317,17 +323,6 @@ export function LibraryInputSchema(): z.ZodObject<Properties<LibraryInput>> {
     name: z.string().nullish(),
     ocrModelId: z.string().nullish(),
     url: z.string().nullish(),
-  })
-}
-
-export function ModelProviderInputSchema(): z.ZodObject<Properties<ModelProviderInput>> {
-  return z.object({
-    apiKey: z.string().nullish(),
-    baseUrl: z.string().nullish(),
-    enabled: z.boolean().nullish(),
-    name: z.string(),
-    provider: z.string(),
-    vramGb: z.number().nullish(),
   })
 }
 

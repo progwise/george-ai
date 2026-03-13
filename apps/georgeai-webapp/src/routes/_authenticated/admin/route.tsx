@@ -27,7 +27,7 @@ export const Route = createFileRoute('/_authenticated/admin')({
 function RouteComponent() {
   const { user } = Route.useRouteContext()
   const { t } = useTranslation()
-  const { currentWorkspace } = useWorkspace(user)
+  const { currentWorkspace } = useWorkspace(user.selectedWorkspaceId)
 
   return (
     <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-2">

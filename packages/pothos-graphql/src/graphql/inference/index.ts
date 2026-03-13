@@ -1,9 +1,10 @@
 import './mutations'
 import './queries'
+import './host-input'
+import './inference-connection'
 import './inference-driver'
-import './model'
-import './model-provider-instance'
-import './model-provider-input'
+import './inference-host'
+import './inference-model'
 
 import { logger } from '../common'
 

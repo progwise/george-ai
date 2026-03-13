@@ -72,3 +72,22 @@ builder.queryField('libraries', (t) =>
     },
   }),
 )
+
+builder.queryField('workspaceLibraries', (t) =>
+  t.withAuth({ isLoggedIn: true }).prismaField({
+    type: ['AiLibrary'],
+    nullable: false,
+    args: {
+      workspaceId: t.arg.string({ required: true }),
+    },
+    resolve: async (query, _args, { workspaceId }) => {
+      const libraries = await prisma.aiLibrary.findMany({
+        ...query,
+        where: {
+          workspaceId,
+        },
+      })
+      return libraries
+    },
+  }),
+)

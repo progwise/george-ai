@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import { useAuth } from '../../auth'
 import { graphql } from '../../gql'
-import { UserProfileForm_UserProfileFragment } from '../../gql/graphql'
+import { CurrentUserFragment, UserProfileForm_UserProfileFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
@@ -81,7 +81,7 @@ export const updateProfile = createServerFn({ method: 'POST' })
 
 interface UserProfileFormProps {
   userProfile: UserProfileForm_UserProfileFragment
-  user?: { id: string; name?: string | null; avatarUrl?: string | null } | null
+  user?: CurrentUserFragment
   onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void
   isAdmin?: boolean
   saveButton?: ReactElement | null
