@@ -507,6 +507,8 @@ export class NatsClient implements EventClient {
         } catch (error) {
           logger.debug('no message available', { error, streamName, consumerName: consumerInfo.name })
         }
+        // Yield to the event loop between consumers to allow GC to run
+        await new Promise((resolve) => setImmediate(resolve))
       }
       await new Promise((resolve) => setTimeout(resolve, 1000)) // Prevent tight loop
     }

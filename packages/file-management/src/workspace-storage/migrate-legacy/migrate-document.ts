@@ -3,7 +3,6 @@ import path from 'node:path'
 
 import { getConfigValue } from '@george-ai/app-commons'
 
-import { BackupInfo, backup, restore } from '../backup'
 import { fs, getLegacyUri, logger } from '../commons'
 import { calculateSourceHash, getSourcePath } from '../document'
 import { entryExists, getEntryPath, saveEntry } from '../entry'
@@ -32,19 +31,43 @@ export async function migrateDocument(workspaceId: string, legacyFileInfo: Legac
 
   const targetDir = getEntryPath(documentIdentifier)
   const existsTargetDir = await fs.existsFolder(targetDir)
-  let backupInfo: BackupInfo | null = null
   if (existsTargetDir) {
-    backupInfo = await backup(documentIdentifier)
-    logger.warn('File already exists, creating a backup', { workspaceId, libraryId, fileId, targetDir, backupInfo })
+    const existingEntries = await readdir(targetDir, { withFileTypes: true })
+    if (existingEntries.length === 0) {
+      logger.debug('File directory already exists but is empty during migration - proceeding with migration', {
+        workspaceId,
+        libraryId,
+        fileId,
+        targetDir,
+      })
+    } else {
+      logger.warn('File already exists during migration - skipping', {
+        workspaceId,
+        libraryId,
+        fileId,
+        targetDir,
+      })
+      return
+    }
   }
 
   try {
+    logger.debug('Copy legacy file', { workspaceId, libraryId, fileId, legacyFileDir, targetDir })
     await cp(legacyFileDir, targetDir, { recursive: true })
 
+    logger.debug('Reading copied directory', { workspaceId, libraryId, fileId, targetDir })
     const entries = await readdir(targetDir, { withFileTypes: true })
 
+    logger.debug('Analyzin directory content', {
+      workspaceId,
+      libraryId,
+      fileId,
+      targetDir,
+      entries: entries.map((entry) => ({ name: entry.name, isFile: entry.isFile(), isDirectory: entry.isDirectory() })),
+    })
     if (entries.length === 0) {
       logger.warn('File directory is empty, cannot upgrade legacy directory', { workspaceId, libraryId, fileId })
+      await rm(targetDir, { recursive: true, force: true })
       return
     }
 
@@ -65,6 +88,7 @@ export async function migrateDocument(workspaceId: string, legacyFileInfo: Legac
         fileId,
         targetDir,
       })
+      await rm(targetDir, { recursive: true, force: true })
       return
     }
 
@@ -156,38 +180,31 @@ export async function migrateDocument(workspaceId: string, legacyFileInfo: Legac
       fileId,
       extractions,
     })
+
+    await reconcileDocument(documentIdentifier)
+      .then(() => {
+        logger.debug('Reconciled storage after legacy file upgrade', { workspaceId, libraryId, fileId })
+      })
+      .catch((error) => {
+        logger.error('Error reconciling storage after legacy file upgrade', { workspaceId, libraryId, fileId, error })
+      })
+    logger.debug('Migration of legacy file completed', { workspaceId, libraryId, fileId })
   } catch (error) {
-    console.error('Error upgrading legacy file', { workspaceId, libraryId, fileId, error })
     logger.error('Error upgrading legacy file directory', { workspaceId, libraryId, fileId, error })
 
-    // restore from backup if there was a previous version of the file
-    if (backupInfo !== null) {
-      await restore(documentIdentifier, { timestamp: backupInfo.timestamp })
-    } else {
-      // if there was no previous version, attempt to clean up the target directory
-      const existsTargetDir = await entryExists(documentIdentifier)
-      if (existsTargetDir) {
-        await rm(targetDir, { recursive: true, force: true }).catch((rmError) => {
-          logger.error('Failed to clean up target directory after legacy file upgrade failure', {
-            workspaceId,
-            libraryId,
-            fileId,
-            targetDir,
-            error: rmError,
-          })
+    const existsTargetDir = await entryExists(documentIdentifier)
+    if (existsTargetDir) {
+      await rm(targetDir, { recursive: true, force: true }).catch((rmError) => {
+        logger.error('Failed to clean up target directory after legacy file upgrade failure', {
+          workspaceId,
+          libraryId,
+          fileId,
+          targetDir,
+          error: rmError,
         })
-      }
+      })
     }
   }
 
-  await reconcileDocument(documentIdentifier)
-    .then(() => {
-      logger.debug('Reconciled storage after legacy file upgrade', { workspaceId, libraryId, fileId })
-    })
-    .catch((error) => {
-      logger.error('Error reconciling storage after legacy file upgrade', { workspaceId, libraryId, fileId, error })
-    })
-
-  logger.info('Migration of legacy file ended', { workspaceId, libraryId, fileId })
   return
 }

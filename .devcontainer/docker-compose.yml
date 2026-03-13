@@ -1,11 +1,10 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
+      - app_home:/home/node
       - george_ai_app_data:/home/node/app_data
       - ~/.ssh:/home/node/.ssh:ro
     user: node
@@ -21,6 +20,7 @@ services:
 
     # Port mappings for host access (backend only - frontend uses Vite with dynamic HMR ports via VS Code forwarding)
     ports:
+      - '3001:3001'
       - '3003:3003'
       - '2222:22' # SSH access to container for development
 
@@ -101,11 +101,8 @@ services:
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: password
 
-      KC_HOSTNAME: localhost
       KC_HOSTNAME_PORT: 8180
       KC_HOSTNAME_STRICT: false
-      KC_HOSTNAME_STRICT_HTTPS: false
-      KC_PROXY: edge
 
       KC_HTTP_ENABLED: true
       KC_LOG_LEVEL: info
@@ -172,6 +169,7 @@ services:
       start_period: 40s
 
 volumes:
+  app_home:
   george_ai_app_data:
   george_ai_n8n_data:
   pgadmin_data:

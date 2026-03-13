@@ -1,8 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouteContext } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
-import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { getWorkspaceVectorStoreQueryOptions } from './queries'
 import {
@@ -13,8 +12,8 @@ import {
 import { migrateLibraryFn, migrateWorkspaceFn } from './server-functions'
 
 export const useWorkspaceMigration = () => {
-  const { t } = useTranslation()
   const { user } = useRouteContext({ from: '/_authenticated' })
+  const queryClient = useQueryClient()
 
   const workspaceId = user.selectedWorkspaceId
 
@@ -32,12 +31,21 @@ export const useWorkspaceMigration = () => {
     getWorkspaceLegacyFilesQueryOptions({ workspaceId }),
   )
 
+  const invalidateStatus = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries(getWorkspaceQueryOptions({ workspaceId })),
+      queryClient.invalidateQueries(getWorkspaceVectorStoreQueryOptions({ workspaceId })),
+      queryClient.invalidateQueries(getWorkspaceLibrariesQueryOptions({ workspaceId })),
+      queryClient.invalidateQueries(getWorkspaceLegacyFilesQueryOptions({ workspaceId })),
+    ])
+  }
+
   const migrateWorkspaceMutation = useMutation({
     mutationFn: async (data: { workspaceId: string }) => {
       return await migrateWorkspaceFn({ data })
     },
-    onSuccess: () => {
-      toastSuccess(t('workspace.migrationSuccess'))
+    onSuccess: (data) => {
+      toastSuccess(`Workspace migrated successfully to Version ${data.version}.`)
     },
     onError: (error) => {
       toastError(error.message)
@@ -47,12 +55,6 @@ export const useWorkspaceMigration = () => {
   const migrateLibraryMutation = useMutation({
     mutationFn: async (data: { workspaceId: string; libraryId: string }) => {
       return await migrateLibraryFn({ data })
-    },
-    onSuccess: () => {
-      toastSuccess(t('workspace.migrationSuccess'))
-    },
-    onError: (error) => {
-      toastError(error.message)
     },
   })
 
@@ -108,6 +110,7 @@ export const useWorkspaceMigration = () => {
   }, [libraries, legacyFiles, legacyFilesIsLoading])
 
   return {
+    invalidateStatus,
     workspace,
     workspaceStatus,
     workspaceStatusIsLoading: workspaceIsLoading,
@@ -115,6 +118,6 @@ export const useWorkspaceMigration = () => {
     librariesIsLoading,
     migrateWorkspace: migrateWorkspaceMutation.mutate,
     migrateLibrary: migrateLibraryMutation.mutate,
-    isMigrating: migrateWorkspaceMutation.isPending,
+    isMigrating: migrateWorkspaceMutation.isPending || migrateLibraryMutation.isPending,
   }
 }

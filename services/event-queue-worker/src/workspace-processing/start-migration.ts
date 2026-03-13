@@ -3,15 +3,15 @@ import { subscribe } from '@george-ai/event-service-client'
 import { WORKER_ID } from '../common'
 import { processingMap } from '../processing'
 import { logger } from './common'
-import { enrichField } from './enrich-field'
 import { handleStatus } from './handle-status'
+import { migrateFile } from './migrate-file'
 
-export async function startEnrichment(): Promise<() => Promise<void>> {
-  const ensubscribeEnrichment = await subscribe({
-    action: 'fieldEnrichment',
+export async function startMigration(): Promise<() => Promise<void>> {
+  const unsubscribeMigration = await subscribe({
+    action: 'migrateFile',
     handler: async ({ event }) => {
       processingMap.updateStats('workspaceProcessing')
-      logger.debug('Received field enrichment event', {
+      logger.debug('Received file migration event', {
         WORKER_ID,
         workerType: 'workspaceProcessing',
         event,
@@ -21,13 +21,13 @@ export async function startEnrichment(): Promise<() => Promise<void>> {
           await handleStatus(event)
           return
         case 'request':
-          await enrichField(event)
+          await migrateFile(event)
           break
         default:
-          throw new Error(`Handling of event verb not implemented for field enrichment`)
+          throw new Error(`Handling of event verb not implemented for document vectorization`)
       }
     },
   })
 
-  return ensubscribeEnrichment
+  return unsubscribeMigration
 }

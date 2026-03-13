@@ -1092,6 +1092,7 @@ enum EventQueueAction {
   documentExtraction
   documentVectorization
   fieldEnrichment
+  migrateFile
 }
 
 interface EventQueueRequest {
@@ -1495,6 +1496,11 @@ type ManagedUsersResponse {
   users: [ManagedUser!]!
 }
 
+type MigrateLibraryResponse {
+  fileMigrationsPublished: Int!
+  library: LibraryManifest!
+}
+
 type ModelUsageStats {
   avgDurationMs: Float!
   avgTokensInput: Float!
@@ -1607,8 +1613,8 @@ type Mutation {
   leaveAiConversation(participantId: String!): AiConversationParticipant
   leaveWorkspace(workspaceId: ID!): Boolean!
   login(jwtToken: String!): LoginResult!
-  migrateLibrary(libraryId: String!, workspaceId: String!): LibraryManifest
-  migrateWorkspace(workspaceId: String!): WorkspaceManifest
+  migrateLibrary(libraryId: String!, workspaceId: String!): MigrateLibraryResponse!
+  migrateWorkspace(workspaceId: String!): WorkspaceManifest!
   prepareUpload(documentId: String, input: PrepareUploadInput!, libraryId: String!): PrepareUploadResult!
   removeConversationParticipant(participantId: String!): AiConversationParticipant
   removeInferenceHost(hostId: String!): Boolean!

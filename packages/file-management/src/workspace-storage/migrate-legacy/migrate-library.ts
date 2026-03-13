@@ -4,9 +4,8 @@ import { fs, logger } from '../commons'
 import { entryExists } from '../entry/entry-exists'
 import { createLibrary } from '../library'
 import { reconcileLibrary } from '../reconcile'
-import { DocumentIdentifier, LibraryIdentifier, LibraryManifest, WorkspaceIdentifier } from '../schema'
-import { LegacyFileLoader } from './legacy-file-loader'
-import { migrateDocument } from './migrate-document'
+import { LibraryIdentifier, LibraryManifest, WorkspaceIdentifier } from '../schema'
+import { LegacyFileInfo, LegacyFileLoader } from './legacy-file-loader'
 
 export async function migrateLibrary(
   workspaceId: string,
@@ -15,7 +14,10 @@ export async function migrateLibrary(
     libraryName: string
     fileInfoLoader: LegacyFileLoader
   },
-): Promise<LibraryManifest> {
+): Promise<{
+  libraryManifest: LibraryManifest
+  legacyFileInfos: Array<LegacyFileInfo>
+}> {
   const { libraryId, libraryName } = args
   const workspaceIdentifier: WorkspaceIdentifier = { workspaceId, type: 'workspace', version: 1 }
   const workspaceExists = await entryExists(workspaceIdentifier)
@@ -39,25 +41,29 @@ export async function migrateLibrary(
   }
 
   const legacyLibraryDir = fs.getFolderPath(getConfigValue('STORAGE_PATH_LEGACY_LIBRARIES'), libraryId)
+
+  const existsLegacyLibraryDir = await fs.existsFolder(legacyLibraryDir)
+  if (!existsLegacyLibraryDir) {
+    logger.info('Legacy library folder does not exist, skipping', { legacyLibraryDir, libraryId, libraryName })
+    return { libraryManifest: await reconcileLibrary(libraryIdentifier), legacyFileInfos: [] }
+  }
   const legacyFiles = await fs.listFolders(legacyLibraryDir)
 
+  const legacyFileInfos: Array<LegacyFileInfo> = []
   for (const entry of legacyFiles) {
-    const documentIdentifier: DocumentIdentifier = {
-      ...libraryIdentifier,
-      documentId: entry,
-      type: 'document',
-    }
     const legacyFileInfo = await args.fileInfoLoader(entry)
     if (!legacyFileInfo) {
-      logger.warn('File info not found during legacy file upgrade, skipping file', documentIdentifier)
+      logger.warn('File info not found during legacy file upgrade, skipping file', {
+        workspaceId,
+        libraryId,
+        legacyLibraryDir,
+        fileId: entry,
+      })
       continue
     }
-    try {
-      await migrateDocument(workspaceId, legacyFileInfo)
-    } catch (error) {
-      logger.error('Error upgrading legacy file', { ...documentIdentifier, error })
-    }
+
+    legacyFileInfos.push(legacyFileInfo)
   }
 
-  return await reconcileLibrary(libraryIdentifier)
+  return { libraryManifest: await reconcileLibrary(libraryIdentifier), legacyFileInfos }
 }

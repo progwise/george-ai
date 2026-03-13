@@ -3,6 +3,7 @@ import {
   DocumentVectorizationRequest,
   EventQueueRequest,
   FieldEnrichmentRequest,
+  MigrateFileRequest,
 } from '@george-ai/event-service-client'
 
 import { builder } from '../builder'
@@ -17,6 +18,8 @@ builder.interfaceRef<EventQueueRequest>('EventQueueRequest').implement({
         return 'DocumentVectorizationRequest'
       case 'fieldEnrichment':
         return 'FieldEnrichmentRequest'
+      case 'migrateFile':
+        return 'MigrateFileRequest'
       default:
         logger.error('Unknown request type for EventQueueRequest', { request })
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -64,5 +67,23 @@ builder.objectRef<FieldEnrichmentRequest>('FieldEnrichmentRequest').implement({
     valueFormat: t.exposeString('valueFormat', { nullable: false }), // TODO
     notFoundValue: t.exposeString('notFoundValue'),
     context: t.field({ type: ['String'], nullable: false, resolve: (root) => root.context }),
+  }),
+})
+
+builder.objectRef<MigrateFileRequest>('MigrateFileRequest').implement({
+  interfaces: ['EventQueueRequest'],
+  fields: (t) => ({
+    libraryId: t.exposeString('libraryId', { nullable: false }),
+    fileId: t.exposeString('fileId', { nullable: false }),
+    fileName: t.exposeString('fileName', { nullable: false }),
+    mimeType: t.exposeString('mimeType', { nullable: false }),
+    originUri: t.exposeString('originUri'),
+    crawledByCrawlerId: t.exposeString('crawledByCrawlerId'),
+    docPath: t.exposeString('docPath'),
+    originFileHash: t.exposeString('originFileHash'),
+    originModificationDate: t.exposeString('originModificationDate'),
+    createdAt: t.exposeString('createdAt', { nullable: false }),
+    uploadedAt: t.exposeString('uploadedAt'),
+    hash: t.exposeString('hash'),
   }),
 })

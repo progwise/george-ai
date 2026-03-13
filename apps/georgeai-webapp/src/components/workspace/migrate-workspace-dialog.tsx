@@ -62,6 +62,7 @@ function MigrationStatusItem({
 
 export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps) {
   const {
+    invalidateStatus,
     workspace,
     workspaceStatus,
     workspaceStatusIsLoading,
@@ -88,14 +89,7 @@ export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps)
       return
     }
 
-    migrateWorkspace(
-      { workspaceId: workspace.id },
-      {
-        onSuccess: () => {
-          toastSuccess('Workspace migrated successfully. Refreshing ...')
-        },
-      },
-    )
+    migrateWorkspace({ workspaceId: workspace.id })
   }
 
   const handleMigrateLibrary = (libraryStatus: { id: string; status: 'ok' | string }) => {
@@ -115,8 +109,13 @@ export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps)
     migrateLibrary(
       { workspaceId: workspace.id, libraryId: libraryStatus.id },
       {
-        onSuccess: () => {
-          toastSuccess('Library migrated successfully. Refreshing workspace...')
+        onSuccess: (data) => {
+          toastSuccess(`Library migrated successfully and triggered ${data.fileMigrationsPublished} file migrations.`)
+          invalidateStatus()
+        },
+        onError: (error) => {
+          toastError('Failed to migrate library: ' + error.message)
+          invalidateStatus()
         },
       },
     )

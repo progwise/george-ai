@@ -1,8 +1,10 @@
 import z from 'zod'
 
 import { DocumentExtractionRequestSchema, DocumentExtractionStatusSchema } from './extraction'
+import { MigrateFileRequestSchema, MigrateFileStatusSchema } from './migrate-file'
 import { DocumentVectorizationRequestSchema, DocumentVectorizationStatusSchema } from './vectorization'
 
+export * from './migrate-file'
 export * from './vectorization'
 export * from './extraction'
 
@@ -19,3 +21,7 @@ export const DocumentVectorizationEventSchema = z.discriminatedUnion('verb', [
 ])
 
 export type DocumentVectorizationEvent = z.infer<typeof DocumentVectorizationEventSchema>
+
+export const MigrateFileEventSchema = z.discriminatedUnion('verb', [MigrateFileRequestSchema, MigrateFileStatusSchema])
+
+export type MigrateFileEvent = z.infer<typeof MigrateFileEventSchema>

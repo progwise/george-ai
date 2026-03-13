@@ -1,12 +1,11 @@
 import { fs } from '../commons'
-import { getAttachmentsPath, getEntryOrThrow, getEntryPath, saveEntry } from '../entry'
-import { ExtractionIdentifier, ExtractionManifest } from '../schema'
+import { getAttachmentsPath, getEntry, getEntryPath, saveEntry } from '../entry'
+import { ExtractionIdentifier, ExtractionManifest, ExtractionManifestSchema } from '../schema'
 
 export async function reconcileExtraction(identifier: ExtractionIdentifier): Promise<ExtractionManifest> {
-  const extractionManifest = await getEntryOrThrow(
-    identifier,
-    `Extraction manifest not found during reconciliation: ${identifier.documentId}, ${identifier.extractionMethod}`,
-  )
+  const extractionManifest =
+    (await getEntry(identifier)) || ExtractionManifestSchema.parse({ ...identifier, sourceHash: '' })
+
   const extractionPath = getEntryPath(identifier)
   const folderStats = await fs.calculateFolderStats(extractionPath)
   const attachmentsDir = getAttachmentsPath(identifier)

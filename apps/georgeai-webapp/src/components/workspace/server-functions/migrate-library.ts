@@ -16,14 +16,17 @@ export const migrateLibraryFn = createServerFn({ method: 'POST' })
       graphql(`
         mutation MigrateLibrary($workspaceId: String!, $libraryId: String!) {
           migrateLibrary(workspaceId: $workspaceId, libraryId: $libraryId) {
-            workspaceId
-            libraryId
-            version
-            name
-            created
-            storageStats {
-              physicalFileCount
-              attachmentFileCount
+            fileMigrationsPublished
+            library {
+              workspaceId
+              libraryId
+              version
+              name
+              created
+              storageStats {
+                physicalFileCount
+                attachmentFileCount
+              }
             }
           }
         }

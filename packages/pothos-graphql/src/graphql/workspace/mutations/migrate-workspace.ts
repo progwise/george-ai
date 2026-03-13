@@ -9,6 +9,7 @@ builder.mutationField('migrateWorkspace', (t) =>
     args: {
       workspaceId: t.arg.string({ required: true }),
     },
+    nullable: false,
     resolve: async (_parent, { workspaceId }, { session }) => {
       await canAdminWorkspaceOrThrow(workspaceId, session.user.id)
       logger.debug('Starting workspace migration from legacy', { workspaceId, userId: session.user.id })

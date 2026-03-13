@@ -11,9 +11,9 @@ export const BaseManifestSchema = z.object({
   version: z.literal(1).describe('Manifest schema version, used for future migrations'),
   type: z.enum(MANIFEST_TYPES).describe('The type of the entity this manifest represents'),
   workspaceId: z.string().min(3), // The ID of this workspace
-  created: DateTimeSchema,
+  created: DateTimeSchema.default(new Date()),
   creator: z.string().optional().describe('Who created the entity, can be used for auditing and debugging'),
   updated: DateTimeSchema.optional(),
-  attachments: z.array(AttachmentSchema),
-  storageStats: StorageStatsSchema,
+  attachments: z.array(AttachmentSchema).default([]),
+  storageStats: StorageStatsSchema.default({}),
 })

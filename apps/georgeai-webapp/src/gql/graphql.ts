@@ -1140,6 +1140,7 @@ export enum EventQueueAction {
   DocumentExtraction = 'documentExtraction',
   DocumentVectorization = 'documentVectorization',
   FieldEnrichment = 'fieldEnrichment',
+  MigrateFile = 'migrateFile',
 }
 
 export type EventQueueRequest = {
@@ -1557,6 +1558,12 @@ export type ManagedUsersResponse = {
   users: Array<ManagedUser>
 }
 
+export type MigrateLibraryResponse = {
+  __typename?: 'MigrateLibraryResponse'
+  fileMigrationsPublished: Scalars['Int']['output']
+  library: LibraryManifest
+}
+
 export type ModelUsageStats = {
   __typename?: 'ModelUsageStats'
   avgDurationMs: Scalars['Float']['output']
@@ -1620,8 +1627,8 @@ export type Mutation = {
   leaveAiConversation?: Maybe<AiConversationParticipant>
   leaveWorkspace: Scalars['Boolean']['output']
   login: LoginResult
-  migrateLibrary?: Maybe<LibraryManifest>
-  migrateWorkspace?: Maybe<WorkspaceManifest>
+  migrateLibrary: MigrateLibraryResponse
+  migrateWorkspace: WorkspaceManifest
   prepareUpload: PrepareUploadResult
   removeConversationParticipant?: Maybe<AiConversationParticipant>
   removeInferenceHost: Scalars['Boolean']['output']
@@ -6922,15 +6929,19 @@ export type MigrateLibraryMutationVariables = Exact<{
 
 export type MigrateLibraryMutation = {
   __typename?: 'Mutation'
-  migrateLibrary?: {
-    __typename?: 'LibraryManifest'
-    workspaceId: string
-    libraryId: string
-    version: number
-    name: string
-    created: string
-    storageStats?: { __typename?: 'StorageStats'; physicalFileCount: number; attachmentFileCount: number } | null
-  } | null
+  migrateLibrary: {
+    __typename?: 'MigrateLibraryResponse'
+    fileMigrationsPublished: number
+    library: {
+      __typename?: 'LibraryManifest'
+      workspaceId: string
+      libraryId: string
+      version: number
+      name: string
+      created: string
+      storageStats?: { __typename?: 'StorageStats'; physicalFileCount: number; attachmentFileCount: number } | null
+    }
+  }
 }
 
 export type MigrateWorkspaceMutationVariables = Exact<{
@@ -6939,14 +6950,14 @@ export type MigrateWorkspaceMutationVariables = Exact<{
 
 export type MigrateWorkspaceMutation = {
   __typename?: 'Mutation'
-  migrateWorkspace?: {
+  migrateWorkspace: {
     __typename?: 'WorkspaceManifest'
     workspaceId: string
     version: number
     name: string
     created: string
     storageStats: { __typename?: 'StorageStats'; physicalFileCount: number; attachmentFileCount: number }
-  } | null
+  }
 }
 
 export type RemoveWorkspaceMemberMutationVariables = Exact<{
@@ -22466,19 +22477,29 @@ export const MigrateLibraryDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileMigrationsPublished' } },
                 {
                   kind: 'Field',
-                  name: { kind: 'Name', value: 'storageStats' },
+                  name: { kind: 'Name', value: 'library' },
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'storageStats' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
