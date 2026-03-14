@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../../gql'
 import { FileMenu_FileFragment } from '../../../gql/graphql'
@@ -104,7 +103,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
   }
 
   return (
-    <div className="navbar bg-base-100 shadow-sm rounded-box">
+    <div className="navbar rounded-box bg-base-100 shadow-sm">
       <div className="navbar-start lg:hidden lg:size-0">
         <Popout
           icon={
@@ -153,7 +152,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
       <div className="navbar-center hidden size-0 lg:flex lg:size-auto">
         <button
           type="button"
-          className="btn btn-sm btn-ghost btn-primary"
+          className="btn btn-ghost btn-sm btn-primary"
           onClick={() => {
             fileInputRef.current?.click()
           }}
@@ -194,7 +193,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
           <FileInfoBox file={file} />
         </Popout>
 
-        <button type="button" className="btn btn-sm btn-ghost btn-secondary" onClick={handleEmbed}>
+        <button type="button" className="btn btn-ghost btn-sm btn-secondary" onClick={handleEmbed}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -212,7 +211,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
 
           <span>{t('actions.reembed')}</span>
         </button>
-        <button type="button" className="btn btn-sm btn-ghost btn-secondary" onClick={handleExtract}>
+        <button type="button" className="btn btn-ghost btn-sm btn-secondary" onClick={handleExtract}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -254,11 +253,11 @@ export const FileMenu = ({ file }: FileMenuProps) => {
         </Popout>
       </div>
       <div className="navbar-end">
-        <div className="dropdown dropdown-left ">
+        <div className="dropdown dropdown-left">
           <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden lg:size-0">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className="size-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -271,7 +270,7 @@ export const FileMenu = ({ file }: FileMenuProps) => {
               />{' '}
             </svg>
           </div>
-          <ul tabIndex={-1} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 p-2 shadow">
+          <ul tabIndex={-1} className="dropdown-content menu z-1 menu-sm rounded-box bg-base-100 p-2 shadow-sm">
             <li>
               <button
                 type="button"

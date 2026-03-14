@@ -5,14 +5,10 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.eslint": "always"
   },
   "pnpm.executionEnv": "container",
-  "eslint.packageManager": "pnpm",
   "eslint.runtime": "node",
-  "eslint.options": {
-    "maxOldSpaceSize": 4096
-  },
   "eslint.workingDirectories": [{ "mode": "auto" }],
   "remote.autoForwardPorts": true,
   "[typescript]": {

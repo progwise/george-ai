@@ -21,7 +21,7 @@ export const FileCaptionCard = ({ file }: FileCaptionCardProps) => {
     <div className="grid grid-rows-[auto_auto] gap-4">
       <div className="overflow-hidden text-ellipsis">
         <h3 className="text-xl font-bold text-nowrap text-base-content">{file.name}</h3>
-        <a className="link text-xs link-primary italic text-nowrap" href={file.originUri || '#'} target="_blank">
+        <a className="link text-xs text-nowrap link-primary italic" href={file.originUri || '#'} target="_blank">
           {file.originUri}
         </a>
       </div>

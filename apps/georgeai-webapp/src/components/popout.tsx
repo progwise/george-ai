@@ -38,7 +38,7 @@ export function Popout({ color = 'neutral', size = 'sm', ...props }: PopoutProps
       <button
         type="button"
         className={twMerge(
-          'btn btn-ghost transition-all flex flex-row items-center gap-2 select-none flex-nowrap',
+          'btn flex flex-row flex-nowrap items-center gap-2 btn-ghost transition-all select-none',
           colorMap[color],
           currentSize.btn,
         )}
@@ -66,22 +66,21 @@ export function Popout({ color = 'neutral', size = 'sm', ...props }: PopoutProps
       <div
         style={{
           positionAnchor: `--info-anchor-${id}`,
-          //@ts-expect-error
           '--p-top': 'anchor(bottom)',
           '--p-left': 'anchor(left)',
-        }}
-        className="fixed bg-base-100 rounded-box z-1 shadow-xl p-4
-               m-0 inset-auto 
-               inset-x-4 bottom-4 max-w-xl w-auto
-               sm:bottom-auto sm:inset-x-auto
-               sm:top-(--p-top) sm:left-(--p-left)
-               backdrop:bg-black/20 backdrop:transition-opacity"
+        } as React.CSSProperties}
+        className="fixed inset-auto inset-x-4 bottom-4 z-1 m-0
+               w-auto max-w-xl
+               rounded-box bg-base-100 p-4 shadow-xl
+               backdrop:bg-black/20 backdrop:transition-opacity
+               sm:inset-x-auto sm:top-(--p-top)
+               sm:bottom-auto sm:left-(--p-left)"
         popover="auto"
         id={`popover-${id}`}
       >
         {props.children || (
           <div>
-            <h3 className="font-bold text-lg">Popover Title</h3>
+            <h3 className="text-lg font-bold">Popover Title</h3>
             <p className="text-sm">And here's some amazing content. It's very engaging. Right?</p>
           </div>
         )}

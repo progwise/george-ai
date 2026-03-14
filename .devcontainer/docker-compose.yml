@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - app_home:/home/node
-      - george_ai_app_data:/home/node/app_data
+      - ~/:/home/node/host
       - ~/.ssh:/home/node/.ssh:ro
     user: node
     # Enable init process to reap zombie processes
@@ -152,7 +152,7 @@ services:
       # First-time setup - create owner account at http://localhost:5678
       # Recommended: dev@george-ai.net / yourStrongPassword
     volumes:
-      - george_ai_n8n_data:/home/node/.n8n
+      - n8n_data:/home/node/.n8n
 
   gai-crawl4ai:
     build:
@@ -170,8 +170,7 @@ services:
 
 volumes:
   app_home:
-  george_ai_app_data:
-  george_ai_n8n_data:
+  n8n_data:
   pgadmin_data:
   chatweb_db_data:
   qdrant_data:

@@ -35,6 +35,14 @@ Keycloak handles authentication for George AI. This guide covers essential setup
 - ❌ No OAuth providers (add manually if needed)
 - ❌ No users (create in step 4)
 
+If you receive "https required" instead of the normal admin login, connect to the container and execute
+
+```bash
+/opt/keycloak/bin/kcadm.sh config credentials --server http://localhost:8080 --realm master --user admin --password admin && /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE
+```
+
+Somehow on keycloaks first initialization it configures his own master realm with the wrong settings for development. The command fixes this inside the keycloak database.
+
 ### 3. Update Client Redirect URIs
 
 Go to **Clients** → **george-ai-web** → **Settings** and update:
