@@ -6,6 +6,7 @@ import { duration } from '@george-ai/app-commons'
 
 import { graphql } from '../../../gql'
 import { CrawlerRuns_CrawlerRunsTableFragment } from '../../../gql/graphql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
 import { FilterIcon } from '../../../icons/filter-icon'
 import { LinkIcon } from '../../../icons/link-icon'
 import { ClientDate } from '../../client-date'
@@ -33,18 +34,20 @@ graphql(`
 `)
 
 export const CrawlerRunsTable = ({ crawlerRuns }: { crawlerRuns: CrawlerRuns_CrawlerRunsTableFragment[] }) => {
+  const { t } = useTranslation()
+
   return (
     <div className="hidden size-full overflow-auto lg:block">
       <table className="table-pin-rows table-pin-cols table table-sm">
         <thead>
           <tr>
-            <th className="border-b px-4 py-2 text-left">Crawler</th>
-            <th className="border-b px-4 py-2 text-left">Duration</th>
-            <th className="border-b px-4 py-2 text-left">Ended At</th>
-            <th className="border-b px-4 py-2 text-left">Success</th>
-            <th className="border-b px-4 py-2 text-left">Stopped By User</th>
-            <th className="border-b px-4 py-2 text-left">Error Message</th>
-            <th className="border-b px-4 py-2 text-left">Run By</th>
+            <th className="border-b px-4 py-2 text-left">{t('labels.crawler')}</th>
+            <th className="border-b px-4 py-2 text-left">{t('crawlers.runDuration')}</th>
+            <th className="border-b px-4 py-2 text-left">{t('crawlers.endedAt')}</th>
+            <th className="border-b px-4 py-2 text-left">{t('crawlers.runSuccess')}</th>
+            <th className="border-b px-4 py-2 text-left">{t('crawlers.stoppedByUser')}</th>
+            <th className="border-b px-4 py-2 text-left">{t('crawlers.errors.message')}</th>
+            <th className="border-b px-4 py-2 text-left">{t('crawlers.runBy')}</th>
           </tr>
         </thead>
         <tbody>

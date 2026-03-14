@@ -2,6 +2,7 @@ import { Link } from '@tanstack/react-router'
 
 import { graphql } from '../../../gql'
 import { LibraryQueryResult_FileChunkFragment } from '../../../gql/graphql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
 import { FormattedMarkdown } from '../../formatted-markdown'
 
 graphql(`
@@ -26,11 +27,12 @@ export interface LibraryQueryParams {
 }
 
 export const LibraryQueryResult = ({ libraryId, hits, offset, searchTerm, hitCount }: LibraryQueryParams) => {
+  const { t } = useTranslation()
   return (
     <article className="justify-center">
       <ul className="list w-full rounded-box bg-base-100 shadow-md">
         <li className="pl-4 text-xs tracking-wide opacity-60">
-          {hitCount} matches for your search term: &quot;{searchTerm}&quot;
+          {hitCount} {t('libraries.querySearch')} &quot;{searchTerm}&quot;
         </li>
         {hits.map((hit, index) => (
           <li key={hit.id} className="list-row w-full">

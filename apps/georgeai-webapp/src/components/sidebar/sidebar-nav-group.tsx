@@ -63,10 +63,10 @@ export const SidebarNavGroup = ({
       <li className={`${groupClass}`} aria-label={title}>
         {isDrawerOpen ? ( // Opened sidebar
           items.length > 0 ? (
-            <div className="collapse rounded-lg pl-5 text-sm">
+            <div className="collapse rounded-lg px-1 text-sm">
               <input type="checkbox" className="pointer-events-none" />
               <div
-                className="collapse-title flex items-center gap-2 px-0 py-1.5 text-sm"
+                className="collapse-title flex items-center gap-2 rounded-lg py-1.5 pr-0 pl-4 text-sm hover:bg-base-300"
                 onClick={(e) => {
                   const collapse = e.currentTarget.closest('.collapse')
                   collapse?.classList.toggle('collapse-open')
@@ -83,7 +83,8 @@ export const SidebarNavGroup = ({
                   hoverClass={hoverClass}
                 />
               </div>
-              <ul className="collapse-content flex flex-col gap-0.5 p-0 pr-1">
+
+              <ul className="collapse-content flex flex-col gap-0.5 p-0 pr-0 pl-2">
                 <SidebarNavItems
                   items={items}
                   groupName={groupName}
@@ -98,20 +99,20 @@ export const SidebarNavGroup = ({
             <div className="relative flex h-9 items-center rounded-lg text-sm">
               <Link
                 to={to}
-                className="flex h-full flex-1 items-center gap-2 rounded-lg pl-5 before:absolute before:inset-x-1 before:inset-y-0 before:rounded-lg"
-                activeProps={{ className: 'before:bg-accent/40' }}
+                className="mx-1 flex h-full flex-1 items-center gap-2 rounded-lg pl-4 before:absolute before:inset-x-1 before:inset-y-0 before:rounded-lg hover:bg-base-300 data-[status=active]:before:bg-accent/40 data-[status=active]:hover:bg-transparent"
               >
                 <span className="z-10 flex items-center gap-2">
                   {icon}
                   <span className="truncate">{label}</span>
                 </span>
               </Link>
-
-              <SidebarCreateNewItemButton
-                newItemDialogRef={newItemDialogRef}
-                createNewItemTooltip={createNewItemTooltip}
-                hoverClass={hoverClass}
-              />
+              <div className="absolute right-1">
+                <SidebarCreateNewItemButton
+                  newItemDialogRef={newItemDialogRef}
+                  createNewItemTooltip={createNewItemTooltip}
+                  hoverClass={hoverClass}
+                />
+              </div>
             </div>
           )
         ) : (

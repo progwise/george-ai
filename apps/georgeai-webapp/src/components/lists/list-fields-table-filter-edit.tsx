@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 
 import { graphql } from '../../gql'
 import { ListFieldsTableFilters_AiListFieldFragment } from '../../gql/graphql'
+import { useTranslation } from '../../i18n/use-translation-hook'
 import { FilterIcon } from '../../icons/filter-icon'
 import { FieldFilterType, useListSettings } from './use-list-settings'
 
@@ -82,6 +83,7 @@ const FilterValueInput = ({
 }
 
 export const ListFieldsTableFilterEdit = ({ listId, fields }: ListFieldsTableFilterEditProps) => {
+  const { t } = useTranslation()
   const detailsRef = useRef<HTMLDetailsElement | null>(null)
 
   const { getFilterValue, updateFilter, removeFilter, clearFieldFilters } = useListSettings(listId)
@@ -123,7 +125,7 @@ export const ListFieldsTableFilterEdit = ({ listId, fields }: ListFieldsTableFil
     <details ref={detailsRef}>
       <summary className="btn btn-sm">
         <FilterIcon className="size-4" />
-        Filters
+        {t('lists.filters')}
       </summary>
       <ul>
         {fields.map((field) => (

@@ -53,12 +53,12 @@ const RouteComponent = () => {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-6rem)] flex-col overflow-hidden px-10">
-      <div className="mx-auto flex w-full flex-col items-center lg:w-2xl">
+    <div className="flex h-[calc(100dvh-6rem)] flex-col overflow-hidden mx-auto gap-5 lg:w-2xl xl:w-4xl 2xl:w-6xl">
+      <div className="mx-auto flex w-full flex-col items-center">
         <h1 className="mr-auto px-3 pt-5 pb-7 text-2xl font-medium not-md:hidden" title={t('search.title')}>
           {t('search.title')}
         </h1>
-        <label className="input h-12 w-full gap-5 rounded-4xl border-gray-400 text-lg outline-none lg:w-2xl">
+        <label className="input h-12 w-full gap-5 rounded-4xl border-gray-400 text-lg outline-none">
           <SearchIcon className="size-5.5" />
           <input
             id="search"
@@ -78,7 +78,7 @@ const RouteComponent = () => {
         </label>
       </div>
 
-      <div className="mx-auto mt-4 min-h-0 w-full flex-1 overflow-y-auto lg:w-2xl">
+      <div className="mx-auto mt-4 min-h-0 w-full flex-1 overflow-y-auto text-2xl space-y-1.5">
         {filtered.libraries.map((lib) => (
           <div key={lib.id}>
             {lib.libMatches && (
@@ -88,22 +88,33 @@ const RouteComponent = () => {
                 params={{ libraryId: lib.id }}
               >
                 <LibraryIcon className="text-primary" />
-                <span>{lib.name}</span>
+                <div className="flex flex-col w-full">
+                  <div className="flex flex-1 justify-between items-center">
+                    <div>{lib.name}</div>
+                    <div className="text-sm text-base-content/60">{new Date(lib.updatedAt).toLocaleDateString()}</div>
+                  </div>
+                  <div className="text-sm text-base-content/60">
+                    {t('dashboard.labels.files', { count: lib.filesCount })}
+                  </div>
+                </div>
               </Link>
             )}
 
             {lib.files.map((file) => (
               <Link
-                className="flex flex-col rounded-lg p-2 hover:bg-base-300"
+                className="flex items-center gap-2 rounded-lg p-2 hover:bg-base-300"
                 key={file.id}
                 to="/libraries/$libraryId/files/$fileId"
                 params={{ libraryId: lib.id, fileId: file.id }}
               >
-                <div className="flex items-center gap-2">
-                  <FileIcon />
-                  {file.name}
+                <FileIcon />
+                <div className="flex flex-col w-full">
+                  <div className="flex flex-1 justify-between">
+                    <div>{file.name}</div>
+                    <div className="text-sm text-base-content/60"> {file.originModificationDate}</div>
+                  </div>
+                  <div className="text-sm text-base-content/60">{lib.name}</div>
                 </div>
-                <span className="pl-6 text-sm text-base-content/50">{lib.name}</span>
               </Link>
             ))}
           </div>
@@ -117,7 +128,10 @@ const RouteComponent = () => {
             params={{ listId: list.id }}
           >
             <ListViewIcon className="text-accent" />
-            <span>{list.name}</span>
+            <div className="flex flex-1 justify-between">
+              <div>{list.name}</div>
+              <div className="text-sm text-base-content/60">{list.updatedAt}</div>
+            </div>
           </Link>
         ))}
       </div>

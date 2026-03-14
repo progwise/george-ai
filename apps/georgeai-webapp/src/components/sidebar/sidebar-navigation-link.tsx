@@ -14,7 +14,7 @@ export const SidebarNavigationLink = ({ to, icon, label }: SidebarNavigationLink
     to={to}
     className="mx-1 flex h-9 items-center gap-2 rounded-lg text-sm transition-colors is-drawer-close:tooltip is-drawer-close:tooltip-right"
     data-tip={label}
-    inactiveProps={{ className: 'hover:animate-pulse' }}
+    inactiveProps={{ className: 'hover:bg-base-300' }}
     activeProps={{ className: 'bg-accent/40' }}
     activeOptions={{ exact: false }}
   >

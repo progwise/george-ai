@@ -252,9 +252,9 @@ export const FileMenu = ({ file }: FileMenuProps) => {
           <FileInfoFilesMenu file={file} />
         </Popout>
       </div>
-      <div className="navbar-end">
+      <div className="navbar-end lg:hidden lg:size-0">
         <div className="dropdown dropdown-left">
-          <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden lg:size-0">
+          <div tabIndex={0} role="button" className="btn btn-ghost">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="size-5"
@@ -283,13 +283,6 @@ export const FileMenu = ({ file }: FileMenuProps) => {
                 <FileIcon className="size-5" />
                 <span>{t('actions.upload')}</span>
               </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleUpload}
-                style={{ display: 'none' }}
-                disabled={isPending}
-              />
             </li>
             <li>
               <button type="button" onClick={handleEmbed}>

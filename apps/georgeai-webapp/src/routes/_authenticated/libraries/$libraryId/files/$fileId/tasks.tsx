@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { getProcessingRequestsQueryOptions } from '../../../../../../components/workspace/queries'
 import { EventQueueAction } from '../../../../../../gql/graphql'
 import { EventQueueActionSchema } from '../../../../../../gql/validation'
+import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/tasks')({
   component: RouteComponent,
@@ -23,6 +24,7 @@ function RouteComponent() {
   const { user } = Route.useRouteContext()
   const { fileId } = Route.useParams()
   const { action, take, startSequence } = Route.useSearch()
+  const { t } = useTranslation()
 
   const { data, isLoading, error } = useQuery(
     getProcessingRequestsQueryOptions({
@@ -34,19 +36,26 @@ function RouteComponent() {
   )
 
   return (
-    <div className="flex h-full flex-col gap-2 bg-base-100">
-      <h1 className="text-2xl font-bold">Processing Tasks for file {fileId}</h1>
-      {isLoading && <div>Loading...</div>}
-      {error && <div className="text-error">Error: {(error as Error).message}</div>}
+    <div className="flex h-full flex-col gap-2 items-center">
+      <h1 className="text-2xl font-bold">
+        {t('files.processingTasks')} {fileId}
+      </h1>
+      {isLoading && <div className="loading loading-spinner loading-sm"></div>}
+      {error && (
+        <div className="text-error">
+          {t('errors.withColon')}
+          {(error as Error).message}
+        </div>
+      )}
       {data && (
-        <div>
-          <p>Total Requests: {data.totalMessages}</p>
-          <p>Last Sequence: {data.lastSequence}</p>
+        <div className="w-full">
+          <p>{t('libraries.totalRequests', { total: data.totalMessages })} </p>
+          <p>{t('libraries.lastSequence', { last: data.lastSequence })}</p>
           <ul>
             {data.requests.map((item) => (
               <li key={`item-${item.action}-${item.timestamp}`}>
-                <div>Action {item.action}</div>
-                <div>Time {item.timestamp}</div>
+                <div>{t('libraries.action', { action: item.action })}</div>
+                <div>{t('libraries.timestamp', { stamp: item.timestamp })}</div>
                 <pre>
                   <code lang="json">{JSON.stringify(item)}</code>
                 </pre>

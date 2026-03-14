@@ -77,7 +77,7 @@ function RouteComponent() {
   }, [aiListItems.items, selectedItemId])
 
   return (
-    <div className="grid grid-rows-[auto_1fr] justify-center bg-base-100">
+    <div className="grid grid-rows-[auto_1fr] bg-base-100">
       {/* Controls */}
       <div className="flex justify-between align-top">
         <div className="z-49 md:flex">

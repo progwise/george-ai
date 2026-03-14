@@ -13,7 +13,7 @@ const RouteComponent = () => {
   const { currentWorkspace } = useWorkspace(user.selectedWorkspaceId)
 
   return (
-    <div className="mx-auto space-y-8 px-5 pt-0 xl:w-6xl">
+    <div className="space-y-8 pt-0">
       <div className="justify-items-center">
         <h1 className="mb-2 text-2xl font-bold">{t('dashboard.title')}</h1>
         {user && currentWorkspace && (

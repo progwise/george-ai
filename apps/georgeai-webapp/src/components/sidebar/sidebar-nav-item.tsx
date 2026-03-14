@@ -28,7 +28,7 @@ export function SidebarNavItems({
           key={item.id}
           className="group flex flex-row items-center rounded-lg py-0 hover:bg-base-300 has-[a[data-status='active']]:bg-accent/40"
         >
-          <Link {...getLink(item)} className="block h-8 grow content-center pl-3">
+          <Link {...getLink(item)} className="block h-8 grow content-center pl-4">
             {item.name}
           </Link>
           <div className="is-drawer-close:hidden">
@@ -43,7 +43,7 @@ export function SidebarNavItems({
             e.stopPropagation()
             newItemDialogRef.current?.showModal()
           }}
-          className="group mb-0.5 flex h-8.5 w-full items-center justify-start gap-1 rounded-lg py-0 pl-2.5 font-normal text-base-content/75 hover:bg-success/45 hover:text-base-content"
+          className="group mb-0.5 flex h-8.5 w-full items-center justify-start gap-1 rounded-lg py-0 pl-2.5 font-normal text-base-content/75 hover:cursor-pointer hover:bg-success/45 hover:text-base-content"
         >
           <PlusIcon />
           <span>{createNewItemTooltip}</span>
@@ -54,7 +54,7 @@ export function SidebarNavItems({
         <li>
           <Link
             to="/search"
-            className="group mb-0.5 flex h-8.5 items-center gap-1 rounded-lg py-0 pl-3 text-base-content/75 hover:bg-info/50 hover:text-base-content"
+            className="group mb-0.5 flex h-8.5 items-center gap-1 rounded-lg py-0 pl-3 text-base-content/75 hover:cursor-pointer hover:bg-info/50 hover:text-base-content"
           >
             <SearchIcon />
             <span>
