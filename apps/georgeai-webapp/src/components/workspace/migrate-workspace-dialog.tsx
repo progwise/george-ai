@@ -6,7 +6,7 @@ import { ExclamationIcon } from '../../icons/exclamation-icon'
 import { LibraryIcon } from '../../icons/library-icon'
 import { RefreshIcon } from '../../icons/refresh-icon'
 import { UsersIcon } from '../../icons/users-icon'
-import { toastError, toastSuccess } from '../georgeToaster'
+import { toastError } from '../georgeToaster'
 import { useWorkspaceMigration } from './use-workspace-migration'
 
 interface MigrateWorkspaceDialogProps {
@@ -62,7 +62,6 @@ function MigrationStatusItem({
 
 export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps) {
   const {
-    invalidateStatus,
     workspace,
     workspaceStatus,
     workspaceStatusIsLoading,
