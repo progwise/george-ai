@@ -67,11 +67,13 @@ export async function signupWorker({ workerId }: { workerId: string }): Promise<
       handler: async ({ key: entryKey, operation, revision: entryRevision }) => {
         if (operation === 'delete') {
           watchedKeys.delete(entryKey)
-        } else {
+        } else if (operation === 'update') {
           watchedKeys.set(entryKey, entryRevision)
           if (entryRevision === revision && entryKey === key) {
             foundMe()
           }
+        } else {
+          logger.warn('Received unhandled operation type in watchBucketKeys', { operation, key: entryKey })
         }
       },
     })
@@ -114,7 +116,7 @@ export async function signupWorker({ workerId }: { workerId: string }): Promise<
 
       newRoles.push(unassignedRole)
     } catch (error) {
-      logger.error('Error during assignment of unassigned role', { workerId, key, unassignedRole, error })
+      logger.warn('Error during assignment of unassigned role', { workerId, key, unassignedRole, error })
       await eventClient
         .deleteBucketEntry({ bucketName: WORKER_SLOT_BUCKET_NAME, key })
         .catch((errorOfError) =>

@@ -156,7 +156,6 @@ export interface EventClient {
       key: string
       operation: 'update' | 'delete' | 'synced'
       revision: number
-      stopWatching: () => void
     }) => Promise<void>
   }): Promise<() => Promise<void>>
 

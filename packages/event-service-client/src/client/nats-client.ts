@@ -427,7 +427,16 @@ export class NatsClient implements EventClient {
         logger.debug('Worker loop aborted', { parameters })
         break
       }
-      const consumers = await this.jsm.consumers.list(streamName).next()
+      const consumers = await this.jsm.consumers
+        .list(streamName)
+        .next()
+        .catch((error) => {
+          logger.warn('Error awaiting consumer list for stream in processsWorker loop. Will retry.', {
+            error,
+            streamName,
+          })
+          return []
+        })
       logger.debug('Fetched consumers', { streamName, consumersCount: consumers.length })
       // Filter and randomize to prevent workers from all hitting the same consumer first
       const shuffledConsumers = consumers
@@ -954,7 +963,6 @@ export class NatsClient implements EventClient {
       operation: 'update' | 'delete' | 'synced'
       revision: number
       delta?: number
-      stopWatching: () => void
     }) => Promise<void>
   }): Promise<() => Promise<void>> {
     if (!this.js) {
@@ -975,7 +983,6 @@ export class NatsClient implements EventClient {
             operation: 'synced',
             revision: 0,
             delta: 0,
-            stopWatching: () => watcher.stop(),
           })
         }
         const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
@@ -984,7 +991,6 @@ export class NatsClient implements EventClient {
           operation: isDelete ? 'delete' : 'update',
           revision: entry.revision,
           delta: entry.delta,
-          stopWatching: () => watcher.stop(),
         })
       }
     }
@@ -1011,8 +1017,9 @@ export class NatsClient implements EventClient {
     schema: T
     handler: (handlerParams: {
       key: string
-      operation: 'update' | 'delete'
+      operation: 'update' | 'delete' | 'synced'
       revision: number
+      delta?: number
       entry: z.infer<T> | null
     }) => Promise<void>
   }): Promise<() => Promise<void>> {
@@ -1026,7 +1033,7 @@ export class NatsClient implements EventClient {
 
     const watcher = await kvBucket.watch({ key: filter })
 
-    const processBucketWatch = async () => {
+    const processWatch = async () => {
       for await (const entry of watcher) {
         const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
 
@@ -1071,7 +1078,7 @@ export class NatsClient implements EventClient {
     }
 
     // Start processing in background
-    processBucketWatch()
+    processWatch()
     // Return cleanup function - promisify for non-blocking
     return () => {
       return new Promise((resolve, reject) => {

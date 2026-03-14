@@ -46,6 +46,7 @@ export const useWorkspaceMigration = () => {
     },
     onSuccess: (data) => {
       toastSuccess(`Workspace migrated successfully to Version ${data.version}.`)
+      invalidateStatus()
     },
     onError: (error) => {
       toastError(error.message)
@@ -55,6 +56,14 @@ export const useWorkspaceMigration = () => {
   const migrateLibraryMutation = useMutation({
     mutationFn: async (data: { workspaceId: string; libraryId: string }) => {
       return await migrateLibraryFn({ data })
+    },
+    onSuccess: (data) => {
+      toastSuccess(`Library migrated successfully and triggered ${data.fileMigrationsPublished} file migrations.`)
+      invalidateStatus()
+    },
+    onError: (error) => {
+      toastError('Failed to migrate library: ' + error.message)
+      invalidateStatus()
     },
   })
 

@@ -14,14 +14,24 @@ export function Popout({ color = 'neutral', size = 'sm', ...props }: PopoutProps
   const id = useId()
 
   const colorMap = {
-    info: 'text-info group-has-[:popover-open]:bg-info/20 group-has-[:popover-open]:text-info-content',
-    success: 'text-success group-has-[:popover-open]:bg-success/20 group-has-[:popover-open]:text-success-content',
-    warning: 'text-warning group-has-[:popover-open]:bg-warning/20 group-has-[:popover-open]:text-warning-content',
-    error: 'text-error group-has-[:popover-open]:bg-error/20 group-has-[:popover-open]:text-error-content',
-    primary: 'text-primary group-has-[:popover-open]:bg-primary/20 group-has-[:popover-open]:text-primary-content',
+    info: 'text-info group-has-[:popover-open]:bg-info/20 group-has-[:popover-open]:text-info',
+    success: 'text-success group-has-[:popover-open]:bg-success/20 group-has-[:popover-open]:text-success',
+    warning: 'text-warning group-has-[:popover-open]:bg-warning/20 group-has-[:popover-open]:text-warning',
+    error: 'text-error group-has-[:popover-open]:bg-error/20 group-has-[:popover-open]:text-error',
+    primary: 'text-primary group-has-[:popover-open]:bg-primary/20 group-has-[:popover-open]:text-primary',
     secondary:
       'text-secondary group-has-[:popover-open]:bg-secondary/20 group-has-[:popover-open]:text-secondary-content',
     neutral: 'text-neutral group-has-[:popover-open]:bg-neutral group-has-[:popover-open]:text-neutral-content',
+  }
+
+  const iconColorMap = {
+    info: 'text-info',
+    success: 'text-success',
+    warning: 'text-warning',
+    error: 'text-error',
+    primary: 'text-primary',
+    secondary: 'text-secondary',
+    neutral: 'text-neutral',
   }
 
   const sizeMap = {
@@ -64,20 +74,25 @@ export function Popout({ color = 'neutral', size = 'sm', ...props }: PopoutProps
         </svg>
       </button>
       <div
-        style={{
-          positionAnchor: `--info-anchor-${id}`,
-          '--p-top': 'anchor(bottom)',
-          '--p-left': 'anchor(left)',
-        } as React.CSSProperties}
+        style={
+          {
+            positionAnchor: `--info-anchor-${id}`,
+            '--p-top': 'anchor(bottom)',
+            '--p-left': 'anchor(left)',
+          } as React.CSSProperties
+        }
         className="fixed inset-auto inset-x-4 bottom-4 z-1 m-0
                w-auto max-w-xl
-               rounded-box bg-base-100 p-4 shadow-xl
+               rounded-box bg-base-100 p-2 shadow-xl
                backdrop:bg-black/20 backdrop:transition-opacity
                sm:inset-x-auto sm:top-(--p-top)
                sm:bottom-auto sm:left-(--p-left)"
         popover="auto"
         id={`popover-${id}`}
       >
+        {props.icon && (
+          <div className={twMerge('absolute top-1 left-2 opacity-30', iconColorMap[color])}>{props.icon}</div>
+        )}
         {props.children || (
           <div>
             <h3 className="text-lg font-bold">Popover Title</h3>

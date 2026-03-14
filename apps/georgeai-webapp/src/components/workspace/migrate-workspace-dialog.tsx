@@ -106,19 +106,7 @@ export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps)
       return
     }
 
-    migrateLibrary(
-      { workspaceId: workspace.id, libraryId: libraryStatus.id },
-      {
-        onSuccess: (data) => {
-          toastSuccess(`Library migrated successfully and triggered ${data.fileMigrationsPublished} file migrations.`)
-          invalidateStatus()
-        },
-        onError: (error) => {
-          toastError('Failed to migrate library: ' + error.message)
-          invalidateStatus()
-        },
-      },
-    )
+    migrateLibrary({ workspaceId: workspace.id, libraryId: libraryStatus.id }, {})
   }
 
   const needsMigration =
