@@ -4,7 +4,7 @@ import React, { useRef } from 'react'
 import { z } from 'zod'
 
 import { toastSuccess } from '../../../../../../components/georgeToaster'
-import { getFileQueryOptions, getSimilarFileChunksQueryOptions } from '../../../../../../components/library/queries'
+import { getDocumentQueryOptions, getSimilarFileChunksQueryOptions } from '../../../../../../components/library/queries'
 import { getContentQueriesQueryOptions } from '../../../../../../components/lists/queries'
 import { CopyIcon } from '../../../../../../icons/copy-icon'
 
@@ -33,7 +33,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
           fragment: deps.fragment,
         }),
       ),
-      context.queryClient.ensureQueryData(getFileQueryOptions(params)),
+      context.queryClient.ensureQueryData(getDocumentQueryOptions(params)),
       context.queryClient.ensureQueryData(getContentQueriesQueryOptions({ libraryId: params.libraryId })),
     ])
   },

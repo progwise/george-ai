@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken'
 
 import { Context, apiKey, user } from '@george-ai/app-domain'
 
+import { logger } from './common'
+
 interface TokenProvider {
   jwtToken?: string | null
   bearerToken?: string | null
@@ -24,6 +26,12 @@ export const getUserContextFromExpressRequest = async (request: Request): Promis
 // Priority: JWT first, then Bearer token
 export const getUserContext = async (getTokens: () => TokenProvider): Promise<Context> => {
   const { jwtToken, bearerToken, workspaceId: requestedWorkspaceId } = getTokens()
+
+  logger.debug('Getting user context from request', {
+    hasJwtToken: !!jwtToken,
+    hasBearerToken: !!bearerToken,
+    requestedWorkspaceId,
+  })
 
   // Try JWT authentication first
   if (jwtToken) {
@@ -104,6 +112,12 @@ export const getUserContext = async (getTokens: () => TokenProvider): Promise<Co
       }
     }
   }
+
+  logger.warn('No valid authentication found in request', {
+    hasJwtToken: !!jwtToken,
+    hasBearerToken: !!bearerToken,
+    requestedWorkspaceId,
+  })
 
   return { session: null }
 }

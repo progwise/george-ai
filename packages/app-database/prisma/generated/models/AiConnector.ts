@@ -1680,6 +1680,11 @@ export type AiConnectorFindManyArgs<
    * Skip the first `n` AiConnectors.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiConnectors.
+   */
   distinct?: Prisma.AiConnectorScalarFieldEnum | Prisma.AiConnectorScalarFieldEnum[]
 }
 

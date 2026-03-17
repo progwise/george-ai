@@ -1,5 +1,4 @@
 import { PrismaPg } from '@prisma/adapter-pg'
-import pg from 'pg'
 
 import { createLogger, getConfigValue } from '@george-ai/app-commons'
 
@@ -7,20 +6,10 @@ import { Prisma, PrismaClient } from '../prisma/generated/client'
 
 const logger = createLogger('Prisma')
 
-// from https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
-declare global {
-  var prisma: PrismaClient | undefined
-}
-
-// Configure Prisma logging based on LOG_LEVEL
-// DEBUG: query, info, warn, error
-// INFO: info, warn, error
-// WARN: warn, error
-// ERROR: error only
 const getLogLevels = (): Prisma.LogLevel[] => {
   switch (getConfigValue('LOG_LEVEL')) {
     case 'DEBUG':
-      return ['query', 'info', 'warn', 'error']
+      return ['info', 'warn', 'error']
     case 'INFO':
       return ['info', 'warn', 'error']
     case 'WARN':
@@ -33,13 +22,9 @@ const getLogLevels = (): Prisma.LogLevel[] => {
 
 const createPrismaClient = () => {
   const connectionString: string = getConfigValue('DATABASE_URL')
-  // Create PostgreSQL connection pool for Prisma v7 adapter
-  const pool = new pg.Pool({
-    connectionString,
-  })
 
   // Create Prisma adapter for PostgreSQL
-  const adapter = new PrismaPg(pool)
+  const adapter = new PrismaPg({ connectionString })
 
   const client = new PrismaClient({
     adapter,
@@ -69,9 +54,4 @@ const createPrismaClient = () => {
   return client
 }
 
-export const prisma = global.prisma ?? createPrismaClient()
-
-const isProduction = getConfigValue('IS_PRODUCTION')
-if (!isProduction) {
-  global.prisma = prisma
-}
+export const prisma = createPrismaClient()

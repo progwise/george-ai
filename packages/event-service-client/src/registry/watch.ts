@@ -43,7 +43,7 @@ export async function watchRegistry(
             entry: null,
           })
         } else {
-          logger.warn('Received delete operation for unknown registry entry type - skipping', {
+          logger.warn('Received delete operation for unhandled registry entry type - skipping', {
             key,
             operation,
             parsedKey,

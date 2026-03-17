@@ -29,7 +29,7 @@ export const ApiKeyGenerationModal = ({ ref }: ApiKeyGenerationModalProps) => {
   const [generatedKey, setGeneratedKey] = useState<string | null>(null)
   const [keyName, setKeyName] = useState<string>('')
 
-  const { generateApiKey, isPending } = useWorkspace(user.selectedWorkspaceId)
+  const { generateApiKey, isPending } = useWorkspace(user)
   const schema = getApiKeyFormSchema(language)
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

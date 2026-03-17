@@ -1893,6 +1893,11 @@ export type AiAutomationBatchFindManyArgs<
    * Skip the first `n` AiAutomationBatches.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiAutomationBatches.
+   */
   distinct?: Prisma.AiAutomationBatchScalarFieldEnum | Prisma.AiAutomationBatchScalarFieldEnum[]
 }
 

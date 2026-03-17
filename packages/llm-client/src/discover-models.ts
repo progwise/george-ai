@@ -14,8 +14,8 @@ export async function availableModels(connection: InferenceHostConnection): Prom
       return result.models.map((model) => {
         const capabilities = getModelCapabilities(model.name)
         return {
-          name: model.name,
-          driver: 'ollama',
+          modelName: model.name,
+          modelDriver: 'ollama',
           canDoEmbedding: capabilities.includes('embedding'),
           canDoChatCompletion: capabilities.includes('chatCompletion'),
           canDoVision: capabilities.includes('vision'),
@@ -29,8 +29,8 @@ export async function availableModels(connection: InferenceHostConnection): Prom
       return result.data.map((model) => {
         const capabilities = getModelCapabilities(model.id)
         return {
-          name: model.id,
-          driver: 'openai',
+          modelName: model.id,
+          modelDriver: 'openai',
           canDoEmbedding: capabilities.includes('embedding'),
           canDoChatCompletion: capabilities.includes('chatCompletion'),
           canDoVision: capabilities.includes('vision'),

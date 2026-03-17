@@ -52,7 +52,7 @@ builder.mutationField('syncModels', (t) =>
       const discoveredModelMap = new Map<InferenceDriver, Set<string>>()
 
       modelDiscoveryResponses.forEach((response) => {
-        discoveredModelMap.set(response.connection.driver, new Set(response.models.map((model) => model.name)))
+        discoveredModelMap.set(response.connection.driver, new Set(response.models.map((model) => model.modelName)))
       })
 
       for (const [providerType, discoveredModels] of discoveredModelMap.entries()) {

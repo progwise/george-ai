@@ -11,6 +11,7 @@ import { readSource } from './read-source'
 import { saveDocument } from './save-document'
 import { transform } from './transform'
 import { uploadDocumentSource } from './upload-document-source'
+import { vectorizeDocument } from './vectorize'
 
 export {
   createDocument,
@@ -26,11 +27,12 @@ export {
   uploadDocumentSource,
   saveDocument,
   fixMissingDocumentManifest,
+  vectorizeDocument,
 }
 
 export default {
-  createDocument,
-  getDocumentManifest,
+  create: createDocument,
+  getManifest: getDocumentManifest,
   getExtraction,
   getExtractionMethods,
   getSourceHash,
@@ -39,7 +41,8 @@ export default {
   readExtraction,
   readSource,
   transform,
-  uploadDocumentSource,
-  saveDocument,
-  fixMissingDocumentManifest,
+  uploadSource: uploadDocumentSource,
+  save: saveDocument,
+  fixMissing: fixMissingDocumentManifest,
+  vectorize: vectorizeDocument,
 }

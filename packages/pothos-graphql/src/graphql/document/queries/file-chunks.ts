@@ -3,33 +3,34 @@ import { ExtractionMethod } from '@george-ai/app-schema'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 const response = builder
   .objectRef<{
     workspaceId: string
-    fileId: string
+    documentId: string
     libraryId: string
     take: number
-    skip: number
+    firstChunk?: number
     extractionMethod?: ExtractionMethod | null
     fragment?: number | null
     totalCount: number | null
-  }>('FileChunksResponse')
+  }>('DocumentChunksResponse')
   .implement({
     fields: (t) => ({
       totalCount: t.exposeInt('totalCount', { nullable: true }),
       chunks: t.field({
-        type: ['FileChunk'],
+        type: ['DocumentChunk'],
         nullable: false,
         resolve: async (root) => {
-          const { workspaceId, libraryId, fileId, extractionMethod, fragment, take = 10, skip = 0 } = root
+          const { workspaceId, libraryId, documentId, extractionMethod, fragment, take = 10, firstChunk = 0 } = root
           const chunks = await vectorStore.getChunks({
-            workspaceId, // Not needed for fetching chunks as it's already validated in the resolver
+            workspaceId,
             libraryId,
-            fileId,
+            documentId,
             extractionMethod,
             take,
-            skip,
+            firstChunk,
             fragment,
           })
           return chunks
@@ -38,36 +39,49 @@ const response = builder
     }),
   })
 
-builder.queryField('fileChunks', (t) =>
+builder.queryField('documentChunks', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: response,
     nullable: true,
     args: {
       libraryId: t.arg.string({ required: true }),
-      fileId: t.arg.string({ required: true }),
+      documentId: t.arg.string({ required: true }),
       take: t.arg.int({ required: false }),
-      skip: t.arg.int({ required: false }),
+      firstChunk: t.arg.int({ required: false }),
       extractionMethod: t.arg({
         type: 'ExtractionMethod',
         required: false,
       }),
       fragment: t.arg.int({ required: false }),
     },
-    resolve: async (_root, { libraryId, fileId, take, skip, fragment, extractionMethod }, { workspaceId, session }) => {
+    resolve: async (
+      _root,
+      { libraryId, documentId, take, firstChunk, fragment, extractionMethod },
+      { workspaceId, session },
+    ) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
+      logger.debug('getting document chunks', {
+        workspaceId,
+        libraryId,
+        documentId,
+        extractionMethod,
+        fragment,
+        take,
+        firstChunk,
+      })
       const totalCount = await vectorStore.getChunkCount({
         workspaceId,
         libraryId,
-        fileId,
+        documentId,
         extractionMethod,
         fragment,
       })
       return {
         workspaceId,
-        fileId,
+        documentId,
         libraryId,
         take: take ?? 10,
-        skip: skip ?? 0,
+        firstChunk: firstChunk ?? 0,
         extractionMethod,
         fragment,
         totalCount,

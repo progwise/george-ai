@@ -11,6 +11,8 @@ builder.mutationField('triggerExtraction', (t) =>
     type: builder.simpleObject('TriggerExtractionResult', {
       fields: (t) => ({
         success: t.boolean({ nullable: false }),
+        documentManifest: t.field({ type: 'DocumentManifest', nullable: false }),
+        extractionMethod: t.field({ type: 'ExtractionMethod', nullable: true }),
       }),
     }),
     args: {
@@ -31,7 +33,7 @@ builder.mutationField('triggerExtraction', (t) =>
 
       try {
         await triggerExtraction({ documentManifest, extractionMethod })
-        return { success: true }
+        return { success: true, documentManifest, extractionMethod }
       } catch (error) {
         logger.error('Error publishing trigger extraction event', { error, extractionMethod, documentManifest })
         throw new GraphQLError('Failed to trigger extraction', { originalError: error as Error })

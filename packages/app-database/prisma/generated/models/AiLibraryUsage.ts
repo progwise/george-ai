@@ -1541,6 +1541,11 @@ export type AiLibraryUsageFindManyArgs<
    * Skip the first `n` AiLibraryUsages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiLibraryUsages.
+   */
   distinct?: Prisma.AiLibraryUsageScalarFieldEnum | Prisma.AiLibraryUsageScalarFieldEnum[]
 }
 

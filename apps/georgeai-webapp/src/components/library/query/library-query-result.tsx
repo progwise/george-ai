@@ -6,11 +6,11 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { FormattedMarkdown } from '../../formatted-markdown'
 
 graphql(`
-  fragment LibraryQueryResult_FileChunk on FileChunk {
+  fragment LibraryQueryResult_FileChunk on DocumentChunk {
     id
     libraryId
-    fileId
-    fileName
+    documentId
+    documentName
     extractionMethod
     chunk
     fragment
@@ -41,7 +41,7 @@ export const LibraryQueryResult = ({ libraryId, hits, offset, searchTerm, hitCou
             </div>
             <div>
               <div>
-                <Link to="/libraries/$libraryId/files/$fileId" params={{ libraryId, fileId: hit.fileId }}>
+                <Link to="/libraries/$libraryId/files/$fileId" params={{ libraryId, fileId: hit.documentId }}>
                   <FormattedMarkdown markdown={hit.content} className="text-sm font-semibold" />{' '}
                 </Link>
               </div>

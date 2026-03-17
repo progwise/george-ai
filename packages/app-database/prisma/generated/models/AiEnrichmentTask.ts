@@ -2010,6 +2010,11 @@ export type AiEnrichmentTaskFindManyArgs<
    * Skip the first `n` AiEnrichmentTasks.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiEnrichmentTasks.
+   */
   distinct?: Prisma.AiEnrichmentTaskScalarFieldEnum | Prisma.AiEnrichmentTaskScalarFieldEnum[]
 }
 

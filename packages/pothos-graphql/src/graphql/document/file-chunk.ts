@@ -1,13 +1,13 @@
-import { FileChunk } from '@george-ai/vector-store'
+import { DocumentChunk } from '@george-ai/vector-store'
 
 import { builder } from '../builder'
 
-builder.objectRef<FileChunk>('FileChunk').implement({
+builder.objectRef<DocumentChunk>('DocumentChunk').implement({
   fields: (t) => ({
     id: t.exposeString('id', { nullable: false }),
     libraryId: t.exposeString('libraryId', { nullable: false }),
-    fileId: t.exposeString('fileId', { nullable: false }),
-    fileName: t.exposeString('fileName', { nullable: true }),
+    documentId: t.exposeString('documentId', { nullable: false }),
+    documentName: t.exposeString('documentName', { nullable: true }),
     extractionMethod: t.exposeString('extractionMethod', { nullable: false }),
     chunk: t.exposeInt('chunk', { nullable: false }),
     fragment: t.exposeInt('fragment', { nullable: true }),

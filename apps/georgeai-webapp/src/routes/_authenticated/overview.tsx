@@ -10,7 +10,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 const RouteComponent = () => {
   const { t } = useTranslation()
   const { user } = Route.useRouteContext()
-  const { currentWorkspace } = useWorkspace(user.selectedWorkspaceId)
+  const { currentWorkspace } = useWorkspace(user)
 
   return (
     <div className="space-y-8 pt-0">

@@ -4,6 +4,8 @@ import { builder } from '../../builder'
 
 import './workspaces'
 
+import { canReadWorkspaceOrThrow, getWorkspaceManifest } from '@george-ai/app-domain'
+
 // Query to get a single workspace by ID
 builder.queryField('workspace', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
@@ -26,6 +28,23 @@ builder.queryField('workspace', (t) =>
       })
 
       return workspace
+    },
+  }),
+)
+
+// Query to get a single workspace by ID
+builder.queryField('workspaceManifest', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: 'WorkspaceManifest',
+    nullable: false,
+    args: {
+      workspaceId: t.arg.string({ required: true }),
+    },
+    resolve: async (_root, { workspaceId }, { session }) => {
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
+      const manifest = await getWorkspaceManifest(workspaceId)
+
+      return manifest
     },
   }),
 )

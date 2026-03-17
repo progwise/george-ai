@@ -2418,6 +2418,11 @@ export type AiListFieldFindManyArgs<
    * Skip the first `n` AiListFields.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiListFields.
+   */
   distinct?: Prisma.AiListFieldScalarFieldEnum | Prisma.AiListFieldScalarFieldEnum[]
 }
 

@@ -880,6 +880,9 @@ export class NatsClient implements EventClient {
     const history = await kvBucket.history({ key: filter })
 
     for await (const entry of history) {
+      if (!entry) {
+        continue
+      }
       const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
       if (isDelete) {
         latestEntries.delete(entry.key)
@@ -1035,6 +1038,9 @@ export class NatsClient implements EventClient {
 
     const processWatch = async () => {
       for await (const entry of watcher) {
+        if (!entry) {
+          continue
+        }
         const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
 
         if (!isDelete && (!entry.value || entry.value.length === 0)) {
@@ -1044,12 +1050,14 @@ export class NatsClient implements EventClient {
         }
 
         if (isDelete) {
-          await handler({
-            key: entry.key,
-            operation: 'delete',
-            revision: entry.revision,
-            entry: null,
-          })
+          if (entry.delta === 0) {
+            await handler({
+              key: entry.key,
+              operation: 'delete',
+              revision: entry.revision,
+              entry: null,
+            })
+          }
           continue
         }
 

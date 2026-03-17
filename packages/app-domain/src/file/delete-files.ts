@@ -31,7 +31,7 @@ export async function deleteFiles(
         await Promise.all(
           documentIds.flatMap((documentId) => [
             // TODO: why not renaming fileId to documentId in vector store?
-            vectorStore.removeChunks({ workspaceId, libraryId, fileId: documentId }),
+            vectorStore.removeChunks({ workspaceId, libraryId, documentId }),
             document.delete(workspaceId, { libraryId, documentId }),
           ]),
         )

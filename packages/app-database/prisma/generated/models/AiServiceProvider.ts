@@ -1646,6 +1646,11 @@ export type AiServiceProviderFindManyArgs<
    * Skip the first `n` AiServiceProviders.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiServiceProviders.
+   */
   distinct?: Prisma.AiServiceProviderScalarFieldEnum | Prisma.AiServiceProviderScalarFieldEnum[]
 }
 

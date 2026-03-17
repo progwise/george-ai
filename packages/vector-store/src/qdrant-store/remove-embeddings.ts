@@ -7,15 +7,15 @@ import { getEmbeddingModelNames } from './get-embedding-model-names'
 export async function removeEmbeddings(parameters: {
   workspaceId: string
   libraryId: string
-  fileId?: string
+  documentId?: string
   fragment?: number | null
   extractionMethod?: ExtractionMethod | null
   embeddingModelNames?: string[]
 }): Promise<void> {
-  const { workspaceId, libraryId, fileId, fragment, extractionMethod, embeddingModelNames } = parameters
+  const { workspaceId, libraryId, documentId, fragment, extractionMethod, embeddingModelNames } = parameters
   const collectionName = getCollectionName(workspaceId)
 
-  const filterConditions = getChunkSelector({ libraryId, fileId, extractionMethod, fragment })
+  const filterConditions = getChunkSelector({ libraryId, documentId, extractionMethod, fragment })
 
   if (!embeddingModelNames) {
     const allEmbeddingModelNames = await getEmbeddingModelNames(workspaceId)

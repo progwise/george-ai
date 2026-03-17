@@ -1316,6 +1316,11 @@ export type FileUploadsFindManyArgs<
    * Skip the first `n` FileUploads.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of FileUploads.
+   */
   distinct?: Prisma.FileUploadsScalarFieldEnum | Prisma.FileUploadsScalarFieldEnum[]
 }
 

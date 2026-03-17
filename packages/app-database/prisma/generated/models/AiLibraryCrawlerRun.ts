@@ -1619,6 +1619,11 @@ export type AiLibraryCrawlerRunFindManyArgs<
    * Skip the first `n` AiLibraryCrawlerRuns.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiLibraryCrawlerRuns.
+   */
   distinct?: Prisma.AiLibraryCrawlerRunScalarFieldEnum | Prisma.AiLibraryCrawlerRunScalarFieldEnum[]
 }
 

@@ -40,7 +40,7 @@ function RouteComponent() {
         {t('libraries.processingTasks')}
         {libraryId}
       </h1>
-      {isLoading && <div className="loading loading-spinner loading-sm"></div>}
+      {isLoading && <div className="loading loading-sm loading-spinner"></div>}
       {error && (
         <div className="text-error">
           {t('errors.withColon')}

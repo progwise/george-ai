@@ -1639,6 +1639,11 @@ export type AiLibraryCrawlerCronJobFindManyArgs<
    * Skip the first `n` AiLibraryCrawlerCronJobs.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiLibraryCrawlerCronJobs.
+   */
   distinct?: Prisma.AiLibraryCrawlerCronJobScalarFieldEnum | Prisma.AiLibraryCrawlerCronJobScalarFieldEnum[]
 }
 

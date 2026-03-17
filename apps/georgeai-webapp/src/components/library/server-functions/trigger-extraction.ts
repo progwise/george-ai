@@ -9,6 +9,13 @@ const triggerExtractionGraphqlDocument = graphql(`
   mutation triggerExtraction($extractionMethod: ExtractionMethod, $libraryId: String!, $documentId: String!) {
     triggerExtraction(extractionMethod: $extractionMethod, libraryId: $libraryId, documentId: $documentId) {
       success
+      documentManifest {
+        documentId
+        name
+        sourceHash
+        created
+      }
+      extractionMethod
     }
   }
 `)

@@ -2442,6 +2442,11 @@ export type AiAssistantFindManyArgs<
    * Skip the first `n` AiAssistants.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiAssistants.
+   */
   distinct?: Prisma.AiAssistantScalarFieldEnum | Prisma.AiAssistantScalarFieldEnum[]
 }
 

@@ -2270,6 +2270,11 @@ export type AiLibraryCrawlerFindManyArgs<
    * Skip the first `n` AiLibraryCrawlers.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiLibraryCrawlers.
+   */
   distinct?: Prisma.AiLibraryCrawlerScalarFieldEnum | Prisma.AiLibraryCrawlerScalarFieldEnum[]
 }
 

@@ -1762,6 +1762,11 @@ export type AiAutomationItemFindManyArgs<
    * Skip the first `n` AiAutomationItems.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiAutomationItems.
+   */
   distinct?: Prisma.AiAutomationItemScalarFieldEnum | Prisma.AiAutomationItemScalarFieldEnum[]
 }
 

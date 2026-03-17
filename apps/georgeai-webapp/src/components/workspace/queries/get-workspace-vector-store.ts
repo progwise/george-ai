@@ -11,7 +11,7 @@ const getWorkspaceVectorStore = createServerFn({ method: 'GET' })
     return z.object({ workspaceId: z.string() }).parse(data)
   })
   .handler(async ({ data }) => {
-    const { vectorStore } = await backendRequest(
+    const result = await backendRequest(
       graphql(`
         query GetWorkspaceVectorStore($workspaceId: String!) {
           vectorStore(workspaceId: $workspaceId) {
@@ -28,12 +28,12 @@ const getWorkspaceVectorStore = createServerFn({ method: 'GET' })
       `),
       data,
     )
-    return vectorStore
+    return result.vectorStore
   })
 
 export const getWorkspaceVectorStoreQueryOptions = (parameters: { workspaceId?: string | null }) =>
   queryOptions({
     queryKey: [queryKeys.WorkspaceVectorStore, parameters],
-    queryFn: () => (!parameters.workspaceId ? null : getWorkspaceVectorStore({ data: parameters })),
+    queryFn: () => getWorkspaceVectorStore({ data: parameters }),
     enabled: !!parameters.workspaceId,
   })

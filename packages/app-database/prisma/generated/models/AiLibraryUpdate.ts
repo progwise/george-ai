@@ -2064,6 +2064,11 @@ export type AiLibraryUpdateFindManyArgs<
    * Skip the first `n` AiLibraryUpdates.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiLibraryUpdates.
+   */
   distinct?: Prisma.AiLibraryUpdateScalarFieldEnum | Prisma.AiLibraryUpdateScalarFieldEnum[]
 }
 

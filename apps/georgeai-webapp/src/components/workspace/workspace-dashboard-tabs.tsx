@@ -26,7 +26,7 @@ export const WorkspaceDashboardTabs = ({ user }: { user: CurrentUserFragment }) 
   const newLibraryDialogRef = useRef<HTMLDialogElement>(null)
   const newListDialogRef = useRef<HTMLDialogElement>(null)
   const newAssistantDialogRef = useRef<HTMLDialogElement>(null)
-  const { currentWorkspace } = useWorkspace(user.selectedWorkspaceId)
+  const { currentWorkspace } = useWorkspace(user)
 
   // TODO: Pagination
   const { data: libraries } = useQuery(getLibrariesQueryOptions())

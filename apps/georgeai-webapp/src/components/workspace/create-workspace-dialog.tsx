@@ -16,7 +16,7 @@ export const CreateWorkspaceDialog = ({ dialogRef, user }: CreateWorkspaceDialog
   const { t } = useTranslation()
   const [error, setError] = useState<string | null>(null)
 
-  const { createWorkspace, isPending } = useWorkspace(user.selectedWorkspaceId)
+  const { createWorkspace, isPending } = useWorkspace(user)
 
   const handleSubmit = (formData: FormData) => {
     const name = formData.get('name') as string

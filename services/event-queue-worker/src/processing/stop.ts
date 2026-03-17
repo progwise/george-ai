@@ -12,6 +12,11 @@ export async function stopProcessing(workerRole: WorkerRole) {
 
   logger.info('Stopping processing for worker type', { workerRole, subscription })
 
+  if (workerRole === 'workerSlotManager') {
+    logger.info('Worker slot manager stop requested - all processing should stop shortly', { WORKER_ID })
+    process.exit(0) // Exit the process to ensure all processing stops, since worker slot manager is responsible for heartbeating and managing worker slots
+  }
+
   await subscription.cleanupFunction()
   sub.remove(workerRole)
   const activeSubscriptions = sub.getAll()

@@ -97,7 +97,7 @@ builder.prismaObject('AiListItem', {
         const count = await vectorStore.getChunkCount({
           workspaceId,
           libraryId: sourceFile.libraryId,
-          fileId: item.fileId,
+          documentId: item.fileId,
         })
         return count
       },

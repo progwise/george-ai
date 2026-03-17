@@ -4,8 +4,8 @@ import { InferenceDriverSchema } from './inference'
 
 export const InferenceModelBaseSchema = z.object({
   version: z.literal(1).default(1),
-  name: z.string(),
-  driver: InferenceDriverSchema,
+  modelName: z.string(),
+  modelDriver: InferenceDriverSchema,
   canDoEmbedding: z.boolean(),
   canDoChatCompletion: z.boolean(),
   canDoVision: z.boolean(),

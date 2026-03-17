@@ -53,7 +53,7 @@ const RouteComponent = () => {
   }
 
   return (
-    <div className="flex h-[calc(100dvh-6rem)] flex-col overflow-hidden mx-auto gap-5 lg:w-2xl xl:w-4xl 2xl:w-6xl">
+    <div className="mx-auto flex h-[calc(100dvh-6rem)] flex-col gap-5 overflow-hidden lg:w-2xl xl:w-4xl 2xl:w-6xl">
       <div className="mx-auto flex w-full flex-col items-center">
         <h1 className="mr-auto px-3 pt-5 pb-7 text-2xl font-medium not-md:hidden" title={t('search.title')}>
           {t('search.title')}
@@ -78,7 +78,7 @@ const RouteComponent = () => {
         </label>
       </div>
 
-      <div className="mx-auto mt-4 min-h-0 w-full flex-1 overflow-y-auto text-2xl space-y-1.5">
+      <div className="mx-auto mt-4 min-h-0 w-full flex-1 space-y-1.5 overflow-y-auto text-2xl">
         {filtered.libraries.map((lib) => (
           <div key={lib.id}>
             {lib.libMatches && (
@@ -88,8 +88,8 @@ const RouteComponent = () => {
                 params={{ libraryId: lib.id }}
               >
                 <LibraryIcon className="text-primary" />
-                <div className="flex flex-col w-full">
-                  <div className="flex flex-1 justify-between items-center">
+                <div className="flex w-full flex-col">
+                  <div className="flex flex-1 items-center justify-between">
                     <div>{lib.name}</div>
                     <div className="text-sm text-base-content/60">{new Date(lib.updatedAt).toLocaleDateString()}</div>
                   </div>
@@ -108,7 +108,7 @@ const RouteComponent = () => {
                 params={{ libraryId: lib.id, fileId: file.id }}
               >
                 <FileIcon />
-                <div className="flex flex-col w-full">
+                <div className="flex w-full flex-col">
                   <div className="flex flex-1 justify-between">
                     <div>{file.name}</div>
                     <div className="text-sm text-base-content/60"> {file.originModificationDate}</div>

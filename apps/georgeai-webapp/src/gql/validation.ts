@@ -26,12 +26,14 @@ import {
   ConversationSortOrder,
   CrawlerUriType,
   DateTimePeriod,
+  DocumentChunksSelector,
+  EmbeddingSettingsInput,
   EmbeddingStatus,
   EnrichmentStatus,
   EventQueueAction,
   EventQueueStatus,
   ExtractionMethod,
-  FileChunksSelector,
+  ImageAnalysisSettingsInput,
   InferenceAction,
   InferenceDriver,
   InferenceHostInput,
@@ -49,6 +51,7 @@ import {
   WorkerActionResult,
   WorkerRole,
   WorkspaceRole,
+  WorkspaceSettingsInput,
   WorkspaceSortField,
 } from './graphql'
 
@@ -283,24 +286,38 @@ export function DateTimePeriodSchema(): z.ZodObject<Properties<DateTimePeriod>> 
   })
 }
 
-export function FileChunksSelectorSchema(): z.ZodObject<Properties<FileChunksSelector>> {
+export function DocumentChunksSelectorSchema(): z.ZodObject<Properties<DocumentChunksSelector>> {
   return z.object({
     chunk: z.number().nullish(),
     contentGlobPattern: z.string().nullish(),
     creationAuthorGlobPattern: z.string().nullish(),
+    documentId: z.string().nullish(),
+    documentNameGlobPattern: z.string().nullish(),
     extractionMethod: ExtractionMethodSchema.nullish(),
-    fileCreatedAt: DateTimePeriodSchema().nullish(),
-    fileHash: z.string().nullish(),
-    fileId: z.string().nullish(),
-    fileMimeTypeGlobPattern: z.string().nullish(),
-    filePathGlobPattern: z.string().nullish(),
-    fileUpdatedAt: DateTimePeriodSchema().nullish(),
-    fileUploadedAt: DateTimePeriodSchema().nullish(),
-    filenameGlobPattern: z.string().nullish(),
     fragment: z.number().nullish(),
     libraryId: z.string().nullish(),
     modelName: z.string().nullish(),
+    nameCreatedAt: DateTimePeriodSchema().nullish(),
+    nameHash: z.string().nullish(),
+    nameMimeTypeGlobPattern: z.string().nullish(),
+    namePathGlobPattern: z.string().nullish(),
+    nameUpdatedAt: DateTimePeriodSchema().nullish(),
+    nameUploadedAt: DateTimePeriodSchema().nullish(),
     updateAuthorGlobPattern: z.string().nullish(),
+  })
+}
+
+export function EmbeddingSettingsInputSchema(): z.ZodObject<Properties<EmbeddingSettingsInput>> {
+  return z.object({
+    modelDriver: InferenceDriverSchema,
+    modelName: z.string(),
+  })
+}
+
+export function ImageAnalysisSettingsInputSchema(): z.ZodObject<Properties<ImageAnalysisSettingsInput>> {
+  return z.object({
+    modelDriver: InferenceDriverSchema,
+    modelName: z.string(),
   })
 }
 
@@ -352,5 +369,14 @@ export function UserProfileInputSchema(): z.ZodObject<Properties<UserProfileInpu
     freeStorage: z.number().nullish(),
     lastName: z.string().nullish(),
     position: z.string().nullish(),
+  })
+}
+
+export function WorkspaceSettingsInputSchema(): z.ZodObject<Properties<WorkspaceSettingsInput>> {
+  return z.object({
+    embedding: z.lazy(() => EmbeddingSettingsInputSchema().nullish()),
+    imageAnalysis: z.lazy(() => ImageAnalysisSettingsInputSchema().nullish()),
+    storageLimitBytes: z.number().nullish(),
+    storageLimitFiles: z.number().nullish(),
   })
 }

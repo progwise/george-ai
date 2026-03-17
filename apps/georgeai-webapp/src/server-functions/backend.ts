@@ -35,10 +35,14 @@ async function backendRequest<T, V extends Variables = Variables>(
     if (typeof error === 'object' && 'response' in error) {
       const response = error.response as { errors?: Array<{ message: string }> }
       if (response.errors && response.errors.length > 0) {
+        if (response.errors.some((e) => e.message.includes('Unauthorized'))) {
+          logger.debug('Unauthorized error from backend GraphQL request', { document, variables })
+          throw new Error('Unauthorized: Please log in to perform this action.')
+        }
         logger.error('GraphQL errors returned from backend', {
           errors: JSON.stringify(response.errors, null, 2),
           document,
-          variables,
+          variables: JSON.stringify(variables),
         })
         const errorMessages = response.errors.map((e) => e.message).join('\n')
         throw new Error(errorMessages)

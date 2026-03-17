@@ -1,27 +1,27 @@
 import { builder } from '../builder'
 
-builder.inputType('FileChunksSelector', {
+builder.inputType('DocumentChunksSelector', {
   fields: (t) => ({
     libraryId: t.string({ required: false }),
-    fileId: t.string({ required: false }),
+    documentId: t.string({ required: false }),
     extractionMethod: t.field({ type: 'ExtractionMethod', required: false }),
     fragment: t.int({ required: false }),
     chunk: t.int({ required: false }),
     modelName: t.string({ required: false }),
     contentGlobPattern: t.string({ required: false }),
-    filenameGlobPattern: t.string({ required: false }),
-    filePathGlobPattern: t.string({ required: false }),
-    fileHash: t.string({ required: false }),
-    fileMimeTypeGlobPattern: t.string({ required: false }),
-    fileCreatedAt: t.field({
+    documentNameGlobPattern: t.string({ required: false }),
+    namePathGlobPattern: t.string({ required: false }),
+    nameHash: t.string({ required: false }),
+    nameMimeTypeGlobPattern: t.string({ required: false }),
+    nameCreatedAt: t.field({
       type: 'DateTimePeriod',
       required: false,
     }),
-    fileUpdatedAt: t.field({
+    nameUpdatedAt: t.field({
       type: 'DateTimePeriod',
       required: false,
     }),
-    fileUploadedAt: t.field({
+    nameUploadedAt: t.field({
       type: 'DateTimePeriod',
       required: false,
     }),

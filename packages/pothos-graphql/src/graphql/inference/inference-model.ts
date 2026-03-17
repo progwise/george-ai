@@ -1,4 +1,4 @@
-import { InferenceModel } from '@george-ai/app-schema'
+import { InferenceDriverSchema, InferenceModel } from '@george-ai/app-schema'
 import { InferenceModelState } from '@george-ai/event-service-client'
 
 import { builder } from '../builder'
@@ -19,8 +19,8 @@ builder.objectRef<InferenceModelState>('InferenceModelState').implement({
 builder.objectRef<InferenceModel>('InferenceModel').implement({
   fields: (t) => ({
     workspaceId: t.exposeString('workspaceId', { nullable: false }),
-    driver: t.expose('driver', { type: 'InferenceDriver', nullable: false }),
-    name: t.exposeString('name', { nullable: false }),
+    modelDriver: t.expose('modelDriver', { type: 'InferenceDriver', nullable: false }),
+    modelName: t.exposeString('modelName', { nullable: false }),
     canDoEmbedding: t.exposeBoolean('canDoEmbedding', { nullable: false }),
     canDoChatCompletion: t.exposeBoolean('canDoChatCompletion', { nullable: false }),
     canDoVision: t.exposeBoolean('canDoVision', { nullable: false }),
@@ -34,6 +34,12 @@ builder.prismaObject('AiLanguageModel', {
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     name: t.exposeString('name', { nullable: false }),
+    modelName: t.exposeString('name', { nullable: false }),
+    modelDriver: t.field({
+      type: 'InferenceDriver',
+      nullable: false,
+      resolve: (parent) => InferenceDriverSchema.parse(parent.provider),
+    }),
     provider: t.exposeString('provider', { nullable: false }),
     canDoEmbedding: t.exposeBoolean('canDoEmbedding', { nullable: false }),
     canDoChatCompletion: t.exposeBoolean('canDoChatCompletion', { nullable: false }),

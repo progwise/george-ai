@@ -1,15 +1,15 @@
 import { ExtractionMethod } from '@george-ai/app-schema'
 
-import { FileChunk } from '../schema'
+import { DocumentChunk } from '../schema'
 import { getChunks } from './get-chunks'
 
 export async function* readChunks(params: {
   workspaceId: string
   libraryId: string
-  fileId: string
+  documentId: string
   extractionMethod?: ExtractionMethod | null
-}): AsyncIterable<FileChunk[]> {
-  const { workspaceId, libraryId, fileId, extractionMethod } = params
+}): AsyncIterable<DocumentChunk[]> {
+  const { workspaceId, libraryId, documentId, extractionMethod } = params
 
   const batchSize = 10
   let offset = 0
@@ -19,10 +19,10 @@ export async function* readChunks(params: {
     const chunks = await getChunks({
       workspaceId,
       libraryId,
-      fileId,
+      documentId,
       extractionMethod,
       take: batchSize,
-      skip: offset,
+      firstChunk: offset, // TODO: Check if this works
     })
 
     if (chunks.length === 0) {

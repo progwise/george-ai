@@ -35,6 +35,7 @@
     "@george-ai/file-converter": "workspace:*",
     "@george-ai/file-management": "workspace:*",
     "@george-ai/mailer": "workspace:*",
+    "@george-ai/markdown-splitter": "workspace:*",
     "@george-ai/api-crawler": "workspace:*",
     "@george-ai/html-crawler-client": "workspace:*",
     "@george-ai/smb-crawler-client": "workspace:*",

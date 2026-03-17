@@ -1,16 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate, useRouteContext } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useMemo } from 'react'
 
+import { CurrentUserFragment, WorkspaceSettings } from '../../gql/graphql'
 import { useLocalstorage } from '../../hooks/use-local-storage'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { toastError, toastSuccess } from '../georgeToaster'
 import {
-  getApiKeysQueryOptions,
   getEventProcessingStatusQueryOptions,
+  getWorkspaceApiKeysQueryOptions,
   getWorkspaceEmbeddingStatisticsQueryOptions,
   getWorkspaceInvitationsQueryOptions,
+  getWorkspaceManifestQueryOptions,
   getWorkspaceMembersQueryOptions,
   getWorkspaceVectorStoreQueryOptions,
   getWorkspacesQueryOptions,
@@ -26,14 +28,14 @@ import {
   revokeApiKeyFn,
   revokeWorkspaceInvitationFn,
   setWorkspaceCookie,
+  updateWorkspaceFn,
   updateWorkspaceMemberRoleFn,
 } from './server-functions'
 
 const WORKSPACE_KEY = 'selectedWorkspaceId'
 
-export const useWorkspace = (workspaceId: string) => {
+export const useWorkspace = (user: CurrentUserFragment) => {
   const navigate = useNavigate()
-  const { user } = useRouteContext({ from: '/_authenticated' })
 
   const queryClient = useQueryClient()
   const { t } = useTranslation()
@@ -42,8 +44,12 @@ export const useWorkspace = (workspaceId: string) => {
 
   const [, setSelectedWorkspaceId] = useLocalstorage<string>(WORKSPACE_KEY)
 
+  const { data: manifest, isLoading: isLoadingManifest } = useQuery(
+    getWorkspaceManifestQueryOptions({ workspaceId: user.selectedWorkspaceId }),
+  )
+
   const { data: currentWorkspace, isLoading: isLoadingCurrentWorkspace } = useQuery(
-    getWorkspaceQueryOptions({ workspaceId: workspaceId }),
+    getWorkspaceQueryOptions({ workspaceId: user.selectedWorkspaceId }),
   )
 
   const { data: embeddingStatistics, isLoading: isLoadingEmbeddingStatistics } = useQuery(
@@ -248,7 +254,7 @@ export const useWorkspace = (workspaceId: string) => {
     mutationFn: (name: string) => generateApiKeyFn({ data: { name } }),
     onSuccess: () => {
       toastSuccess(t('apiKeys.generateSuccess'))
-      queryClient.invalidateQueries(getApiKeysQueryOptions())
+      queryClient.invalidateQueries(getWorkspaceApiKeysQueryOptions({ workspaceId: user.selectedWorkspaceId }))
     },
     onError: (error) => {
       toastError(t('toasts.error', { error: error.message }))
@@ -259,11 +265,16 @@ export const useWorkspace = (workspaceId: string) => {
     mutationFn: (id: string) => revokeApiKeyFn({ data: { id } }),
     onSuccess: () => {
       toastSuccess(t('apiKeys.revokeSuccess'))
-      queryClient.invalidateQueries(getApiKeysQueryOptions())
+      queryClient.invalidateQueries(getWorkspaceApiKeysQueryOptions({ workspaceId: user.selectedWorkspaceId }))
     },
     onError: (error) => {
       toastError(t('toasts.error', { error: error.message }))
     },
+  })
+
+  const updateWorkspaceMutation = useMutation({
+    mutationFn: (data: { workspaceId: string; name?: string; settings?: WorkspaceSettings }) =>
+      updateWorkspaceFn({ data }),
   })
 
   return {
@@ -275,6 +286,7 @@ export const useWorkspace = (workspaceId: string) => {
     generateApiKey: generateApiKeyMutation.mutate,
     isDefaultWorkspace,
     setWorkspace,
+    manifest,
     members,
     invitations,
     currentUserRole,
@@ -289,6 +301,7 @@ export const useWorkspace = (workspaceId: string) => {
     validate,
     createWorkspace: createWorkspaceMutation.mutate,
     deleteWorkspace: deleteWorkspaceMutation.mutate,
+    updateWorkspace: updateWorkspaceMutation.mutate,
     isLoading:
       isLoadingWorkspaces ||
       isLoadingMembers ||
@@ -296,7 +309,8 @@ export const useWorkspace = (workspaceId: string) => {
       isLoadingEmbeddingStatistics ||
       isLoadingCurrentWorkspace ||
       isLoadingProcessingStatus ||
-      isLoadingVectorStore,
+      isLoadingVectorStore ||
+      isLoadingManifest,
     isPending:
       leaveWorkspaceMutation.isPending ||
       removeMemberMutation.isPending ||
@@ -306,6 +320,7 @@ export const useWorkspace = (workspaceId: string) => {
       deleteWorkspaceMutation.isPending ||
       createWorkspaceMutation.isPending ||
       revokeApiKeyMutation.isPending ||
-      generateApiKeyMutation.isPending,
+      generateApiKeyMutation.isPending ||
+      updateWorkspaceMutation.isPending,
   }
 }

@@ -21,13 +21,19 @@ const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getSimilarChunks($libraryId: String!, $fileId: String!, $term: String, $hits: Int!, $fragment: Int) {
-          similarChunks(libraryId: $libraryId, fileId: $fileId, term: $term, maxResults: $hits, fragment: $fragment) {
+        query getSimilarChunks($libraryId: String!, $documentId: String!, $term: String, $hits: Int!, $fragment: Int) {
+          similarChunks(
+            libraryId: $libraryId
+            documentId: $documentId
+            term: $term
+            maxResults: $hits
+            fragment: $fragment
+          ) {
             id
             distance
             chunk
-            fileName
-            fileId
+            documentName
+            documentId
             extractionMethod
             content
             embeddingModelNames

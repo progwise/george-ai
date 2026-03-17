@@ -7,8 +7,8 @@ builder.simpleObject('WorkspaceSettings', {
     embedding: t.field({
       type: builder.simpleObject('WorkspaceEmbeddingSettings', {
         fields: (t) => ({
-          embeddingModelProvider: t.string({ nullable: false }),
-          embeddingModelName: t.string({ nullable: false }),
+          modelDriver: t.field({ type: 'InferenceDriver', nullable: false }),
+          modelName: t.string({ nullable: false }),
         }),
       }),
       nullable: true,
@@ -16,8 +16,8 @@ builder.simpleObject('WorkspaceSettings', {
     imageAnalysis: t.field({
       type: builder.simpleObject('WorkspaceImageAnalysisSettings', {
         fields: (t) => ({
-          imageAnalysisModelProvider: t.string({ nullable: false }),
-          imageAnalysisModelName: t.string({ nullable: false }),
+          modelDriver: t.field({ type: 'InferenceDriver', nullable: false }),
+          modelName: t.string({ nullable: false }),
         }),
       }),
       nullable: true,

@@ -1,11 +1,15 @@
 import { Link } from '@tanstack/react-router'
 import { useMemo, useRef } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 import { ExtractionMethod } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
-import { BoltIcon } from '../../../icons/bolt-icon'
+import { CheckBadgeIcon } from '../../../icons/check-badge-icon'
+import { GearIcon } from '../../../icons/gear-icon'
+import { RefreshIcon } from '../../../icons/refresh-icon'
+import { ReprocessIcon } from '../../../icons/reprocess-icon'
 import { ClientDate } from '../../client-date'
-import { toastSuccess } from '../../georgeToaster'
+import { Popout } from '../../popout'
 import { useDocumentActions } from './use-document-actions'
 
 interface ExtractionSelectorProps {
@@ -69,81 +73,76 @@ export const ExtractionSelector = ({
     return { options, selectedOption }
   }, [availableExtractionMethods, extractions, t, sourceHash, selectedExtractionMethod])
 
-  const statusIcon = (status: 'not-extracted' | 'unknown-source' | 'up-to-date' | 'outdated' | 'not-available') => {
-    if (!status) return null
-    switch (status) {
-      case 'not-extracted':
-        return '⚪'
-      case 'unknown-source':
-        return '🟡'
-      case 'up-to-date':
-        return '🟢'
-      case 'outdated':
-        return '🔴'
-      case 'not-available':
-        return '⚫'
-      default:
-        return null
-    }
+  const statusMap = {
+    'not-extracted': { text: 'Not Extracted', color: 'text-base-content/40' },
+    'unknown-source': { text: 'Unknown Source', color: 'text-warning' },
+    'up-to-date': { text: 'Up to Date', color: 'text-success' },
+    outdated: { text: 'Outdated', color: 'text-error' },
+    'not-available': { text: 'Not Available', color: 'text-base-content/30' },
   }
-
   return (
-    <ul className="menu menu-horizontal m-0 items-center gap-2 p-0">
-      <li
-        className="tooltip tooltip-right menu-title text-base-content"
-        data-tip="Extraction status: 🟢 Up-to-date, 🟡 Unknown source, 🔴 Outdated, ⚪ Not extracted, ⚫ Not available"
-      >
-        <span>{statusIcon(selectedOption.status)}</span>
-      </li>
-      <li>
-        <details ref={detailsRef}>
-          <summary>{selectedOption?.title || 'Select extraction'}</summary>
-          <ul>
-            {options.map((option) => (
-              <li key={`${option.extractionMethod}}`}>
+    <Popout
+      icon={<CheckBadgeIcon className={twMerge('size-4', statusMap[selectedOption.status].color)} />}
+      buttonLabel={selectedOption.title}
+    >
+      <ul className="list mt-2 rounded-box bg-base-100 p-2 shadow-md">
+        {options.map((option) => (
+          <li
+            key={`${option.extractionMethod}}`}
+            className={twMerge(
+              'list-row cursor-default rounded-box hover:bg-base-300',
+              option.extractionMethod === selectedOption.extractionMethod ? 'bg-base-300' : '',
+            )}
+          >
+            <div>
+              <Link
+                className="btn btn-square btn-ghost"
+                to="/libraries/$libraryId/files/$fileId"
+                search={{ extractionMethod: option.extractionMethod }}
+                params={{ libraryId, fileId: documentId }}
+                onClick={() => detailsRef.current?.removeAttribute('open')}
+              >
+                <CheckBadgeIcon className={twMerge('inline size-6', statusMap[option.status].color)}></CheckBadgeIcon>
+              </Link>
+            </div>
+            <div>
+              <div>
                 <Link
+                  className="link link-hover"
                   to="/libraries/$libraryId/files/$fileId"
                   search={{ extractionMethod: option.extractionMethod }}
                   params={{ libraryId, fileId: documentId }}
-                  className="text-nowrap"
                   onClick={() => detailsRef.current?.removeAttribute('open')}
                 >
-                  <span>{statusIcon(option.status)}</span>
                   {option.title}
+                  <span className={`badge badge-sm ${statusMap[option.status].color}`}>
+                    {statusMap[option.status].text}
+                  </span>
                 </Link>
-              </li>
-            ))}
-          </ul>
-        </details>
-      </li>
-      {selectedOption && (
-        <li>
-          <button
-            type="button"
-            onClick={() =>
-              triggerExtraction(
-                { extractionMethod: selectedOption.extractionMethod },
-                {
-                  onSuccess: () =>
-                    toastSuccess(
-                      t('files.extractionTriggered', {
-                        id: `extraction-triggered-${documentId}-${selectedOption.extractionMethod}`,
-                      }),
-                    ),
-                },
-              )
-            }
-            disabled={isPending}
-            data-tip={`Execute ${selectedOption.title}`}
-            className="hover:text-accent"
-          >
-            <BoltIcon />
-            <span>
-              <ClientDate date={selectedOption.updated || selectedOption.created} />
-            </span>
-          </button>
-        </li>
-      )}
-    </ul>
+              </div>
+              <div className="text-xs font-semibold uppercase opacity-60">
+                <GearIcon className="inline size-4" />: <ClientDate date={option.created} />
+                {option.updated && (
+                  <>
+                    <br />
+                    <RefreshIcon className="inline size-4" />: <ClientDate date={option.updated} />
+                  </>
+                )}
+              </div>
+            </div>
+            <div>
+              <button
+                type="button"
+                className="btn btn-square btn-ghost"
+                onClick={() => triggerExtraction({ extractionMethod: option.extractionMethod })}
+                disabled={isPending || option.status === 'not-available'}
+              >
+                <ReprocessIcon className="inline size-5" />
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Popout>
   )
 }

@@ -6,7 +6,7 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { toastError, toastSuccess } from '../georgeToaster'
 import { logger } from './common'
 import {
-  getFileChunksQueryOptions,
+  getDocumentChunksQueryOptions,
   getFilesQueryOptions,
   getLibrariesQueryOptions,
   getLibraryQueryOptions,
@@ -32,7 +32,7 @@ export const useLibraryActions = (libraryId: string) => {
       ...(fileIds
         ? fileIds.map((fileId) =>
             queryClient.invalidateQueries({
-              queryKey: getFileChunksQueryOptions({ libraryId, fileId }).queryKey,
+              queryKey: getDocumentChunksQueryOptions({ libraryId, documentId: fileId }).queryKey,
             }),
           )
         : []),

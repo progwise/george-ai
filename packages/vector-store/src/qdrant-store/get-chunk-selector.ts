@@ -3,10 +3,10 @@ import { Schemas } from '@qdrant/js-client-rest'
 import { VectorStoreChunksSelector } from '../schema'
 
 export const getChunkSelector = (selector: VectorStoreChunksSelector): Schemas['Filter'] => {
-  if (selector.fileId && !selector.libraryId) {
+  if (selector.documentId && !selector.libraryId) {
     throw new Error('libraryId is required when fileId is provided')
   }
-  if (selector.extractionMethod && !selector.fileId) {
+  if (selector.extractionMethod && !selector.documentId) {
     throw new Error('fileId is required when extractionMethod is provided')
   }
   if (!selector.extractionMethod && selector.fragment) {
@@ -43,10 +43,10 @@ export const getChunkSelector = (selector: VectorStoreChunksSelector): Schemas['
     })
   }
 
-  if (selector.fileId) {
+  if (selector.documentId) {
     filter.must.push({
-      key: 'fileId',
-      match: { value: selector.fileId },
+      key: 'documentId',
+      match: { value: selector.documentId },
     })
   }
 
@@ -78,65 +78,65 @@ export const getChunkSelector = (selector: VectorStoreChunksSelector): Schemas['
     })
   }
 
-  if (selector.filenameGlobPattern) {
+  if (selector.documentNameGlobPattern) {
     filter.must.push({
-      key: 'filename',
-      match: { wildcard: selector.filenameGlobPattern },
+      key: 'documentName',
+      match: { wildcard: selector.documentNameGlobPattern },
     })
   }
 
-  if (selector.filePathGlobPattern) {
+  if (selector.documentPathGlobPattern) {
     filter.must.push({
-      key: 'filePath',
-      match: { wildcard: selector.filePathGlobPattern },
+      key: 'documentPath',
+      match: { wildcard: selector.documentPathGlobPattern },
     })
   }
 
-  if (selector.fileHash) {
+  if (selector.documentHash) {
     filter.must.push({
-      key: 'fileHash',
-      match: { value: selector.fileHash },
+      key: 'documentHash',
+      match: { value: selector.documentHash },
     })
   }
 
-  if (selector.fileMimeTypeGlobPattern) {
+  if (selector.documentMimeTypeGlobPattern) {
     filter.must.push({
-      key: 'fileMimeType',
-      match: { wildcard: selector.fileMimeTypeGlobPattern },
+      key: 'documentMimeType',
+      match: { wildcard: selector.documentMimeTypeGlobPattern },
     })
   }
 
-  if (selector.fileCreatedAt) {
+  if (selector.documentCreatedAt) {
     filter.must.push({
-      key: 'fileCreatedAt',
+      key: 'documentCreatedAt',
       match: {
         range: {
-          ...(selector.fileCreatedAt.earliest ? { gte: selector.fileCreatedAt.earliest.toISOString() } : {}),
-          ...(selector.fileCreatedAt.latest ? { lte: selector.fileCreatedAt.latest.toISOString() } : {}),
+          ...(selector.documentCreatedAt.earliest ? { gte: selector.documentCreatedAt.earliest.toISOString() } : {}),
+          ...(selector.documentCreatedAt.latest ? { lte: selector.documentCreatedAt.latest.toISOString() } : {}),
         },
       },
     })
   }
 
-  if (selector.fileUpdatedAt) {
+  if (selector.documentUpdatedAt) {
     filter.must.push({
-      key: 'fileUpdatedAt',
+      key: 'documentUpdatedAt',
       match: {
         range: {
-          ...(selector.fileUpdatedAt.earliest ? { gte: selector.fileUpdatedAt.earliest.toISOString() } : {}),
-          ...(selector.fileUpdatedAt.latest ? { lte: selector.fileUpdatedAt.latest.toISOString() } : {}),
+          ...(selector.documentUpdatedAt.earliest ? { gte: selector.documentUpdatedAt.earliest.toISOString() } : {}),
+          ...(selector.documentUpdatedAt.latest ? { lte: selector.documentUpdatedAt.latest.toISOString() } : {}),
         },
       },
     })
   }
 
-  if (selector.fileUploadedAt) {
+  if (selector.documentUploadedAt) {
     filter.must.push({
-      key: 'fileUploadedAt',
+      key: 'documentUploadedAt',
       match: {
         range: {
-          ...(selector.fileUploadedAt.earliest ? { gte: selector.fileUploadedAt.earliest.toISOString() } : {}),
-          ...(selector.fileUploadedAt.latest ? { lte: selector.fileUploadedAt.latest.toISOString() } : {}),
+          ...(selector.documentUploadedAt.earliest ? { gte: selector.documentUploadedAt.earliest.toISOString() } : {}),
+          ...(selector.documentUploadedAt.latest ? { lte: selector.documentUploadedAt.latest.toISOString() } : {}),
         },
       },
     })

@@ -13,9 +13,7 @@ interface DeleteWorkspaceDialogProps {
 export const DeleteWorkspaceDialog = ({ user, ref }: DeleteWorkspaceDialogProps) => {
   const { t } = useTranslation()
 
-  const { currentWorkspace, deleteWorkspace, setWorkspace, isPending, isLoading } = useWorkspace(
-    user.selectedWorkspaceId,
-  )
+  const { currentWorkspace, deleteWorkspace, setWorkspace, isPending, isLoading } = useWorkspace(user)
 
   const canDeleteWorkspace = useMemo(() => {
     if (!currentWorkspace) return false

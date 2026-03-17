@@ -1,4 +1,5 @@
 import { WorkspaceManifest } from '@george-ai/file-management'
+import { WorkspaceSettingsSchema } from '@george-ai/file-management/src/workspace-storage/schema/manifest'
 
 import { builder } from '../builder'
 
@@ -13,7 +14,7 @@ builder.objectRef<WorkspaceManifest>('WorkspaceManifest').implement({
 
     settings: t.field({
       type: 'WorkspaceSettings',
-      resolve: (workspace) => workspace.settings,
+      resolve: (workspace) => workspace.settings || WorkspaceSettingsSchema.parse({}),
       nullable: false,
     }),
     storageStats: t.field({

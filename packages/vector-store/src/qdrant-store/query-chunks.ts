@@ -1,4 +1,4 @@
-import { FileChunk, VectorStoreChunkSchema, VectorStoreChunksSelector } from '../schema'
+import { DocumentChunk, VectorStoreChunkSchema, VectorStoreChunksSelector } from '../schema'
 import { getCollectionName, qdrantClient } from './common'
 import { getChunkSelector } from './get-chunk-selector'
 
@@ -7,7 +7,7 @@ export async function queryChunks(parameters: {
   selector: VectorStoreChunksSelector
   take: number
   skip: number
-}): Promise<{ hitCount: number; chunks: Array<FileChunk> }> {
+}): Promise<{ hitCount: number; chunks: Array<DocumentChunk> }> {
   const { workspaceId, selector, take, skip } = parameters
   const collectionName = getCollectionName(workspaceId)
   const filter = getChunkSelector(selector)

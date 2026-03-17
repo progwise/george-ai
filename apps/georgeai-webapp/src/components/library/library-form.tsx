@@ -2,12 +2,12 @@ import React from 'react'
 import { twMerge } from 'tailwind-merge'
 
 import { graphql } from '../../gql'
-import { AiLibraryForm_LibraryFragment } from '../../gql/graphql'
+import { AiLibraryForm_LibraryFragment, CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ReprocessIcon } from '../../icons/reprocess-icon'
 import { SaveIcon } from '../../icons/save-icon'
 import { Input } from '../form/input'
-import { ModelSelect } from '../form/model-select'
+import { ModelSelect } from '../model'
 import { ApiKeysCard } from './api-keys-card'
 import { getLibraryUpdateFormSchema } from './server-functions/update-library'
 import { useLibraryActions } from './use-library-actions'
@@ -23,11 +23,15 @@ graphql(`
       id
       name
       provider
+      modelName
+      modelDriver
     }
     ocrModel {
       id
       name
       provider
+      modelName
+      modelDriver
     }
     fileConverterOptions
     autoProcessCrawledFiles
@@ -35,10 +39,11 @@ graphql(`
 `)
 
 export interface LibraryEditFormProps {
+  user: CurrentUserFragment
   library: AiLibraryForm_LibraryFragment
 }
 
-export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactElement => {
+export const LibraryForm = ({ user, library }: LibraryEditFormProps): React.ReactElement => {
   const { t, language } = useTranslation()
   const formRef = React.useRef<HTMLFormElement>(null)
   const fileConverterOptionsRef = React.useRef<HTMLInputElement>(null)
@@ -184,7 +189,6 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                     label={t('labels.embeddingModelName')}
                     value={library.embeddingModel}
                     className="col-span-1"
-                    placeholder={t('libraries.placeholders.embeddingModelName')}
                     capability="embedding"
                     {...fieldProps}
                   />
@@ -300,7 +304,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
                         value={library.ocrModel}
                         className="col-span-2 lg:col-span-1"
                         placeholder={t('labels.ocrModelPlaceholder')}
-                        readonly={!isImageProcessingEnabled}
+                        disabled={!isImageProcessingEnabled}
                         capability="vision"
                         {...fieldProps}
                       />
@@ -358,7 +362,7 @@ export const LibraryForm = ({ library }: LibraryEditFormProps): React.ReactEleme
           <div className="card-body">
             <h2 className="card-title text-base-content/80">{t('apiKeys.title')}</h2>
             {/* API Keys Management should move to workspaces */}
-            <ApiKeysCard />
+            <ApiKeysCard user={user} />
           </div>
         </div>
       </div>

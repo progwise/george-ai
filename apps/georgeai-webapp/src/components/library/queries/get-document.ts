@@ -6,15 +6,12 @@ import { graphql } from '../../../gql'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
-const getFileFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: unknown) =>
-    z
-      .object({
-        libraryId: z.string().nonempty(),
-        fileId: z.string().nonempty(),
-      })
-      .parse(data),
-  )
+const GetDocumentParameterSchema = z.object({
+  libraryId: z.string().nonempty(),
+  fileId: z.string().nonempty(),
+})
+const getDocumentFn = createServerFn({ method: 'GET' })
+  .inputValidator((data: z.infer<typeof GetDocumentParameterSchema>) => GetDocumentParameterSchema.parse(data))
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
@@ -60,12 +57,9 @@ const getFileFn = createServerFn({ method: 'GET' })
     return result.file
   })
 
-export const getFileQueryOptions = (parameters: { fileId: string; libraryId: string }) => {
-  if (parameters.fileId === 'attachments') {
-    throw new Error('Attachments are not supported for getFile query')
-  }
+export const getDocumentQueryOptions = (parameters: { fileId: string; libraryId: string }) => {
   return queryOptions({
-    queryKey: [queryKeys.File, parameters],
-    queryFn: () => getFileFn({ data: parameters }),
+    queryKey: [queryKeys.Document, parameters],
+    queryFn: () => getDocumentFn({ data: parameters }),
   })
 }

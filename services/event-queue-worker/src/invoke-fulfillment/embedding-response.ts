@@ -28,7 +28,7 @@ export async function getEmbeddingResponse(event: EmbeddingRequest): Promise<Emb
     version: 1,
     action: 'chunkEmbedding',
     embeddings: result.embeddings,
-    workspaceId: '',
+    workspaceId,
     verb: 'response',
     timestamp: new Date(),
     tokens: result.totalTokens,

@@ -1843,6 +1843,11 @@ export type AiConversationInvitationFindManyArgs<
    * Skip the first `n` AiConversationInvitations.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiConversationInvitations.
+   */
   distinct?: Prisma.AiConversationInvitationScalarFieldEnum | Prisma.AiConversationInvitationScalarFieldEnum[]
 }
 

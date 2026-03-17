@@ -1,15 +1,15 @@
 import { ExtractionMethod } from '@george-ai/app-schema'
-import { FileChunk, vectorStore } from '@george-ai/vector-store'
+import { DocumentChunk, vectorStore } from '@george-ai/vector-store'
 
 export async function* readChunks(params: {
   workspaceId: string
   libraryId: string
-  fileId: string
+  documentId: string
   extractionMethod: ExtractionMethod
-}): AsyncIterable<FileChunk[]> {
-  const { workspaceId, libraryId, fileId, extractionMethod } = params
+}): AsyncIterable<DocumentChunk[]> {
+  const { workspaceId, libraryId, documentId, extractionMethod } = params
 
-  for await (const chunk of vectorStore.readChunks({ workspaceId, libraryId, fileId, extractionMethod })) {
+  for await (const chunk of vectorStore.readChunks({ workspaceId, libraryId, documentId, extractionMethod })) {
     yield chunk
   }
 }

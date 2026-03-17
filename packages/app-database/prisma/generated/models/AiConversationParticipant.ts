@@ -1894,6 +1894,11 @@ export type AiConversationParticipantFindManyArgs<
    * Skip the first `n` AiConversationParticipants.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiConversationParticipants.
+   */
   distinct?: Prisma.AiConversationParticipantScalarFieldEnum | Prisma.AiConversationParticipantScalarFieldEnum[]
 }
 

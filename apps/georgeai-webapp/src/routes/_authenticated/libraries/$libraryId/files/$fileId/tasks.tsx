@@ -36,11 +36,11 @@ function RouteComponent() {
   )
 
   return (
-    <div className="flex h-full flex-col gap-2 items-center">
+    <div className="flex h-full flex-col items-center gap-2">
       <h1 className="text-2xl font-bold">
         {t('files.processingTasks')} {fileId}
       </h1>
-      {isLoading && <div className="loading loading-spinner loading-sm"></div>}
+      {isLoading && <div className="loading loading-sm loading-spinner"></div>}
       {error && (
         <div className="text-error">
           {t('errors.withColon')}

@@ -25,6 +25,8 @@ export const DocumentVectorizationStatusSchema = WorkspaceStatusBaseSchema.exten
   libraryId: z.string().min(3),
   documentId: z.string().min(3),
   splitMethod: z.enum(['standard']),
+  extractionMethod: ExtractionMethodSchema,
+
   embeddingDriver: InferenceDriverSchema,
   embeddingModel: z.string().min(3),
   status: z.enum(['pending', 'started', 'progress', 'finished', 'failure']),

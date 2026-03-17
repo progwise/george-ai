@@ -5,7 +5,7 @@ import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
 import { DocumentExtractionViewer, ExtractionSelector } from '../../../../../../components/library/files'
-import { getExtractionQueryOptions, getFileQueryOptions } from '../../../../../../components/library/queries'
+import { getDocumentQueryOptions, getExtractionQueryOptions } from '../../../../../../components/library/queries'
 import { Pagination } from '../../../../../../components/table/pagination'
 import { ExtractionMethodSchema } from '../../../../../../gql/validation'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
@@ -24,7 +24,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   loader: async ({ context, params, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(getExtractionQueryOptions({ ...params, ...deps })),
-      context.queryClient.ensureQueryData(getFileQueryOptions(params)),
+      context.queryClient.ensureQueryData(getDocumentQueryOptions(params)),
       context.queryClient.ensureQueryData(getBackendPublicUrlQueryOptions()),
     ])
   },
@@ -37,7 +37,7 @@ function RouteComponent() {
   const { extractionMethod, fragment } = Route.useSearch()
   const [viewMarkdownSource, setViewMarkdownSource] = useState(false)
 
-  const { data: aiLibraryFile } = useSuspenseQuery(getFileQueryOptions({ fileId, libraryId }))
+  const { data: aiLibraryFile } = useSuspenseQuery(getDocumentQueryOptions({ fileId, libraryId }))
   const { data: backendPublicUrl } = useSuspenseQuery(getBackendPublicUrlQueryOptions())
 
   const { data: { extraction: selectedExtraction } = {} } = useSuspenseQuery(
@@ -59,13 +59,13 @@ function RouteComponent() {
           selectedExtractionMethod={selectedExtraction?.extractionMethod}
           availableExtractionMethods={aiLibraryFile.supportedExtractionMethods || []}
         />
-        <ul className="menu menu-horizontal w-full items-center justify-end menu-sm">
+        <ul className="menu menu-horizontal w-full items-center justify-end menu-xs">
           <li className="flex items-center"></li>
           {fragment && selectedExtraction && (
             <li>
               <button
                 type="button"
-                className="btn btn-ghost btn-sm"
+                className="btn btn-ghost"
                 onClick={() => navigate({ search: { extractionMethod: selectedExtraction?.extractionMethod } })}
               >
                 ← Back to Summary

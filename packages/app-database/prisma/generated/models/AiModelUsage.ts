@@ -2192,6 +2192,11 @@ export type AiModelUsageFindManyArgs<
    * Skip the first `n` AiModelUsages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiModelUsages.
+   */
   distinct?: Prisma.AiModelUsageScalarFieldEnum | Prisma.AiModelUsageScalarFieldEnum[]
 }
 

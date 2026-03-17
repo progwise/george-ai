@@ -299,6 +299,8 @@ type AiLanguageModel {
   lastUsedAt: DateTime
   librariesUsingAsEmbedding: [AiLibrary!]
   listFieldsUsing: [AiListField!]
+  modelDriver: InferenceDriver!
+  modelName: String!
   name: String!
   provider: String!
 }
@@ -667,7 +669,6 @@ type ApiKey {
   name: String!
   user: User!
   userId: String!
-  workspace: Workspace!
   workspaceId: String!
 }
 
@@ -825,6 +826,11 @@ enum AutomationTriggerType {
   SCHEDULE
 }
 
+type AvailableWorkspaceInferenceModels {
+  count: Int!
+  models: [InferenceModel!]!
+}
+
 scalar BigInt
 
 type ComputeFieldValueResult {
@@ -944,6 +950,47 @@ input DateTimePeriod {
 
 scalar Decimal
 
+type DocumentChunk {
+  chunk: Int!
+  content: String
+  documentId: String!
+  documentName: String
+  embeddingModelNames: [String!]
+  extractionMethod: String!
+  fragment: Int
+  id: String!
+  libraryId: String!
+}
+
+type DocumentChunksQueryResult {
+  hitCount: Int!
+  results: [DocumentChunk!]!
+}
+
+type DocumentChunksResponse {
+  chunks: [DocumentChunk!]!
+  totalCount: Int
+}
+
+input DocumentChunksSelector {
+  chunk: Int
+  contentGlobPattern: String
+  creationAuthorGlobPattern: String
+  documentId: String
+  documentNameGlobPattern: String
+  extractionMethod: ExtractionMethod
+  fragment: Int
+  libraryId: String
+  modelName: String
+  nameCreatedAt: DateTimePeriod
+  nameHash: String
+  nameMimeTypeGlobPattern: String
+  namePathGlobPattern: String
+  nameUpdatedAt: DateTimePeriod
+  nameUploadedAt: DateTimePeriod
+  updateAuthorGlobPattern: String
+}
+
 type DocumentExtraction {
   created: DateTime!
   extractionMethod: ExtractionMethod!
@@ -998,6 +1045,11 @@ type DocumentVectorizationRequest implements EventQueueRequest {
   timestamp: DateTime!
   version: Int
   workspaceId: String!
+}
+
+input EmbeddingSettingsInput {
+  modelDriver: InferenceDriver!
+  modelName: String!
 }
 
 """
@@ -1173,47 +1225,6 @@ type FieldValueResult {
   queueStatus: String
 }
 
-type FileChunk {
-  chunk: Int!
-  content: String
-  embeddingModelNames: [String!]
-  extractionMethod: String!
-  fileId: String!
-  fileName: String
-  fragment: Int
-  id: String!
-  libraryId: String!
-}
-
-type FileChunksQueryResult {
-  hitCount: Int!
-  results: [FileChunk!]!
-}
-
-type FileChunksResponse {
-  chunks: [FileChunk!]!
-  totalCount: Int
-}
-
-input FileChunksSelector {
-  chunk: Int
-  contentGlobPattern: String
-  creationAuthorGlobPattern: String
-  extractionMethod: ExtractionMethod
-  fileCreatedAt: DateTimePeriod
-  fileHash: String
-  fileId: String
-  fileMimeTypeGlobPattern: String
-  filePathGlobPattern: String
-  fileUpdatedAt: DateTimePeriod
-  fileUploadedAt: DateTimePeriod
-  filenameGlobPattern: String
-  fragment: Int
-  libraryId: String
-  modelName: String
-  updateAuthorGlobPattern: String
-}
-
 """
 Response type for files query
 """
@@ -1241,6 +1252,11 @@ type HumanParticipant implements AiConversationParticipant {
   name: String
   user: User
   userId: ID
+}
+
+input ImageAnalysisSettingsInput {
+  modelDriver: InferenceDriver!
+  modelName: String!
 }
 
 enum InferenceAction {
@@ -1298,9 +1314,9 @@ type InferenceModel {
   canDoEmbedding: Boolean!
   canDoFunctionCalling: Boolean!
   canDoVision: Boolean!
-  driver: InferenceDriver!
   enabled: Boolean!
-  name: String!
+  modelDriver: InferenceDriver!
+  modelName: String!
   workspaceId: String!
 }
 
@@ -1699,6 +1715,7 @@ type Mutation {
   updateModel(data: UpdateAiLanguageModelInput!, id: ID!): AiLanguageModel
   updateUserAvatar(avatarUrl: String): User
   updateUserProfile(input: UserProfileInput!, profileId: String!): UserProfile
+  updateWorkspace(name: String, settings: WorkspaceSettingsInput, workspaceId: ID!): WorkspaceManifest!
   upsertAiBaseCases(assistantId: String!, baseCases: [AiBaseCaseInputType!]!): [AiAssistantBaseCase!]
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
 }
@@ -1779,15 +1796,14 @@ type Query {
     usageType: String
   ): ModelUsageStats
   apiCrawlerTemplates: [ApiCrawlerTemplate!]!
-  apiKeys: [ApiKey!]!
   automation(id: ID!): Automation!
   automationBatches(automationId: ID!, skip: Int, take: Int): [AutomationBatch!]!
   automationItem(id: ID!): AutomationItem!
   automationItems(automationId: ID!, inScope: Boolean, skip: Int, status: String, take: Int): AutomationItemsResult!
   automations(listId: String): [Automation!]!
   chunkCount(
+    documentId: String
     extractionMethod: ExtractionMethod
-    fileId: String
     fragment: Int
     libraryId: String
     modelName: String
@@ -1798,6 +1814,14 @@ type Query {
   connectors(connectorType: String): [AiConnector!]!
   countFiles(libraryId: String!, namePrefix: String, originUriPrefix: String, showArchived: Boolean!): Int!
   currentUser: CurrentUser!
+  documentChunks(
+    documentId: String!
+    extractionMethod: ExtractionMethod
+    firstChunk: Int
+    fragment: Int
+    libraryId: String!
+    take: Int
+  ): DocumentChunksResponse
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
   eventQueueRequests(
     action: EventQueueAction!
@@ -1808,14 +1832,6 @@ type Query {
   eventQueueStats(workspaceId: String!): [EventQueue!]!
   extraction(extractionMethod: ExtractionMethod, fileId: String!, libraryId: String!): ExtractionManifest
   file(fileId: String!, libraryId: String!): AiLibraryFile!
-  fileChunks(
-    extractionMethod: ExtractionMethod
-    fileId: String!
-    fragment: Int
-    libraryId: String!
-    skip: Int
-    take: Int
-  ): FileChunksResponse
   files(
     libraryId: String
     showArchived: Boolean = false
@@ -1827,6 +1843,14 @@ type Query {
   inferenceHostConfig: [InferenceHostConfig!]!
   inferenceHostState: [InferenceHostState!]!
   inferenceModelState: [InferenceModelState!]!
+  inferenceModels(
+    canDoChatCompletion: Boolean
+    canDoEmbedding: Boolean
+    canDoVision: Boolean
+    limit: Int!
+    search: String
+    workspaceId: String!
+  ): AvailableWorkspaceInferenceModels!
   legacyFiles(workspaceId: String!): [LegacyFilesResponse!]!
   libraries(
     skip: Int
@@ -1849,9 +1873,9 @@ type Query {
     take: Int = 20
   ): AiLanguageModelsResult!
   myWorkspaceInvitations: [WorkspaceInvitation!]!
-  queryFileChunks(query: String!, selector: FileChunksSelector!, skip: Int, take: Int): FileChunksQueryResult!
+  queryFileChunks(query: String!, selector: DocumentChunksSelector!, skip: Int, take: Int): DocumentChunksQueryResult!
   similarChunks(
-    fileId: String
+    documentId: String
     fragment: Int
     libraryId: String
     maxResults: Int = 20
@@ -1864,10 +1888,12 @@ type Query {
   version: String
   workers: [WorkerSlotEntry!]!
   workspace(workspaceId: String!): Workspace!
+  workspaceApiKeys: [ApiKey!]!
   workspaceConnectorTypes: [AiConnectorTypeWorkspace!]!
   workspaceInvitation(invitationId: ID!): WorkspaceInvitation!
   workspaceInvitations(workspaceId: ID!): [WorkspaceInvitation!]!
   workspaceLibraries(workspaceId: String!): [AiLibrary!]!
+  workspaceManifest(workspaceId: String!): WorkspaceManifest!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
   workspaces(
     skip: Int
@@ -1894,10 +1920,10 @@ type SimilarChunkResult {
   content: String
   dispatchEvent: Float!
   distance: Float!
+  documentId: String!
+  documentName: String
   embeddingModelNames: [String!]
   extractionMethod: String!
-  fileId: String!
-  fileName: String
   fragment: Int
   id: String!
   libraryId: String!
@@ -1951,10 +1977,13 @@ type TriggerAutomationResult {
 }
 
 type TriggerExtractionResult {
+  documentManifest: DocumentManifest!
+  extractionMethod: ExtractionMethod
   success: Boolean!
 }
 
 type TriggerVectorizationResult {
+  documentManifest: DocumentManifest!
   success: Boolean!
 }
 
@@ -2077,13 +2106,13 @@ type Workspace {
 }
 
 type WorkspaceEmbeddingSettings {
-  embeddingModelName: String!
-  embeddingModelProvider: String!
+  modelDriver: InferenceDriver!
+  modelName: String!
 }
 
 type WorkspaceImageAnalysisSettings {
-  imageAnalysisModelName: String!
-  imageAnalysisModelProvider: String!
+  modelDriver: InferenceDriver!
+  modelName: String!
 }
 
 type WorkspaceInvitation {
@@ -2131,6 +2160,13 @@ type WorkspaceSettings {
   embedding: WorkspaceEmbeddingSettings
   imageAnalysis: WorkspaceImageAnalysisSettings
   storageLimitBytes: Int
+  storageLimitFiles: Int
+}
+
+input WorkspaceSettingsInput {
+  embedding: EmbeddingSettingsInput
+  imageAnalysis: ImageAnalysisSettingsInput
+  storageLimitBytes: Float
   storageLimitFiles: Int
 }
 

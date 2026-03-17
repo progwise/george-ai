@@ -5,6 +5,7 @@ import { createWorkspace } from './create-workspace'
 import { deleteWorkspace } from './delete-workspace'
 import { existsWorkspace } from './exists-workspace'
 import { getWorkspace } from './get-workspace'
+import { saveWorkspace } from './save-workspace'
 
 export default {
   create: createWorkspace,
@@ -13,7 +14,16 @@ export default {
   get: getWorkspace,
   reconcile: reconcileWorkspace,
   migrate: migrateWorkspace,
+  save: saveWorkspace,
   storageStats,
 }
 
-export { createWorkspace, deleteWorkspace, getWorkspace, reconcileWorkspace, migrateWorkspace, existsWorkspace }
+export {
+  createWorkspace,
+  deleteWorkspace,
+  getWorkspace,
+  reconcileWorkspace,
+  migrateWorkspace,
+  existsWorkspace,
+  saveWorkspace,
+}

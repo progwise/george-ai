@@ -2,7 +2,7 @@ import { twMerge } from 'tailwind-merge'
 
 import { IconProps } from './icon-props'
 
-const UserIcon = ({ className }: IconProps) => {
+export const UserIcon = ({ className }: IconProps) => {
   return (
     <svg
       className={twMerge('size-4', className)}

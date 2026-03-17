@@ -1,18 +1,45 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useRef } from 'react'
 
+import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { PlusIcon } from '../../icons/plus-icon'
 import { ClientDate } from '../client-date'
-import { getApiKeysQueryOptions } from '../workspace/queries'
+import { getWorkspaceApiKeysQueryOptions } from '../workspace/queries'
 import { ApiKeyGenerationModal } from './api-key-generation-modal'
 import { ApiKeyRevokeButton } from './api-key-revoke-button'
 
-export const ApiKeysCard = () => {
+interface ApiKeysCardProperties {
+  user: CurrentUserFragment
+}
+
+export const ApiKeysCard = ({ user }: ApiKeysCardProperties) => {
   const { t } = useTranslation()
+
   const createDialogRef = useRef<HTMLDialogElement>(null)
 
-  const { data: apiKeys } = useSuspenseQuery(getApiKeysQueryOptions())
+  const {
+    data: apiKeys,
+    isLoading,
+    isError,
+    error,
+  } = useQuery(getWorkspaceApiKeysQueryOptions({ workspaceId: user.selectedWorkspaceId }))
+
+  if (isLoading) {
+    return (
+      <div className="skeleton p-8 text-center text-base-content/60">
+        <p>{t('loading')}...</p>
+      </div>
+    )
+  }
+
+  if (isError || error || !apiKeys) {
+    return (
+      <div className="rounded-lg border-2 border-error p-8 text-center text-error">
+        <pre>{JSON.stringify(error, null, 2)}</pre>
+      </div>
+    )
+  }
 
   return (
     <>

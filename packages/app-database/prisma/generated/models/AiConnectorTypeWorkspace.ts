@@ -1329,6 +1329,11 @@ export type AiConnectorTypeWorkspaceFindManyArgs<
    * Skip the first `n` AiConnectorTypeWorkspaces.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiConnectorTypeWorkspaces.
+   */
   distinct?: Prisma.AiConnectorTypeWorkspaceScalarFieldEnum | Prisma.AiConnectorTypeWorkspaceScalarFieldEnum[]
 }
 

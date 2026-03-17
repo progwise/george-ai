@@ -21,6 +21,12 @@ export const triggerVectorizationFn = createServerFn({ method: 'POST' })
         mutation triggerVectorization($extractionMethod: ExtractionMethod, $libraryId: String!, $documentId: String!) {
           triggerVectorization(extractionMethod: $extractionMethod, libraryId: $libraryId, documentId: $documentId) {
             success
+            documentManifest {
+              documentId
+              name
+              sourceHash
+              created
+            }
           }
         }
       `),

@@ -8,10 +8,12 @@ import { getWorkspaceProviders } from './get-workspace-providers'
 import { invalidateWorkspace } from './invalidate-workspace'
 import { migrateWorkspace } from './migrate-workspace'
 import { INVITATION_EXPIRY_DAYS, sendWorkspaceInvitationEmail } from './send-invitation-email'
+import { updateWorkspace } from './update'
 
 export default {
   createWorkspace,
   deleteWorkspace,
+  updateWorkspace,
   ensureSystemWorkspace,
   invalidateWorkspace,
   migrateWorkspace,
@@ -26,6 +28,7 @@ export default {
 export {
   createWorkspace,
   deleteWorkspace,
+  updateWorkspace,
   ensureSystemWorkspace,
   invalidateWorkspace,
   migrateWorkspace,

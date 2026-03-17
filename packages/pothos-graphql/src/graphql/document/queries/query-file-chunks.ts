@@ -1,14 +1,14 @@
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
-import { FileChunk, vectorStore } from '@george-ai/vector-store'
+import { DocumentChunk, vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
 
 builder.queryField('queryFileChunks', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
-    type: builder.objectRef<{ hitCount: number; chunks: Array<FileChunk> }>('FileChunksQueryResult').implement({
+    type: builder.objectRef<{ hitCount: number; chunks: Array<DocumentChunk> }>('DocumentChunksQueryResult').implement({
       fields: (t) => ({
         hitCount: t.exposeInt('hitCount', { nullable: false }),
-        results: t.expose('chunks', { type: ['FileChunk'], nullable: false }),
+        results: t.expose('chunks', { type: ['DocumentChunk'], nullable: false }),
       }),
     }),
     nullable: false,
@@ -17,7 +17,7 @@ builder.queryField('queryFileChunks', (t) =>
       skip: t.arg.int({ required: false }),
       take: t.arg.int({ required: false }),
       selector: t.arg({
-        type: 'FileChunksSelector',
+        type: 'DocumentChunksSelector',
         required: true,
       }),
     },

@@ -1,5 +1,6 @@
 import './host-config'
 import './host-state'
+import './inference-models'
 import './model-state'
 import './model-usage'
 import './models'

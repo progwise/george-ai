@@ -6,17 +6,17 @@ import { getChunkSelector } from './get-chunk-selector'
 export async function removeChunks(parameters: {
   workspaceId: string
   libraryId: string
-  fileId?: string
+  documentId?: string
   extractionMethod?: ExtractionMethod | null
 }): Promise<void> {
-  const { workspaceId, libraryId, fileId, extractionMethod } = parameters
+  const { workspaceId, libraryId, documentId, extractionMethod } = parameters
   const collectionName = getCollectionName(workspaceId)
   const exists = await qdrantClient.collectionExists(collectionName)
   if (!exists) {
     return
   }
 
-  const filterConditions = getChunkSelector({ libraryId, fileId, extractionMethod })
+  const filterConditions = getChunkSelector({ libraryId, documentId, extractionMethod })
 
   await qdrantClient.delete(collectionName, { filter: filterConditions, wait: true })
 }

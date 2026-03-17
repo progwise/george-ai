@@ -12,19 +12,23 @@ builder.queryField('chunkCount', (t) =>
     nullable: true,
     args: {
       workspaceId: t.arg.string({ required: true }),
-      fileId: t.arg.string({ required: false }),
+      documentId: t.arg.string({ required: false }),
       libraryId: t.arg.string({ required: false }),
       extractionMethod: t.arg({ required: false, type: 'ExtractionMethod' }),
       modelName: t.arg.string({ required: false }),
       fragment: t.arg.int({ required: false }),
     },
-    resolve: async (_root, { fileId, libraryId, workspaceId, extractionMethod, modelName, fragment }, { session }) => {
+    resolve: async (
+      _root,
+      { documentId, libraryId, workspaceId, extractionMethod, modelName, fragment },
+      { session },
+    ) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
       try {
         const chunkCount = await vectorStore.getChunkCount({
           workspaceId,
           libraryId,
-          fileId,
+          documentId,
           extractionMethod,
           modelName,
           fragment,
@@ -34,7 +38,7 @@ builder.queryField('chunkCount', (t) =>
         logger.error('Error fetching chunk count', {
           error,
           workspaceId,
-          fileId,
+          documentId,
           libraryId,
         })
         throw new GraphQLError('Failed to fetch chunk count', { originalError: error as Error })

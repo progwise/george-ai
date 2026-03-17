@@ -27,8 +27,11 @@ builder.queryField('vectorStore', (t) =>
     resolve: async (_root, { workspaceId }, { session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
       try {
-        const vectorStoreInformation = await vectorStore.getWorkspace(workspaceId)
-        return vectorStoreInformation
+        const vectorStoreInformation = await vectorStore.getWorkspaceCollection(workspaceId)
+        return {
+          ...vectorStoreInformation,
+          modelNames: vectorStoreInformation?.modelConfigs?.map((config) => config.modelName) || null,
+        }
       } catch (error) {
         logger.error('Error fetching vector store information', {
           error,

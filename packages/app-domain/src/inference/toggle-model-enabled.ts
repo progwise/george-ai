@@ -28,7 +28,7 @@ export async function toggleInferenceModelEnabled(params: {
   }
 
   const modelInWorkspace = workspaceConfig.inferenceModels.find(
-    (model) => model.name === modelName && model.driver === params.driver,
+    (model) => model.modelName === modelName && model.modelDriver === params.driver,
   )
 
   if (!modelInWorkspace) {
@@ -65,7 +65,7 @@ export async function toggleInferenceModelEnabled(params: {
   }
 
   const updatedModels = workspaceConfig.inferenceModels.map((model) =>
-    model.name === modelName && model.driver === params.driver ? updatedModel : model,
+    model.modelName === modelName && model.modelDriver === params.driver ? updatedModel : model,
   )
 
   await writeRegistryEntry({

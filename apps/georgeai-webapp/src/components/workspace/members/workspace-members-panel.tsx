@@ -38,7 +38,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
     isLoading,
     isPending,
     currentWorkspace,
-  } = useWorkspace(user.selectedWorkspaceId)
+  } = useWorkspace(user)
 
   const currentUserIsOwner = currentUserRole === 'owner'
 

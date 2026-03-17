@@ -1,5 +1,6 @@
 import { GraphQLError } from 'graphql/error/GraphQLError'
 
+import { getErrorMessage } from '@george-ai/app-commons'
 import { canWriteWorkspaceOrThrow, triggerVectorization } from '@george-ai/app-domain'
 import { getDocument } from '@george-ai/file-management'
 
@@ -11,6 +12,7 @@ builder.mutationField('triggerVectorization', (t) =>
     type: builder.simpleObject('TriggerVectorizationResult', {
       fields: (t) => ({
         success: t.boolean({ nullable: false }),
+        documentManifest: t.field({ type: 'DocumentManifest', nullable: false }),
       }),
     }),
     args: {
@@ -31,10 +33,16 @@ builder.mutationField('triggerVectorization', (t) =>
 
       try {
         await triggerVectorization({ documentManifest, extractionMethod })
-        return { success: true }
+        return { success: true, documentManifest }
       } catch (error) {
-        logger.error('Error publishing trigger vectorization event', { error, extractionMethod, documentManifest })
-        throw new GraphQLError('Failed to trigger vectorization', { originalError: error as Error })
+        const errorMessage = getErrorMessage(error)
+        logger.error('Error publishing trigger vectorization event', {
+          error,
+          errorMessage,
+          extractionMethod,
+          documentManifest,
+        })
+        throw new GraphQLError(`${errorMessage}`, { originalError: error as Error })
       }
     },
   }),

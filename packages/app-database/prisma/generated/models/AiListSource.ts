@@ -1533,6 +1533,11 @@ export type AiListSourceFindManyArgs<
    * Skip the first `n` AiListSources.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiListSources.
+   */
   distinct?: Prisma.AiListSourceScalarFieldEnum | Prisma.AiListSourceScalarFieldEnum[]
 }
 

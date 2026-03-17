@@ -52,7 +52,7 @@ describe.sequential('Base sequential flow', () => {
   })
 
   it('Should create a file', async () => {
-    const result = await document.createDocument(TEST_WORKSPACE_ID, {
+    const result = await document.create(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       name: 'Test File',
       originalContentHash: 'abc123',
@@ -79,7 +79,7 @@ describe.sequential('Base sequential flow', () => {
   it.skipIf(() => isConfigured('GITHUB_TOKEN'))('Should upload the file content', async () => {
     const filePath = await getTestAssetLocalPath('sample-extraction.pdf')
     const stream = createReadStream(filePath)
-    const result = await document.uploadDocumentSource(TEST_WORKSPACE_ID, {
+    const result = await document.uploadSource(TEST_WORKSPACE_ID, {
       libraryId: TEST_LIBRARY_ID,
       documentId: TEST_FILE_ID,
       stream: stream,

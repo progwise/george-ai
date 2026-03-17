@@ -5,12 +5,9 @@ import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../builder'
 
-/*
-Main file object for GraphQL usage. AiLibraryFile is because we use our grown prisma model.
-TODO: Decide if we keep AiLibraryFile as type name or change it to File and rename the prisma model as well.
-*/
 builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
+
   fields: (t) => ({
     id: t.exposeID('id', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
@@ -27,7 +24,6 @@ builder.prismaObject('AiLibraryFile', {
     dropError: t.exposeString('dropError', { nullable: true }),
     originModificationDate: t.expose('originModificationDate', { type: 'DateTime', nullable: true }),
     archivedAt: t.expose('archivedAt', { type: 'DateTime', nullable: true }),
-
     manifest: t.withAuth({ isLoggedIn: true }).field({
       type: 'DocumentManifest',
       nullable: true,
@@ -63,7 +59,7 @@ builder.prismaObject('AiLibraryFile', {
         const chunkCount = await vectorStore.getChunkCount({
           workspaceId,
           libraryId: file.libraryId,
-          fileId: file.id,
+          documentId: file.id,
         })
         return chunkCount
       },

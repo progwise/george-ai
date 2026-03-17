@@ -7,17 +7,19 @@ import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ConversationIcon } from '../../icons/conversation-icon'
 import { FolderPlusIcon } from '../../icons/folder-plus'
+import { GearIcon } from '../../icons/gear-icon'
 import { LibraryIcon } from '../../icons/library-icon'
 import { LinkIcon } from '../../icons/link-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
 import { TrashIcon } from '../../icons/trash-icon'
-import UserIcon from '../../icons/user-icon'
+import { UserIcon } from '../../icons/user-icon'
 import { UsersIcon } from '../../icons/users-icon'
 import { getAutomationsQueryOptions } from '../automations/queries'
 import { getLibrariesQueryOptions } from '../library/queries/get-libraries'
 import { getListsQueryOptions } from '../lists/queries'
 import { WorkspaceMembersDialog } from '../workspace/members/workspace-members-dialog'
 import { useWorkspace } from '../workspace/use-workspace'
+import { WorkspaceSettingsDialog } from '../workspace/workspace-settings'
 import { SidebarDivider } from './sidebar-divider'
 import { SidebarHeader } from './sidebar-header'
 import { SidebarNavGroup } from './sidebar-nav-group'
@@ -44,7 +46,8 @@ export function Sidebar({
 }: SidebarProps) {
   const { t } = useTranslation()
   const membersDialogRef = useRef<HTMLDialogElement>(null)
-  const { validate, isDefaultWorkspace, currentUserRole } = useWorkspace(user.selectedWorkspaceId)
+  const settingsDialogRef = useRef<HTMLDialogElement>(null)
+  const { validate, isDefaultWorkspace, currentUserRole } = useWorkspace(user)
 
   const {
     data: { items: libraries, totalCount: librariesCount },
@@ -161,6 +164,18 @@ export function Sidebar({
           <li className="px-1">
             <button
               type="button"
+              onClick={() => settingsDialogRef.current?.showModal()}
+              className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 hover:bg-base-300 is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              data-tip={t('workspace.settings.title')}
+              aria-label={t('workspace.settings.title')}
+            >
+              <GearIcon className="size-4 shrink-0" />
+              <span className="text-sm whitespace-nowrap is-drawer-close:hidden">{t('workspace.settings.title')}</span>
+            </button>
+          </li>
+          <li className="px-1">
+            <button
+              type="button"
               onClick={() => createWorkspaceDialogRef.current?.showModal()}
               className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 hover:bg-base-300 is-drawer-close:tooltip is-drawer-close:tooltip-right"
               data-tip={t('workspace.createLong')}
@@ -191,6 +206,7 @@ export function Sidebar({
       </label>
 
       <WorkspaceMembersDialog user={user} ref={membersDialogRef} />
+      <WorkspaceSettingsDialog user={user} ref={settingsDialogRef} />
     </div>
   )
 }

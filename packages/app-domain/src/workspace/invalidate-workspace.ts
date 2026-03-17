@@ -43,8 +43,8 @@ export async function invalidateWorkspace(workspaceId: string) {
     inferenceModels: entity.languageModels.map((model) =>
       InferenceModelSchema.parse({
         workspaceId,
-        name: model.name,
-        driver: InferenceDriverSchema.parse(model.provider),
+        modelName: model.name,
+        modelDriver: InferenceDriverSchema.parse(model.provider),
         canDoEmbedding: model.canDoEmbedding,
         canDoChatCompletion: model.canDoChatCompletion,
         canDoFunctionCalling: model.canDoFunctionCalling,
@@ -58,10 +58,9 @@ export async function invalidateWorkspace(workspaceId: string) {
     ...c,
     lastUpdate: undefined, // Ignore lastUpdate in comparison since it will always be different
     inferenceHosts: [...c.inferenceHosts].sort((a, b) => a.hostId.localeCompare(b.hostId)),
-    inferenceModels: [...c.inferenceModels].sort((a, b) => a.name.localeCompare(b.name)),
+    inferenceModels: [...c.inferenceModels].sort((a, b) => a.modelName.localeCompare(b.modelName)),
   })
 
   if (originalConfig && JSON.stringify(normalize(originalConfig)) === JSON.stringify(normalize(config))) return
-
   await writeRegistryEntry(config)
 }

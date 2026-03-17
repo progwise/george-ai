@@ -5,13 +5,13 @@ import { getChunkIdentifier, getCollectionName, qdrantClient } from './common'
 export async function upsertEmbeddings(parameters: {
   workspaceId: string
   libraryId: string
-  fileId: string
+  documentId: string
   extractionMethod: ExtractionMethod
   fragment?: number | null
   embeddingModelName: string
   embeddings: Array<{ chunk: number; vector: number[] }>
 }): Promise<void> {
-  const { workspaceId, libraryId, fileId, extractionMethod, fragment, embeddingModelName, embeddings } = parameters
+  const { workspaceId, libraryId, documentId, extractionMethod, fragment, embeddingModelName, embeddings } = parameters
   const collectionName = getCollectionName(workspaceId)
 
   if (embeddings.length === 0) {
@@ -22,7 +22,7 @@ export async function upsertEmbeddings(parameters: {
     points: embeddings.map(({ chunk, vector }) => ({
       id: getChunkIdentifier({
         libraryId,
-        fileId,
+        documentId,
         extractionMethod,
         fragment,
         chunk,

@@ -1768,6 +1768,11 @@ export type AiConversationMessageFindManyArgs<
    * Skip the first `n` AiConversationMessages.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiConversationMessages.
+   */
   distinct?: Prisma.AiConversationMessageScalarFieldEnum | Prisma.AiConversationMessageScalarFieldEnum[]
 }
 

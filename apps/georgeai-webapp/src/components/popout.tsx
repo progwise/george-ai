@@ -1,4 +1,5 @@
-import { useId } from 'react'
+import { useLocation } from '@tanstack/react-router'
+import { useEffect, useId, useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
 interface PopoutProps {
@@ -12,6 +13,12 @@ interface PopoutProps {
 
 export function Popout({ color = 'neutral', size = 'sm', ...props }: PopoutProps) {
   const id = useId()
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const location = useLocation()
+
+  useEffect(() => {
+    popoverRef.current?.hidePopover()
+  }, [location.pathname, location.search, location.hash])
 
   const colorMap = {
     info: 'text-info group-has-[:popover-open]:bg-info/20 group-has-[:popover-open]:text-info',
@@ -21,17 +28,17 @@ export function Popout({ color = 'neutral', size = 'sm', ...props }: PopoutProps
     primary: 'text-primary group-has-[:popover-open]:bg-primary/20 group-has-[:popover-open]:text-primary',
     secondary:
       'text-secondary group-has-[:popover-open]:bg-secondary/20 group-has-[:popover-open]:text-secondary-content',
-    neutral: 'text-neutral group-has-[:popover-open]:bg-neutral group-has-[:popover-open]:text-neutral-content',
+    neutral: 'text-base-content group-has-[:popover-open]:bg-neutral group-has-[:popover-open]:text-neutral-content',
   }
 
-  const iconColorMap = {
-    info: 'text-info',
-    success: 'text-success',
-    warning: 'text-warning',
-    error: 'text-error',
-    primary: 'text-primary',
-    secondary: 'text-secondary',
-    neutral: 'text-neutral',
+  const panelColorMap = {
+    info: 'bg-base-200/100 text-info-content border border-info/60',
+    success: 'bg-base/100 text-success-content border border-success/60',
+    warning: 'bg-base/100 text-warning-content border border-warning/60',
+    error: 'bg-base/100 text-error-content border border-error/60',
+    primary: 'bg-base/100 text-primary-content border border-primary/60',
+    secondary: 'bg-base/10 text-secondary-content border border-secondary/60',
+    neutral: 'bg-base-100 text-base-content',
   }
 
   const sizeMap = {
@@ -81,18 +88,19 @@ export function Popout({ color = 'neutral', size = 'sm', ...props }: PopoutProps
             '--p-left': 'anchor(left)',
           } as React.CSSProperties
         }
-        className="fixed inset-auto inset-x-4 bottom-4 z-1 m-0
-               w-auto max-w-xl
-               rounded-box bg-base-100 p-2 shadow-xl
-               backdrop:bg-black/20 backdrop:transition-opacity
-               sm:inset-x-auto sm:top-(--p-top)
-               sm:bottom-auto sm:left-(--p-left)"
+        className={twMerge(
+          'fixed inset-auto inset-x-4 bottom-4 z-1 m-0 bg-base-100',
+          'w-auto max-w-xl',
+          'rounded-box p-2 shadow-xl',
+          'backdrop:bg-black/20 backdrop:transition-opacity',
+          'sm:inset-x-auto sm:top-(--p-top)',
+          'sm:bottom-auto sm:left-(--p-left)',
+          panelColorMap[color],
+        )}
         popover="auto"
         id={`popover-${id}`}
+        ref={popoverRef}
       >
-        {props.icon && (
-          <div className={twMerge('absolute top-1 left-2 opacity-30', iconColorMap[color])}>{props.icon}</div>
-        )}
         {props.children || (
           <div>
             <h3 className="text-lg font-bold">Popover Title</h3>

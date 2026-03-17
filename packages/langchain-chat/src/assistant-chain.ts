@@ -103,7 +103,7 @@ export async function* askAssistantChain(input: {
     const messages = vectorStoreResult.map(
       (result) =>
         new SystemMessage({
-          content: `Found the following document ${result.fileName} in the library ${library.name} while searching for ${libraryPromptResult.searchPrompt}:
+          content: `Found the following document ${result.documentName} in the library ${library.name} while searching for ${libraryPromptResult.searchPrompt}:
 
         START OF DOCUMENT
 

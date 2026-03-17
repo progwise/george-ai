@@ -49,7 +49,9 @@ export async function handleHostUpdate(config: InferenceHostConfig) {
     }),
   )
 
-  for (const discoveredModel in discoveredModels) {
+  logger.debug('Discovered models:', { config, discoveredModels, loadedModels, existingModelState })
+
+  for (const discoveredModel of discoveredModels) {
     const existingModel = existingModelState.find((state) => state.modelName === discoveredModel)
     await writeState({
       type: 'inferenceModel',
@@ -64,5 +66,7 @@ export async function handleHostUpdate(config: InferenceHostConfig) {
       responseTimeMsPerToken: existingModel?.responseTimeMsPerToken || 100_000,
       connected: report.isConnected,
     })
+      .then((state) => logger.debug('Updated model state', { state }))
+      .catch((error) => logger.error('Error updating model state', { error, modelName: discoveredModel }))
   }
 }

@@ -51,6 +51,8 @@ services:
       # Collection defaults
       - QDRANT__COLLECTION__DEFAULT_REPLICATION_FACTOR=1
       - QDRANT__COLLECTION__DEFAULT_WRITE_CONSISTENCY_FACTOR=1
+      # API Key
+      - QDRANT__SERVICE__API_KEY=Test123
     ports:
       - '6333:6333' # HTTP API
       - '6334:6334' # gRPC API

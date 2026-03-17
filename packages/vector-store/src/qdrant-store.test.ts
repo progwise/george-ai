@@ -1,6 +1,6 @@
 import { vectorStore } from '.'
 import { createWorkspace, getChunks, removeWorkspace, upsertChunks, upsertEmbeddings } from './qdrant-store'
-import { FileChunk, VectorStoreChunk } from './schema'
+import { DocumentChunk, VectorStoreChunk } from './schema'
 
 describe.sequential('Vector Store with Qdrant  ', () => {
   const TEST_WORKSPACE_ID = `test-workspace-qdrant-store_${Date.now()}`
@@ -25,34 +25,34 @@ describe.sequential('Vector Store with Qdrant  ', () => {
       {
         id: 'chunk1',
         libraryId: 'lib1',
-        fileId: 'file1',
+        documentId: 'file1',
         extractionMethod: 'textExtraction',
         chunk: 0,
         content: 'This is a test chunk 1',
-        fileName: 'testfile.md',
+        documentName: 'testfile.md',
       },
       {
         id: 'chunk2',
         libraryId: 'lib1',
-        fileId: 'file1',
+        documentId: 'file1',
         extractionMethod: 'textExtraction',
         chunk: 1,
         content: 'This is a test chunk 2',
-        fileName: 'testfile.md',
+        documentName: 'testfile.md',
       },
     ]
     await upsertChunks({ workspaceId: TEST_WORKSPACE_ID, chunks })
   })
   it('should retrieve stored chunks', async () => {
-    const retrievedChunks = await new Promise<FileChunk[]>((resolve) => {
+    const retrievedChunks = await new Promise<DocumentChunk[]>((resolve) => {
       const interval = setInterval(async () => {
         const chunks = await getChunks({
           workspaceId: TEST_WORKSPACE_ID,
           libraryId: 'lib1',
-          fileId: 'file1',
+          documentId: 'file1',
           extractionMethod: 'textExtraction',
           take: 10,
-          skip: 0,
+          firstChunk: 0,
         })
         if (chunks.length > 1) {
           clearInterval(interval)
@@ -82,7 +82,7 @@ describe.sequential('Vector Store with Qdrant  ', () => {
     await upsertEmbeddings({
       workspaceId: TEST_WORKSPACE_ID,
       libraryId: 'lib1',
-      fileId: 'file1',
+      documentId: 'file1',
       extractionMethod: 'textExtraction',
       embeddingModelName: 'testModel',
       embeddings,
@@ -92,10 +92,10 @@ describe.sequential('Vector Store with Qdrant  ', () => {
     const retrievedChunks = await getChunks({
       workspaceId: TEST_WORKSPACE_ID,
       libraryId: 'lib1',
-      fileId: 'file1',
+      documentId: 'file1',
       extractionMethod: 'textExtraction',
       take: 10,
-      skip: 0,
+      firstChunk: 0,
     })
     expect(retrievedChunks.length).toBe(2)
     const sortedChunks = retrievedChunks.sort((a, b) => a.chunk - b.chunk)

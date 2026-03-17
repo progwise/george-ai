@@ -1466,6 +1466,11 @@ export type AiAssistantBaseCaseFindManyArgs<
    * Skip the first `n` AiAssistantBaseCases.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiAssistantBaseCases.
+   */
   distinct?: Prisma.AiAssistantBaseCaseScalarFieldEnum | Prisma.AiAssistantBaseCaseScalarFieldEnum[]
 }
 

@@ -1,10 +1,10 @@
 import SchemaBuilder from '@pothos/core'
-import PrismaPlugin from '@pothos/plugin-prisma'
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth'
 import SimpleObjectsPlugin from '@pothos/plugin-simple-objects'
 
 import { getConfigValue } from '@george-ai/app-commons'
-import { type PothosTypes, Prisma, getDatamodel, prisma } from '@george-ai/app-database'
+import { PrismaPothosPlugin, prisma } from '@george-ai/app-database'
+import { type PothosTypes, Prisma, getDatamodel } from '@george-ai/app-database'
 import { Context, LoggedInContext } from '@george-ai/app-domain'
 
 import { GeorgeEnumTypes, GeorgeInputTypes, GeorgeInterfaceTypes, GeorgeObjectTypes } from './common'
@@ -46,7 +46,7 @@ const builder = new SchemaBuilder<{
   }
 }>({
   defaultInputFieldRequiredness: true,
-  plugins: [ScopeAuthPlugin, SimpleObjectsPlugin, PrismaPlugin],
+  plugins: [ScopeAuthPlugin, SimpleObjectsPlugin, PrismaPothosPlugin],
   prisma: {
     client: prisma,
     dmmf: getDatamodel(),

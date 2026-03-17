@@ -1439,6 +1439,11 @@ export type UserProfileFindManyArgs<
    * Skip the first `n` UserProfiles.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of UserProfiles.
+   */
   distinct?: Prisma.UserProfileScalarFieldEnum | Prisma.UserProfileScalarFieldEnum[]
 }
 

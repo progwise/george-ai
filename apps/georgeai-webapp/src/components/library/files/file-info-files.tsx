@@ -44,8 +44,8 @@ export const FileInfoFilesMenu = ({ file }: FileInfoFilesMenuProps) => {
   const fileUrl = new URL(`${backendPublicUrl}/library-files/${file.libraryId}/${file.id}`)
   const fileName = file.name || 'unknown'
   return (
-    <div>
-      <ul className="menu menu-xs">
+    <div className="text-base-content/60">
+      <ul className="menu w-full menu-xs rounded-box">
         <li>
           {file.manifest ? (
             <a href={`${fileUrl}`} className="link wrap-break-word link-hover" download={fileName}>

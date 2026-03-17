@@ -1782,6 +1782,11 @@ export type AiListItemCacheFindManyArgs<
    * Skip the first `n` AiListItemCaches.
    */
   skip?: number
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+   *
+   * Filter by unique combinations of AiListItemCaches.
+   */
   distinct?: Prisma.AiListItemCacheScalarFieldEnum | Prisma.AiListItemCacheScalarFieldEnum[]
 }
 

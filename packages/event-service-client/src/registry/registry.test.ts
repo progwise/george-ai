@@ -33,8 +33,8 @@ describe('event-service-client workspace tests', () => {
       ],
       inferenceModels: [
         {
-          name: 'model-1',
-          driver: 'ollama',
+          modelName: 'model-1',
+          modelDriver: 'ollama',
           canDoChatCompletion: true,
           canDoEmbedding: false,
           canDoFunctionCalling: false,
@@ -84,8 +84,8 @@ describe('event-service-client workspace tests', () => {
       ],
       inferenceModels: [
         {
-          name: 'model-1',
-          driver: 'ollama',
+          modelName: 'model-1',
+          modelDriver: 'ollama',
           version: 1,
           canDoEmbedding: false,
           canDoChatCompletion: false,
