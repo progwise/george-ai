@@ -1,7 +1,7 @@
 import { ExtractionMethod } from '@george-ai/app-schema'
 
 import { DocumentChunk, VectorStoreChunkSchema } from '../schema'
-import { getCollectionName, qdrantClient } from './common'
+import { getCollectionName, logger, qdrantClient } from './common'
 import { getChunkSelector } from './get-chunk-selector'
 
 export async function getChunks(parameters: {
@@ -24,14 +24,25 @@ export async function getChunks(parameters: {
   const filterConditions = getChunkSelector({ libraryId, documentId, extractionMethod, fragment })
 
   try {
-    const points = await qdrantClient.scroll(collectionName, {
+    const { points } = await qdrantClient.scroll(collectionName, {
       filter: filterConditions,
       limit: take,
       with_payload: true,
       with_vector: true,
       order_by: { key: 'chunk', direction: 'asc', start_from: firstChunk ? firstChunk : 0 },
     })
-    return points.points.map((point) => {
+    logger.debug('Fetched chunks from Qdrant', {
+      collectionName,
+      filterConditions,
+      take,
+      firstChunk,
+      points: points.map((point) => ({
+        id: point.id,
+        payload: JSON.stringify(point.payload, null, 2),
+        vectors: point.vector ? Object.keys(point.vector) : [],
+      })),
+    })
+    return points.map((point) => {
       const embeddingModelNames = point.vector ? Object.keys(point.vector) : []
       return {
         embeddingModelNames,
