@@ -94,6 +94,7 @@ export async function* askAssistantChain(input: {
 
     const vectorStoreResult = await vectorStore.findSimilarChunks({
       workspaceId: input.workspaceId,
+      modelDriver: library.embeddingModelProvider,
       libraryId: library.id,
       vector,
       topK: 4,

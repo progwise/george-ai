@@ -29,12 +29,6 @@ export const VectorStoreChunkSchema = VectorStoreChunkIdentifierSchema.extend({
 
 export type VectorStoreChunk = z.infer<typeof VectorStoreChunkSchema>
 
-export const DocumentChunkSchema = VectorStoreChunkSchema.extend({
-  embeddingModelNames: z.array(z.string()).optional(),
-})
-
-export type DocumentChunk = z.infer<typeof DocumentChunkSchema>
-
 // Record with model name as key and vector as value
 export type VectorModelMap = Record<string, number[]>
 

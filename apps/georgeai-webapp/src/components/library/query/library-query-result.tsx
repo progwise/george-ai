@@ -6,7 +6,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { FormattedMarkdown } from '../../formatted-markdown'
 
 graphql(`
-  fragment LibraryQueryResult_FileChunk on DocumentChunk {
+  fragment LibraryQueryResult_FileChunk on VectorStoreChunk {
     id
     libraryId
     documentId

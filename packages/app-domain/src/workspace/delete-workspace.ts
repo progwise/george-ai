@@ -31,7 +31,20 @@ export async function deleteWorkspace(workspaceId: string): Promise<void> {
         },
       })
 
-      await vectorStore.removeWorkspace(workspaceId)
+      const manifest = await ws.get(workspaceId)
+
+      const { modelDriver, modelName } = manifest?.settings?.embedding || {}
+
+      if (modelDriver && modelName) {
+        await vectorStore.removeVectorStore({ workspaceId, modelDriver, modelName }).catch((error) => {
+          logger.error('Error removing vector store during workspace deletion', { error, workspaceId })
+        })
+      } else {
+        logger.warn('Workspace manifest does not contain embedding settings, skipping vector store deletion', {
+          workspaceId,
+          manifest,
+        })
+      }
 
       await ws.delete(workspaceId)
 

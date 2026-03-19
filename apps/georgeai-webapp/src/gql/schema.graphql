@@ -950,26 +950,9 @@ input DateTimePeriod {
 
 scalar Decimal
 
-type DocumentChunk {
-  chunk: Int!
-  content: String
-  documentId: String!
-  documentName: String
-  embeddingModelNames: [String!]
-  extractionMethod: String!
-  fragment: Int
-  id: String!
-  libraryId: String!
-}
-
 type DocumentChunksQueryResult {
   hitCount: Int!
-  results: [DocumentChunk!]!
-}
-
-type DocumentChunksResponse {
-  chunks: [DocumentChunk!]!
-  totalCount: Int
+  results: [VectorStoreChunk!]!
 }
 
 input DocumentChunksSelector {
@@ -1806,7 +1789,6 @@ type Query {
     extractionMethod: ExtractionMethod
     fragment: Int
     libraryId: String
-    modelName: String
     workspaceId: String!
   ): Int
   connector(id: ID!): AiConnector!
@@ -1821,7 +1803,7 @@ type Query {
     fragment: Int
     libraryId: String!
     take: Int
-  ): DocumentChunksResponse
+  ): VectorStoreChunkResponse
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
   eventQueueRequests(
     action: EventQueueAction!
@@ -1922,7 +1904,6 @@ type SimilarChunkResult {
   distance: Float!
   documentId: String!
   documentName: String
-  embeddingModelNames: [String!]
   extractionMethod: String!
   fragment: Int
   id: String!
@@ -2051,12 +2032,27 @@ type UserStatistic {
 type VectorStore {
   chunkCount: Int
   exists: Boolean!
-  id: String!
-  modelNames: [String!]
   name: String!
   status: String
   version: Int
   warnings: [String!]
+  workspaceId: String!
+}
+
+type VectorStoreChunk {
+  chunk: Int!
+  content: String
+  documentId: String!
+  documentName: String
+  extractionMethod: String!
+  fragment: Int
+  id: String!
+  libraryId: String!
+}
+
+type VectorStoreChunkResponse {
+  chunks: [VectorStoreChunk!]!
+  totalCount: Int
 }
 
 enum WorkerActionResult {

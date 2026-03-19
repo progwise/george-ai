@@ -1,13 +1,14 @@
-import { EmbeddingStatus } from '@george-ai/app-schema'
+import { EmbeddingStatus, InferenceDriver } from '@george-ai/app-schema'
 
 import { getCollection, getCollectionName, logger } from './common'
 
 export async function getEmbeddingStatus(parameters: {
   workspaceId: string
+  modelDriver: InferenceDriver
   embeddingModelName?: string
 }): Promise<EmbeddingStatus> {
-  const { workspaceId, embeddingModelName } = parameters
-  const collectionName = getCollectionName(workspaceId)
+  const { workspaceId, modelDriver, embeddingModelName } = parameters
+  const collectionName = getCollectionName({ workspaceId, modelDriver, modelName: embeddingModelName || '' })
   const collectionInfo = await getCollection(collectionName)
   if (!collectionInfo) {
     logger.warn('Qdrant collection not found for workspace when checking embedding status', { workspaceId })

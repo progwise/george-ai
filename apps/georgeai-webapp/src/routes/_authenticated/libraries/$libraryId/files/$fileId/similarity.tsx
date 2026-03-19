@@ -27,7 +27,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
       context.queryClient.ensureQueryData(
         getSimilarFileChunksQueryOptions({
           libraryId: params.libraryId,
-          fileId: params.fileId,
+          documentId: params.fileId,
           term: deps.term,
           hits: deps.hits,
           fragment: deps.fragment,
@@ -47,7 +47,7 @@ function RouteComponent() {
   const { data: similarChunks } = useQuery(
     getSimilarFileChunksQueryOptions({
       libraryId,
-      fileId,
+      documentId: fileId,
       term: term,
       hits: hits,
       fragment: fragment,
@@ -95,7 +95,7 @@ function RouteComponent() {
             <p className="mt-2 text-base-content/70">Find semantically similar content in your documents</p>
           </div>
           <div className="flex items-center gap-2">
-            <label className="input input-xs w-36">
+            <label className="input input-xs flex w-auto items-center gap-2">
               <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
                   <circle cx="11" cy="11" r="8"></circle>
@@ -262,7 +262,7 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
             {similarChunks.map((chunk, index) => {
               // Calculate distance gap from previous chunk
               const prevChunk = index > 0 ? similarChunks[index - 1] : null

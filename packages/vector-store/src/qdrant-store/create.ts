@@ -1,5 +1,7 @@
 import { Schemas } from '@qdrant/js-client-rest'
 
+import { DistanceMetric, InferenceDriver } from '@george-ai/app-schema'
+
 import { getCollectionName, logger, qdrantClient } from './common'
 
 const ensurePayloadIndex = async (
@@ -24,26 +26,31 @@ const ensurePayloadIndex = async (
   })
 }
 
-export async function createWorkspace(parameters: {
+export async function createVectorStore(parameters: {
   workspaceId: string
-  vectors: {
-    // TODO: model names are defined on library level
-    [modelName: string]: {
-      size: number
-      distance: 'Cosine' | 'Dot' | 'Euclid' | 'Manhattan'
-    }
+  model: {
+    modelDriver: InferenceDriver
+    modelName: string
+    size: number
+    distance: DistanceMetric
   }
 }): Promise<void> {
-  const { workspaceId, vectors } = parameters
-  const collectionName = getCollectionName(workspaceId)
+  const {
+    workspaceId,
+    model: { modelDriver, modelName, size, distance },
+  } = parameters
+  const collectionName = getCollectionName({ workspaceId, modelDriver, modelName })
   const { exists } = await qdrantClient.collectionExists(collectionName)
   if (exists) {
-    logger.warn(`Collection for workspace already exists`, { workspaceId })
-    return
+    logger.error(`Collection for workspace already exists`, { workspaceId, modelDriver, modelName })
+    throw new Error(`Collection for workspace already exists ${workspaceId}:${modelDriver}:${modelName}`)
   }
-  logger.info(`Creating Qdrant collection for workspace`, { workspaceId, collectionName, vectors })
+  logger.info(`Creating Qdrant collection for workspace`, { workspaceId, collectionName, size, distance })
   await qdrantClient.createCollection(collectionName, {
-    vectors,
+    vectors: {
+      size,
+      distance,
+    },
   })
   const collectionInfo = await qdrantClient.getCollection(collectionName)
   await Promise.all([

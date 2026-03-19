@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { InferenceDriverSchema } from '@george-ai/app-schema'
+
 import { BaseManifestSchema } from './base-manifest-schema'
 
 export const WorkspaceSettingsSchema = z.object({
@@ -7,13 +9,13 @@ export const WorkspaceSettingsSchema = z.object({
   storageLimitBytes: z.number().optional(),
   embedding: z
     .object({
-      modelDriver: z.string(),
+      modelDriver: InferenceDriverSchema,
       modelName: z.string(),
     })
     .optional(),
   imageAnalysis: z
     .object({
-      modelDriver: z.string(),
+      modelDriver: InferenceDriverSchema,
       modelName: z.string(),
     })
     .optional(),

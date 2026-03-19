@@ -4,6 +4,7 @@ import { WORKER_ID, logger } from '../common'
 
 import './common'
 
+import { stopProcessing } from '../processing'
 import { startEnrichment } from './start-enrichment'
 import { startExtraction } from './start-extraction'
 import { startMigration } from './start-migration'
@@ -12,11 +13,22 @@ import { startVectorization } from './start-vectorization'
 export async function startWorkspaceProcessing(): Promise<() => Promise<void>> {
   const cleanupFunctions = [] as Array<() => Promise<void>>
   logger.info('Starting workspace processing', { WORKER_ID })
+  let failedHeartbeatCount = 0
   const heartbeatInterval = setInterval(async () => {
     try {
       await heartbeatWorkerSlot({ workerId: WORKER_ID, role: 'workspaceProcessing' })
+      failedHeartbeatCount = 0
     } catch (error) {
-      logger.error('Error updating worker heartbeat:', { WORKER_ID, role: 'workspaceProcessing', error })
+      failedHeartbeatCount++
+      logger.error('Error updating worker heartbeat:', {
+        WORKER_ID,
+        role: 'workspaceProcessing',
+        error,
+        failedHeartbeatCount,
+      })
+      if (failedHeartbeatCount >= 3) {
+        await stopProcessing('workspaceProcessing')
+      }
     }
   }, 30 * 1000) // Every 30 seconds
   cleanupFunctions.push(async () => {

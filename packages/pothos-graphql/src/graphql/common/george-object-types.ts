@@ -29,7 +29,7 @@ import {
   StorageStats,
   WorkspaceManifest,
 } from '@george-ai/file-management'
-import { DocumentChunk, EmbeddingStatistic } from '@george-ai/vector-store'
+import { EmbeddingStatistic, VectorStoreChunk } from '@george-ai/vector-store'
 
 import { LegacyFile } from '../library'
 import { CurrentUser } from '../user/current-user'
@@ -50,7 +50,6 @@ export type GeorgeObjectTypes = {
   ExtractionManifest: ExtractionManifest
   ExtractionMethod: ExtractionMethod
   FieldEnrichmentRequest: FieldEnrichmentRequest
-  DocumentChunk: DocumentChunk
   FileExtraction: DocumentManifest['extractions'][number]
   InferenceHostState: InferenceHostState
   InferenceHostConfig: InferenceHostConfig
@@ -62,6 +61,7 @@ export type GeorgeObjectTypes = {
   LibrarySettings: LibraryManifest['settings']
   ProcessingRequestSettings: Record<string, string | number | boolean> | null
   StorageStats: StorageStats
+  VectorStoreChunk: VectorStoreChunk
   WorkerSlotEntry: WorkerSlotEntry
   WorkspaceManifest: WorkspaceManifest
   WorkspaceRole: WorkspaceRole

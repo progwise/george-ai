@@ -6,7 +6,7 @@ import './queries'
 import './mutations'
 
 import { ExtractionMethodSchema } from '@george-ai/app-schema'
-import { document, extraction } from '@george-ai/file-management'
+import { document, extraction, getWorkspace } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { logger } from '../common'
@@ -94,8 +94,18 @@ builder.prismaObject('AiListItem', {
           where: { id: item.fileId },
           select: { libraryId: true },
         })
+        const workspace = await getWorkspace(workspaceId)
+        const modelDriver = workspace?.settings?.embedding?.modelDriver
+        const modelName = workspace?.settings?.embedding?.modelName
+
+        if (!modelDriver || !modelName) {
+          logger.error('Workspace manifest does not contain embedding settings', { workspaceId, workspace })
+          return 0
+        }
         const count = await vectorStore.getChunkCount({
           workspaceId,
+          modelDriver,
+          modelName,
           libraryId: sourceFile.libraryId,
           documentId: item.fileId,
         })

@@ -1,4 +1,4 @@
-import { EXTRACTION_METHODS, ExtractionMethod } from '@george-ai/app-schema'
+import { EXTRACTION_METHODS, ExtractionMethod, InferenceDriver } from '@george-ai/app-schema'
 
 import { getCollection, getCollectionName, logger, qdrantClient } from './common'
 
@@ -10,11 +10,13 @@ export interface EmbeddingStatistic {
 
 export async function getEmbeddingStatistics(parameters: {
   workspaceId: string
+  modelDriver: InferenceDriver
+  modelName: string
   libraryId?: string | null
   fileId?: string | null
 }): Promise<EmbeddingStatistic[]> {
-  const { workspaceId, libraryId, fileId } = parameters
-  const collectionName = getCollectionName(workspaceId)
+  const { workspaceId, modelDriver, modelName, libraryId, fileId } = parameters
+  const collectionName = getCollectionName({ workspaceId, modelDriver, modelName })
   const collectionExists = await qdrantClient.collectionExists(collectionName)
   if (!collectionExists.exists) {
     logger.warn('Collection does not exist', { collectionName })

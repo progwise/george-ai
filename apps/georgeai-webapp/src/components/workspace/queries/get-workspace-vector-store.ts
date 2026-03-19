@@ -15,14 +15,13 @@ const getWorkspaceVectorStore = createServerFn({ method: 'GET' })
       graphql(`
         query GetWorkspaceVectorStore($workspaceId: String!) {
           vectorStore(workspaceId: $workspaceId) {
-            id
+            workspaceId
             name
             exists
             version
             status
             chunkCount
             warnings
-            modelNames
           }
         }
       `),

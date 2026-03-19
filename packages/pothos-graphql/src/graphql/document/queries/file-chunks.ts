@@ -1,5 +1,6 @@
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
-import { ExtractionMethod } from '@george-ai/app-schema'
+import { ExtractionMethod, InferenceDriver } from '@george-ai/app-schema'
+import { getWorkspaceSettings } from '@george-ai/file-management/src/workspace-storage/workspace/get-workspace'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
@@ -8,6 +9,8 @@ import { logger } from '../../common'
 const response = builder
   .objectRef<{
     workspaceId: string
+    modelDriver: InferenceDriver
+    modelName: string
     documentId: string
     libraryId: string
     take: number
@@ -15,17 +18,30 @@ const response = builder
     extractionMethod?: ExtractionMethod | null
     fragment?: number | null
     totalCount: number | null
-  }>('DocumentChunksResponse')
+  }>('VectorStoreChunkResponse')
   .implement({
     fields: (t) => ({
       totalCount: t.exposeInt('totalCount', { nullable: true }),
       chunks: t.field({
-        type: ['DocumentChunk'],
+        type: ['VectorStoreChunk'],
         nullable: false,
         resolve: async (root) => {
-          const { workspaceId, libraryId, documentId, extractionMethod, fragment, take = 10, firstChunk = 0 } = root
+          const {
+            workspaceId,
+            modelDriver,
+            modelName,
+            libraryId,
+            documentId,
+            extractionMethod,
+            fragment,
+            take = 10,
+            firstChunk = 0,
+          } = root
+
           const chunks = await vectorStore.getChunks({
             workspaceId,
+            modelDriver,
+            modelName,
             libraryId,
             documentId,
             extractionMethod,
@@ -60,8 +76,14 @@ builder.queryField('documentChunks', (t) =>
       { workspaceId, session },
     ) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
+      const workspaceSettings = await getWorkspaceSettings(workspaceId)
+      const embedding = workspaceSettings?.embedding
+      if (!embedding || !embedding.modelDriver || !embedding.modelName) {
+        throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+      }
       logger.debug('getting document chunks', {
         workspaceId,
+        workspaceSettings,
         libraryId,
         documentId,
         extractionMethod,
@@ -71,6 +93,8 @@ builder.queryField('documentChunks', (t) =>
       })
       const totalCount = await vectorStore.getChunkCount({
         workspaceId,
+        modelDriver: embedding.modelDriver,
+        modelName: embedding.modelName,
         libraryId,
         documentId,
         extractionMethod,
@@ -78,6 +102,8 @@ builder.queryField('documentChunks', (t) =>
       })
       return {
         workspaceId,
+        modelDriver: embedding.modelDriver,
+        modelName: embedding.modelName,
         documentId,
         libraryId,
         take: take ?? 10,

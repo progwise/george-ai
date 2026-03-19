@@ -2,6 +2,7 @@ import { Readable } from 'stream'
 
 import {
   ExtractionManifest,
+  WorkspaceManifest,
   createDocument,
   createLibrary,
   createUser,
@@ -21,10 +22,11 @@ describe.sequential('Should process action events', () => {
   let TEST_LIBRARY_ID: string
   let TEST_FILE_ID: string
   let TEST_USER_ID: string
+  let TEST_WORKSPACE_MANIFEST: WorkspaceManifest
 
   beforeAll(async () => {
-    const workspace = await createWorkspace({ name: 'Test Workspace', slug: 'slug' })
-    TEST_WORKSPACE_ID = workspace.workspaceId
+    TEST_WORKSPACE_MANIFEST = await createWorkspace({ name: 'Test Workspace', slug: 'slug' })
+    TEST_WORKSPACE_ID = TEST_WORKSPACE_MANIFEST.workspaceId
 
     const user = await createUser({
       username: `testuser-${Date.now()}`,
@@ -39,7 +41,7 @@ describe.sequential('Should process action events', () => {
   })
 
   afterAll(async () => {
-    await deleteLibrary(TEST_WORKSPACE_ID, { libraryId: TEST_LIBRARY_ID })
+    await deleteLibrary(TEST_WORKSPACE_MANIFEST, { libraryId: TEST_LIBRARY_ID })
     await deleteUser(TEST_USER_ID)
     await deleteWorkspace(TEST_WORKSPACE_ID)
   })

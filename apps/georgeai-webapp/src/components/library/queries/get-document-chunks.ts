@@ -45,7 +45,6 @@ const getDocumentChunksFn = createServerFn({ method: 'GET' })
               content
               documentName
               extractionMethod
-              embeddingModelNames
               fragment
             }
           }

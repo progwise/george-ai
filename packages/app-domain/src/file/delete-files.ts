@@ -1,5 +1,5 @@
 import { prisma } from '@george-ai/app-database'
-import { document, library } from '@george-ai/file-management'
+import { document, getWorkspace, library } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { DomainError } from '../error'
@@ -27,17 +27,24 @@ export async function deleteFiles(
         },
       })
 
+      const workspace = await getWorkspace(workspaceId)
+      const { modelDriver, modelName } = workspace?.settings?.embedding || {}
+
+      if (!workspace || !modelDriver || !modelName) {
+        logger.error('Workspace manifest does not contain embedding settings', { workspaceId, workspace })
+        throw new DomainError('Workspace manifest not found', 'workspace')
+      }
+
       if (documentIds) {
         await Promise.all(
           documentIds.flatMap((documentId) => [
-            // TODO: why not renaming fileId to documentId in vector store?
-            vectorStore.removeChunks({ workspaceId, libraryId, documentId }),
+            vectorStore.removeChunks({ workspaceId, modelDriver, modelName, libraryId, documentId }),
             document.delete(workspaceId, { libraryId, documentId }),
           ]),
         )
       } else {
         await Promise.all([
-          vectorStore.removeChunks({ workspaceId, libraryId }),
+          vectorStore.removeChunks({ workspaceId, modelDriver, modelName, libraryId }),
           library.clearDocuments(workspaceId, { libraryId }),
         ])
       }

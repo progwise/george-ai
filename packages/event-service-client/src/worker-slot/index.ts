@@ -12,7 +12,7 @@ export async function ensureWorkerSlotBucket() {
   await eventClient.ensureBucket({
     name: WORKER_SLOT_BUCKET_NAME,
     options: {
-      history: 0,
+      history: 1,
       ttlMs: 2 * 60 * 1000, // 2 minutes
     },
   })

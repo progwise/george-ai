@@ -5,18 +5,17 @@ import { graphql } from '../../../gql'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
+const GetSimilarFileChunksInputSchema = z.object({
+  libraryId: z.string().nonempty(),
+  documentId: z.string().nonempty(),
+  term: z.string().optional(),
+  hits: z.number().int().min(1).default(20),
+  fragment: z.number().int().optional(),
+})
 // TODO: Query currently not implemented, only similarity
 const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
-  .inputValidator((data: object) =>
-    z
-      .object({
-        libraryId: z.string().nonempty(),
-        fileId: z.string().nonempty(),
-        term: z.string().optional(),
-        hits: z.number().int().min(1).default(20),
-        fragment: z.number().int().optional(),
-      })
-      .parse(data),
+  .inputValidator((data: z.infer<typeof GetSimilarFileChunksInputSchema>) =>
+    GetSimilarFileChunksInputSchema.parse(data),
   )
   .handler(async ({ data }) => {
     const result = await backendRequest(
@@ -36,7 +35,6 @@ const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
             documentId
             extractionMethod
             content
-            embeddingModelNames
             fragment
           }
         }
@@ -46,13 +44,7 @@ const getSimilarFileChunksFn = createServerFn({ method: 'GET' })
     return result.similarChunks
   })
 
-export const getSimilarFileChunksQueryOptions = (parameters: {
-  libraryId: string
-  fileId: string
-  term?: string
-  hits?: number
-  fragment?: number
-}) => ({
+export const getSimilarFileChunksQueryOptions = (parameters: z.infer<typeof GetSimilarFileChunksInputSchema>) => ({
   queryKey: [queryKeys.SimilarFileChunks, parameters],
   queryFn: () =>
     getSimilarFileChunksFn({

@@ -1,6 +1,7 @@
 import { prisma } from '@george-ai/app-database'
 import { getExtractionMethods } from '@george-ai/app-domain'
 import { document } from '@george-ai/file-management'
+import { getWorkspaceSettings } from '@george-ai/file-management/src/workspace-storage/workspace/get-workspace'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../builder'
@@ -56,8 +57,15 @@ builder.prismaObject('AiLibraryFile', {
       type: 'Int',
       nullable: true,
       resolve: async (file, _args, { workspaceId }) => {
+        const workspaceSettings = await getWorkspaceSettings(workspaceId)
+        const embedding = workspaceSettings?.embedding
+        if (!embedding || !embedding.modelDriver || !embedding.modelName) {
+          throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+        }
         const chunkCount = await vectorStore.getChunkCount({
           workspaceId,
+          modelDriver: embedding.modelDriver,
+          modelName: embedding.modelName,
           libraryId: file.libraryId,
           documentId: file.id,
         })
@@ -68,8 +76,17 @@ builder.prismaObject('AiLibraryFile', {
       type: ['EmbeddingStatistic'],
       nullable: { list: false, items: false },
       resolve: async (file, _args, { workspaceId }) => {
+        const workspaceSettings = await getWorkspaceSettings(workspaceId)
+
+        const embedding = workspaceSettings?.embedding
+        if (!embedding || !embedding.modelDriver || !embedding.modelName) {
+          throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+        }
         const stats = await vectorStore.getEmbeddingStatistics({
           workspaceId,
+          modelDriver: embedding.modelDriver,
+          modelName: embedding.modelName,
+
           libraryId: file.libraryId,
           fileId: file.id,
         })

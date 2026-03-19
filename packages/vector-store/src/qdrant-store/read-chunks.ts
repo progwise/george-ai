@@ -1,15 +1,17 @@
-import { ExtractionMethod } from '@george-ai/app-schema'
+import { ExtractionMethod, InferenceDriver } from '@george-ai/app-schema'
 
-import { DocumentChunk } from '../schema'
+import { VectorStoreChunk } from '../schema'
 import { getChunks } from './get-chunks'
 
 export async function* readChunks(params: {
   workspaceId: string
+  modelDriver: InferenceDriver
+  modelName: string
   libraryId: string
   documentId: string
   extractionMethod?: ExtractionMethod | null
-}): AsyncIterable<DocumentChunk[]> {
-  const { workspaceId, libraryId, documentId, extractionMethod } = params
+}): AsyncIterable<VectorStoreChunk[]> {
+  const { workspaceId, modelDriver, modelName, libraryId, documentId, extractionMethod } = params
 
   const batchSize = 10
   let offset = 0
@@ -18,6 +20,8 @@ export async function* readChunks(params: {
   while (hasMore) {
     const chunks = await getChunks({
       workspaceId,
+      modelDriver,
+      modelName,
       libraryId,
       documentId,
       extractionMethod,

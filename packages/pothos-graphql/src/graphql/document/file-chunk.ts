@@ -1,8 +1,8 @@
-import { DocumentChunk } from '@george-ai/vector-store'
+import { VectorStoreChunk } from '@george-ai/vector-store'
 
 import { builder } from '../builder'
 
-builder.objectRef<DocumentChunk>('DocumentChunk').implement({
+builder.objectRef<VectorStoreChunk>('VectorStoreChunk').implement({
   fields: (t) => ({
     id: t.exposeString('id', { nullable: false }),
     libraryId: t.exposeString('libraryId', { nullable: false }),
@@ -11,7 +11,6 @@ builder.objectRef<DocumentChunk>('DocumentChunk').implement({
     extractionMethod: t.exposeString('extractionMethod', { nullable: false }),
     chunk: t.exposeInt('chunk', { nullable: false }),
     fragment: t.exposeInt('fragment', { nullable: true }),
-    embeddingModelNames: t.exposeStringList('embeddingModelNames', { nullable: true }),
     content: t.exposeString('content', { nullable: true }),
   }),
 })

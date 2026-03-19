@@ -37,6 +37,7 @@ export async function invokeAction(request: SyncRequest, timeoutMs?: number): Pr
   })
 
   const decodedResponse = new TextDecoder().decode(response)
+
   logger.debug('Received response for provider call', { subject, decodedResponse })
   const json = JSON.parse(decodedResponse)
   const parsedResponse = SyncResponseSchema.parse(json)

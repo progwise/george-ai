@@ -990,29 +990,10 @@ export type DateTimePeriod = {
   latest?: InputMaybe<Scalars['DateTime']['input']>
 }
 
-export type DocumentChunk = {
-  __typename?: 'DocumentChunk'
-  chunk: Scalars['Int']['output']
-  content?: Maybe<Scalars['String']['output']>
-  documentId: Scalars['String']['output']
-  documentName?: Maybe<Scalars['String']['output']>
-  embeddingModelNames?: Maybe<Array<Scalars['String']['output']>>
-  extractionMethod: Scalars['String']['output']
-  fragment?: Maybe<Scalars['Int']['output']>
-  id: Scalars['String']['output']
-  libraryId: Scalars['String']['output']
-}
-
 export type DocumentChunksQueryResult = {
   __typename?: 'DocumentChunksQueryResult'
   hitCount: Scalars['Int']['output']
-  results: Array<DocumentChunk>
-}
-
-export type DocumentChunksResponse = {
-  __typename?: 'DocumentChunksResponse'
-  chunks: Array<DocumentChunk>
-  totalCount?: Maybe<Scalars['Int']['output']>
+  results: Array<VectorStoreChunk>
 }
 
 export type DocumentChunksSelector = {
@@ -2215,7 +2196,7 @@ export type Query = {
   connectors: Array<AiConnector>
   countFiles: Scalars['Int']['output']
   currentUser: CurrentUser
-  documentChunks?: Maybe<DocumentChunksResponse>
+  documentChunks?: Maybe<VectorStoreChunkResponse>
   embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
   eventQueueRequests: EventQueueRequestsResult
   eventQueueStats: Array<EventQueue>
@@ -2378,7 +2359,6 @@ export type QueryChunkCountArgs = {
   extractionMethod?: InputMaybe<ExtractionMethod>
   fragment?: InputMaybe<Scalars['Int']['input']>
   libraryId?: InputMaybe<Scalars['String']['input']>
-  modelName?: InputMaybe<Scalars['String']['input']>
   workspaceId: Scalars['String']['input']
 }
 
@@ -2563,7 +2543,6 @@ export type SimilarChunkResult = {
   distance: Scalars['Float']['output']
   documentId: Scalars['String']['output']
   documentName?: Maybe<Scalars['String']['output']>
-  embeddingModelNames?: Maybe<Array<Scalars['String']['output']>>
   extractionMethod: Scalars['String']['output']
   fragment?: Maybe<Scalars['Int']['output']>
   id: Scalars['String']['output']
@@ -2702,12 +2681,29 @@ export type VectorStore = {
   __typename?: 'VectorStore'
   chunkCount?: Maybe<Scalars['Int']['output']>
   exists: Scalars['Boolean']['output']
-  id: Scalars['String']['output']
-  modelNames?: Maybe<Array<Scalars['String']['output']>>
   name: Scalars['String']['output']
   status?: Maybe<Scalars['String']['output']>
   version?: Maybe<Scalars['Int']['output']>
   warnings?: Maybe<Array<Scalars['String']['output']>>
+  workspaceId: Scalars['String']['output']
+}
+
+export type VectorStoreChunk = {
+  __typename?: 'VectorStoreChunk'
+  chunk: Scalars['Int']['output']
+  content?: Maybe<Scalars['String']['output']>
+  documentId: Scalars['String']['output']
+  documentName?: Maybe<Scalars['String']['output']>
+  extractionMethod: Scalars['String']['output']
+  fragment?: Maybe<Scalars['Int']['output']>
+  id: Scalars['String']['output']
+  libraryId: Scalars['String']['output']
+}
+
+export type VectorStoreChunkResponse = {
+  __typename?: 'VectorStoreChunkResponse'
+  chunks: Array<VectorStoreChunk>
+  totalCount?: Maybe<Scalars['Int']['output']>
 }
 
 export enum WorkerActionResult {
@@ -5133,10 +5129,10 @@ export type GetFileChunksQueryVariables = Exact<{
 export type GetFileChunksQuery = {
   __typename?: 'Query'
   documentChunks?: {
-    __typename?: 'DocumentChunksResponse'
+    __typename?: 'VectorStoreChunkResponse'
     totalCount?: number | null
     chunks: Array<{
-      __typename?: 'DocumentChunk'
+      __typename?: 'VectorStoreChunk'
       id: string
       libraryId: string
       documentId: string
@@ -5144,7 +5140,6 @@ export type GetFileChunksQuery = {
       content?: string | null
       documentName?: string | null
       extractionMethod: string
-      embeddingModelNames?: Array<string> | null
       fragment?: number | null
     }>
   } | null
@@ -5259,7 +5254,6 @@ export type GetSimilarChunksQuery = {
     documentId: string
     extractionMethod: string
     content?: string | null
-    embeddingModelNames?: Array<string> | null
     fragment?: number | null
   }>
 }
@@ -5406,7 +5400,7 @@ export type QueryLibraryFilesQuery = {
     __typename?: 'DocumentChunksQueryResult'
     hitCount: number
     results: Array<{
-      __typename?: 'DocumentChunk'
+      __typename?: 'VectorStoreChunk'
       id: string
       libraryId: string
       documentId: string
@@ -5420,7 +5414,7 @@ export type QueryLibraryFilesQuery = {
 }
 
 export type LibraryQueryResult_FileChunkFragment = {
-  __typename?: 'DocumentChunk'
+  __typename?: 'VectorStoreChunk'
   id: string
   libraryId: string
   documentId: string
@@ -6985,14 +6979,13 @@ export type GetWorkspaceVectorStoreQuery = {
   __typename?: 'Query'
   vectorStore: {
     __typename?: 'VectorStore'
-    id: string
+    workspaceId: string
     name: string
     exists: boolean
     version?: number | null
     status?: string | null
     chunkCount?: number | null
     warnings?: Array<string> | null
-    modelNames?: Array<string> | null
   }
 }
 
@@ -10848,7 +10841,7 @@ export const LibraryQueryResult_FileChunkFragmentDoc = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'LibraryQueryResult_FileChunk' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'DocumentChunk' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'VectorStoreChunk' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -17584,7 +17577,6 @@ export const GetFileChunksDocument = {
                       { kind: 'Field', name: { kind: 'Name', value: 'content' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'documentName' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelNames' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'fragment' } },
                     ],
                   },
@@ -18007,7 +17999,6 @@ export const GetSimilarChunksDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'content' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'embeddingModelNames' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'fragment' } },
               ],
             },
@@ -18444,7 +18435,7 @@ export const QueryLibraryFilesDocument = {
     {
       kind: 'FragmentDefinition',
       name: { kind: 'Name', value: 'LibraryQueryResult_FileChunk' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'DocumentChunk' } },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'VectorStoreChunk' } },
       selectionSet: {
         kind: 'SelectionSet',
         selections: [
@@ -22328,14 +22319,13 @@ export const GetWorkspaceVectorStoreDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'exists' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'status' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'warnings' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelNames' } },
               ],
             },
           },

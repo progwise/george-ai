@@ -1,6 +1,7 @@
 import { prisma } from '@george-ai/app-database'
 import { WorkspaceRoleSchema } from '@george-ai/app-schema'
 import { workspace } from '@george-ai/file-management'
+import { getWorkspaceSettings } from '@george-ai/file-management/src/workspace-storage/workspace/get-workspace'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../builder'
@@ -50,8 +51,15 @@ builder.prismaObject('Workspace', {
       type: 'Int',
       nullable: true,
       resolve: async (workspace) => {
+        const workspaceSettings = await getWorkspaceSettings(workspace.id)
+        const embedding = workspaceSettings?.embedding
+        if (!embedding || !embedding.modelDriver || !embedding.modelName) {
+          return null
+        }
         const count = await vectorStore.getChunkCount({
           workspaceId: workspace.id,
+          modelDriver: embedding.modelDriver,
+          modelName: embedding.modelName,
         })
         return count
       },
@@ -60,8 +68,15 @@ builder.prismaObject('Workspace', {
       type: ['EmbeddingStatistic'],
       nullable: { list: true, items: false },
       resolve: async (workspace) => {
+        const workspaceSettings = await getWorkspaceSettings(workspace.id)
+        const embedding = workspaceSettings?.embedding
+        if (!embedding || !embedding.modelDriver || !embedding.modelName) {
+          return null
+        }
         return await vectorStore.getEmbeddingStatistics({
           workspaceId: workspace.id,
+          modelDriver: embedding.modelDriver,
+          modelName: embedding.modelName,
         })
       },
     }),

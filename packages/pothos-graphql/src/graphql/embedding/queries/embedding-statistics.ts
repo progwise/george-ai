@@ -1,6 +1,7 @@
 import { GraphQLError } from 'graphql/error/GraphQLError'
 
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+import { getWorkspaceSettings } from '@george-ai/file-management/src/workspace-storage/workspace/get-workspace'
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
@@ -17,9 +18,16 @@ builder.queryField('embeddingStatistics', (t) =>
     },
     resolve: async (_root, { fileId, libraryId, workspaceId }, { session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
+      const workspaceSettings = await getWorkspaceSettings(workspaceId)
+      const embedding = workspaceSettings?.embedding
+      if (!embedding || !embedding.modelDriver || !embedding.modelName) {
+        throw new GraphQLError('Workspace Manifest not found for workspaceId: ' + workspaceId)
+      }
       try {
         const embeddingStatistics = await vectorStore.getEmbeddingStatistics({
           workspaceId,
+          modelDriver: embedding.modelDriver,
+          modelName: embedding.modelName,
           libraryId,
           fileId,
         })

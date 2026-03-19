@@ -2,6 +2,7 @@ import { QdrantClient } from '@qdrant/js-client-rest'
 import { v5 as uuidv5 } from 'uuid'
 
 import { createLogger } from '@george-ai/app-commons'
+import { InferenceDriver } from '@george-ai/app-schema'
 
 import { VectorStoreChunkIdentifier } from '../schema'
 
@@ -9,7 +10,15 @@ export const logger = createLogger('VectorStoreClient:QdrantClient')
 
 const GEORGE_AI_NAMESPACE_UUID = 'd290f1ee-6c54-4b01-90e6-d701748f0851'
 
-export const getCollectionName = (workspaceId: string) => `workspace_${workspaceId}`
+export const getCollectionName = (parameters: {
+  workspaceId: string
+  modelDriver: InferenceDriver
+  modelName: string
+}) => {
+  const sanitizedModelName = parameters.modelName.replace(/[^a-zA-Z0-9_-]/g, '_')
+  return `workspace_${parameters.workspaceId}_${parameters.modelDriver}_${sanitizedModelName}`
+}
+
 export const getChunkIdentifier = (document: VectorStoreChunkIdentifier): string => {
   const fragmentPart = document.fragment !== null ? `_fragment${document.fragment}` : ''
   const idString = `library${document.libraryId}_file${document.documentId}${fragmentPart}_chunk${document.chunk}`

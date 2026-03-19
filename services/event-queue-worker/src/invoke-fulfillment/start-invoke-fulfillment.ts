@@ -1,7 +1,7 @@
 import { fulfillInvokes, heartbeatWorkerSlot } from '@george-ai/event-service-client'
 
 import { WORKER_ID } from '../common'
-import { processingMap } from '../processing'
+import { processingMap, stopProcessing } from '../processing'
 import { getChatResponse } from './chat-response'
 import { logger } from './common'
 import { getConnectionTestResponse } from './connection-test'
@@ -17,6 +17,7 @@ export async function startInvokeFulfillment() {
       await heartbeatWorkerSlot({ workerId: WORKER_ID, role: 'requestFulfillment' })
     } catch (error) {
       logger.error('Error updating worker heartbeat:', { WORKER_ID, role: 'requestFulfillment', error })
+      await stopProcessing('requestFulfillment')
     }
   }, 30 * 1000) // Every 30 seconds
 

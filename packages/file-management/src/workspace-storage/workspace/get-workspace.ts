@@ -9,3 +9,11 @@ export async function getWorkspace(workspaceId: string): Promise<WorkspaceManife
 
   return manifest
 }
+
+export async function getWorkspaceSettings(workspaceId: string): Promise<WorkspaceManifest['settings'] | null> {
+  logger.debug('Getting workspace settings', { workspaceId })
+
+  const manifest = await getEntry({ type: 'workspace', workspaceId, version: 1 })
+
+  return manifest?.settings || null
+}

@@ -7,11 +7,23 @@ import { logger } from './common'
 export async function startWorkerSlotManager(): Promise<() => Promise<void>> {
   const cleanupFunctions = [] as Array<() => Promise<void>>
   logger.info('Starting worker manager', { WORKER_ID })
+
+  let failedHeartbeatCount = 0
   const heartbeatInterval = setInterval(async () => {
     try {
       await heartbeatWorkerSlot({ workerId: WORKER_ID, role: 'workerSlotManager' })
+      failedHeartbeatCount = 0
     } catch (error) {
-      logger.error('Error updating worker heartbeat:', { WORKER_ID, role: 'workerSlotManager', error })
+      failedHeartbeatCount++
+      logger.error('Error updating worker heartbeat:', {
+        WORKER_ID,
+        role: 'workerSlotManager',
+        error,
+        failedHeartbeatCount,
+      })
+      if (failedHeartbeatCount >= 3) {
+        await stopProcessing('workerSlotManager')
+      }
     }
   }, 30 * 1000) // Every 30 seconds
   cleanupFunctions.push(async () => {
@@ -24,7 +36,7 @@ export async function startWorkerSlotManager(): Promise<() => Promise<void>> {
       processingMap.updateStats('workerSlotManager')
 
       if (workerId === WORKER_ID && operation === 'delete') {
-        logger.warn('Worker entry for this worker was deleted from registry, stop processing for deleted type.', {
+        logger.warn('Worker entry for this worker was deleted, stop processing for deleted type.', {
           WORKER_ID,
           role,
           entry,
@@ -33,7 +45,7 @@ export async function startWorkerSlotManager(): Promise<() => Promise<void>> {
       }
 
       if (workerId === WORKER_ID && operation === 'update') {
-        logger.debug('This worker has been registered in the registry. Start necessary processes.', {
+        logger.debug('This worker has been registered. Start necessary processes.', {
           WORKER_ID,
           role,
           entry,

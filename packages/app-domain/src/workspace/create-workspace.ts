@@ -2,8 +2,7 @@ import { z } from 'zod'
 
 import { prisma } from '@george-ai/app-database'
 import { writeRegistryEntry } from '@george-ai/event-service-client'
-import { workspace as ws } from '@george-ai/file-management'
-import { vectorStore } from '@george-ai/vector-store'
+import { WorkspaceManifest, workspace as ws } from '@george-ai/file-management'
 
 import { DomainError } from '../error'
 import { logger } from './common'
@@ -13,10 +12,7 @@ export async function createWorkspace(params: {
   slug: string
   workspaceId?: string
   userId?: string
-}): Promise<{
-  workspaceId: string
-  slug: string
-}> {
+}): Promise<WorkspaceManifest> {
   const { name, slug, userId } = params
   logger.debug('Creating workspace', params)
   const start = Date.now()
@@ -24,7 +20,7 @@ export async function createWorkspace(params: {
   try {
     const slugSchema = z.string().regex(/^[a-z0-9-]+$/)
     const validatedSlug = slugSchema.parse(slug)
-    return await prisma.$transaction(async (tx) => {
+    const manifest = await prisma.$transaction(async (tx) => {
       const workspace = await tx.workspace.create({
         select: {
           id: true,
@@ -40,18 +36,7 @@ export async function createWorkspace(params: {
         },
       })
 
-      await ws.create(workspace.id, { name })
-
-      await vectorStore.createWorkspace({ workspaceId: workspace.id, vectors: {} }).catch(async (error) => {
-        await ws.delete(workspace.id).catch((cleanupError) => {
-          logger.error('Error cleaning up workspace storage after vector store creation failure', {
-            error: cleanupError,
-            workspaceId: workspace.id,
-          })
-        })
-        logger.error('Error creating vector store for workspace', { error, workspaceId: workspace.id })
-        throw error
-      })
+      const manifest = await ws.create(workspace.id, { name })
 
       await writeRegistryEntry({
         inferenceModels: [],
@@ -63,11 +48,9 @@ export async function createWorkspace(params: {
         name,
       })
 
-      return {
-        workspaceId: workspace.id,
-        slug: validatedSlug,
-      }
+      return manifest
     })
+    return manifest
   } catch (error) {
     logger.error('Error creating workspace', { error, name, slug, userId, ellapsed: start - Date.now() })
     if (error instanceof z.ZodError) {

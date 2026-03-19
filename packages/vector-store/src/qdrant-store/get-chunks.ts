@@ -1,20 +1,23 @@
-import { ExtractionMethod } from '@george-ai/app-schema'
+import { ExtractionMethod, InferenceDriver } from '@george-ai/app-schema'
 
-import { DocumentChunk, VectorStoreChunkSchema } from '../schema'
+import { VectorStoreChunk, VectorStoreChunkSchema } from '../schema'
 import { getCollectionName, logger, qdrantClient } from './common'
 import { getChunkSelector } from './get-chunk-selector'
 
 export async function getChunks(parameters: {
   workspaceId: string
+  modelDriver: InferenceDriver
+  modelName: string
   libraryId: string
   documentId?: string
   extractionMethod?: ExtractionMethod | null
   fragment?: number | null
   take: number
   firstChunk?: number
-}): Promise<DocumentChunk[]> {
-  const { workspaceId, libraryId, documentId, extractionMethod, fragment, take, firstChunk } = parameters
-  const collectionName = getCollectionName(workspaceId)
+}): Promise<VectorStoreChunk[]> {
+  const { workspaceId, modelDriver, modelName, libraryId, documentId, extractionMethod, fragment, take, firstChunk } =
+    parameters
+  const collectionName = getCollectionName({ workspaceId, modelDriver, modelName })
 
   const collectionExists = await qdrantClient.getCollection(collectionName).catch(() => {})
   if (!collectionExists) {

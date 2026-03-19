@@ -1,16 +1,16 @@
-import { prisma } from '@george-ai/app-database'
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { InferenceDriverSchema } from '@george-ai/app-schema'
 import { invokeAction } from '@george-ai/event-service-client'
 import { EmbeddingRequest } from '@george-ai/event-service-client'
-import { DocumentChunk, vectorStore } from '@george-ai/vector-store'
+import { getWorkspaceSettings } from '@george-ai/file-management'
+import { VectorStoreChunk, vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
 import { logger } from '../../common'
 
 const result = builder
   .objectRef<
-    DocumentChunk & {
+    VectorStoreChunk & {
       distance: number
     }
   >('SimilarChunkResult')
@@ -23,7 +23,6 @@ const result = builder
       extractionMethod: t.exposeString('extractionMethod', { nullable: false }),
       chunk: t.exposeInt('chunk', { nullable: false }),
       fragment: t.exposeInt('fragment', { nullable: true }),
-      embeddingModelNames: t.exposeStringList('embeddingModelNames', { nullable: true }),
       content: t.exposeString('content', { nullable: true }),
       dispatchEvent: t.exposeFloat('distance', { nullable: false }),
       distance: t.exposeFloat('distance', { nullable: false }),
@@ -57,58 +56,45 @@ builder.queryField('similarChunks', (t) =>
         fragment,
       })
 
-      const libraries = await prisma.aiLibrary.findMany({
-        where: { workspaceId, ...(libraryId ? { id: libraryId } : {}) },
-        select: { id: true, embeddingModel: { select: { provider: true, name: true } } },
+      const workspaceSettings = await getWorkspaceSettings(workspaceId)
+      const embedding = workspaceSettings?.embedding
+      if (!embedding || !embedding.modelDriver || !embedding.modelName) {
+        throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+      }
+      const driver = InferenceDriverSchema.parse(embedding.modelDriver)
+      const modelName = embedding.modelName
+
+      const request: EmbeddingRequest = {
+        version: 1,
+        workspaceId,
+        verb: 'request',
+        action: 'chunkEmbedding',
+        timestamp: new Date(),
+        driver,
+        modelName,
+        chunks: [term],
+      }
+
+      const embeddingResult = await invokeAction(request)
+
+      if (embeddingResult.embeddings.length < 1) {
+        logger.error('No embeddings returned from invoke', { request })
+      }
+
+      const vector = embeddingResult.embeddings[0].vector
+
+      const results = await vectorStore.findSimilarChunks({
+        workspaceId,
+        modelDriver: embedding.modelDriver,
+        libraryId,
+        documentId,
+        vector,
+        topK: maxResults || 10,
+        fragment: fragment ?? null,
+        modelName,
       })
 
-      const embeddingResults = await Promise.all(
-        libraries.map(async (library) => {
-          if (!library.embeddingModel) {
-            logger.error('Library does not have an embedding model configured', {
-              workspaceId,
-              libraryId: library.id,
-            })
-            return null
-          }
-
-          const driver = InferenceDriverSchema.parse(library.embeddingModel.provider)
-          const modelName = library.embeddingModel.name
-
-          const request: EmbeddingRequest = {
-            version: 1,
-            workspaceId,
-            verb: 'request',
-            action: 'chunkEmbedding',
-            timestamp: new Date(),
-            driver,
-            modelName,
-            chunks: [term],
-          }
-
-          const embeddingResult = await invokeAction(request)
-
-          if (embeddingResult.embeddings.length < 1) {
-            logger.error('No embeddings returned from invoke', { request })
-          }
-
-          const vector = embeddingResult.embeddings[0].vector
-
-          const results = await vectorStore.findSimilarChunks({
-            workspaceId,
-            libraryId,
-            documentId,
-            vector,
-            topK: maxResults || 10,
-            fragment: fragment ?? null,
-            modelName,
-          })
-
-          return results.map((result) => ({ ...result, distance: result.distance }))
-        }),
-      )
-
-      return embeddingResults.filter((res): res is NonNullable<typeof res> => res !== null).flat()
+      return results.map((result) => ({ ...result, distance: result.distance }))
     },
   }),
 )

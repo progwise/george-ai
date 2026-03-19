@@ -63,9 +63,22 @@ export async function vectorizeDocument(parameters: {
       })
       return null
     })
+    if (!embeddings || embeddings.embeddings.length < 1) {
+      logger.error('No embeddings returned from invoke', {
+        workspaceId,
+        embeddingModel,
+        embeddingDriver,
+        documentId,
+        libraryId,
+        chunkIndex: i,
+      })
+      continue
+    }
     await vectorStore
       .upsertChunks({
         workspaceId,
+        modelDriver: embeddingDriver,
+        modelName: embeddingModel,
         chunks: [
           {
             documentId,
@@ -83,12 +96,7 @@ export async function vectorizeDocument(parameters: {
             chunk: i,
             id: `${documentId}-chunk-${i}`,
 
-            embedding: embeddings
-              ? {
-                  embeddingModelName: embeddingModel,
-                  vector: embeddings.embeddings[0].vector,
-                }
-              : undefined,
+            vector: embeddings.embeddings[0].vector,
           },
         ],
       })

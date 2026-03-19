@@ -19,7 +19,6 @@ describe.sequential('Base sequential flow', () => {
     })
     expect(result).toBeDefined()
     expect(result.workspaceId).toBeDefined()
-    expect(result.slug).toBeDefined()
     TEST_WORKSPACE_ID = result.workspaceId
   })
 

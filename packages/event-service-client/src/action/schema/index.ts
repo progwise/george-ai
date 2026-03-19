@@ -1,5 +1,6 @@
 export * from './document'
 export * from './enrichment'
+export * from './error-response'
 export * from './host'
 export * from './inference'
 export * from './workspace-schema'

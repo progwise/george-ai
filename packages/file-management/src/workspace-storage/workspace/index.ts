@@ -4,7 +4,7 @@ import storageStats from '../storage-stats'
 import { createWorkspace } from './create-workspace'
 import { deleteWorkspace } from './delete-workspace'
 import { existsWorkspace } from './exists-workspace'
-import { getWorkspace } from './get-workspace'
+import { getWorkspace, getWorkspaceSettings } from './get-workspace'
 import { saveWorkspace } from './save-workspace'
 
 export default {
@@ -15,6 +15,7 @@ export default {
   reconcile: reconcileWorkspace,
   migrate: migrateWorkspace,
   save: saveWorkspace,
+  setting: getWorkspaceSettings,
   storageStats,
 }
 
@@ -22,6 +23,7 @@ export {
   createWorkspace,
   deleteWorkspace,
   getWorkspace,
+  getWorkspaceSettings,
   reconcileWorkspace,
   migrateWorkspace,
   existsWorkspace,

@@ -1,16 +1,19 @@
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
-import { DocumentChunk, vectorStore } from '@george-ai/vector-store'
+import { getWorkspaceSettings } from '@george-ai/file-management/src/workspace-storage/workspace/get-workspace'
+import { VectorStoreChunk, vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
 
 builder.queryField('queryFileChunks', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
-    type: builder.objectRef<{ hitCount: number; chunks: Array<DocumentChunk> }>('DocumentChunksQueryResult').implement({
-      fields: (t) => ({
-        hitCount: t.exposeInt('hitCount', { nullable: false }),
-        results: t.expose('chunks', { type: ['DocumentChunk'], nullable: false }),
+    type: builder
+      .objectRef<{ hitCount: number; chunks: Array<VectorStoreChunk> }>('DocumentChunksQueryResult')
+      .implement({
+        fields: (t) => ({
+          hitCount: t.exposeInt('hitCount', { nullable: false }),
+          results: t.expose('chunks', { type: ['VectorStoreChunk'], nullable: false }),
+        }),
       }),
-    }),
     nullable: false,
     args: {
       query: t.arg.string({ required: true }),
@@ -23,9 +26,15 @@ builder.queryField('queryFileChunks', (t) =>
     },
     resolve: async (_root, { skip, take, selector }, { workspaceId, session }) => {
       await canReadWorkspaceOrThrow(workspaceId, session.user.id)
-
+      const workspaceSettings = await getWorkspaceSettings(workspaceId)
+      const embedding = workspaceSettings?.embedding
+      if (!embedding || !embedding.modelDriver || !embedding.modelName) {
+        throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+      }
       const result = await vectorStore.queryChunks({
         workspaceId,
+        modelDriver: embedding.modelDriver,
+        modelName: embedding.modelName,
         selector,
         skip: skip || 0,
         take: take || 20,

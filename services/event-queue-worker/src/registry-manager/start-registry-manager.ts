@@ -1,7 +1,7 @@
 import { heartbeatWorkerSlot, watchRegistry } from '@george-ai/event-service-client'
 
 import { WORKER_ID } from '../common'
-import { processingMap } from '../processing'
+import { processingMap, stopProcessing } from '../processing'
 import { logger } from './common'
 import { handleHostRemoval } from './handle-host-removal'
 import { handleHostUpdate } from './handle-host-update'
@@ -12,11 +12,22 @@ export async function startRegistryManager() {
   const cleanupFunctions = [] as Array<() => Promise<void>>
   logger.info('Registry Manager started')
 
+  let failedHeartbeatCount = 0
   const heartbeatInterval = setInterval(async () => {
     try {
       await heartbeatWorkerSlot({ workerId: WORKER_ID, role: 'registryManager' })
+      failedHeartbeatCount = 0
     } catch (error) {
-      logger.error('Error updating worker heartbeat:', { WORKER_ID, workerType: 'registryManager', error })
+      failedHeartbeatCount++
+      logger.error('Error updating worker heartbeat:', {
+        WORKER_ID,
+        workerType: 'registryManager',
+        error,
+        failedHeartbeatCount,
+      })
+      if (failedHeartbeatCount >= 3) {
+        await stopProcessing('registryManager')
+      }
     }
   }, 30 * 1000) // Every 30 seconds
   cleanupFunctions.push(async () => {
