@@ -326,14 +326,10 @@ type AiLibrary {
   crawlers: [AiLibraryCrawler!]!
   createdAt: DateTime!
   description: String
-  embeddingModel: AiLanguageModel
-  embeddingTimeoutMs: Int
-  fileConverterOptions: String
   filesCount: Int!
   id: ID!
   manifest: LibraryManifest
   name: String!
-  ocrModel: AiLanguageModel
   role: WorkspaceRole
   updatedAt: DateTime!
   url: String
@@ -1237,11 +1233,6 @@ type HumanParticipant implements AiConversationParticipant {
   userId: ID
 }
 
-input ImageAnalysisSettingsInput {
-  modelDriver: InferenceDriver!
-  modelName: String!
-}
-
 enum InferenceAction {
   chatCompletion
   chunkEmbedding
@@ -1341,19 +1332,9 @@ type LibraryCrawlerRunQueryResults {
   runs: [AiLibraryCrawlerRun!]!
 }
 
-type LibraryEmbeddingSettings {
-  embeddingModelName: String!
-  embeddingModelProvider: String!
-}
-
 enum LibraryFilesSortField {
   createdAt
   name
-}
-
-type LibraryImageAnalysisSettings {
-  imageAnalysisModelName: String!
-  imageAnalysisModelProvider: String!
 }
 
 input LibraryInput {
@@ -1377,13 +1358,6 @@ type LibraryManifest {
   updated: DateTime
   version: Int!
   workspaceId: String!
-}
-
-type LibrarySettings {
-  embedding: LibraryEmbeddingSettings
-  imageAnalysis: LibraryImageAnalysisSettings
-  storageLimitBytes: Int
-  storageLimitFiles: Int
 }
 
 enum LibrarySortField {
@@ -2055,6 +2029,11 @@ type VectorStoreChunkResponse {
   totalCount: Int
 }
 
+input VisionSettingsInput {
+  modelDriver: InferenceDriver!
+  modelName: String!
+}
+
 enum WorkerActionResult {
   failure
   start
@@ -2106,11 +2085,6 @@ type WorkspaceEmbeddingSettings {
   modelName: String!
 }
 
-type WorkspaceImageAnalysisSettings {
-  modelDriver: InferenceDriver!
-  modelName: String!
-}
-
 type WorkspaceInvitation {
   acceptedAt: DateTime
   createdAt: DateTime!
@@ -2154,22 +2128,27 @@ enum WorkspaceRole {
 
 type WorkspaceSettings {
   embedding: WorkspaceEmbeddingSettings
-  imageAnalysis: WorkspaceImageAnalysisSettings
   storageLimitBytes: Int
   storageLimitFiles: Int
+  vision: WorkspaceVisionSettings
 }
 
 input WorkspaceSettingsInput {
   embedding: EmbeddingSettingsInput
-  imageAnalysis: ImageAnalysisSettingsInput
   storageLimitBytes: Float
   storageLimitFiles: Int
+  vision: VisionSettingsInput
 }
 
 enum WorkspaceSortField {
   createdAt
   name
   updatedAt
+}
+
+type WorkspaceVisionSettings {
+  modelDriver: InferenceDriver!
+  modelName: String!
 }
 
 """

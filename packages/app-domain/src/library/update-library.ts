@@ -1,6 +1,5 @@
 import { AiLibraryInclude, AiLibrarySelect } from '@george-ai/app-database'
 import { prisma } from '@george-ai/app-database'
-import { InferenceDriverSchema } from '@george-ai/app-schema'
 import { getLibrary, saveLibrary } from '@george-ai/file-management'
 
 import { logger } from '../common'
@@ -28,10 +27,6 @@ export async function updateLibrary(parameters: {
         ...(data.name && { name: data.name }),
         ...(data.description !== undefined && { description: data.description }),
         ...(data.url !== undefined && { url: data.url }),
-        ...(data.embeddingModelId !== undefined && { embeddingModelId: data.embeddingModelId }),
-        ...(data.fileConverterOptions !== undefined && { fileConverterOptions: data.fileConverterOptions }),
-        ...(data.embeddingTimeoutMs !== undefined && { embeddingTimeoutMs: data.embeddingTimeoutMs }),
-        ...(data.autoProcessCrawledFiles !== undefined && { autoProcessCrawledFiles: !!data.autoProcessCrawledFiles }),
       },
     })
 
@@ -43,32 +38,6 @@ export async function updateLibrary(parameters: {
 
     libraryManifest.name = aiLibrary.name
     libraryManifest.updated = new Date()
-
-    const modelIds = [aiLibrary.embeddingModelId, aiLibrary.extractionModelId, aiLibrary.ocrModelId].filter(
-      (id): id is string => !!id,
-    )
-
-    if (modelIds.length > 0) {
-      const aiModels = await tx.aiLanguageModel.findMany({
-        where: { id: { in: modelIds } },
-      })
-
-      const embeddingModel = aiModels.find((model) => model.id === aiLibrary.embeddingModelId)
-      const ocrModel = aiModels.find((model) => model.id === aiLibrary.ocrModelId)
-
-      const embeddingSettings = embeddingModel
-        ? { modelName: embeddingModel.name, modelDriver: InferenceDriverSchema.parse(embeddingModel.provider) }
-        : libraryManifest.settings?.embedding
-      const imageAnalysisSettings = ocrModel
-        ? { modelName: ocrModel.name, modelDriver: InferenceDriverSchema.parse(ocrModel.provider) }
-        : libraryManifest.settings?.imageAnalysis
-
-      libraryManifest.settings = {
-        ...libraryManifest.settings,
-        ...(embeddingSettings ? { embedding: embeddingSettings } : libraryManifest.settings?.embedding),
-        ...(imageAnalysisSettings ? { imageAnalysis: imageAnalysisSettings } : libraryManifest.settings?.imageAnalysis),
-      }
-    }
 
     await saveLibrary({ workspaceId, libraryId }, libraryManifest)
 

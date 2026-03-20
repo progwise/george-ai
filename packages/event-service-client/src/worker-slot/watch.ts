@@ -10,6 +10,7 @@ export async function watchWorkerSlots(parameters: {
     role: WorkerRole
     workerId: string
     operation: 'update' | 'delete'
+    revision: number
     entry: WorkerSlotEntry | null
   }) => Promise<void>
 }): Promise<() => Promise<void>> {
@@ -18,7 +19,7 @@ export async function watchWorkerSlots(parameters: {
     schema: WorkerSlotEntrySchema,
     bucketName: WORKER_SLOT_BUCKET_NAME,
     filter: getWorkerSlotKeyFilter({ role }),
-    handler: async ({ entry, key, operation }) => {
+    handler: async ({ entry, key, operation, revision }) => {
       const parsedKey = parseWorkerSlotKey(key)
 
       if (!parsedKey) {
@@ -32,6 +33,7 @@ export async function watchWorkerSlots(parameters: {
         workerId,
         role,
         operation,
+        revision,
         entry,
       })
     },

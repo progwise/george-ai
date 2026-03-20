@@ -6,23 +6,4 @@ export const LibraryManifestSchema = BaseManifestSchema.extend({
   type: z.literal('library'),
   libraryId: z.string().min(3),
   name: z.string().min(3),
-  settings: z
-    .object({
-      storageLimitFiles: z.number().int().nonnegative().optional(),
-      storageLimitBytes: z.number().optional(),
-      embedding: z
-        .object({
-          modelDriver: z.enum(['openai', 'ollama']),
-          modelName: z.string(),
-        })
-        .optional(),
-      imageAnalysis: z
-        .object({
-          modelDriver: z.enum(['openai', 'ollama']),
-          modelName: z.string(),
-          prompt: z.string().optional(),
-        })
-        .optional(),
-    })
-    .optional(),
 })

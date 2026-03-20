@@ -1168,6 +1168,11 @@ export default {
     nameRequired: 'Workspace name is required',
     noWorkspaceSelected: 'No workspace selected',
     selectWorkspace: 'Select Workspace',
+    settings: {
+      title: 'Workspace Settings',
+      embeddingModel: 'Embedding Model',
+      visionModel: 'Vision Model',
+    },
     slug: 'Slug',
     slugHint: 'Used in URLs. Only lowercase letters, numbers, and hyphens allowed.',
     slugInvalid: 'Slug must contain only lowercase letters, numbers, and hyphens',

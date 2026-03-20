@@ -1189,6 +1189,11 @@ export default {
     nameRequired: 'Arbeitsbereich-Name ist erforderlich',
     noWorkspaceSelected: 'Kein Arbeitsbereich ausgewählt',
     selectWorkspace: 'Arbeitsbereich auswählen',
+    settings: {
+      title: 'Workspace Einstellungen',
+      embeddingModel: 'Embedding Modell',
+      visionModel: 'Vision Modell',
+    },
     slug: 'Slug',
     slugHint: 'Wird in URLs verwendet. Nur Kleinbuchstaben, Zahlen und Bindestriche erlaubt.',
     slugInvalid: 'Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten',

@@ -58,7 +58,6 @@ export type GeorgeObjectTypes = {
   InferenceModelState: InferenceModelState
   LegacyFile: LegacyFile
   LibraryManifest: LibraryManifest
-  LibrarySettings: LibraryManifest['settings']
   ProcessingRequestSettings: Record<string, string | number | boolean> | null
   StorageStats: StorageStats
   VectorStoreChunk: VectorStoreChunk

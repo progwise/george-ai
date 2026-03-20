@@ -28,6 +28,10 @@ const getWorkspaceManifest = createServerFn({ method: 'GET' })
                 modelDriver
                 modelName
               }
+              vision {
+                modelDriver
+                modelName
+              }
             }
           }
         }

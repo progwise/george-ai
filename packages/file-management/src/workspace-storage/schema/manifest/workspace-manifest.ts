@@ -5,20 +5,22 @@ import { InferenceDriverSchema } from '@george-ai/app-schema'
 import { BaseManifestSchema } from './base-manifest-schema'
 
 export const WorkspaceSettingsSchema = z.object({
-  storageLimitFiles: z.number().int().nonnegative().optional(),
-  storageLimitBytes: z.number().optional(),
+  storageLimitFiles: z.number().int().nonnegative().optional().nullable(),
+  storageLimitBytes: z.number().optional().nullable(),
   embedding: z
     .object({
       modelDriver: InferenceDriverSchema,
       modelName: z.string(),
     })
-    .optional(),
-  imageAnalysis: z
+    .optional()
+    .nullable(),
+  vision: z
     .object({
       modelDriver: InferenceDriverSchema,
       modelName: z.string(),
     })
-    .optional(),
+    .optional()
+    .nullable(),
 })
 
 export const WorkspaceManifestSchema = BaseManifestSchema.extend({

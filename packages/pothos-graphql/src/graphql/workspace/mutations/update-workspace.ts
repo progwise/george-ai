@@ -1,6 +1,7 @@
 import { canWriteWorkspaceOrThrow, updateWorkspace } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 builder.mutationField('updateWorkspace', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
@@ -24,9 +25,9 @@ builder.mutationField('updateWorkspace', (t) =>
                 }),
               }),
             }),
-            imageAnalysis: t.field({
+            vision: t.field({
               required: false,
-              type: builder.inputType('ImageAnalysisSettingsInput', {
+              type: builder.inputType('VisionSettingsInput', {
                 fields: (t) => ({
                   modelDriver: t.field({ type: 'InferenceDriver', required: true }),
                   modelName: t.string({ required: true }),
@@ -40,6 +41,7 @@ builder.mutationField('updateWorkspace', (t) =>
     resolve: async (_, { workspaceId, name, settings }, { session }) => {
       await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
       const updatedManifest = await updateWorkspace({ workspaceId, name, settings })
+      logger.debug('Workspace updated', { workspaceId, updatedManifest })
       return updatedManifest
     },
   }),

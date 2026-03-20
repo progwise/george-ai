@@ -1,5 +1,5 @@
 import { getErrorMessage } from '@george-ai/app-commons'
-import { getLibraryManifest, transform } from '@george-ai/app-domain'
+import { transform } from '@george-ai/app-domain'
 import {
   ChatRequest,
   DocumentExtractionRequest,
@@ -7,7 +7,7 @@ import {
   invokeAction,
   publish,
 } from '@george-ai/event-service-client'
-import { getUri, writeExtraction } from '@george-ai/file-management'
+import { getUri, getWorkspaceSettings, writeExtraction } from '@george-ai/file-management'
 
 import { WORKER_ID, logger } from '../common'
 
@@ -54,8 +54,8 @@ export async function extractDocument(request: DocumentExtractionRequest) {
     })
     return
   }
-  const library = await getLibraryManifest(workspaceId, { libraryId })
-  const imageAnalysisSettings = library.settings?.imageAnalysis
+  const workspaceSettings = await getWorkspaceSettings(workspaceId)
+  const imageAnalysisSettings = workspaceSettings?.vision
   if (!imageAnalysisSettings) {
     logger.info('Image analysis settings not found for library, skipping image analysis provider call', {
       libraryId,

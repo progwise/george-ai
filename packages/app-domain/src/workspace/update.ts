@@ -1,7 +1,6 @@
 import { prisma } from '@george-ai/app-database'
-import { InferenceDriver } from '@george-ai/app-schema'
 import { EmbeddingRequest, invokeAction } from '@george-ai/event-service-client'
-import { WorkspaceManifest, getWorkspace } from '@george-ai/file-management'
+import { WorkspaceManifest, WorkspaceSettings, getWorkspace } from '@george-ai/file-management'
 import { saveWorkspace } from '@george-ai/file-management'
 import { vectorStore } from '@george-ai/vector-store'
 
@@ -14,18 +13,7 @@ export async function updateWorkspace({
 }: {
   workspaceId: string
   name?: string | null
-  settings?: {
-    storageLimitFiles?: number | null
-    storageLimitBytes?: number | null
-    embedding?: {
-      modelDriver: InferenceDriver
-      modelName: string
-    } | null
-    imageAnalysis?: {
-      modelDriver: InferenceDriver
-      modelName: string
-    } | null
-  } | null
+  settings?: WorkspaceSettings | null
 }) {
   await prisma.workspace.update({
     where: { id: workspaceId },
@@ -49,53 +37,51 @@ export async function updateWorkspace({
         ...(settings.storageLimitFiles != null && { storageLimitFiles: settings.storageLimitFiles }),
         ...(settings.storageLimitBytes != null && { storageLimitBytes: settings.storageLimitBytes }),
         ...(settings.embedding && { embedding: settings.embedding }),
-        ...(settings.imageAnalysis && { imageAnalysis: settings.imageAnalysis }),
+        ...(settings.vision && { vision: settings.vision }),
       },
     }),
   }
 
-  const { modelDriver, modelName } = updatedManifest.settings?.embedding || {}
-  logger.debug('Updating workspace', { workspaceId, name, settings, modelDriver, modelName })
-  if (modelDriver && modelName) {
+  const { embedding, vision } = updatedManifest.settings || {}
+
+  if (embedding?.modelDriver && embedding.modelName) {
     const testEmbedding = await invokeAction({
       action: 'chunkEmbedding',
       workspaceId,
       version: 1,
-      modelName,
+      modelName: embedding.modelName,
       verb: 'request',
       timestamp: new Date(),
-      driver: modelDriver,
+      driver: embedding.modelDriver,
       chunks: ['test'],
     } satisfies EmbeddingRequest)
     const size = testEmbedding.embeddings[0].vector.length
     const store = await vectorStore.getVectorStore({
       workspaceId,
-      modelDriver,
-      modelName,
+      modelDriver: embedding.modelDriver,
+      modelName: embedding.modelName,
     })
-    if (store.exists && store.vectorDimensions === size) {
-      await saveWorkspace(updatedManifest)
-      return updatedManifest
-    }
     if (store.exists && store.vectorDimensions !== size) {
       await vectorStore.removeVectorStore({
         workspaceId,
-        modelDriver,
-        modelName,
+        modelDriver: embedding.modelDriver,
+        modelName: embedding.modelName,
       })
     }
-
-    await vectorStore.createVectorStore({
-      workspaceId,
-      model: {
-        modelDriver,
-        modelName,
-        size,
-        distance: 'Cosine', // still no idea where to get this information from
-      },
-    })
+    if (!store.exists || store.vectorDimensions !== size) {
+      await vectorStore.createVectorStore({
+        workspaceId,
+        model: {
+          modelDriver: embedding.modelDriver,
+          modelName: embedding.modelName,
+          size,
+          distance: 'Cosine', // still no idea where to get this information from
+        },
+      })
+    }
   }
 
+  logger.debug('Updating workspace', { workspaceId, name, settings, embedding, vision })
   await saveWorkspace(updatedManifest)
 
   return updatedManifest

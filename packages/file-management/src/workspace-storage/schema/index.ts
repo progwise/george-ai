@@ -15,6 +15,7 @@ import {
   LibraryManifestSchema,
   StorageStatsSchema,
   WorkspaceManifestSchema,
+  WorkspaceSettingsSchema,
 } from './manifest'
 
 export {
@@ -30,12 +31,14 @@ export {
   DocumentManifestSchema,
   ExtractionManifestSchema,
   StorageStatsSchema,
+  WorkspaceSettingsSchema,
 }
 
 export type Attachment = z.infer<typeof AttachmentSchema>
 
 export type LibraryManifest = z.infer<typeof LibraryManifestSchema>
 export type WorkspaceManifest = z.infer<typeof WorkspaceManifestSchema>
+export type WorkspaceSettings = z.infer<typeof WorkspaceSettingsSchema>
 export type DocumentManifest = z.infer<typeof DocumentManifestSchema>
 export type ExtractionManifest = z.infer<typeof ExtractionManifestSchema>
 export type StorageStats = z.infer<typeof StorageStatsSchema>

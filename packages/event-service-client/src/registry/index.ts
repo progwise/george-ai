@@ -12,7 +12,7 @@ export async function ensureRegistryBucket() {
   await eventClient.ensureBucket({
     name: REGISTRY_BUCKET_NAME,
     options: {
-      history: 1,
+      history: 0,
       ttlMs: 0,
     },
   })

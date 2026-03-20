@@ -27,7 +27,7 @@ export const updateWorkspaceFn = createServerFn({ method: 'POST' })
                 modelDriver
                 modelName
               }
-              imageAnalysis {
+              vision {
                 modelDriver
                 modelName
               }

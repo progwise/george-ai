@@ -1026,13 +1026,21 @@ export class NatsClient implements EventClient {
       entry: z.infer<T> | null
     }) => Promise<void>
   }): Promise<() => Promise<void>> {
-    if (!this.js) {
+    if (!this.js || !this.jsm) {
       throw new Error('Not connected to NATS')
     }
 
     const { schema, bucketName, filter, handler } = params
 
     const kvBucket = await this.js.views.kv(bucketName)
+
+    // Capture the stream's last sequence before subscribing. Any delete entry with
+    // revision <= snapshotRevision was already tombstoned before we started watching
+    // and should not be surfaced to the handler. Using a sequence number (from NATS)
+    // instead of a wall-clock timestamp avoids clock-skew issues when client and
+    // server run on different hosts.
+    const streamInfo = await this.jsm.streams.info(`KV_${bucketName}`).catch(() => null)
+    const snapshotRevision = streamInfo?.state.last_seq ?? 0
 
     const watcher = await kvBucket.watch({ key: filter })
 
@@ -1042,6 +1050,18 @@ export class NatsClient implements EventClient {
           continue
         }
         const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
+
+        if (isDelete && entry.revision <= snapshotRevision) {
+          // Skip delete tombstones that existed before we started watching.
+          logger.debug('Skipping pre-existing delete tombstone', {
+            bucketName,
+            filter,
+            key: entry.key,
+            revision: entry.revision,
+            snapshotRevision,
+          })
+          continue
+        }
 
         if (!isDelete && (!entry.value || entry.value.length === 0)) {
           // Treat empty value as delete

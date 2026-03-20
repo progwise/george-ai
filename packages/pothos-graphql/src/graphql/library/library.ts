@@ -31,10 +31,6 @@ builder.prismaObject('AiLibrary', {
     filesCount: t.relationCount('files'),
     crawlers: t.relation('crawlers', { nullable: false }),
     crawlerCount: t.relationCount('crawlers'),
-    embeddingModel: t.relation('embeddingModel'),
-    embeddingTimeoutMs: t.exposeInt('embeddingTimeoutMs'),
-    ocrModel: t.relation('ocrModel'),
-    fileConverterOptions: t.exposeString('fileConverterOptions'),
     autoProcessCrawledFiles: t.exposeBoolean('autoProcessCrawledFiles', { nullable: false }),
     manifest: t.field({
       type: 'LibraryManifest',

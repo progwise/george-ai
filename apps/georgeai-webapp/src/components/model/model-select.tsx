@@ -66,7 +66,6 @@ export const ModelSelect = ({
   useEffect(() => {
     if (!selectedModelRef) return
     selectedModelRef.current = selectedItem
-    console.log('Selected model updated:', selectedItem)
   }, [selectedItem, selectedModelRef])
 
   const {

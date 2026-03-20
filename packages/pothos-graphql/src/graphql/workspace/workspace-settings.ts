@@ -13,8 +13,8 @@ builder.simpleObject('WorkspaceSettings', {
       }),
       nullable: true,
     }),
-    imageAnalysis: t.field({
-      type: builder.simpleObject('WorkspaceImageAnalysisSettings', {
+    vision: t.field({
+      type: builder.simpleObject('WorkspaceVisionSettings', {
         fields: (t) => ({
           modelDriver: t.field({ type: 'InferenceDriver', nullable: false }),
           modelName: t.string({ nullable: false }),

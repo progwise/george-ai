@@ -31,8 +31,8 @@ export async function startWorkerSlotManager(): Promise<() => Promise<void>> {
   })
 
   const unsubscribeWorkerEntries = await watchWorkerSlots({
-    handler: async ({ workerId, operation, role, entry }) => {
-      logger.debug('Worker registry event received', { WORKER_ID, workerId, operation, role, entry })
+    handler: async ({ workerId, operation, role, entry, revision }) => {
+      logger.debug('Worker slot event received', { WORKER_ID, workerId, operation, role, entry, revision })
       processingMap.updateStats('workerSlotManager')
 
       if (workerId === WORKER_ID && operation === 'delete') {
@@ -40,20 +40,22 @@ export async function startWorkerSlotManager(): Promise<() => Promise<void>> {
           WORKER_ID,
           role,
           entry,
+          revision,
         })
         await stopProcessing(role)
       }
 
       if (workerId === WORKER_ID && operation === 'update') {
-        logger.debug('This worker has been registered. Start necessary processes.', {
+        logger.info('This worker has been registered. Start necessary processes.', {
           WORKER_ID,
           role,
           entry,
+          revision,
         })
         await startProcessing(role)
       }
 
-      if (operation === 'delete') {
+      if (workerId !== WORKER_ID && operation === 'delete') {
         logger.debug('Foreign worker entry deleted - trying to register', { workerId, WORKER_ID, role })
         try {
           await signupWorker({ workerId: WORKER_ID })

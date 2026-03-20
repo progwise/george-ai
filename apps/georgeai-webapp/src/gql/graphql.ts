@@ -354,14 +354,10 @@ export type AiLibrary = {
   crawlers: Array<AiLibraryCrawler>
   createdAt: Scalars['DateTime']['output']
   description?: Maybe<Scalars['String']['output']>
-  embeddingModel?: Maybe<AiLanguageModel>
-  embeddingTimeoutMs?: Maybe<Scalars['Int']['output']>
-  fileConverterOptions?: Maybe<Scalars['String']['output']>
   filesCount: Scalars['Int']['output']
   id: Scalars['ID']['output']
   manifest?: Maybe<LibraryManifest>
   name: Scalars['String']['output']
-  ocrModel?: Maybe<AiLanguageModel>
   role?: Maybe<WorkspaceRole>
   updatedAt: Scalars['DateTime']['output']
   url?: Maybe<Scalars['String']['output']>
@@ -1283,11 +1279,6 @@ export type HumanParticipant = AiConversationParticipant & {
   userId?: Maybe<Scalars['ID']['output']>
 }
 
-export type ImageAnalysisSettingsInput = {
-  modelDriver: InferenceDriver
-  modelName: Scalars['String']['input']
-}
-
 export enum InferenceAction {
   ChatCompletion = 'chatCompletion',
   ChunkEmbedding = 'chunkEmbedding',
@@ -1394,21 +1385,9 @@ export type LibraryCrawlerRunQueryResults = {
   runs: Array<AiLibraryCrawlerRun>
 }
 
-export type LibraryEmbeddingSettings = {
-  __typename?: 'LibraryEmbeddingSettings'
-  embeddingModelName: Scalars['String']['output']
-  embeddingModelProvider: Scalars['String']['output']
-}
-
 export enum LibraryFilesSortField {
   CreatedAt = 'createdAt',
   Name = 'name',
-}
-
-export type LibraryImageAnalysisSettings = {
-  __typename?: 'LibraryImageAnalysisSettings'
-  imageAnalysisModelName: Scalars['String']['output']
-  imageAnalysisModelProvider: Scalars['String']['output']
 }
 
 export type LibraryInput = {
@@ -1433,14 +1412,6 @@ export type LibraryManifest = {
   updated?: Maybe<Scalars['DateTime']['output']>
   version: Scalars['Int']['output']
   workspaceId: Scalars['String']['output']
-}
-
-export type LibrarySettings = {
-  __typename?: 'LibrarySettings'
-  embedding?: Maybe<LibraryEmbeddingSettings>
-  imageAnalysis?: Maybe<LibraryImageAnalysisSettings>
-  storageLimitBytes?: Maybe<Scalars['Int']['output']>
-  storageLimitFiles?: Maybe<Scalars['Int']['output']>
 }
 
 export enum LibrarySortField {
@@ -2706,6 +2677,11 @@ export type VectorStoreChunkResponse = {
   totalCount?: Maybe<Scalars['Int']['output']>
 }
 
+export type VisionSettingsInput = {
+  modelDriver: InferenceDriver
+  modelName: Scalars['String']['input']
+}
+
 export enum WorkerActionResult {
   Failure = 'failure',
   Start = 'start',
@@ -2760,12 +2736,6 @@ export type WorkspaceEmbeddingSettings = {
   modelName: Scalars['String']['output']
 }
 
-export type WorkspaceImageAnalysisSettings = {
-  __typename?: 'WorkspaceImageAnalysisSettings'
-  modelDriver: InferenceDriver
-  modelName: Scalars['String']['output']
-}
-
 export type WorkspaceInvitation = {
   __typename?: 'WorkspaceInvitation'
   acceptedAt?: Maybe<Scalars['DateTime']['output']>
@@ -2809,22 +2779,28 @@ export enum WorkspaceRole {
 export type WorkspaceSettings = {
   __typename?: 'WorkspaceSettings'
   embedding?: Maybe<WorkspaceEmbeddingSettings>
-  imageAnalysis?: Maybe<WorkspaceImageAnalysisSettings>
   storageLimitBytes?: Maybe<Scalars['Int']['output']>
   storageLimitFiles?: Maybe<Scalars['Int']['output']>
+  vision?: Maybe<WorkspaceVisionSettings>
 }
 
 export type WorkspaceSettingsInput = {
   embedding?: InputMaybe<EmbeddingSettingsInput>
-  imageAnalysis?: InputMaybe<ImageAnalysisSettingsInput>
   storageLimitBytes?: InputMaybe<Scalars['Float']['input']>
   storageLimitFiles?: InputMaybe<Scalars['Int']['input']>
+  vision?: InputMaybe<VisionSettingsInput>
 }
 
 export enum WorkspaceSortField {
   CreatedAt = 'createdAt',
   Name = 'name',
   UpdatedAt = 'updatedAt',
+}
+
+export type WorkspaceVisionSettings = {
+  __typename?: 'WorkspaceVisionSettings'
+  modelDriver: InferenceDriver
+  modelName: Scalars['String']['output']
 }
 
 /** Response type for workspaces query */
@@ -5092,27 +5068,8 @@ export type AiLibraryForm_LibraryFragment = {
   __typename?: 'AiLibrary'
   id: string
   name: string
-  embeddingTimeoutMs?: number | null
   filesCount: number
   description?: string | null
-  fileConverterOptions?: string | null
-  autoProcessCrawledFiles: boolean
-  embeddingModel?: {
-    __typename?: 'AiLanguageModel'
-    id: string
-    name: string
-    provider: string
-    modelName: string
-    modelDriver: InferenceDriver
-  } | null
-  ocrModel?: {
-    __typename?: 'AiLanguageModel'
-    id: string
-    name: string
-    provider: string
-    modelName: string
-    modelDriver: InferenceDriver
-  } | null
 }
 
 export type LibraryMenu_AiLibraryFragment = { __typename?: 'AiLibrary'; id: string; name: string; filesCount: number }
@@ -5363,27 +5320,8 @@ export type AiLibraryDetailQuery = {
     filesCount: number
     createdAt: string
     updatedAt: string
-    embeddingTimeoutMs?: number | null
     description?: string | null
-    fileConverterOptions?: string | null
-    autoProcessCrawledFiles: boolean
     manifest?: { __typename?: 'LibraryManifest'; version: number; name: string } | null
-    embeddingModel?: {
-      __typename?: 'AiLanguageModel'
-      id: string
-      name: string
-      provider: string
-      modelName: string
-      modelDriver: InferenceDriver
-    } | null
-    ocrModel?: {
-      __typename?: 'AiLanguageModel'
-      id: string
-      name: string
-      provider: string
-      modelName: string
-      modelDriver: InferenceDriver
-    } | null
   }
 }
 
@@ -5555,32 +5493,7 @@ export type ChangeLibraryMutationVariables = Exact<{
 
 export type ChangeLibraryMutation = {
   __typename?: 'Mutation'
-  updateLibrary: {
-    __typename?: 'AiLibrary'
-    id: string
-    name: string
-    embeddingTimeoutMs?: number | null
-    filesCount: number
-    description?: string | null
-    fileConverterOptions?: string | null
-    autoProcessCrawledFiles: boolean
-    embeddingModel?: {
-      __typename?: 'AiLanguageModel'
-      id: string
-      name: string
-      provider: string
-      modelName: string
-      modelDriver: InferenceDriver
-    } | null
-    ocrModel?: {
-      __typename?: 'AiLanguageModel'
-      id: string
-      name: string
-      provider: string
-      modelName: string
-      modelDriver: InferenceDriver
-    } | null
-  }
+  updateLibrary: { __typename?: 'AiLibrary'; id: string; name: string; filesCount: number; description?: string | null }
 }
 
 export type PrepareGoogleDriveFileMutationVariables = Exact<{
@@ -6945,6 +6858,7 @@ export type GetWorkspaceManifestQuery = {
     settings: {
       __typename?: 'WorkspaceSettings'
       embedding?: { __typename?: 'WorkspaceEmbeddingSettings'; modelDriver: InferenceDriver; modelName: string } | null
+      vision?: { __typename?: 'WorkspaceVisionSettings'; modelDriver: InferenceDriver; modelName: string } | null
     }
   }
 }
@@ -7210,11 +7124,7 @@ export type UpdateWorkspaceMutation = {
       storageLimitFiles?: number | null
       storageLimitBytes?: number | null
       embedding?: { __typename?: 'WorkspaceEmbeddingSettings'; modelDriver: InferenceDriver; modelName: string } | null
-      imageAnalysis?: {
-        __typename?: 'WorkspaceImageAnalysisSettings'
-        modelDriver: InferenceDriver
-        modelName: string
-      } | null
+      vision?: { __typename?: 'WorkspaceVisionSettings'; modelDriver: InferenceDriver; modelName: string } | null
     }
   }
 }
@@ -10759,39 +10669,8 @@ export const AiLibraryForm_LibraryFragmentDoc = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeoutMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'embeddingModel' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelDriver' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'ocrModel' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelDriver' } },
-              ],
-            },
-          },
-          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
       },
     },
@@ -18307,39 +18186,8 @@ export const AiLibraryDetailDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeoutMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'embeddingModel' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelDriver' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'ocrModel' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelDriver' } },
-              ],
-            },
-          },
-          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
       },
     },
@@ -19039,39 +18887,8 @@ export const ChangeLibraryDocument = {
         selections: [
           { kind: 'Field', name: { kind: 'Name', value: 'id' } },
           { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'embeddingTimeoutMs' } },
           { kind: 'Field', name: { kind: 'Name', value: 'filesCount' } },
           { kind: 'Field', name: { kind: 'Name', value: 'description' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'embeddingModel' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelDriver' } },
-              ],
-            },
-          },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'ocrModel' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'provider' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'modelDriver' } },
-              ],
-            },
-          },
-          { kind: 'Field', name: { kind: 'Name', value: 'fileConverterOptions' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'autoProcessCrawledFiles' } },
         ],
       },
     },
@@ -22223,6 +22040,17 @@ export const GetWorkspaceManifestDocument = {
                           ],
                         },
                       },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'vision' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'modelDriver' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
+                          ],
+                        },
+                      },
                     ],
                   },
                 },
@@ -23127,7 +22955,7 @@ export const UpdateWorkspaceDocument = {
                       },
                       {
                         kind: 'Field',
-                        name: { kind: 'Name', value: 'imageAnalysis' },
+                        name: { kind: 'Name', value: 'vision' },
                         selectionSet: {
                           kind: 'SelectionSet',
                           selections: [

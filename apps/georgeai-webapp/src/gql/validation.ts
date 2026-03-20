@@ -33,7 +33,6 @@ import {
   EventQueueAction,
   EventQueueStatus,
   ExtractionMethod,
-  ImageAnalysisSettingsInput,
   InferenceAction,
   InferenceDriver,
   InferenceHostInput,
@@ -48,6 +47,7 @@ import {
   SortOrder,
   UpdateAiLanguageModelInput,
   UserProfileInput,
+  VisionSettingsInput,
   WorkerActionResult,
   WorkerRole,
   WorkspaceRole,
@@ -314,13 +314,6 @@ export function EmbeddingSettingsInputSchema(): z.ZodObject<Properties<Embedding
   })
 }
 
-export function ImageAnalysisSettingsInputSchema(): z.ZodObject<Properties<ImageAnalysisSettingsInput>> {
-  return z.object({
-    modelDriver: InferenceDriverSchema,
-    modelName: z.string(),
-  })
-}
-
 export function InferenceHostInputSchema(): z.ZodObject<Properties<InferenceHostInput>> {
   return z.object({
     apiKey: z.string().nullish(),
@@ -372,11 +365,18 @@ export function UserProfileInputSchema(): z.ZodObject<Properties<UserProfileInpu
   })
 }
 
+export function VisionSettingsInputSchema(): z.ZodObject<Properties<VisionSettingsInput>> {
+  return z.object({
+    modelDriver: InferenceDriverSchema,
+    modelName: z.string(),
+  })
+}
+
 export function WorkspaceSettingsInputSchema(): z.ZodObject<Properties<WorkspaceSettingsInput>> {
   return z.object({
     embedding: z.lazy(() => EmbeddingSettingsInputSchema().nullish()),
-    imageAnalysis: z.lazy(() => ImageAnalysisSettingsInputSchema().nullish()),
     storageLimitBytes: z.number().nullish(),
     storageLimitFiles: z.number().nullish(),
+    vision: z.lazy(() => VisionSettingsInputSchema().nullish()),
   })
 }

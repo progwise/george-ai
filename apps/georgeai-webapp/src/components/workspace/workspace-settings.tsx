@@ -15,6 +15,7 @@ interface WorkspaceSettingsDialogProps {
 export const WorkspaceSettingsDialog = ({ user, ref }: WorkspaceSettingsDialogProps) => {
   const { t } = useTranslation()
   const embeddingModelRef = useRef<ModelSelectInferenceModel | null>(null)
+  const visionModelRef = useRef<ModelSelectInferenceModel | null>(null)
   const { manifest, updateWorkspace, isPending } = useWorkspace(user)
 
   const handleUpdate = () => {
@@ -23,17 +24,23 @@ export const WorkspaceSettingsDialog = ({ user, ref }: WorkspaceSettingsDialogPr
       toastError('Please select an embedding model before saving workspace settings.')
       return
     }
+    if (!visionModelRef.current) {
+      toastError('Please select an embedding model before saving workspace settings.')
+      return
+    }
 
     const settings = {
       ...manifest.settings,
       embedding: embeddingModelRef.current,
+      vision: visionModelRef.current,
     }
+
     updateWorkspace(
       { workspaceId: manifest.workspaceId, name: manifest.name, settings },
       {
         onSuccess: (data) => {
           toastSuccess(
-            `Successfully updated workspace settings for ${data.name} (${data.settings.embedding?.modelName || 'No embedding model configured'})`,
+            `Successfully updated workspace settings for ${data.name}: Embedding (${data.settings.embedding?.modelName || 'No embedding model configured'}), Vision (${data.settings.vision?.modelName || 'No vision model configured'})`,
           )
         },
         onError: (error) => {
@@ -44,21 +51,28 @@ export const WorkspaceSettingsDialog = ({ user, ref }: WorkspaceSettingsDialogPr
     ref.current?.close()
   }
 
-  const embeddingModel = useMemo(() => {
-    if (!manifest) return undefined
+  const { embeddingModel, visionModel } = useMemo(() => {
+    if (!manifest) return {}
 
-    console.log('Current embedding model settings:', manifest.settings.embedding)
-
-    return manifest.settings.embedding
+    const embeddingModel = manifest.settings.embedding
       ? {
           modelDriver: manifest.settings.embedding.modelDriver,
           modelName: manifest.settings.embedding.modelName,
         }
       : undefined
+
+    const visionModel = manifest.settings.vision
+      ? {
+          modelDriver: manifest.settings.vision.modelDriver,
+          modelName: manifest.settings.vision.modelName,
+        }
+      : undefined
+
+    return { embeddingModel, visionModel }
   }, [manifest])
 
   return (
-    <dialog className="modal" ref={ref}>
+    <dialog className="modal" ref={ref} open>
       <div className="modal-box">
         {!manifest ? (
           <h3 className="skeleton"></h3>
@@ -74,15 +88,22 @@ export const WorkspaceSettingsDialog = ({ user, ref }: WorkspaceSettingsDialogPr
             {!manifest ? (
               <div className="skeleton"></div>
             ) : (
-              <div className="">
-                <h4 className="text-lg text-base-content/80">{t('labels.libraryProcessingOptions')}</h4>
+              <div className="flex">
                 <ModelSelect
                   selectedModelRef={embeddingModelRef}
                   name="embeddingModel"
-                  label={t('labels.embeddingModelName')}
+                  label={t('workspace.settings.embeddingModel')}
                   value={embeddingModel}
                   className="col-span-1"
                   capability="embedding"
+                />
+                <ModelSelect
+                  selectedModelRef={visionModelRef}
+                  name="visionModel"
+                  label={t('workspace.settings.visionModel')}
+                  value={visionModel}
+                  className="col-span-1"
+                  capability="vision"
                 />
               </div>
             )}

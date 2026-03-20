@@ -1,7 +1,7 @@
 import { ExtractionMethod } from '@george-ai/app-schema'
 import { publish } from '@george-ai/event-service-client'
 import { DocumentVectorizationRequest } from '@george-ai/event-service-client/src/action/schema'
-import { DocumentManifest, getLibrary } from '@george-ai/file-management'
+import { DocumentManifest, getWorkspaceSettings } from '@george-ai/file-management'
 
 import { logger } from '../common'
 
@@ -12,21 +12,18 @@ export async function triggerVectorization(params: {
   const { documentManifest, extractionMethod } = params
   const { workspaceId, libraryId, documentId } = documentManifest
 
-  const libraryManifest = await getLibrary({
-    workspaceId: documentManifest.workspaceId,
-    libraryId: documentManifest.libraryId,
-  })
+  const workspaceSettings = await getWorkspaceSettings(documentManifest.workspaceId)
 
-  if (!libraryManifest) {
-    logger.error('Can not get library manifest to read vectorization settings', { ...params })
-    throw new Error('Cannot read library to obtain vectorization settings')
+  if (!workspaceSettings) {
+    logger.error('Can not get workspace settings to read vectorization settings', { ...params })
+    throw new Error('Cannot read workspace settings to obtain vectorization settings')
   }
 
-  const { modelDriver: embeddingDriver, modelName: embeddingModel } = libraryManifest.settings?.embedding || {}
+  const { modelDriver: embeddingDriver, modelName: embeddingModel } = workspaceSettings.embedding || {}
 
   if (!embeddingDriver || !embeddingModel) {
-    logger.error('Cannot read embedding settings for document vectorization', { ...params, libraryManifest })
-    throw new Error('Cannot get library settings for vectorization')
+    logger.error('Cannot read embedding settings for document vectorization', { ...params, workspaceSettings })
+    throw new Error('Cannot get workspace settings for vectorization')
   }
   const validExtractionMethods = documentManifest.extractions
     .filter((extraction) => extraction.sourceHash === documentManifest.sourceHash)

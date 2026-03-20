@@ -18,7 +18,7 @@ export async function stopProcessing(workerRole: WorkerRole) {
   }
 
   await subscription.cleanupFunction()
-  sub.remove(workerRole)
+  await sub.remove(workerRole)
   const activeSubscriptions = sub.getAll()
   logger.info('Processing stopped for worker type', { workerRole })
   if (activeSubscriptions.length === 0) {
