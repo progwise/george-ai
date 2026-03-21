@@ -3,6 +3,7 @@ export const DOCUMENTS_FOLDER_NAME = 'documents'
 export const EXTRACTIONS_FOLDER_NAME = 'extractions'
 export const FRAGMENTS_FOLDER_NAME = 'fragments'
 export const SOURCE_FILE_NAME = 'source_file'
+export const ANALYSIS_FOLDER_NAME = 'analysis'
 export const ATTACHMENTS_FOLDER_NAME = 'attachments'
 
 export const ATTACHMENTS_BACKUP_FOLDER_NAME = 'attachments_backup'

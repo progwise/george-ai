@@ -17,6 +17,7 @@ export type EmbeddingRequest = z.infer<typeof EmbeddingRequestSchema>
 export const EmbeddingResponseSchema = WorkspaceResponseBaseSchema.extend({
   version: z.literal(1).default(1),
   action: z.literal('chunkEmbedding').default('chunkEmbedding'),
+  success: z.literal(true),
   embeddings: z.array(
     z.object({
       chunk: z.string(),

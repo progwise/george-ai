@@ -26,6 +26,7 @@ export async function createLibrary(
     storageStats: StorageStatsSchema.parse({}),
     workspaceId,
     attachments: [],
+    analyses: [],
     creator,
     type: 'library',
   }

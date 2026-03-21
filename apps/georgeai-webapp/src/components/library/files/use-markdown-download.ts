@@ -77,13 +77,11 @@ export const useMarkdownDownload = ({
     return () => {
       controller.abort() // Cancel fetch on unmount or URL change
       timeouts.forEach(clearTimeout) // Clear any pending timeouts on unmount or URL change
-      console.log('Aborted markdown download and cleared timeouts for URL:', url) // Debug log
     }
   }, [url, chunkSize, error]) // Added markdown, error, and totalBytes to dependencies for better debugging
 
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
-      console.log('URL changed, resetting markdown state') // Debug log
       setMarkdown('')
       setBytesLoaded(0)
       setTotalBytes(0)

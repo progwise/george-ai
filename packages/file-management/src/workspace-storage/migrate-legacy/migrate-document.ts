@@ -133,6 +133,8 @@ export async function migrateDocument(workspaceId: string, legacyFileInfo: Legac
       sourceHash,
       extractions: [],
       storageStats: {
+        analysesBytes: 0,
+        analysesFileCount: 0,
         physicalBytes: sourceFileInfo.size,
         lastUpdate: new Date(),
         extractionBytes: 0,
@@ -154,6 +156,7 @@ export async function migrateDocument(workspaceId: string, legacyFileInfo: Legac
       },
       workspaceId,
       attachments: [],
+      analyses: [],
       libraryId: libraryId,
     }
 

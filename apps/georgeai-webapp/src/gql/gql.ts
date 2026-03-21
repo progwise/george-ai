@@ -17,7 +17,7 @@ import * as types from './graphql'
 type Documents = {
   '\n  fragment CurrentUser on CurrentUser {\n    userId\n    name\n    username\n    email\n    avatarUrl\n    isAdmin\n    selectedWorkspaceId\n    defaultWorkspaceId\n    lastLogin\n  }\n': typeof types.CurrentUserFragmentDoc
   '\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ': typeof types.CurrentUserDocument
-  '\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ': typeof types.LoginDocument
+  '\n          mutation login($jwtToken: String!) {\n            login(jwtToken: $jwtToken) {\n              userId\n              avatarUrl\n            }\n          }\n        ': typeof types.LoginDocument
   '\n  fragment EditModelButton_LanguageModel on AiLanguageModel {\n    id\n    provider\n    name\n    adminNotes\n    enabled\n  }\n': typeof types.EditModelButton_LanguageModelFragmentDoc
   '\n        query GetAiLanguageModels(\n          $skip: Int = 0\n          $take: Int = 20\n          $providers: [InferenceDriver!]\n          $canDoEmbedding: Boolean\n          $canDoChatCompletion: Boolean\n          $canDoVision: Boolean\n          $canDoFunctionCalling: Boolean\n          $onlyUsed: Boolean = false\n          $showDisabled: Boolean = false\n        ) {\n          models(\n            skip: $skip\n            take: $take\n            providers: $providers\n            canDoEmbedding: $canDoEmbedding\n            canDoChatCompletion: $canDoChatCompletion\n            canDoVision: $canDoVision\n            canDoFunctionCalling: $canDoFunctionCalling\n            onlyUsed: $onlyUsed\n            showDisabled: $showDisabled\n          ) {\n            skip\n            take\n            count\n            enabledCount\n            disabledCount\n            providerCapabilities {\n              provider\n              modelCount\n              enabledCount\n              disabledCount\n              embeddingCount\n              chatCount\n              visionCount\n              functionCount\n            }\n            items {\n              id\n              name\n              provider\n              canDoEmbedding\n              canDoChatCompletion\n              canDoVision\n              canDoFunctionCalling\n              enabled\n              adminNotes\n              lastUsedAt\n              createdAt\n              librariesUsingAsEmbedding {\n                id\n                name\n              }\n              assistantsUsingAsChat {\n                id\n                name\n              }\n              listFieldsUsing {\n                id\n                list {\n                  id\n                  name\n                }\n              }\n            }\n          }\n        }\n      ': typeof types.GetAiLanguageModelsDocument
   '\n        query GetUsageStats($startDate: DateTime, $endDate: DateTime) {\n          aiModelUsageStats(startDate: $startDate, endDate: $endDate) {\n            totalRequests\n            totalTokensInput\n            totalTokensOutput\n            totalDurationMs\n            avgTokensInput\n            avgTokensOutput\n            avgDurationMs\n          }\n        }\n      ': typeof types.GetUsageStatsDocument
@@ -255,7 +255,7 @@ const documents: Documents = {
     types.CurrentUserFragmentDoc,
   '\n      query currentUser {\n        currentUser {\n          ...CurrentUser\n        }\n      }\n    ':
     types.CurrentUserDocument,
-  '\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ':
+  '\n          mutation login($jwtToken: String!) {\n            login(jwtToken: $jwtToken) {\n              userId\n              avatarUrl\n            }\n          }\n        ':
     types.LoginDocument,
   '\n  fragment EditModelButton_LanguageModel on AiLanguageModel {\n    id\n    provider\n    name\n    adminNotes\n    enabled\n  }\n':
     types.EditModelButton_LanguageModelFragmentDoc,
@@ -747,8 +747,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation login($jwtToken: String!) {\n          login(jwtToken: $jwtToken) {\n            userId\n            avatarUrl\n          }\n        }\n      ']
+  source: '\n          mutation login($jwtToken: String!) {\n            login(jwtToken: $jwtToken) {\n              userId\n              avatarUrl\n            }\n          }\n        ',
+): (typeof documents)['\n          mutation login($jwtToken: String!) {\n            login(jwtToken: $jwtToken) {\n              userId\n              avatarUrl\n            }\n          }\n        ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

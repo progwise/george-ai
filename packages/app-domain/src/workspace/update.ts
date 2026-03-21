@@ -55,6 +55,15 @@ export async function updateWorkspace({
       driver: embedding.modelDriver,
       chunks: ['test'],
     } satisfies EmbeddingRequest)
+    if (!testEmbedding.success || testEmbedding.embeddings.length < 1) {
+      logger.error('Failed to get test embedding with new model settings', {
+        workspaceId,
+        embeddingModel: embedding.modelName,
+        embeddingDriver: embedding.modelDriver,
+        testEmbedding,
+      })
+      throw new Error('Failed to get test embedding with new model settings')
+    }
     const size = testEmbedding.embeddings[0].vector.length
     const store = await vectorStore.getVectorStore({
       workspaceId,

@@ -18,9 +18,11 @@ import {
   ModelDiscoveryResponseSchema,
 } from './host'
 import { ChatRequestSchema, ChatResponseSchema, EmbeddingRequestSchema, EmbeddingResponseSchema } from './inference'
+import { AnalyzeImageRequestSchema, AnalyzeImageStatusSchema } from './media'
 import { WorkspaceStatsRequestSchema, WorkspaceStatsResponseSchema } from './workspace-stats'
 
 export const WorkspaceRequestSchema = z.discriminatedUnion('action', [
+  AnalyzeImageRequestSchema,
   ChatRequestSchema,
   EmbeddingRequestSchema,
   DocumentExtractionRequestSchema,
@@ -45,6 +47,7 @@ export const WorkspaceResponseSchema = z.discriminatedUnion('action', [
 export type WorkspaceResponse = z.infer<typeof WorkspaceResponseSchema>
 
 export const WorkspaceStatusSchema = z.discriminatedUnion('action', [
+  AnalyzeImageStatusSchema,
   DocumentExtractionStatusSchema,
   DocumentVectorizationStatusSchema,
   FieldEnrichmentStatusSchema,

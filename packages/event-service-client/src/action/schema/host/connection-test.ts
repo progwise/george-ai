@@ -15,8 +15,8 @@ export type ConnectionTestRequest = z.infer<typeof ConnectionTestRequestSchema>
 export const ConnectionTestResponseSchema = WorkspaceResponseBaseSchema.extend({
   version: z.literal(1).default(1),
   action: z.literal('connectionTest'),
+  success: z.literal(true),
   connection: InferenceHostConnectionSchema,
-  success: z.boolean(),
   isHealthy: z.boolean().optional(),
   isOnline: z.boolean().optional(),
   statusMessage: z.string().optional(),

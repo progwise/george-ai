@@ -16,6 +16,7 @@ export const ChatRequestSchema = WorkspaceRequestBaseSchema.extend({
   modelName: z.string(),
   messages: z.array(ChatMessageSchema),
   attachments: z.array(ChatAttachmentSchema),
+  modelOptions: z.record(z.unknown()).optional(),
 })
 
 export type ChatRequest = z.infer<typeof ChatRequestSchema>
@@ -23,6 +24,7 @@ export type ChatRequest = z.infer<typeof ChatRequestSchema>
 export const ChatResponseSchema = WorkspaceResponseBaseSchema.extend({
   version: z.literal(1).default(1),
   action: z.literal('chatCompletion').default('chatCompletion'),
+  success: z.literal(true),
 }).extend({
   ...ChatResponseChunkSchema.shape,
 })

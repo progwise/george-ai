@@ -37,5 +37,5 @@ export const currentUserQueryOptions = () =>
   queryOptions({
     queryKey: [queryKeys.CurrentUser],
     queryFn: () => currentUserFn(),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   })

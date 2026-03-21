@@ -75,7 +75,7 @@ export const ModelSelect = ({
   } = useQuery(
     getInferenceModelsQueryOptions({
       workspaceId: user.selectedWorkspaceId,
-      limit: 20,
+      limit,
       search: searchTerm || undefined,
       canDoChatCompletion: capability === 'chat' ? true : undefined,
       canDoEmbedding: capability === 'embedding' ? true : undefined,
@@ -210,9 +210,15 @@ export const ModelSelect = ({
                   e.stopPropagation()
                   setLimit((prev) => prev + DEFAULT_LIMIT)
                 }}
-                disabled={isFetching}
+                disabled={isFetching || !hasMore}
               >
-                {isFetching ? <span className="loading loading-xs loading-spinner" /> : 'Load more...'}
+                {isFetching ? (
+                  <span className="loading loading-xs loading-spinner" />
+                ) : hasMore ? (
+                  'Load more...'
+                ) : (
+                  'No more models'
+                )}
               </button>
             )}
           </div>

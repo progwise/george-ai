@@ -17,6 +17,7 @@ export const WorkspaceRequestBaseSchema = WorkspaceEventBaseSchema.extend({
 
 export const WorkspaceResponseBaseSchema = WorkspaceEventBaseSchema.extend({
   verb: z.literal('response'),
+  success: z.boolean(),
 })
 
 export const WorkspaceStatusBaseSchema = WorkspaceEventBaseSchema.extend({

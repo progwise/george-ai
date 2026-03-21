@@ -72,14 +72,17 @@ export const WorkspaceSettingsDialog = ({ user, ref }: WorkspaceSettingsDialogPr
   }, [manifest])
 
   return (
-    <dialog className="modal" ref={ref} open>
+    <dialog className="modal" ref={ref}>
       <div className="modal-box">
         {!manifest ? (
           <h3 className="skeleton"></h3>
         ) : (
-          <h3 className="text-lg font-bold">
-            <GearIcon className="inline-block size-6" /> {manifest.name}
-          </h3>
+          <>
+            <h3 className="text-lg font-bold text-primary">
+              <GearIcon className="inline-block size-6" /> {manifest.name}
+            </h3>
+            <p className="text-sm text-base-content/50">{t('workspace.settings.description')}</p>
+          </>
         )}
         <form method="dialog" className="mt-4">
           {/* Embedding Model Configuration Card */}
@@ -88,23 +91,27 @@ export const WorkspaceSettingsDialog = ({ user, ref }: WorkspaceSettingsDialogPr
             {!manifest ? (
               <div className="skeleton"></div>
             ) : (
-              <div className="flex">
-                <ModelSelect
-                  selectedModelRef={embeddingModelRef}
-                  name="embeddingModel"
-                  label={t('workspace.settings.embeddingModel')}
-                  value={embeddingModel}
-                  className="col-span-1"
-                  capability="embedding"
-                />
-                <ModelSelect
-                  selectedModelRef={visionModelRef}
-                  name="visionModel"
-                  label={t('workspace.settings.visionModel')}
-                  value={visionModel}
-                  className="col-span-1"
-                  capability="vision"
-                />
+              <div className="flex gap-4">
+                <label>
+                  <span className="text-sm text-base-content/50">{t('workspace.settings.embeddingModel')}</span>
+                  <ModelSelect
+                    selectedModelRef={embeddingModelRef}
+                    name="embeddingModel"
+                    value={embeddingModel}
+                    className="col-span-1 rounded-md border border-base-300 bg-base-200 shadow-lg"
+                    capability="embedding"
+                  />
+                </label>
+                <label>
+                  <span className="text-sm text-base-content/50">{t('workspace.settings.visionModel')}</span>
+                  <ModelSelect
+                    selectedModelRef={visionModelRef}
+                    name="visionModel"
+                    value={visionModel}
+                    className="col-span-1 rounded-md border border-base-300 bg-base-200 shadow-lg"
+                    capability="vision"
+                  />
+                </label>
               </div>
             )}
           </div>

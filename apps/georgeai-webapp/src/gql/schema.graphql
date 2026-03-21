@@ -1120,6 +1120,8 @@ type EventQueue {
 }
 
 enum EventQueueAction {
+  analyzeImage
+  analyzeVideo
   documentExtraction
   documentVectorization
   fieldEnrichment

@@ -1,12 +1,13 @@
 import { getConfigValue } from '@george-ai/app-commons'
 
-import { fs } from '../commons'
 import {
+  ANALYSIS_FOLDER_NAME,
   ATTACHMENTS_FOLDER_NAME,
   DOCUMENTS_FOLDER_NAME,
   EXTRACTIONS_FOLDER_NAME,
   FRAGMENTS_FOLDER_NAME,
   LIBRARIES_FOLDER_NAME,
+  fs,
   logger,
 } from '../commons'
 import { DocumentIdentifier, ExtractionIdentifier, LibraryIdentifier, WorkspaceIdentifier } from '../schema'
@@ -42,6 +43,29 @@ export const getEntryPathOrThrow = async (
   }
 
   return effectivePath
+}
+
+export const getAnalysesFolderPath = (
+  identifier: WorkspaceIdentifier | LibraryIdentifier | DocumentIdentifier | ExtractionIdentifier,
+): string => {
+  const parentDir = getEntryPath(identifier)
+  return fs.getFolderPath(parentDir, ANALYSIS_FOLDER_NAME)
+}
+
+export const getAnalysesFolderPathOrThrow = async (
+  identifier: WorkspaceIdentifier | LibraryIdentifier | DocumentIdentifier | ExtractionIdentifier,
+): Promise<string> => {
+  const parentDir = getEntryPath(identifier)
+  const analysisPath = fs.getFolderPath(parentDir, ANALYSIS_FOLDER_NAME)
+
+  const exists = await fs.existsFolder(analysisPath)
+  if (!exists) {
+    const errorMessage = `Analysis path does not exist: ${analysisPath}`
+    logger.error(errorMessage, { analysisPath })
+    throw new Error(`${errorMessage}: ${analysisPath}`)
+  }
+
+  return analysisPath
 }
 
 export const getAttachmentsPath = (

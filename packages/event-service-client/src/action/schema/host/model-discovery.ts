@@ -17,6 +17,7 @@ export const ModelDiscoveryResponseSchema = WorkspaceResponseBaseSchema.extend({
   action: z.literal('modelDiscovery').default('modelDiscovery'),
   connection: InferenceHostConnectionSchema,
   models: z.array(InferenceModelBaseSchema),
+  success: z.literal(true),
 })
 
 export type ModelDiscoveryResponse = z.infer<typeof ModelDiscoveryResponseSchema>

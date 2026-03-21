@@ -1170,6 +1170,8 @@ export type EventQueue = {
 }
 
 export enum EventQueueAction {
+  AnalyzeImage = 'analyzeImage',
+  AnalyzeVideo = 'analyzeVideo',
   DocumentExtraction = 'documentExtraction',
   DocumentVectorization = 'documentVectorization',
   FieldEnrichment = 'fieldEnrichment',

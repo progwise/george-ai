@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { AnalysisSchema } from './analysis-schema'
 import { AttachmentSchema } from './attachment-schema'
 import { DateTimeSchema } from './common'
 import { StorageStatsSchema } from './storage-stats-schema'
@@ -15,5 +16,6 @@ export const BaseManifestSchema = z.object({
   creator: z.string().optional().describe('Who created the entity, can be used for auditing and debugging'),
   updated: DateTimeSchema.optional(),
   attachments: z.array(AttachmentSchema).default([]),
+  analyses: z.array(AnalysisSchema).default([]),
   storageStats: StorageStatsSchema.default({}),
 })

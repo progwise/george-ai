@@ -138,6 +138,8 @@ export async function createExtractionWriter(extractionManifest: ExtractionManif
         const manifest: ExtractionManifest = {
           ...extractionManifest,
           storageStats: {
+            analysesBytes: 0,
+            analysesFileCount: 0,
             extractionBytes: markdownBytes,
             physicalBytes: markdownBytes + totalAttachmentBytes,
             extractionFileCount: 1 + fragmentResults.length,

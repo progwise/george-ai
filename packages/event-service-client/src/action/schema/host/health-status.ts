@@ -16,7 +16,7 @@ export const HealthStatusResponseSchema = WorkspaceResponseBaseSchema.extend({
   version: z.literal(1).default(1),
   action: z.literal('healthStatus').default('healthStatus'),
   connection: InferenceHostConnectionSchema,
-  success: z.boolean(),
+  success: z.literal(true),
   errorCode: z.string().optional(),
   errorMessage: z.string().optional(),
   TimeToConnectMs: z.number().optional(),

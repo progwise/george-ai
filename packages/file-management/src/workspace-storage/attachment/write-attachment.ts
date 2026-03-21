@@ -64,6 +64,8 @@ export async function writeAttachment(
   await updateStats(parentEntry, {
     operation: 'add',
     stats: {
+      analysesBytes: 0,
+      analysesFileCount: 0,
       attachmentBytes: size,
       attachmentFileCount: 1,
       extractionBytes: identifier.type === 'extraction' ? size : 0,

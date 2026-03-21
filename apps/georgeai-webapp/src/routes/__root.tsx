@@ -1,11 +1,12 @@
 import { QueryClient, useQuery } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRouteWithContext, redirect } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { Suspense } from 'react'
 
 import { AuthProvider } from '../auth/auth-provider'
 import { currentUserQueryOptions } from '../auth/queries'
+import { logger } from '../common'
 import { GeorgeToaster } from '../components/georgeToaster'
 import { SidebarLayout } from '../components/sidebar/sidebar-layout'
 import { getThemeQueryOptions } from '../hooks/use-theme'
@@ -52,6 +53,18 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       context.queryClient.ensureQueryData(getLanguageQueryOptions()),
       context.queryClient.ensureQueryData(getThemeQueryOptions()),
     ])
+
+    if (currentUserResult.status === 'rejected') {
+      logger.warn('Failed to load current user data', { error: currentUserResult.reason })
+      if (currentUserResult.reason instanceof String && currentUserResult.reason.includes('Unauthorized')) {
+        // If the error is an unauthorized error, we can ignore it since it just means the user is not logged in
+        logger.info('User is not logged in')
+        throw redirect({ to: '/login' })
+      } else {
+        // For other types of errors, we might want to show a notification to the user
+        logger.error('An unexpected error occurred while loading user data', { error: currentUserResult.reason })
+      }
+    }
 
     return {
       user: currentUserResult.status === 'fulfilled' ? currentUserResult.value : null,

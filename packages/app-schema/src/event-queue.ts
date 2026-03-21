@@ -2,12 +2,13 @@ import z from 'zod'
 
 import { ENRICHMENT_ACTIONS } from './enrichment'
 import { LIBRARY_ACTIONS } from './library'
+import { MEDIA_ACTIONS } from './media'
 
 export const EVENT_QUEUE_STATUS = ['running', 'paused', 'unknown'] as const
 export type EventQueueStatus = (typeof EVENT_QUEUE_STATUS)[number]
 export const EventQueueStatusSchema = z.enum(EVENT_QUEUE_STATUS)
 
-export const EVENT_QUEUE_ACTIONS = [...LIBRARY_ACTIONS, ...ENRICHMENT_ACTIONS] as const
+export const EVENT_QUEUE_ACTIONS = [...LIBRARY_ACTIONS, ...ENRICHMENT_ACTIONS, ...MEDIA_ACTIONS] as const
 export type EventQueueAction = (typeof EVENT_QUEUE_ACTIONS)[number]
 export const EventQueueActionSchema = z.enum(EVENT_QUEUE_ACTIONS)
 

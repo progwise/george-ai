@@ -1170,6 +1170,7 @@ export default {
     selectWorkspace: 'Select Workspace',
     settings: {
       title: 'Workspace Settings',
+      description: 'Configure workspace settings to customize how data is processed and displayed.',
       embeddingModel: 'Embedding Model',
       visionModel: 'Vision Model',
     },

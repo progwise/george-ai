@@ -9,6 +9,7 @@ import migrate from './migrate-legacy'
 import reconcile from './reconcile'
 import workspace from './workspace'
 
+export * from './analysis'
 export * from './attachment'
 export * from './document'
 export * from './extraction'

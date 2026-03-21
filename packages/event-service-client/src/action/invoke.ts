@@ -7,6 +7,8 @@ import {
   ConnectionTestResponse,
   EmbeddingRequest,
   EmbeddingResponse,
+  ErrorResponse,
+  ErrorResponseSchema,
   HealthStatusRequest,
   HealthStatusResponse,
   ModelDiscoveryRequest,
@@ -19,14 +21,29 @@ import {
 } from './schema'
 import { getSyncSubject } from './subject'
 
-export async function invokeAction(request: WorkspaceStatsRequest, timeoutMs?: number): Promise<WorkspaceStatsResponse>
-export async function invokeAction(request: EmbeddingRequest, timeoutMs?: number): Promise<EmbeddingResponse>
-export async function invokeAction(request: ChatRequest, timeoutMs?: number): Promise<ChatResponse>
-export async function invokeAction(request: ConnectionTestRequest, timeoutMs?: number): Promise<ConnectionTestResponse>
-export async function invokeAction(request: HealthStatusRequest, timeoutMs?: number): Promise<HealthStatusResponse>
-export async function invokeAction(request: ModelDiscoveryRequest, timeoutMs?: number): Promise<ModelDiscoveryResponse>
+export async function invokeAction(
+  request: WorkspaceStatsRequest,
+  timeoutMs?: number,
+): Promise<WorkspaceStatsResponse | ErrorResponse>
+export async function invokeAction(
+  request: EmbeddingRequest,
+  timeoutMs?: number,
+): Promise<EmbeddingResponse | ErrorResponse>
+export async function invokeAction(request: ChatRequest, timeoutMs?: number): Promise<ChatResponse | ErrorResponse>
+export async function invokeAction(
+  request: ConnectionTestRequest,
+  timeoutMs?: number,
+): Promise<ConnectionTestResponse | ErrorResponse>
+export async function invokeAction(
+  request: HealthStatusRequest,
+  timeoutMs?: number,
+): Promise<HealthStatusResponse | ErrorResponse>
+export async function invokeAction(
+  request: ModelDiscoveryRequest,
+  timeoutMs?: number,
+): Promise<ModelDiscoveryResponse | ErrorResponse>
 
-export async function invokeAction(request: SyncRequest, timeoutMs?: number): Promise<SyncResponse> {
+export async function invokeAction(request: SyncRequest, timeoutMs?: number): Promise<SyncResponse | ErrorResponse> {
   const subject = getSyncSubject(request)
   const payload = new TextEncoder().encode(JSON.stringify(request))
   logger.debug(`invoke request`, { request, subject })
@@ -40,6 +57,15 @@ export async function invokeAction(request: SyncRequest, timeoutMs?: number): Pr
 
   logger.debug('Received response for provider call', { subject, decodedResponse })
   const json = JSON.parse(decodedResponse)
-  const parsedResponse = SyncResponseSchema.parse(json)
-  return parsedResponse
+  const parsedResponse = SyncResponseSchema.safeParse(json)
+  if (parsedResponse.success) {
+    return parsedResponse.data
+  } else {
+    const parsedError = ErrorResponseSchema.safeParse(json)
+    if (parsedError.success) {
+      return parsedError.data
+    } else {
+      throw new Error(`Unknown response format from provider: ${decodedResponse}`)
+    }
+  }
 }

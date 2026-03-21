@@ -63,7 +63,7 @@ export async function vectorizeDocument(parameters: {
       })
       return null
     })
-    if (!embeddings || embeddings.embeddings.length < 1) {
+    if (!embeddings || !embeddings.success || embeddings.embeddings.length < 1) {
       logger.error('No embeddings returned from invoke', {
         workspaceId,
         embeddingModel,
@@ -71,6 +71,7 @@ export async function vectorizeDocument(parameters: {
         documentId,
         libraryId,
         chunkIndex: i,
+        embeddings,
       })
       continue
     }

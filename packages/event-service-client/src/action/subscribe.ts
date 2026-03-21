@@ -6,6 +6,8 @@ import { eventClient } from '../client'
 import { ACTION_STREAM_NAME, logger } from './common'
 import { getConsumerGlobPattern } from './consumer'
 import {
+  AnalyzeImageEvent,
+  AnalyzeImageEventSchema,
   AsyncAction,
   DocumentExtractionEvent,
   DocumentExtractionEventSchema,
@@ -26,7 +28,9 @@ export const subscribe = async <T extends AsyncAction>(parameters: {
         ? DocumentVectorizationEvent
         : T extends 'fieldEnrichment'
           ? FieldEnrichmentEvent
-          : MigrateFileEvent
+          : T extends 'analyzeImage'
+            ? AnalyzeImageEvent
+            : MigrateFileEvent
   }) => Promise<void>
 }) => {
   const { handler, action } = parameters
@@ -43,7 +47,9 @@ export const subscribe = async <T extends AsyncAction>(parameters: {
           ? DocumentVectorizationEventSchema
           : action === 'fieldEnrichment'
             ? FieldEnrichmentEventSchema
-            : MigrateFileEventSchema,
+            : action === 'analyzeImage'
+              ? AnalyzeImageEventSchema
+              : MigrateFileEventSchema,
     streamName: ACTION_STREAM_NAME,
     consumerGlobPattern: getConsumerGlobPattern({ action }),
     handler: async ({ subject, event }) => {

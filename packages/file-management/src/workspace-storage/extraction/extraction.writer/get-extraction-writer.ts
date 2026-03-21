@@ -113,6 +113,8 @@ export async function getExtractionWriter(extractionManifest: ExtractionManifest
         const manifest: ExtractionManifest = {
           ...extractionManifest,
           storageStats: {
+            analysesBytes: extractionManifest.storageStats.analysesBytes,
+            analysesFileCount: extractionManifest.storageStats.analysesFileCount,
             extractionBytes: markdownBytes + extractionManifest.storageStats.extractionBytes,
             physicalBytes: markdownBytes + extractionManifest.storageStats.physicalBytes + totalAttachmentBytes,
             extractionFileCount: fragmentResults.length + extractionManifest.storageStats.extractionFileCount,

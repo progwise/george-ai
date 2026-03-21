@@ -8,7 +8,7 @@ export async function ensureStateBucket() {
     name: STATE_BUCKET_NAME,
     options: {
       history: 0,
-      ttlMs: 5 * 60 * 1_000, // 5 minutes
+      ttlMs: 0, // Do not delete state objects automatically for now
     },
   })
   return STATE_BUCKET_NAME

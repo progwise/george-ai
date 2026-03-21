@@ -12,6 +12,7 @@ export const loginFn = createServerFn({ method: 'POST' })
   .handler(async ({ data: { token } }) => {
     logger.info('loginFn called', { tokenProvided: !!token })
     if (!token) {
+      logger.warn('No token provided to loginFn, deleting any existing token cookie')
       return deleteCookie(KEYCLOAK_TOKEN_COOKIE_NAME)
     }
 
@@ -35,19 +36,24 @@ export const loginFn = createServerFn({ method: 'POST' })
       }
     }
 
-    const result = await backendRequest(
-      graphql(`
-        mutation login($jwtToken: String!) {
-          login(jwtToken: $jwtToken) {
-            userId
-            avatarUrl
+    try {
+      const result = await backendRequest(
+        graphql(`
+          mutation login($jwtToken: String!) {
+            login(jwtToken: $jwtToken) {
+              userId
+              avatarUrl
+            }
           }
-        }
-      `),
-      {
-        jwtToken: token,
-      },
-    )
+        `),
+        {
+          jwtToken: token,
+        },
+      )
 
-    return result.login
+      return result.login
+    } catch (error) {
+      logger.error('Error during login mutation', { error })
+      throw error
+    }
   })

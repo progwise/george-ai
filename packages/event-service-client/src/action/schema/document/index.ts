@@ -1,5 +1,6 @@
 import z from 'zod'
 
+import { AnalyzeImageRequestSchema, AnalyzeImageStatusSchema } from '../media'
 import { DocumentExtractionRequestSchema, DocumentExtractionStatusSchema } from './extraction'
 import { MigrateFileRequestSchema, MigrateFileStatusSchema } from './migrate-file'
 import { DocumentVectorizationRequestSchema, DocumentVectorizationStatusSchema } from './vectorization'
@@ -25,3 +26,10 @@ export type DocumentVectorizationEvent = z.infer<typeof DocumentVectorizationEve
 export const MigrateFileEventSchema = z.discriminatedUnion('verb', [MigrateFileRequestSchema, MigrateFileStatusSchema])
 
 export type MigrateFileEvent = z.infer<typeof MigrateFileEventSchema>
+
+export const AnalyzeImageEventSchema = z.discriminatedUnion('verb', [
+  AnalyzeImageRequestSchema,
+  AnalyzeImageStatusSchema,
+])
+
+export type AnalyzeImageEvent = z.infer<typeof AnalyzeImageEventSchema>

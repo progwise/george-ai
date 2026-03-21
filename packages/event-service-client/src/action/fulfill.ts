@@ -8,7 +8,11 @@ import { getSyncSubjectFilter, parseSyncSubject } from './subject'
 export async function fulfillInvokes(args: {
   workspaceId?: string
   action?: SyncAction
-  handler: (handlerParams: { workspaceId: string; action: SyncAction; request: SyncRequest }) => Promise<SyncResponse>
+  handler: (handlerParams: {
+    workspaceId: string
+    action: SyncAction
+    request: SyncRequest
+  }) => Promise<SyncResponse | ErrorResponse>
 }) {
   const { workspaceId, action, handler } = args
 

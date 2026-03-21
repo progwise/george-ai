@@ -1191,6 +1191,7 @@ export default {
     selectWorkspace: 'Arbeitsbereich auswählen',
     settings: {
       title: 'Workspace Einstellungen',
+      description: 'Konfigurieren Sie die Standardeinstellungen für diesen Arbeitsbereich.',
       embeddingModel: 'Embedding Modell',
       visionModel: 'Vision Modell',
     },

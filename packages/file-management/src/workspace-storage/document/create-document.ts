@@ -51,6 +51,7 @@ export async function createDocument(
     libraryId: identifier.libraryId,
     workspaceId: identifier.workspaceId,
     attachments: [],
+    analyses: [],
     type: 'document',
   }
 
