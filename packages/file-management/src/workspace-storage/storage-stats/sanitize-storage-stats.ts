@@ -2,6 +2,8 @@ import { StorageStats } from '../schema'
 
 export function sanitizeStorageStats(storageStats: StorageStats): StorageStats {
   return {
+    analysesBytes: Math.max(0, storageStats.analysesBytes),
+    analysesFileCount: Math.max(0, storageStats.analysesFileCount),
     extractionBytes: Math.max(0, storageStats.extractionBytes),
     physicalBytes: Math.max(0, storageStats.physicalBytes),
     attachmentBytes: Math.max(0, storageStats.attachmentBytes),

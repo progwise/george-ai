@@ -12,28 +12,31 @@ export const ollamaChatJsonBodyGenerator = async function* (options: {
   model: string
   messages: ChatMessage[]
   attachments?: (ChatAttachment & { stream: Readable })[]
+  modelOptions?: Record<string, unknown>
 }) {
-  const { model, messages, attachments } = options
+  const { model, messages, attachments, modelOptions } = options
   const encoder = new TextEncoder()
 
   yield encoder.encode(
     JSON.stringify({
       model,
       stream: true, // false does not work: Ollama Bug.
-      options: { num_ctx: 8192 },
+      options: { num_ctx: 8192, ...modelOptions },
     }).slice(0, -1) + ',"messages":[',
   )
 
   for (let i = 0; i < messages.length - 1; i++) {
     const message = messages[i]
     if (i > 0) yield encoder.encode(',')
-    yield encoder.encode(` { "role":"${message.role}", "content": "${message.content}" }`)
+    yield encoder.encode(` { "role":"${message.role}", "content": ${JSON.stringify(message.content)} }`)
   }
 
   const lastMessage = messages[messages.length - 1]
 
   if (messages.length > 1) yield encoder.encode(',')
-  yield encoder.encode(` { "role":"${lastMessage.role}", "content": "${lastMessage.content}", "images": [`)
+  yield encoder.encode(
+    ` { "role":"${lastMessage.role}", "content": ${JSON.stringify(lastMessage.content)}, "images": [`,
+  )
 
   if (attachments) {
     for (let i = 0; i < attachments.length; i++) {
@@ -58,8 +61,16 @@ export async function getOllamaChatCompletion(
   messages: ChatMessage[],
   attachments?: (ChatAttachment & { stream: Readable })[],
   abortSignal?: AbortSignal,
+  modelOptions?: Record<string, unknown>,
 ): Promise<ChatResponseChunk> {
-  const stream = await getOllamaChatCompletionStream(connection, modelName, messages, attachments, abortSignal)
+  const stream = await getOllamaChatCompletionStream(
+    connection,
+    modelName,
+    messages,
+    attachments,
+    abortSignal,
+    modelOptions,
+  )
 
   const bufferedResult: Array<ChatResponseChunk> = []
   for await (const chunk of stream) {
@@ -82,10 +93,11 @@ export async function getOllamaChatCompletionStream(
   messages: ChatMessage[],
   attachments?: (ChatAttachment & { stream: Readable })[],
   abortSignal?: AbortSignal,
+  modelOptions?: Record<string, unknown>,
 ): Promise<ReadableStream<ChatResponseChunk>> {
   const { baseUrl, encryptedApiKey } = connection
 
-  const requestInit: RequestInit & { duplex: 'half' } = {
+  const requestInit: RequestInit & { duplex: 'half'; stream: true } = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -93,13 +105,23 @@ export async function getOllamaChatCompletionStream(
     },
     // Casting just the body is the "surgical" way to fix the type mismatch
     body: Readable.from(
-      ollamaChatJsonBodyGenerator({ model: modelName, messages, attachments }),
+      ollamaChatJsonBodyGenerator({ model: modelName, messages, attachments, modelOptions }),
     ) as unknown as ReadableStream,
     duplex: 'half',
+    stream: true,
     signal: abortSignal,
   }
 
-  const response = await pRetry(() => fetch(`${baseUrl}/api/chat`, requestInit), { retries: 3 })
+  const response = await pRetry(() => fetch(`${baseUrl}/api/chat`, requestInit), { retries: 3 }).catch((error) => {
+    logger.error('Error during fetch to ollama chat streaming API', {
+      baseUrl,
+      modelName,
+      messages,
+      attachments,
+      error,
+    })
+    throw error
+  })
 
   if (!response.ok) {
     const responseText = await response.text()
@@ -107,8 +129,30 @@ export async function getOllamaChatCompletionStream(
       connection,
       status: response.status,
       responseText,
+      messages,
     })
-    throw new Error(`Failed to POST ollama api: ${connection.baseUrl}/api/chat: ${response.status}`)
+
+    const readableRequestBody = Readable.from(
+      ollamaChatJsonBodyGenerator({ model: modelName, messages, attachments, modelOptions }),
+    )
+
+    const readableRequestBodyContent: { line: number; content: string }[] = []
+    let line = 0
+
+    for await (const chunk of readableRequestBody) {
+      readableRequestBodyContent.push({
+        line: line++,
+        content: chunk instanceof Uint8Array ? new TextDecoder().decode(chunk) : chunk,
+      })
+    }
+
+    logger.info('Readable request body content for failed ollama chat request', { readableRequestBodyContent })
+    const parsed = JSON.parse(readableRequestBodyContent.map((c) => c.content).join(''))
+    logger.info('Parsed request body content for failed ollama chat request', { parsed })
+
+    throw new Error(
+      `Failed to POST ollama api: ${connection.baseUrl}/api/chat: ${response.status}: ${responseText} - ${response.statusText}`,
+    )
   }
 
   if (!response.body) {
@@ -122,6 +166,45 @@ export async function getOllamaChatCompletionStream(
     throw new Error(`Failed to retrieve streaming body for ollama chat streaming api on ${connection.baseUrl}/api/chat`)
   }
 
+  // Separate line buffers for thinking and content — persist across transform() calls
+  let thinkingLine = ''
+  let contentLine = ''
+
+  const enqueueLine = (
+    controller: TransformStreamDefaultController<ChatResponseChunk>,
+    text: string,
+    field: 'thinking' | 'chunk',
+    parsedChunk: { prompt_eval_count?: number; eval_count?: number },
+  ) => {
+    const newlineIndex = text.indexOf('\n')
+    if (field === 'thinking') {
+      if (newlineIndex === -1) {
+        thinkingLine += text
+      } else {
+        controller.enqueue({
+          created: new Date(),
+          chunk: '',
+          thinking: thinkingLine + text.slice(0, newlineIndex),
+          promptTokens: parsedChunk.prompt_eval_count,
+          completionTokens: parsedChunk.eval_count,
+        })
+        thinkingLine = text.slice(newlineIndex + 1)
+      }
+    } else {
+      if (newlineIndex === -1) {
+        contentLine += text
+      } else {
+        controller.enqueue({
+          created: new Date(),
+          chunk: contentLine + text.slice(0, newlineIndex),
+          promptTokens: parsedChunk.prompt_eval_count,
+          completionTokens: parsedChunk.eval_count,
+        })
+        contentLine = text.slice(newlineIndex + 1)
+      }
+    }
+  }
+
   // Create a transform stream that parses JSON chunks and respects abort signal
   const transformStream = new TransformStream<string, ChatResponseChunk>({
     start(controller) {
@@ -130,7 +213,7 @@ export async function getOllamaChatCompletionStream(
         controller.terminate()
       })
     },
-    transform(chunk, controller) {
+    transform(rawChunk, controller) {
       // Check if aborted before processing
       if (abortSignal?.aborted) {
         controller.terminate()
@@ -138,24 +221,29 @@ export async function getOllamaChatCompletionStream(
       }
 
       // Split by newlines in case multiple JSON objects are in one chunk
-      const lines = chunk.split('\n').filter((line) => line.trim())
+      const lines = rawChunk.split('\n').filter((line) => line.trim())
 
       for (const line of lines) {
         try {
           const jsonData = JSON.parse(line)
           const parsedChunk = OllamaChatStreamChunkSchema.parse({ ...jsonData, modelName: modelName })
-          const commonChunk: ChatResponseChunk = {
-            created: new Date(),
-            chunk: parsedChunk.message?.content || '',
-            promptTokens: parsedChunk.prompt_eval_count,
-            completionTokens: parsedChunk.eval_count,
-          }
+          const rawThinking = parsedChunk.message?.thinking || ''
+          const rawContent = parsedChunk.message?.content || ''
 
-          controller.enqueue(commonChunk)
+          if (rawThinking) enqueueLine(controller, rawThinking, 'thinking', parsedChunk)
+          if (rawContent) enqueueLine(controller, rawContent, 'chunk', parsedChunk)
         } catch (error) {
           logger.warn('Failed to parse OllamaStreamChunk', { line, error })
           // Skip invalid chunks but continue processing
         }
+      }
+    },
+    flush(controller) {
+      if (thinkingLine) {
+        controller.enqueue({ created: new Date(), chunk: '', thinking: thinkingLine })
+      }
+      if (contentLine) {
+        controller.enqueue({ created: new Date(), chunk: contentLine })
       }
     },
   })

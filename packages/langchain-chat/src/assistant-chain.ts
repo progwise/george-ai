@@ -86,8 +86,9 @@ export async function* askAssistantChain(input: {
 
     const embeddingResult = await invokeAction(request)
 
-    if (embeddingResult.embeddings.length < 1) {
-      logger.error('No embeddings returned from invoke', { request })
+    if (!embeddingResult.success || embeddingResult.embeddings.length < 1) {
+      logger.error('No embeddings returned from invoke', { request, embeddingResult })
+      return []
     }
 
     const vector = embeddingResult.embeddings[0].vector

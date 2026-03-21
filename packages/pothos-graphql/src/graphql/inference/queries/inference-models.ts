@@ -32,25 +32,22 @@ builder.queryField('inferenceModels', (t) =>
         throw new GraphQLError('Workspace not found')
       }
 
-      const count = workspace.inferenceModels.length
-      const models = workspace.inferenceModels
-        .filter((model) => {
-          if (search && !model.modelName.toLowerCase().includes(search.toLowerCase())) {
-            return false
-          }
-          if (canDoEmbedding !== undefined && model.canDoEmbedding !== canDoEmbedding) {
-            return false
-          }
-          if (canDoChatCompletion !== undefined && model.canDoChatCompletion !== canDoChatCompletion) {
-            return false
-          }
-          if (canDoVision !== undefined && model.canDoVision !== canDoVision) {
-            return false
-          }
-          return true
-        })
-        .slice(0, limit)
-      return { count, models }
+      const models = workspace.inferenceModels.filter((model) => {
+        if (search && !model.modelName.toLowerCase().includes(search.toLowerCase())) {
+          return false
+        }
+        if (canDoEmbedding !== undefined && model.canDoEmbedding !== canDoEmbedding) {
+          return false
+        }
+        if (canDoChatCompletion !== undefined && model.canDoChatCompletion !== canDoChatCompletion) {
+          return false
+        }
+        if (canDoVision !== undefined && model.canDoVision !== canDoVision) {
+          return false
+        }
+        return true
+      })
+      return { count: models.length, models: models.slice(0, limit) }
     },
   }),
 )

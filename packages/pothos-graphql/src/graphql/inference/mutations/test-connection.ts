@@ -72,6 +72,14 @@ builder.mutationField('testInferenceHostConnection', (t) =>
       // TODO: Check for alternative so we do not send apiKey
       const testResult = await invokeAction(request)
 
+      if (!testResult.success) {
+        logger.error('Connection test action failed', { request, testResult })
+        return {
+          success: false,
+          message: testResult.error || 'Connection test failed',
+        }
+      }
+
       return {
         success: testResult.success,
         isOnline: testResult.isOnline,

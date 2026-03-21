@@ -24,6 +24,7 @@ export async function createWorkspace(
     created: new Date(),
     storageStats: StorageStatsSchema.parse({}),
     attachments: [],
+    analyses: [],
     creator,
     type: 'workspace',
   }

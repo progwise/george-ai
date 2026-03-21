@@ -1,3 +1,5 @@
+import { GraphQLError } from 'graphql/error'
+
 import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { InferenceDriverSchema } from '@george-ai/app-schema'
 import { invokeAction } from '@george-ai/event-service-client'
@@ -77,8 +79,24 @@ builder.queryField('similarChunks', (t) =>
 
       const embeddingResult = await invokeAction(request)
 
+      if (embeddingResult.success === false) {
+        logger.error('Embedding action failed', { request, embeddingResult })
+        throw new GraphQLError(`Failed to get embedding for the provided term`, {
+          extensions: {
+            code: 'EMBEDDING_ERROR',
+            details: embeddingResult,
+          },
+        })
+      }
+
       if (embeddingResult.embeddings.length < 1) {
         logger.error('No embeddings returned from invoke', { request })
+        throw new GraphQLError(`No embeddings returned for the provided term`, {
+          extensions: {
+            code: 'EMBEDDING_ERROR',
+            details: embeddingResult,
+          },
+        })
       }
 
       const vector = embeddingResult.embeddings[0].vector

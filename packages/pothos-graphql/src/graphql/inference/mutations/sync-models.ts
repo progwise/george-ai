@@ -4,6 +4,7 @@ import { InferenceDriver, InferenceHostConnectionSchema } from '@george-ai/app-s
 import { ModelDiscoveryRequest, invokeAction } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 // GraphQL mutation for syncing models
 builder.mutationField('syncModels', (t) =>
@@ -52,6 +53,11 @@ builder.mutationField('syncModels', (t) =>
       const discoveredModelMap = new Map<InferenceDriver, Set<string>>()
 
       modelDiscoveryResponses.forEach((response) => {
+        if (!response.success) {
+          logger.error('Model discovery action failed', { response })
+          return
+        }
+
         discoveredModelMap.set(response.connection.driver, new Set(response.models.map((model) => model.modelName)))
       })
 
@@ -98,6 +104,10 @@ builder.mutationField('syncModels', (t) =>
       return {
         success: true,
         modelsEnabled: modelDiscoveryResponses.reduce((sum, response) => {
+          if (!response.success) {
+            logger.error('Model discovery action failed', { response })
+            return sum
+          }
           return sum + response.models.length
         }, 0),
         modelsDisabled: 0, // For simplicity, not tracking counts of enabled/disabled/created models here

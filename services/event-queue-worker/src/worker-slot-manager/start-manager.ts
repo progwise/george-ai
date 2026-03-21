@@ -46,7 +46,7 @@ export async function startWorkerSlotManager(): Promise<() => Promise<void>> {
       }
 
       if (workerId === WORKER_ID && operation === 'update') {
-        logger.info('This worker has been registered. Start necessary processes.', {
+        logger.debug('This worker has been registered or updated. Start necessary processes.', {
           WORKER_ID,
           role,
           entry,

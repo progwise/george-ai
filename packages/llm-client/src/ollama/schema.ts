@@ -121,6 +121,7 @@ export const OllamaChatStreamChunkSchema = z.object({
     .object({
       role: z.enum(['system', 'user', 'assistant']),
       content: z.string().optional(),
+      thinking: z.string().optional(),
       images: z.array(z.string()).optional(), // base64 encoded images
     })
     .optional(),

@@ -32,6 +32,7 @@ export async function getEmbeddingResponse(event: EmbeddingRequest): Promise<Emb
     verb: 'response',
     timestamp: new Date(),
     tokens: result.totalTokens,
+    success: true,
   }
   return embeddingResponse
 }

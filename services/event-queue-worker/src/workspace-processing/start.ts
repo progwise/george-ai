@@ -5,6 +5,7 @@ import { WORKER_ID, logger } from '../common'
 import './common'
 
 import { stopProcessing } from '../processing'
+import { startAnalyzeImage } from './start-analyze-image'
 import { startEnrichment } from './start-enrichment'
 import { startExtraction } from './start-extraction'
 import { startMigration } from './start-migration'
@@ -36,6 +37,10 @@ export async function startWorkspaceProcessing(): Promise<() => Promise<void>> {
   })
 
   try {
+    const unsubscribeAnalyzeImage = await startAnalyzeImage()
+    cleanupFunctions.push(async () => {
+      await unsubscribeAnalyzeImage()
+    })
     const unsubscribeExtraction = await startExtraction()
     cleanupFunctions.push(async () => {
       await unsubscribeExtraction()

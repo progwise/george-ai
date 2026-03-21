@@ -16,7 +16,7 @@ export async function getHealthStatusResponse(event: HealthStatusRequest): Promi
     action: 'healthStatus',
     timestamp: new Date(),
     connection,
-    success: result.isConnected,
+    success: true,
     errorCode: result.connectionErrorMessage ? '100' : undefined,
     errorMessage: result.connectionErrorMessage,
   }

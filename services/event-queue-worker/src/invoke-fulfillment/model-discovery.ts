@@ -17,6 +17,7 @@ export async function getModelDiscoveryResponse(event: ModelDiscoveryRequest): P
     timestamp: new Date(),
     connection,
     models: discoveredModels,
+    success: true,
   }
 
   return response
