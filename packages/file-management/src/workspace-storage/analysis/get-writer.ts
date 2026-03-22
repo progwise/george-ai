@@ -99,7 +99,7 @@ export async function getAnalysisWriter(
         throw new Error('Analysis was aborted')
       }
 
-      const analyses = parentEntry.analyses.filter((a) => a.analysisFileName === analysisFileName) || []
+      const analyses = parentEntry.analyses.filter((a) => a.analysisFileName !== analysisFileName) || []
       const analysis: Analysis = {
         version: 1,
         sourceFileUri,

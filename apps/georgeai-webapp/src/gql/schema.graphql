@@ -694,7 +694,7 @@ type AssistantParticipant implements AiConversationParticipant {
 type Attachment {
   fileName: String!
   mimeType: String
-  size: Int!
+  size: Number!
 }
 
 type Automation {
@@ -1679,6 +1679,8 @@ type Mutation {
   validateSharePointConnection(sharepointAuth: String!, uri: String!): SharePointValidationResult!
 }
 
+scalar Number
+
 input PrepareUploadInput {
   mimeType: String!
   modificationDate: DateTime
@@ -1895,13 +1897,13 @@ enum SortOrder {
 Storage usage information for a workspace
 """
 type StorageStats {
-  attachmentBytes: Int!
+  attachmentBytes: Number!
   attachmentFileCount: Int!
-  extractionBytes: Int!
+  extractionBytes: Number!
   extractionFileCount: Int!
   lastReconcile: DateTime
   lastUpdate: DateTime
-  physicalBytes: Int!
+  physicalBytes: Number!
   physicalFileCount: Int!
 }
 

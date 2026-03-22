@@ -963,12 +963,12 @@ export class NatsClient implements EventClient {
     filter: string | string[]
     handler: (handlerParams: {
       key: string
-      operation: 'update' | 'delete' | 'synced'
+      operation: 'update' | 'delete'
       revision: number
       delta?: number
     }) => Promise<void>
   }): Promise<() => Promise<void>> {
-    if (!this.js) {
+    if (!this.js || !this.jsm) {
       throw new Error('Not connected to NATS')
     }
 
@@ -976,22 +976,50 @@ export class NatsClient implements EventClient {
 
     const kvBucket = await this.js.views.kv(bucketName)
 
+    const streamInfo = await this.jsm.streams.info(`KV_${bucketName}`).catch(() => null)
+    const snapshotRevision = streamInfo?.state.last_seq ?? 0
+
     const watcher = await kvBucket.watch({ key: filter })
 
     const processWatch = async () => {
       for await (const entry of watcher) {
-        if (entry === null) {
-          await handler({
-            key: '',
-            operation: 'synced',
-            revision: 0,
-            delta: 0,
-          })
+        if (!entry) {
+          continue
         }
+
         const isDelete = entry.operation === 'DEL' || entry.operation === 'PURGE'
+
+        if (isDelete && entry.revision <= snapshotRevision) {
+          // Skip delete tombstones that existed before we started watching.
+          logger.debug('Skipping pre-existing delete tombstone', {
+            bucketName,
+            filter,
+            key: entry.key,
+            revision: entry.revision,
+            snapshotRevision,
+          })
+          continue
+        }
+
+        if (!isDelete && (!entry.value || entry.value.length === 0)) {
+          // Treat empty value as delete
+          logger.warn('Received empty bucket entry - ignoring', { bucketName, filter, key: entry.key })
+          continue
+        }
+        if (isDelete) {
+          if (entry.delta === 0) {
+            await handler({
+              key: entry.key,
+              operation: 'delete',
+              revision: entry.revision,
+            })
+          }
+          continue
+        }
+
         await handler({
           key: entry.key,
-          operation: isDelete ? 'delete' : 'update',
+          operation: 'update',
           revision: entry.revision,
           delta: entry.delta,
         })
@@ -1020,7 +1048,7 @@ export class NatsClient implements EventClient {
     schema: T
     handler: (handlerParams: {
       key: string
-      operation: 'update' | 'delete' | 'synced'
+      operation: 'update' | 'delete'
       revision: number
       delta?: number
       entry: z.infer<T> | null
@@ -1139,69 +1167,40 @@ export class NatsClient implements EventClient {
   }
 
   async deleteBucketEntries(params: { bucketName: string; filter: string | string[] }): Promise<void> {
-    if (!this.js) {
+    if (!this.js || !this.jsm) {
       throw new Error('Not connected to NATS')
     }
 
     const { bucketName, filter } = params
+    const filters = Array.isArray(filter) ? filter : [filter]
+    const streamName = `KV_${bucketName}`
 
     const kvBucket = await this.js.views.kv(bucketName)
 
-    const status = await kvBucket.status()
+    // history() correctly terminates for empty buckets (unlike keys() which hangs)
+    const keysToDelete = new Set<string>()
+    for (const f of filters) {
+      const history = await kvBucket.history({ key: f })
+      for await (const entry of history) {
+        if (entry.operation === 'DEL' || entry.operation === 'PURGE') {
+          keysToDelete.delete(entry.key)
+        } else {
+          keysToDelete.add(entry.key)
+        }
+      }
+    }
 
-    if (status.values < 1) {
-      logger.debug('Nothing to delete in bucket', { params, status })
+    if (keysToDelete.size === 0) {
       return
     }
 
-    const filters: Array<string> = Array.isArray(filter) ? filter : [filter]
+    // KV-level purge notifies any active watchers with a delete event
+    await Promise.all([...keysToDelete].map((key) => kvBucket.purge(key)))
 
-    const keysToDelete = new Set<string>()
-
-    let done = () => {
-      logger.warn('Should not show up')
-    }
-
-    const donePromise = new Promise<void>((resolve, reject) => {
-      const timeout = setTimeout(() => reject('timeout'), 10000)
-      done = () => {
-        clearTimeout(timeout)
-        resolve()
-      }
-    })
-
-    const unwatch = await this.watchBucketKeys({
-      bucketName,
-      filter: filters,
-      handler: async ({ key, operation, delta }) => {
-        if (operation === 'synced') {
-          done()
-        }
-        if (operation === 'delete') {
-          if (delta === 0) {
-            done()
-          }
-          return
-        }
-
-        keysToDelete.add(key)
-        if (delta === 0) {
-          done()
-        }
-      },
-    })
-
-    try {
-      await donePromise
-    } catch (error) {
-      logger.warn('collecting delete keys timed out', { params, keysToDelete, error })
-    } finally {
-      unwatch()
-    }
-
-    for (const key of keysToDelete.keys()) {
-      await kvBucket.purge(key)
-    }
+    // Stream-level purge removes the tombstones so the bucket stays clean
+    await Promise.all(
+      filters.map((f) => this.jsm!.streams.purge(streamName, { filter: `$KV.${bucketName}.${f}` })),
+    )
   }
 
   async getBucketStatus(params: { bucketName: string }): Promise<{

@@ -21,6 +21,7 @@ export type Scalars = {
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: { input: string; output: string }
   Decimal: { input: number; output: number }
+  Number: { input: any; output: any }
 }
 
 /** AI Act Legal Disclaimer */
@@ -746,7 +747,7 @@ export type Attachment = {
   __typename?: 'Attachment'
   fileName: Scalars['String']['output']
   mimeType?: Maybe<Scalars['String']['output']>
-  size: Scalars['Int']['output']
+  size: Scalars['Number']['output']
 }
 
 export type Automation = {
@@ -2530,13 +2531,13 @@ export enum SortOrder {
 /** Storage usage information for a workspace */
 export type StorageStats = {
   __typename?: 'StorageStats'
-  attachmentBytes: Scalars['Int']['output']
+  attachmentBytes: Scalars['Number']['output']
   attachmentFileCount: Scalars['Int']['output']
-  extractionBytes: Scalars['Int']['output']
+  extractionBytes: Scalars['Number']['output']
   extractionFileCount: Scalars['Int']['output']
   lastReconcile?: Maybe<Scalars['DateTime']['output']>
   lastUpdate?: Maybe<Scalars['DateTime']['output']>
-  physicalBytes: Scalars['Int']['output']
+  physicalBytes: Scalars['Number']['output']
   physicalFileCount: Scalars['Int']['output']
 }
 
@@ -4879,9 +4880,9 @@ export type FileCaptionCard_FileFragment = {
     }>
     storageStats: {
       __typename?: 'StorageStats'
-      extractionBytes: number
-      attachmentBytes: number
-      physicalBytes: number
+      extractionBytes: any
+      attachmentBytes: any
+      physicalBytes: any
       extractionFileCount: number
       physicalFileCount: number
       attachmentFileCount: number
@@ -4928,9 +4929,9 @@ export type FileInfoBox_FileFragment = {
     }>
     storageStats: {
       __typename?: 'StorageStats'
-      extractionBytes: number
-      attachmentBytes: number
-      physicalBytes: number
+      extractionBytes: any
+      attachmentBytes: any
+      physicalBytes: any
       extractionFileCount: number
       physicalFileCount: number
       attachmentFileCount: number
@@ -4997,9 +4998,9 @@ export type FileMenu_FileFragment = {
     }>
     storageStats: {
       __typename?: 'StorageStats'
-      extractionBytes: number
-      attachmentBytes: number
-      physicalBytes: number
+      extractionBytes: any
+      attachmentBytes: any
+      physicalBytes: any
       extractionFileCount: number
       physicalFileCount: number
       attachmentFileCount: number
@@ -5054,9 +5055,9 @@ export type AiLibraryFile_FilesTableFragment = {
     }>
     storageStats: {
       __typename?: 'StorageStats'
-      extractionBytes: number
-      attachmentBytes: number
-      physicalBytes: number
+      extractionBytes: any
+      attachmentBytes: any
+      physicalBytes: any
       extractionFileCount: number
       physicalFileCount: number
       attachmentFileCount: number
@@ -5153,9 +5154,9 @@ export type GetFileQuery = {
       }>
       storageStats: {
         __typename?: 'StorageStats'
-        extractionBytes: number
-        attachmentBytes: number
-        physicalBytes: number
+        extractionBytes: any
+        attachmentBytes: any
+        physicalBytes: any
         extractionFileCount: number
         physicalFileCount: number
         attachmentFileCount: number
@@ -5190,7 +5191,7 @@ export type GetExtractionQuery = {
     hasFragments: boolean
     fragmentCount?: number | null
     sourceHash: string
-    attachments?: Array<{ __typename?: 'Attachment'; size: number; fileName: string; mimeType?: string | null }> | null
+    attachments?: Array<{ __typename?: 'Attachment'; size: any; fileName: string; mimeType?: string | null }> | null
   } | null
 }
 
@@ -5268,9 +5269,9 @@ export type EmbeddingsTableQuery = {
         }>
         storageStats: {
           __typename?: 'StorageStats'
-          extractionBytes: number
-          attachmentBytes: number
-          physicalBytes: number
+          extractionBytes: any
+          attachmentBytes: any
+          physicalBytes: any
           extractionFileCount: number
           physicalFileCount: number
           attachmentFileCount: number
@@ -6932,9 +6933,9 @@ export type GetWorkspaceQuery = {
       workspaceId: string
       storageStats: {
         __typename?: 'StorageStats'
-        extractionBytes: number
-        attachmentBytes: number
-        physicalBytes: number
+        extractionBytes: any
+        attachmentBytes: any
+        physicalBytes: any
         extractionFileCount: number
         physicalFileCount: number
         attachmentFileCount: number
@@ -7141,7 +7142,7 @@ export type WorkspaceStatusCard_CurrentWorkspaceFragment = {
     version: number
     storageStats: {
       __typename?: 'StorageStats'
-      physicalBytes: number
+      physicalBytes: any
       physicalFileCount: number
       extractionFileCount: number
     }

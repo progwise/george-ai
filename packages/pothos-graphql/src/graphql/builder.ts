@@ -43,6 +43,10 @@ const builder = new SchemaBuilder<{
       Input: 'asc' | 'desc'
       Output: 'asc' | 'desc'
     }
+    Number: {
+      Input: number
+      Output: number
+    }
   }
 }>({
   defaultInputFieldRequiredness: true,

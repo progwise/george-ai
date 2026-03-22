@@ -152,11 +152,7 @@ export interface EventClient {
   watchBucketKeys(params: {
     bucketName: string
     filter: string
-    handler: (handlerParams: {
-      key: string
-      operation: 'update' | 'delete' | 'synced'
-      revision: number
-    }) => Promise<void>
+    handler: (handlerParams: { key: string; operation: 'update' | 'delete'; revision: number }) => Promise<void>
   }): Promise<() => Promise<void>>
 
   deleteBucketEntry(params: { bucketName: string; key: string }): Promise<void>

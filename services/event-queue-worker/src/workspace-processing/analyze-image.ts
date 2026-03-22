@@ -119,12 +119,17 @@ Your goal is to transcribe images into Markdown.
   })
 
   try {
-    await analysisWriter.write(`## Image Analysis Report
-            Timestamp: ${new Date()}
-            fileName: ${fileName}
-            mimeType: ${mimeType}
-            Successfully sent image to provider ${visionSettings.modelDriver} and model ${visionSettings.modelName} for analysis.`)
+    const startDate = new Date()
+    await analysisWriter.write(`## Start Image Analysis
+| | |
+|-|-|
+| **File Name** | ${fileName} |
+| **MIME Type** | ${mimeType} |
+| **Inference Driver** | ${visionSettings.modelDriver} |
+| **Inference Model** | ${visionSettings.modelName} |
+| **Timestamp** | ${startDate.toISOString()} |
 
+    `)
     await publish({
       ...statusEvent,
       timestamp: new Date(),
@@ -133,8 +138,9 @@ Your goal is to transcribe images into Markdown.
     })
 
     for await (const chunk of analysisStream) {
-      if (!chunk.chunk.trim()) continue
-      analysisWriter.write(chunk.chunk)
+      if (!chunk.chunk) continue
+      console.log('Received chunk from image analysis stream:', chunk.chunk)
+      await analysisWriter.write(chunk.chunk)
     }
 
     await publish({
@@ -144,16 +150,18 @@ Your goal is to transcribe images into Markdown.
       status: 'progress',
     })
 
-    await publish({
-      ...statusEvent,
-      timestamp: new Date(),
-      message: `Finished without attachments, Image analysis returned empty result.`,
-      status: 'finished',
-    })
-
     await analysisWriter.write(
       `
-    ## Image Analysis Report
+End of Image Analysis
+
+| | |
+|-|-|
+| **File Name** | ${fileName} |
+| **MIME Type** | ${mimeType} |
+| **Inference Driver** | ${visionSettings.modelDriver} |
+| **Inference Model** | ${visionSettings.modelName} |
+| **Timestamp** | ${new Date()} |
+| **Duration** | ${((new Date().getTime() - startDate.getTime()) / 1000).toFixed(2)} seconds |
 
     Successfully analyzed image with provider ${visionSettings.modelDriver} and model ${visionSettings.modelName}.`,
     )

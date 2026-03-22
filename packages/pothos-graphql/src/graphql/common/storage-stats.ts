@@ -5,9 +5,9 @@ import { builder } from '../builder'
 builder.objectRef<StorageStats>('StorageStats').implement({
   description: 'Storage usage information for a workspace',
   fields: (t) => ({
-    extractionBytes: t.exposeInt('extractionBytes', { nullable: false }),
-    attachmentBytes: t.exposeInt('attachmentBytes', { nullable: false }),
-    physicalBytes: t.exposeInt('physicalBytes', { nullable: false }),
+    extractionBytes: t.expose('extractionBytes', { type: 'Number', nullable: false }),
+    attachmentBytes: t.expose('attachmentBytes', { type: 'Number', nullable: false }),
+    physicalBytes: t.expose('physicalBytes', { type: 'Number', nullable: false }),
 
     extractionFileCount: t.exposeInt('extractionFileCount', { nullable: false }),
     attachmentFileCount: t.exposeInt('attachmentFileCount', { nullable: false }),

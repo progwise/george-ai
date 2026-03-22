@@ -81,6 +81,7 @@ export async function extractDocument(request: DocumentExtractionRequest) {
       context: ``,
     }
 
+    logger.debug('Publishing image analysis request for attachment', { ...analyzeImageRequest })
     await publish(analyzeImageRequest)
   }
 }

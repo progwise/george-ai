@@ -5,10 +5,11 @@ import { StateItemFilter } from './filter'
 import { getStateKeyFilter } from './subject'
 
 export async function deleteState(filter: StateItemFilter) {
-  logger.debug('Delete state items', filter)
+  const f = getStateKeyFilter(filter)
+  logger.info('Delete state items', { filter: f })
 
   await eventClient.deleteBucketEntries({
     bucketName: STATE_BUCKET_NAME,
-    filter: getStateKeyFilter(filter),
+    filter: f,
   })
 }

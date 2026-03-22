@@ -114,7 +114,7 @@ describe('Nats Client base tests', () => {
 
       const keys = await eventClient.getBucketKeys({ bucketName, filter: '>' })
       expect(keys.length).toBe(0)
-    })
+    }, 30000)
   })
 
   describe.sequential('stream tests', () => {

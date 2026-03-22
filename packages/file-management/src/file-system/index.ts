@@ -1,5 +1,6 @@
 import { calculateFileHash } from './calculate-file-hash'
 import { calculateFolderStats } from './calculate-folder-stats'
+import { concatStreams } from './commons'
 import { createFile } from './create-file'
 import { createFolder } from './create-folder'
 import { deleteFile, deleteFileOrThrow } from './delete-file'
@@ -22,6 +23,7 @@ export default {
   calculateFileHash,
   calculateFolderStats,
   createFile,
+  concatStreams,
   createFolder,
   deleteFile,
   deleteFileOrThrow,
@@ -48,6 +50,7 @@ export default {
 export {
   calculateFileHash,
   calculateFolderStats,
+  concatStreams,
   createFile,
   createFolder,
   deleteFile,
