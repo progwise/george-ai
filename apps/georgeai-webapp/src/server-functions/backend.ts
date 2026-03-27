@@ -1,4 +1,5 @@
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
+import { redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { getCookie } from '@tanstack/react-start/server'
 import request, { RequestDocument, Variables } from 'graphql-request'
@@ -36,8 +37,8 @@ async function backendRequest<T, V extends Variables = Variables>(
       const response = error.response as { errors?: Array<{ message: string }> }
       if (response.errors && response.errors.length > 0) {
         if (response.errors.some((e) => e.message.includes('Unauthorized'))) {
-          logger.warn('Unauthorized error from backend GraphQL request', { document, variables })
-          throw new Error('Unauthorized: Please log in to perform this action.')
+          logger.warn('Unauthorized error from backend GraphQL request . redirecting to login', { document, variables })
+          throw redirect({ to: '/login', search: { redirect: window.location.href } })
         }
         logger.error('GraphQL errors returned from backend', {
           errors: JSON.stringify(response.errors, null, 2),

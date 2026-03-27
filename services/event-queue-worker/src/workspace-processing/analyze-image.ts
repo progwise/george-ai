@@ -137,11 +137,14 @@ Your goal is to transcribe images into Markdown.
       status: 'progress',
     })
 
+    const analysisResults: string[] = []
     for await (const chunk of analysisStream) {
       if (!chunk.completionLine) continue
-      logger.debug('Received chunk from image analysis stream:', chunk.completionLine)
+      analysisResults.push(chunk.completionLine)
       await analysisWriter.write(chunk.completionLine + '\n')
     }
+
+    console.log('Full analysis results:', analysisResults.join('\n'))
 
     await publish({
       ...statusEvent,

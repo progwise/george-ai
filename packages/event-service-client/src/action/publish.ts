@@ -1,11 +1,9 @@
 import { eventClient } from '../client'
 import { logger } from './common'
-import { ensureWorkspaceConsumer } from './consumer'
-import { AsyncActionSchema, WorkspaceRequest, WorkspaceResponse, WorkspaceStatus } from './schema'
+import { WorkspaceRequest, WorkspaceResponse, WorkspaceStatus } from './schema'
 import { getAsyncSubject } from './subject'
 
 export async function publish(event: WorkspaceRequest | WorkspaceResponse | WorkspaceStatus): Promise<void> {
-  await ensureWorkspaceConsumer({ workspaceId: event.workspaceId, action: AsyncActionSchema.parse(event.action) })
   const subject = getAsyncSubject(event)
   logger.debug(`publish request`, { event, subject })
   const publishResult = await eventClient.publish({

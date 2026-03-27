@@ -1,7 +1,5 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
-import { logger } from '../../common'
-
 export const Route = createFileRoute('/_authenticated')({
   component: RouteComponent,
   beforeLoad: async ({ context, location }) => {
@@ -14,9 +12,6 @@ export const Route = createFileRoute('/_authenticated')({
 
     // make user in router context non nullable and add workspaceId
     return { user: context.user }
-  },
-  onError: async ({ error }) => {
-    logger.error('Error in authenticated route', { error })
   },
 })
 

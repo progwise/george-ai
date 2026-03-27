@@ -230,6 +230,12 @@ export class NatsClient implements EventClient {
         consumerInfo.config.max_ack_pending === (params.maxPendingMessages || 1000) &&
         consumerInfo.config.max_deliver === (params.maxDeliveryAttempts || 3)
       ) {
+        logger.debug('Consumer already exists with matching configuration', {
+          consumerName,
+          streamName,
+          existingSubjects,
+          desiredSubjects,
+        })
         return
       }
       await this.jsm.consumers.update(streamName, consumerName, {
@@ -454,15 +460,16 @@ export class NatsClient implements EventClient {
           logger.debug('Skipping paused consumer', { streamName, consumerName: consumerInfo.name })
           continue
         }
-        if (consumerInfo.num_pending === 0) {
-          logger.debug('No pending messages for consumer, skipping', { streamName, consumerName: consumerInfo.name })
-          continue
-        }
         const consumer = await this.js.consumers.get(streamName, consumerInfo.name)
 
-        logger.debug('Fetching message for consumer', { streamName, consumerName: consumerInfo.name })
+        logger.debug('Fetching message for consumer', {
+          streamName,
+          consumerName: consumerInfo.name,
+          subjects: consumerInfo.config.filter_subjects,
+          pending: consumerInfo.num_pending,
+        })
         try {
-          const messages = await consumer.fetch({ max_messages: 100, expires: 1000 })
+          const messages = await consumer.fetch({ max_messages: 10, expires: 1000 })
 
           for await (const msg of messages) {
             if (signal.aborted) {
@@ -473,6 +480,7 @@ export class NatsClient implements EventClient {
               streamName,
               subject: msg.subject,
               consumerName: consumerInfo.name,
+              consumerSUbjects: consumerInfo.config.filter_subjects,
             })
 
             try {
