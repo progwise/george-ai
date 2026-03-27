@@ -78,7 +78,7 @@ export async function getOllamaChatCompletion(
   }
 
   const result: ChatResponseChunk = {
-    chunk: bufferedResult.map((c) => c.chunk).join(''),
+    completionLine: bufferedResult.map((c) => c.completionLine).join('\n'),
     created: new Date(),
     completionTokens: bufferedResult.reduce((acc, c) => acc + (c.completionTokens || 0), 0),
     promptTokens: bufferedResult.reduce((acc, c) => acc + (c.promptTokens || 0), 0),
@@ -168,12 +168,12 @@ export async function getOllamaChatCompletionStream(
 
   // Separate line buffers for thinking and content — persist across transform() calls
   let thinkingLine = ''
-  let contentLine = ''
+  let completionLine = ''
 
   const enqueueLine = (
     controller: TransformStreamDefaultController<ChatResponseChunk>,
     text: string,
-    field: 'thinking' | 'chunk',
+    field: 'thinking' | 'completion',
     parsedChunk: { prompt_eval_count?: number; eval_count?: number },
   ) => {
     const newlineIndex = text.indexOf('\n')
@@ -183,8 +183,7 @@ export async function getOllamaChatCompletionStream(
       } else {
         controller.enqueue({
           created: new Date(),
-          chunk: '',
-          thinking: thinkingLine + text.slice(0, newlineIndex),
+          thinkingLine: thinkingLine + text.slice(0, newlineIndex),
           promptTokens: parsedChunk.prompt_eval_count,
           completionTokens: parsedChunk.eval_count,
         })
@@ -192,15 +191,15 @@ export async function getOllamaChatCompletionStream(
       }
     } else {
       if (newlineIndex === -1) {
-        contentLine += text
+        completionLine += text
       } else {
         controller.enqueue({
           created: new Date(),
-          chunk: contentLine + text.slice(0, newlineIndex),
+          completionLine: completionLine + text.slice(0, newlineIndex),
           promptTokens: parsedChunk.prompt_eval_count,
           completionTokens: parsedChunk.eval_count,
         })
-        contentLine = text.slice(newlineIndex + 1)
+        completionLine = text.slice(newlineIndex + 1)
       }
     }
   }
@@ -228,10 +227,10 @@ export async function getOllamaChatCompletionStream(
           const jsonData = JSON.parse(line)
           const parsedChunk = OllamaChatStreamChunkSchema.parse({ ...jsonData, modelName: modelName })
           const rawThinking = parsedChunk.message?.thinking || ''
-          const rawContent = parsedChunk.message?.content || ''
+          const rawCompletion = parsedChunk.message?.content || ''
 
           if (rawThinking) enqueueLine(controller, rawThinking, 'thinking', parsedChunk)
-          if (rawContent) enqueueLine(controller, rawContent, 'chunk', parsedChunk)
+          if (rawCompletion) enqueueLine(controller, rawCompletion, 'completion', parsedChunk)
         } catch (error) {
           logger.warn('Failed to parse OllamaStreamChunk', { line, error })
           // Skip invalid chunks but continue processing
@@ -240,10 +239,10 @@ export async function getOllamaChatCompletionStream(
     },
     flush(controller) {
       if (thinkingLine) {
-        controller.enqueue({ created: new Date(), chunk: '', thinking: thinkingLine })
+        controller.enqueue({ created: new Date(), thinkingLine })
       }
-      if (contentLine) {
-        controller.enqueue({ created: new Date(), chunk: contentLine })
+      if (completionLine) {
+        controller.enqueue({ created: new Date(), completionLine })
       }
     },
   })

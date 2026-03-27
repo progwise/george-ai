@@ -190,12 +190,12 @@ describe.skipIf(!process.env.OLLAMA_BASE_URL || !process.env.MODEL_NAME_CHAT || 
             const { value, done } = await reader.read()
             if (done) break
 
-            if (value) {
+            if (value && value.completionLine) {
               chunks.push(value)
-              fullContent += value.chunk
+              fullContent += value.completionLine
 
               // Validate chunk structure
-              expect(typeof value.chunk).toBe('string')
+              expect(typeof value.completionLine).toBe('string')
             }
           }
         } finally {

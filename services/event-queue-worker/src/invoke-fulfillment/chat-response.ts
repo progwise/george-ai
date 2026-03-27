@@ -60,14 +60,14 @@ export async function getChatResponse(event: ChatRequest): Promise<ChatResponse>
   let contentLineCount = 0
 
   for await (const chunk of stream) {
-    if (chunk.thinking) {
-      thinking += chunk.thinking
+    if (chunk.thinkingLine) {
+      thinking += chunk.thinkingLine + '\n'
       thinkingLineCount++
       if (thinkingLineCount % 100 === 0) {
         logger.info('Thinking in progress', { thinkingLineCount, thinkingLength: thinking.length })
       }
     } else {
-      content += chunk.chunk
+      content += chunk.completionLine + '\n'
       contentLineCount++
       if (contentLineCount % 100 === 0) {
         logger.info('Content generation in progress', { contentLineCount, contentLength: content.length })
@@ -91,8 +91,8 @@ export async function getChatResponse(event: ChatRequest): Promise<ChatResponse>
     verb: 'response',
     action: 'chatCompletion',
     timestamp: new Date(),
-    chunk: content,
-    thinking,
+    thinkingLine: thinking,
+    completionLine: content,
     created: new Date(),
     completionTokens,
     promptTokens,

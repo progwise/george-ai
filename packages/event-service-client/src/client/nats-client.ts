@@ -1198,9 +1198,7 @@ export class NatsClient implements EventClient {
     await Promise.all([...keysToDelete].map((key) => kvBucket.purge(key)))
 
     // Stream-level purge removes the tombstones so the bucket stays clean
-    await Promise.all(
-      filters.map((f) => this.jsm!.streams.purge(streamName, { filter: `$KV.${bucketName}.${f}` })),
-    )
+    await Promise.all(filters.map((f) => this.jsm!.streams.purge(streamName, { filter: `$KV.${bucketName}.${f}` })))
   }
 
   async getBucketStatus(params: { bucketName: string }): Promise<{

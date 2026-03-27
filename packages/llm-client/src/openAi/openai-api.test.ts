@@ -133,12 +133,12 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
           const { value, done } = await reader.read()
           if (done) break
 
-          if (value) {
+          if (value && value.completionLine) {
             chunks.push(value)
-            fullContent += value.chunk
+            fullContent += value.completionLine
 
             // Validate chunk structure
-            expect(typeof value.chunk).toBe('string')
+            expect(typeof value.completionLine).toBe('string')
             expect(value.created).toBeDefined()
           }
         }
@@ -165,9 +165,9 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
           const { value, done } = await reader.read()
           if (done) break
 
-          if (value) {
+          if (value && value.completionLine) {
             chunks.push(value)
-            fullContent += value.chunk
+            fullContent += value.completionLine
           }
         }
       } finally {
@@ -200,8 +200,8 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
           const { value, done } = await reader.read()
           if (done) break
 
-          if (value) {
-            fullContent += value.chunk
+          if (value && value.completionLine) {
+            fullContent += value.completionLine
           }
         }
       } finally {
@@ -234,8 +234,8 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
         while (true) {
           const { value, done } = await reader.read()
           if (done) break
-          if (value) {
-            fullContent += value.chunk
+          if (value && value.completionLine) {
+            fullContent += value.completionLine
           }
         }
       } finally {
@@ -276,8 +276,8 @@ describe.skipIf(!process.env.OPENAI_API_KEY)('openai-api integration tests', () 
           const { value, done } = await reader.read()
           if (done) break
 
-          if (value) {
-            fullContent += value.chunk
+          if (value && value.completionLine) {
+            fullContent += value.completionLine
           }
         }
       } finally {

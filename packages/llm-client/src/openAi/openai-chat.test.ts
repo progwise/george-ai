@@ -124,7 +124,7 @@ describe.skipIf(!OPENAI_API_KEY)('Testing openAI chat endpoints', () => {
       )
 
       const searchFor = ['vancouver', 'city', 'skyline', 'mountains', 'harbour', 'urban', 'building']
-      expect(searchFor.some((term) => result.chunk.includes(term))).toBe(true)
+      expect(searchFor.some((term) => result.completionLine?.includes(term))).toBe(true)
     })
 
     it('Testing a second image to be sure', async () => {
@@ -151,8 +151,8 @@ describe.skipIf(!OPENAI_API_KEY)('Testing openAI chat endpoints', () => {
         ],
       )
       expect(result).toBeDefined()
-      expect(result.chunk).not.toContain('city')
-      expect(result.chunk).toContain('cat')
+      expect(result.completionLine).not.toContain('city')
+      expect(result.completionLine).toContain('cat')
     })
 
     it('Testing streaming endpoint', async () => {
@@ -184,7 +184,7 @@ describe.skipIf(!OPENAI_API_KEY)('Testing openAI chat endpoints', () => {
         bufferedResult.push(chunk)
       }
 
-      const resultContent = bufferedResult.map((c) => c.chunk || '').join('')
+      const resultContent = bufferedResult.map((c) => c.completionLine || '').join('')
       expect(resultContent).toBeDefined()
       expect(resultContent).toContain('cat')
       expect(resultContent).not.toContain('city')

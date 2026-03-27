@@ -126,8 +126,8 @@ describe.skipIf(!OLLAMA_BASE_URL)('Testing Ollama chat endpoints', () => {
     )
 
     expect(result).toBeDefined()
-    expect(result.chunk).toBeDefined()
-    expect(result.chunk.length).toBeGreaterThan(0)
+    expect(result.completionLine).toBeDefined()
+    expect(result.completionLine!.length).toBeGreaterThan(0)
   })
 
   describe.skipIf(!GITHUB_TOKEN || !ollamaConnection)('Test real images for OLLAMA chat completion', () => {
@@ -156,7 +156,7 @@ describe.skipIf(!OLLAMA_BASE_URL)('Testing Ollama chat endpoints', () => {
       )
       expect(result).toBeDefined()
       const searchFor = ['vancouver', 'city', 'skyline', 'mountains', 'harbour', 'urban', 'building']
-      expect(searchFor.some((term) => result.chunk.includes(term))).toBe(true)
+      expect(searchFor.some((term) => result.completionLine!.includes(term))).toBe(true)
     })
 
     it('Testing a second image to be sure', async () => {
@@ -183,10 +183,10 @@ describe.skipIf(!OLLAMA_BASE_URL)('Testing Ollama chat endpoints', () => {
         ],
       )
       expect(result).toBeDefined()
-      expect(result.chunk).not.toContain('city')
+      expect(result.completionLine).not.toContain('city')
 
       const searchFor = ['cat', 'relax', 'sunny', 'sleepy', 'cute']
-      expect(searchFor.some((term) => result.chunk.includes(term))).toBe(true)
+      expect(searchFor.some((term) => result.completionLine!.includes(term))).toBe(true)
     })
 
     it('Testing streaming endpoint', async () => {
@@ -218,7 +218,7 @@ describe.skipIf(!OLLAMA_BASE_URL)('Testing Ollama chat endpoints', () => {
         bufferedResult.push(chunk)
       }
 
-      const resultContent = bufferedResult.map((c) => c.chunk || '').join('')
+      const resultContent = bufferedResult.map((c) => c.completionLine || '').join('')
       expect(resultContent).toBeDefined()
 
       expect(resultContent).not.toContain('city')

@@ -95,7 +95,7 @@ export async function getOpenAIChatCompletion(
   const data = await response.json()
   const result = OpenAIChatCompletionSchema.parse(data)
   return {
-    chunk: result.choices
+    completionLine: result.choices
       .map((choice) => choice.message.content)
       .filter((message) => !!message)
       .join('\n'),
@@ -221,7 +221,8 @@ export async function getOpenAIChatCompletionStream(
             })
 
             const commonChunk: ChatResponseChunk = {
-              chunk: streamChunk.delta.content || streamChunk.delta.reasoning_content || '',
+              completionLine: streamChunk.delta.content || undefined,
+              thinkingLine: streamChunk.delta.reasoning_content || undefined,
               promptTokens: streamChunk.usage?.prompt_tokens,
               completionTokens: streamChunk.usage?.completion_tokens,
               created: new Date(),
@@ -242,7 +243,6 @@ export async function getOpenAIChatCompletionStream(
             })
 
             const commonChunk: ChatResponseChunk = {
-              chunk: '',
               promptTokens: streamChunk.usage?.prompt_tokens,
               completionTokens: streamChunk.usage?.completion_tokens,
               created: new Date(),

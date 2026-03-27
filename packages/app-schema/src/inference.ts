@@ -28,8 +28,8 @@ export const ChatAttachmentSchema = z.object({
 export type ChatAttachment = z.infer<typeof ChatAttachmentSchema>
 
 export const ChatResponseChunkSchema = z.object({
-  chunk: z.string(),
-  thinking: z.string().optional(),
+  completionLine: z.string().optional(),
+  thinkingLine: z.string().optional(),
   created: z.coerce.date(),
   promptTokens: z.number().optional(),
   completionTokens: z.number().optional(),
