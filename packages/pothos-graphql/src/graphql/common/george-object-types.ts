@@ -1,5 +1,6 @@
 import { AutomationPreviewValue } from '@george-ai/app-domain'
 import {
+  DocumentFile,
   EventQueue,
   ExtractionMethod,
   InferenceHostConnection,
@@ -42,8 +43,9 @@ export type GeorgeObjectTypes = {
   ConnectorActionFieldMapping: ConnectorActionFieldMapping
   CurrentUser: CurrentUser
   DocumentExtractionRequest: DocumentExtractionRequest
-  DocumentVectorizationRequest: DocumentVectorizationRequest
+  DocumentFile: DocumentFile
   DocumentManifest: DocumentManifest
+  DocumentVectorizationRequest: DocumentVectorizationRequest
   EmbeddingStatistic: EmbeddingStatistic
   EventQueue: EventQueue
   EventQueueRequest: EventQueueRequest

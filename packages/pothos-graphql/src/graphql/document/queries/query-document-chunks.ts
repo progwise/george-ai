@@ -4,7 +4,7 @@ import { VectorStoreChunk, vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
 
-builder.queryField('queryFileChunks', (t) =>
+builder.queryField('queryDocumentChunks', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: builder
       .objectRef<{ hitCount: number; chunks: Array<VectorStoreChunk> }>('DocumentChunksQueryResult')

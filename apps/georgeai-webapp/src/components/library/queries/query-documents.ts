@@ -6,7 +6,7 @@ import { DocumentChunksSelector } from '../../../gql/graphql'
 import { DocumentChunksSelectorSchema } from '../../../gql/validation'
 import { backendRequest } from '../../../server-functions/backend'
 
-const queryFiles = createServerFn({ method: 'GET' })
+const queryDocuments = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
       .object({
@@ -20,8 +20,8 @@ const queryFiles = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query queryLibraryFiles($selector: DocumentChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {
-          queryFileChunks(selector: $selector, query: $query, skip: $skip, take: $take) {
+        query queryLibraryDocuments($selector: DocumentChunksSelector!, $query: String!, $skip: Int!, $take: Int!) {
+          queryDocumentChunks(selector: $selector, query: $query, skip: $skip, take: $take) {
             hitCount
             results {
               id
@@ -38,18 +38,18 @@ const queryFiles = createServerFn({ method: 'GET' })
       `),
       data,
     )
-    return result.queryFileChunks
+    return result.queryDocumentChunks
   })
 
-export const queryFilesQueryOptions = (params: {
+export const queryDocumentsQueryOptions = (params: {
   selector: DocumentChunksSelector
   query: string
   skip: number
   take: number
 }) => ({
-  queryKey: ['queryFiles', { params }],
+  queryKey: ['queryDocuments', { params }],
   queryFn: async () => {
-    return await queryFiles({
+    return await queryDocuments({
       data: params,
     })
   },

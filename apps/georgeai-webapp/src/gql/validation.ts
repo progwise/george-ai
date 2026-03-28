@@ -27,6 +27,7 @@ import {
   CrawlerUriType,
   DateTimePeriod,
   DocumentChunksSelector,
+  DocumentFileType,
   EmbeddingSettingsInput,
   EmbeddingStatus,
   EnrichmentStatus,
@@ -78,6 +79,8 @@ export const AutomationTriggerTypeSchema = z.nativeEnum(AutomationTriggerType)
 export const ConversationSortOrderSchema = z.nativeEnum(ConversationSortOrder)
 
 export const CrawlerUriTypeSchema = z.nativeEnum(CrawlerUriType)
+
+export const DocumentFileTypeSchema = z.nativeEnum(DocumentFileType)
 
 export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 

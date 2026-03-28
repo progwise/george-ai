@@ -13,7 +13,8 @@ export const loginFn = createServerFn({ method: 'POST' })
     logger.info('loginFn called', { tokenProvided: !!token })
     if (!token) {
       logger.warn('No token provided to loginFn, deleting any existing token cookie')
-      return deleteCookie(KEYCLOAK_TOKEN_COOKIE_NAME)
+      deleteCookie(KEYCLOAK_TOKEN_COOKIE_NAME)
+      return
     }
 
     const request = getRequest()

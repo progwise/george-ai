@@ -1031,6 +1031,42 @@ export type DocumentExtractionRequest = EventQueueRequest & {
   workspaceId: Scalars['String']['output']
 }
 
+/** Files inside the document folder */
+export type DocumentFile = {
+  __typename?: 'DocumentFile'
+  documentId: Scalars['String']['output']
+  extractionMethod?: Maybe<ExtractionMethod>
+  fileName: Scalars['String']['output']
+  fileType: DocumentFileType
+  fileUri: Scalars['String']['output']
+  isAnalysis: Scalars['Boolean']['output']
+  isAttachment: Scalars['Boolean']['output']
+  isBackup: Scalars['Boolean']['output']
+  isDocumentRoot: Scalars['Boolean']['output']
+  isDocumentSourceFile: Scalars['Boolean']['output']
+  isExtractionMain: Scalars['Boolean']['output']
+  isExtractionPart: Scalars['Boolean']['output']
+  isManifest: Scalars['Boolean']['output']
+  libraryId: Scalars['String']['output']
+  mimeType?: Maybe<Scalars['String']['output']>
+  modified?: Maybe<Scalars['DateTime']['output']>
+  relativePath: Scalars['String']['output']
+  size: Scalars['Int']['output']
+  workspaceId: Scalars['String']['output']
+}
+
+/** Type of the document file */
+export enum DocumentFileType {
+  Analysis = 'analysis',
+  Attachment = 'attachment',
+  Backup = 'backup',
+  ExtractionMain = 'extractionMain',
+  ExtractionPart = 'extractionPart',
+  Manifest = 'manifest',
+  Source = 'source',
+  Unknown = 'unknown',
+}
+
 /** Information about a file stored in the AI library */
 export type DocumentManifest = {
   __typename?: 'DocumentManifest'
@@ -1257,7 +1293,7 @@ export type FieldValueResult = {
   queueStatus?: Maybe<Scalars['String']['output']>
 }
 
-/** Response type for files query */
+/** Response type for documents query */
 export type FilesQueryResponse = {
   __typename?: 'FilesQueryResponse'
   /** Total number of archived files to support pagination */
@@ -1599,8 +1635,8 @@ export type Mutation = {
   deleteAiLibraryCrawler?: Maybe<AiLibraryCrawler>
   deleteAutomation: Scalars['Boolean']['output']
   deleteConnector: Scalars['Boolean']['output']
-  deleteFile: AiLibraryFile
-  deleteFiles: Scalars['Int']['output']
+  deleteDocument: AiLibraryFile
+  deleteDocuments: Scalars['Int']['output']
   deleteLibrary: Scalars['Boolean']['output']
   deleteList: AiList
   deleteMessage?: Maybe<AiConversationMessage>
@@ -1644,6 +1680,7 @@ export type Mutation = {
   triggerAutomation: TriggerAutomationResult
   triggerAutomationItem: TriggerAutomationResult
   triggerExtraction: TriggerExtractionResult
+  triggerFileAnalysis: TriggerFileAnalysisResult
   triggerVectorization: TriggerVectorizationResult
   unhideMessage?: Maybe<AiConversationMessage>
   updateAiAssistant?: Maybe<AiAssistant>
@@ -1808,13 +1845,13 @@ export type MutationDeleteConnectorArgs = {
   id: Scalars['ID']['input']
 }
 
-export type MutationDeleteFileArgs = {
-  fileId: Scalars['String']['input']
+export type MutationDeleteDocumentArgs = {
+  documentId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
 }
 
-export type MutationDeleteFilesArgs = {
-  fileIds: Array<Scalars['ID']['input']>
+export type MutationDeleteDocumentsArgs = {
+  documentIds: Array<Scalars['ID']['input']>
   libraryId: Scalars['String']['input']
 }
 
@@ -2001,6 +2038,12 @@ export type MutationTriggerExtractionArgs = {
   libraryId: Scalars['String']['input']
 }
 
+export type MutationTriggerFileAnalysisArgs = {
+  fileName: Scalars['String']['input']
+  fileUri: Scalars['String']['input']
+  mimeType: Scalars['String']['input']
+}
+
 export type MutationTriggerVectorizationArgs = {
   documentId: Scalars['String']['input']
   extractionMethod?: InputMaybe<ExtractionMethod>
@@ -2160,12 +2203,13 @@ export type Query = {
   connectors: Array<AiConnector>
   countFiles: Scalars['Int']['output']
   currentUser: CurrentUser
+  document: AiLibraryFile
   documentChunks?: Maybe<VectorStoreChunkResponse>
+  documentFiles: Array<DocumentFile>
+  documents: FilesQueryResponse
   embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
   eventQueueRequests: EventQueueRequestsResult
   extraction?: Maybe<ExtractionManifest>
-  file: AiLibraryFile
-  files: FilesQueryResponse
   inferenceHostConfig: Array<InferenceHostConfig>
   inferenceHostState: Array<InferenceHostState>
   inferenceModelState: Array<InferenceModelState>
@@ -2176,7 +2220,7 @@ export type Query = {
   managedUsers: ManagedUsersResponse
   models: AiLanguageModelsResult
   myWorkspaceInvitations: Array<WorkspaceInvitation>
-  queryFileChunks: DocumentChunksQueryResult
+  queryDocumentChunks: DocumentChunksQueryResult
   similarChunks: Array<SimilarChunkResult>
   user?: Maybe<User>
   userProfile: UserProfile
@@ -2340,12 +2384,31 @@ export type QueryCountFilesArgs = {
   showArchived: Scalars['Boolean']['input']
 }
 
+export type QueryDocumentArgs = {
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}
+
 export type QueryDocumentChunksArgs = {
   documentId: Scalars['String']['input']
   extractionMethod?: InputMaybe<ExtractionMethod>
   firstChunk?: InputMaybe<Scalars['Int']['input']>
   fragment?: InputMaybe<Scalars['Int']['input']>
   libraryId: Scalars['String']['input']
+  take?: InputMaybe<Scalars['Int']['input']>
+}
+
+export type QueryDocumentFilesArgs = {
+  documentId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+}
+
+export type QueryDocumentsArgs = {
+  libraryId?: InputMaybe<Scalars['String']['input']>
+  showArchived?: InputMaybe<Scalars['Boolean']['input']>
+  skip?: InputMaybe<Scalars['Int']['input']>
+  sortField?: InputMaybe<LibraryFilesSortField>
+  sortOrder?: InputMaybe<SortOrder>
   take?: InputMaybe<Scalars['Int']['input']>
 }
 
@@ -2366,20 +2429,6 @@ export type QueryExtractionArgs = {
   extractionMethod?: InputMaybe<ExtractionMethod>
   fileId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
-}
-
-export type QueryFileArgs = {
-  fileId: Scalars['String']['input']
-  libraryId: Scalars['String']['input']
-}
-
-export type QueryFilesArgs = {
-  libraryId?: InputMaybe<Scalars['String']['input']>
-  showArchived?: InputMaybe<Scalars['Boolean']['input']>
-  skip?: InputMaybe<Scalars['Int']['input']>
-  sortField?: InputMaybe<LibraryFilesSortField>
-  sortOrder?: InputMaybe<SortOrder>
-  take?: InputMaybe<Scalars['Int']['input']>
 }
 
 export type QueryInferenceModelsArgs = {
@@ -2426,7 +2475,7 @@ export type QueryModelsArgs = {
   take?: InputMaybe<Scalars['Int']['input']>
 }
 
-export type QueryQueryFileChunksArgs = {
+export type QueryQueryDocumentChunksArgs = {
   query: Scalars['String']['input']
   selector: DocumentChunksSelector
   skip?: InputMaybe<Scalars['Int']['input']>
@@ -2562,6 +2611,11 @@ export type TriggerExtractionResult = {
   __typename?: 'TriggerExtractionResult'
   documentManifest: DocumentManifest
   extractionMethod?: Maybe<ExtractionMethod>
+  success: Scalars['Boolean']['output']
+}
+
+export type TriggerFileAnalysisResult = {
+  __typename?: 'TriggerFileAnalysisResult'
   success: Scalars['Boolean']['output']
 }
 
@@ -5054,14 +5108,14 @@ export type GetFileChunksQuery = {
   } | null
 }
 
-export type GetFileQueryVariables = Exact<{
+export type GetDocumentQueryVariables = Exact<{
   fileId: Scalars['String']['input']
   libraryId: Scalars['String']['input']
 }>
 
-export type GetFileQuery = {
+export type GetDocumentQuery = {
   __typename?: 'Query'
-  file: {
+  document: {
     __typename?: 'AiLibraryFile'
     id: string
     createdAt: string
@@ -5124,49 +5178,6 @@ export type GetFileQuery = {
   }
 }
 
-export type GetExtractionQueryVariables = Exact<{
-  fileId: Scalars['String']['input']
-  libraryId: Scalars['String']['input']
-  extractionMethod?: InputMaybe<ExtractionMethod>
-}>
-
-export type GetExtractionQuery = {
-  __typename?: 'Query'
-  extraction?: {
-    __typename?: 'ExtractionManifest'
-    version: number
-    extractionMethod: ExtractionMethod
-    extracted?: string | null
-    hasFragments: boolean
-    fragmentCount?: number | null
-    sourceHash: string
-    attachments?: Array<{ __typename?: 'Attachment'; size: any; fileName: string; mimeType?: string | null }> | null
-  } | null
-}
-
-export type GetSimilarChunksQueryVariables = Exact<{
-  libraryId: Scalars['String']['input']
-  documentId: Scalars['String']['input']
-  term?: InputMaybe<Scalars['String']['input']>
-  hits: Scalars['Int']['input']
-  fragment?: InputMaybe<Scalars['Int']['input']>
-}>
-
-export type GetSimilarChunksQuery = {
-  __typename?: 'Query'
-  similarChunks: Array<{
-    __typename?: 'SimilarChunkResult'
-    id: string
-    distance: number
-    chunk: number
-    documentName?: string | null
-    documentId: string
-    extractionMethod: string
-    content?: string | null
-    fragment?: number | null
-  }>
-}
-
 export type EmbeddingsTableQueryVariables = Exact<{
   libraryId: Scalars['String']['input']
   skip?: InputMaybe<Scalars['Int']['input']>
@@ -5176,7 +5187,7 @@ export type EmbeddingsTableQueryVariables = Exact<{
 
 export type EmbeddingsTableQuery = {
   __typename?: 'Query'
-  files: {
+  documents: {
     __typename?: 'FilesQueryResponse'
     totalCount: number
     archivedCount: number
@@ -5232,6 +5243,80 @@ export type EmbeddingsTableQuery = {
   }
 }
 
+export type GetExtractionQueryVariables = Exact<{
+  fileId: Scalars['String']['input']
+  libraryId: Scalars['String']['input']
+  extractionMethod?: InputMaybe<ExtractionMethod>
+}>
+
+export type GetExtractionQuery = {
+  __typename?: 'Query'
+  extraction?: {
+    __typename?: 'ExtractionManifest'
+    version: number
+    extractionMethod: ExtractionMethod
+    extracted?: string | null
+    hasFragments: boolean
+    fragmentCount?: number | null
+    sourceHash: string
+    attachments?: Array<{ __typename?: 'Attachment'; size: any; fileName: string; mimeType?: string | null }> | null
+  } | null
+}
+
+export type GetSimilarChunksQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  documentId: Scalars['String']['input']
+  term?: InputMaybe<Scalars['String']['input']>
+  hits: Scalars['Int']['input']
+  fragment?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetSimilarChunksQuery = {
+  __typename?: 'Query'
+  similarChunks: Array<{
+    __typename?: 'SimilarChunkResult'
+    id: string
+    distance: number
+    chunk: number
+    documentName?: string | null
+    documentId: string
+    extractionMethod: string
+    content?: string | null
+    fragment?: number | null
+  }>
+}
+
+export type DocumentFilesQueryVariables = Exact<{
+  libraryId: Scalars['String']['input']
+  documentId: Scalars['String']['input']
+}>
+
+export type DocumentFilesQuery = {
+  __typename?: 'Query'
+  documentFiles: Array<{
+    __typename?: 'DocumentFile'
+    fileName: string
+    relativePath: string
+    mimeType?: string | null
+    fileType: DocumentFileType
+    size: number
+    modified?: string | null
+    fileUri: string
+    extractionMethod?: ExtractionMethod | null
+    workspaceId: string
+    libraryId: string
+    documentId: string
+    isDocumentRoot: boolean
+    isAnalysis: boolean
+    isBackup: boolean
+    isExtractionMain: boolean
+    isExtractionPart: boolean
+    isManifest: boolean
+    isDocumentSourceFile: boolean
+    isAttachment: boolean
+  }>
+}
+
 export type AiLibraryBaseFragment = {
   __typename?: 'AiLibrary'
   id: string
@@ -5277,16 +5362,16 @@ export type AiLibraryDetailQuery = {
   }
 }
 
-export type QueryLibraryFilesQueryVariables = Exact<{
+export type QueryLibraryDocumentsQueryVariables = Exact<{
   selector: DocumentChunksSelector
   query: Scalars['String']['input']
   skip: Scalars['Int']['input']
   take: Scalars['Int']['input']
 }>
 
-export type QueryLibraryFilesQuery = {
+export type QueryLibraryDocumentsQuery = {
   __typename?: 'Query'
-  queryFileChunks: {
+  queryDocumentChunks: {
     __typename?: 'DocumentChunksQueryResult'
     hitCount: number
     results: Array<{
@@ -5315,28 +5400,28 @@ export type LibraryQueryResult_FileChunkFragment = {
   content?: string | null
 }
 
-export type ClearLibraryFilesMutationVariables = Exact<{
+export type ClearLibraryDocumentsMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
 }>
 
-export type ClearLibraryFilesMutation = { __typename?: 'Mutation'; clearFiles: number }
+export type ClearLibraryDocumentsMutation = { __typename?: 'Mutation'; clearFiles: number }
 
-export type DeleteLibraryFileMutationVariables = Exact<{
+export type DeleteLibraryDocumentMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
-  fileId: Scalars['String']['input']
+  documentId: Scalars['String']['input']
 }>
 
-export type DeleteLibraryFileMutation = {
+export type DeleteLibraryDocumentMutation = {
   __typename?: 'Mutation'
-  deleteFile: { __typename?: 'AiLibraryFile'; id: string; name: string }
+  deleteDocument: { __typename?: 'AiLibraryFile'; id: string; name: string }
 }
 
-export type DeleteLibraryFilesMutationVariables = Exact<{
+export type DeleteLibraryDocumentsMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
-  fileIds: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  documentIds: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteLibraryFilesMutation = { __typename?: 'Mutation'; deleteFiles: number }
+export type DeleteLibraryDocumentsMutation = { __typename?: 'Mutation'; deleteDocuments: number }
 
 export type DeleteLibraryMutationVariables = Exact<{
   libraryId: Scalars['String']['input']
@@ -5393,6 +5478,17 @@ export type PrepareDocumentUploadMutation = {
     documentId: string
     uploadId: string
   }
+}
+
+export type TriggerFileAnalysisMutationVariables = Exact<{
+  fileUri: Scalars['String']['input']
+  fileName: Scalars['String']['input']
+  mimeType: Scalars['String']['input']
+}>
+
+export type TriggerFileAnalysisMutation = {
+  __typename?: 'Mutation'
+  triggerFileAnalysis: { __typename?: 'TriggerFileAnalysisResult'; success: boolean }
 }
 
 export type TriggerExtractionMutationVariables = Exact<{
@@ -17312,13 +17408,13 @@ export const GetFileChunksDocument = {
     },
   ],
 } as unknown as DocumentNode<GetFileChunksQuery, GetFileChunksQueryVariables>
-export const GetFileDocument = {
+export const GetDocumentDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'getFile' },
+      name: { kind: 'Name', value: 'getDocument' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -17336,7 +17432,7 @@ export const GetFileDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'file' },
+            name: { kind: 'Name', value: 'document' },
             arguments: [
               {
                 kind: 'Argument',
@@ -17568,7 +17664,178 @@ export const GetFileDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<GetFileQuery, GetFileQueryVariables>
+} as unknown as DocumentNode<GetDocumentQuery, GetDocumentQueryVariables>
+export const EmbeddingsTableDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'EmbeddingsTable' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          defaultValue: { kind: 'IntValue', value: '0' },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          defaultValue: { kind: 'IntValue', value: '20' },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'showArchived' } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
+          defaultValue: { kind: 'BooleanValue', value: false },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'documents' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'libraryId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'libraryId' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'take' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'showArchived' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'showArchived' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'archivedCount' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'manifest' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
+                        },
+                      },
+                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_FilesTable' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+    {
+      kind: 'FragmentDefinition',
+      name: { kind: 'Name', value: 'AiLibraryFile_FilesTable' },
+      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
+          { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'manifest' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'origin' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'hash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'creationDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastModifiedDate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'author' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'extractions' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'storageStats' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'lastReconcile' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
 export const GetExtractionDocument = {
   kind: 'Document',
   definitions: [
@@ -17731,13 +17998,13 @@ export const GetSimilarChunksDocument = {
     },
   ],
 } as unknown as DocumentNode<GetSimilarChunksQuery, GetSimilarChunksQueryVariables>
-export const EmbeddingsTableDocument = {
+export const DocumentFilesDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'EmbeddingsTable' },
+      name: { kind: 'Name', value: 'DocumentFiles' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -17746,21 +18013,8 @@ export const EmbeddingsTableDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
-          defaultValue: { kind: 'IntValue', value: '0' },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
-          defaultValue: { kind: 'IntValue', value: '20' },
-        },
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'showArchived' } },
-          type: { kind: 'NamedType', name: { kind: 'Name', value: 'Boolean' } },
-          defaultValue: { kind: 'BooleanValue', value: false },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
       selectionSet: {
@@ -17768,7 +18022,7 @@ export const EmbeddingsTableDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'files' },
+            name: { kind: 'Name', value: 'documentFiles' },
             arguments: [
               {
                 kind: 'Argument',
@@ -17777,123 +18031,32 @@ export const EmbeddingsTableDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'skip' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'take' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'take' } },
-              },
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'showArchived' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'showArchived' } },
+                name: { kind: 'Name', value: 'documentId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
               },
             ],
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'totalCount' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'archivedCount' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'items' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      {
-                        kind: 'Field',
-                        name: { kind: 'Name', value: 'manifest' },
-                        selectionSet: {
-                          kind: 'SelectionSet',
-                          selections: [{ kind: 'Field', name: { kind: 'Name', value: 'version' } }],
-                        },
-                      },
-                      { kind: 'FragmentSpread', name: { kind: 'Name', value: 'AiLibraryFile_FilesTable' } },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-    {
-      kind: 'FragmentDefinition',
-      name: { kind: 'Name', value: 'AiLibraryFile_FilesTable' },
-      typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AiLibraryFile' } },
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          { kind: 'Field', name: { kind: 'Name', value: 'id' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'name' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'originUri' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'size' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'dropError' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'createdAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'originModificationDate' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'archivedAt' } },
-          { kind: 'Field', name: { kind: 'Name', value: 'chunkCount' } },
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'manifest' },
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'version' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'name' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'relativePath' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'created' } },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'origin' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'uri' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'hash' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'creationDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'lastModifiedDate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'author' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'extractions' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'sourceHash' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'created' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'updated' } },
-                    ],
-                  },
-                },
-                {
-                  kind: 'Field',
-                  name: { kind: 'Name', value: 'storageStats' },
-                  selectionSet: {
-                    kind: 'SelectionSet',
-                    selections: [
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'physicalBytes' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'extractionFileCount' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'physicalFileCount' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'attachmentFileCount' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'lastUpdate' } },
-                      { kind: 'Field', name: { kind: 'Name', value: 'lastReconcile' } },
-                    ],
-                  },
-                },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'size' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'modified' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'fileUri' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'extractionMethod' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'libraryId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'documentId' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isDocumentRoot' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isAnalysis' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isBackup' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isExtractionMain' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isExtractionPart' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isManifest' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isDocumentSourceFile' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'isAttachment' } },
               ],
             },
           },
@@ -17901,7 +18064,7 @@ export const EmbeddingsTableDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<EmbeddingsTableQuery, EmbeddingsTableQueryVariables>
+} as unknown as DocumentNode<DocumentFilesQuery, DocumentFilesQueryVariables>
 export const AiLibrariesDocument = {
   kind: 'Document',
   definitions: [
@@ -18037,13 +18200,13 @@ export const AiLibraryDetailDocument = {
     },
   ],
 } as unknown as DocumentNode<AiLibraryDetailQuery, AiLibraryDetailQueryVariables>
-export const QueryLibraryFilesDocument = {
+export const QueryLibraryDocumentsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'query',
-      name: { kind: 'Name', value: 'queryLibraryFiles' },
+      name: { kind: 'Name', value: 'queryLibraryDocuments' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -18074,7 +18237,7 @@ export const QueryLibraryFilesDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'queryFileChunks' },
+            name: { kind: 'Name', value: 'queryDocumentChunks' },
             arguments: [
               {
                 kind: 'Argument',
@@ -18143,14 +18306,14 @@ export const QueryLibraryFilesDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<QueryLibraryFilesQuery, QueryLibraryFilesQueryVariables>
-export const ClearLibraryFilesDocument = {
+} as unknown as DocumentNode<QueryLibraryDocumentsQuery, QueryLibraryDocumentsQueryVariables>
+export const ClearLibraryDocumentsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'clearLibraryFiles' },
+      name: { kind: 'Name', value: 'clearLibraryDocuments' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -18176,14 +18339,14 @@ export const ClearLibraryFilesDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<ClearLibraryFilesMutation, ClearLibraryFilesMutationVariables>
-export const DeleteLibraryFileDocument = {
+} as unknown as DocumentNode<ClearLibraryDocumentsMutation, ClearLibraryDocumentsMutationVariables>
+export const DeleteLibraryDocumentDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'deleteLibraryFile' },
+      name: { kind: 'Name', value: 'deleteLibraryDocument' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -18192,7 +18355,7 @@ export const DeleteLibraryFileDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
           type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
         },
       ],
@@ -18201,7 +18364,7 @@ export const DeleteLibraryFileDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'deleteFile' },
+            name: { kind: 'Name', value: 'deleteDocument' },
             arguments: [
               {
                 kind: 'Argument',
@@ -18210,8 +18373,8 @@ export const DeleteLibraryFileDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileId' } },
+                name: { kind: 'Name', value: 'documentId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentId' } },
               },
             ],
             selectionSet: {
@@ -18226,14 +18389,14 @@ export const DeleteLibraryFileDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<DeleteLibraryFileMutation, DeleteLibraryFileMutationVariables>
-export const DeleteLibraryFilesDocument = {
+} as unknown as DocumentNode<DeleteLibraryDocumentMutation, DeleteLibraryDocumentMutationVariables>
+export const DeleteLibraryDocumentsDocument = {
   kind: 'Document',
   definitions: [
     {
       kind: 'OperationDefinition',
       operation: 'mutation',
-      name: { kind: 'Name', value: 'deleteLibraryFiles' },
+      name: { kind: 'Name', value: 'deleteLibraryDocuments' },
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
@@ -18242,7 +18405,7 @@ export const DeleteLibraryFilesDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'documentIds' } },
           type: {
             kind: 'NonNullType',
             type: {
@@ -18257,7 +18420,7 @@ export const DeleteLibraryFilesDocument = {
         selections: [
           {
             kind: 'Field',
-            name: { kind: 'Name', value: 'deleteFiles' },
+            name: { kind: 'Name', value: 'deleteDocuments' },
             arguments: [
               {
                 kind: 'Argument',
@@ -18266,8 +18429,8 @@ export const DeleteLibraryFilesDocument = {
               },
               {
                 kind: 'Argument',
-                name: { kind: 'Name', value: 'fileIds' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileIds' } },
+                name: { kind: 'Name', value: 'documentIds' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'documentIds' } },
               },
             ],
           },
@@ -18275,7 +18438,7 @@ export const DeleteLibraryFilesDocument = {
       },
     },
   ],
-} as unknown as DocumentNode<DeleteLibraryFilesMutation, DeleteLibraryFilesMutationVariables>
+} as unknown as DocumentNode<DeleteLibraryDocumentsMutation, DeleteLibraryDocumentsMutationVariables>
 export const DeleteLibraryDocument = {
   kind: 'Document',
   definitions: [
@@ -18532,6 +18695,63 @@ export const PrepareDocumentUploadDocument = {
     },
   ],
 } as unknown as DocumentNode<PrepareDocumentUploadMutation, PrepareDocumentUploadMutationVariables>
+export const TriggerFileAnalysisDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'mutation',
+      name: { kind: 'Name', value: 'triggerFileAnalysis' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileUri' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'fileName' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'mimeType' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'triggerFileAnalysis' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileUri' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileUri' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'fileName' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'fileName' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'mimeType' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'mimeType' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'success' } }],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<TriggerFileAnalysisMutation, TriggerFileAnalysisMutationVariables>
 export const TriggerExtractionDocument = {
   kind: 'Document',
   definitions: [

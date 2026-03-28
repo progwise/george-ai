@@ -9,6 +9,7 @@ import {
   ListFieldType,
 } from '@george-ai/app-domain'
 import {
+  DocumentFileType,
   EnrichmentAction,
   EventQueueAction,
   EventQueueStatus,
@@ -25,6 +26,7 @@ export type GeorgeEnumTypes = {
   AutomationTriggerType: AutomationTriggerType
   AutomationItemStatus: AutomationItemStatus
   CrawlerUriType: CrawlerUriType
+  DocumentFileType: DocumentFileType
   EnrichmentAction: EnrichmentAction
   EventQueueStatus: EventQueueStatus
   ExtractionMethod: ExtractionMethod

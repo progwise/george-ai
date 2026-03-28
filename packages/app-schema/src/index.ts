@@ -1,5 +1,6 @@
 export * from './attachment'
 export * from './connector-api'
+export * from './document-file'
 export * from './embedding'
 export * from './enrichment'
 export * from './event-queue'

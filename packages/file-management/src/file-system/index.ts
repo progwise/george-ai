@@ -8,6 +8,7 @@ import { deleteFolder, deleteFolderOrThrow } from './delete-folder'
 import { ensureFolderOnce } from './ensure-folder-once'
 import { existsFile } from './exists-file'
 import { existsFolder } from './exists-folder'
+import { fileTree } from './file-tree'
 import { getFilePath, getFilePathOrThrow } from './get-file-path'
 import { getFileStats } from './get-file-stats'
 import { getFolderPath, getFolderPathOrThrow } from './get-folder-path'
@@ -31,6 +32,7 @@ export default {
   deleteFolderOrThrow,
   existsFile,
   existsFolder,
+  fileTree,
   getFilePath,
   getFilePathOrThrow,
   getFolderPath,
@@ -59,6 +61,7 @@ export {
   deleteFolderOrThrow,
   existsFile,
   existsFolder,
+  fileTree,
   getFilePath,
   getFilePathOrThrow,
   getFolderPath,

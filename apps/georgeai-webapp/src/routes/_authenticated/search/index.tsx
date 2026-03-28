@@ -2,7 +2,7 @@ import { useSuspenseQueries, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import { getFilesQueryOptions, getLibrariesQueryOptions } from '../../../components/library/queries'
+import { getDocumentsQueryOptions, getLibrariesQueryOptions } from '../../../components/library/queries'
 import { getListsQueryOptions } from '../../../components/lists/queries'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CrossIcon } from '../../../icons/cross-icon'
@@ -23,7 +23,7 @@ const RouteComponent = () => {
   const filesQueries = useSuspenseQueries({
     queries: libraries.items
       .filter((lib) => lib.filesCount > 0)
-      .map((lib) => getFilesQueryOptions({ libraryId: lib.id, skip: 0, take: lib.filesCount })),
+      .map((lib) => getDocumentsQueryOptions({ libraryId: lib.id, skip: 0, take: lib.filesCount })),
   })
 
   const librariesWithFiles = (() => {

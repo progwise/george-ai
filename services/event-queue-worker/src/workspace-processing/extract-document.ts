@@ -68,17 +68,15 @@ export async function extractDocument(request: DocumentExtractionRequest) {
           version: 1,
           type: 'extraction',
         },
-        attachment.fileName,
+        {
+          attachmentFileName: attachment.fileName,
+        },
       ),
       workspaceId,
-      libraryId,
-      documentId,
-      extractionMethod,
       fileName: attachment.fileName,
       mimeType: attachment.mimeType,
       verb: 'request',
       timestamp: new Date(),
-      context: ``,
     }
 
     logger.debug('Publishing image analysis request for attachment', { ...analyzeImageRequest })

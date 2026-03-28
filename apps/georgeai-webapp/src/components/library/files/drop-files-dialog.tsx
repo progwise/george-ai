@@ -22,10 +22,10 @@ export const DropFilesDialog = ({
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
-  const { deleteFiles, isPending } = useLibraryActions(libraryId)
+  const { deleteDocuments, isPending } = useLibraryActions(libraryId)
 
   const handleDeleteFiles = async (fileIds: string[]) => {
-    deleteFiles(fileIds, {
+    deleteDocuments(fileIds, {
       onSettled: () => {
         setCheckedFileIds([])
         tableDataChanged()

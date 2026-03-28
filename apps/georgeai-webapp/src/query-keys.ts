@@ -12,6 +12,7 @@ export const queryKeys = {
   BackendPublicUrl: 'BackendPublicUrl',
   CurrentUser: 'CurrentUser',
   Document: 'Document',
+  Documents: 'Documents',
   DocumentChunks: 'DocumentChunks',
   EmbeddingStatistics: 'EmbeddingStatistics',
   EventProcessingStatistics: 'EventProcessingStatistics',

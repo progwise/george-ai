@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import { FilesActionsBar } from '../../../../../components/library/files/files-actions-bar'
 import { FilesTable } from '../../../../../components/library/files/files-table'
-import { getFilesQueryOptions, getLibraryQueryOptions } from '../../../../../components/library/queries'
+import { getDocumentsQueryOptions, getLibraryQueryOptions } from '../../../../../components/library/queries'
 import { Pagination } from '../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../i18n/use-translation-hook'
 
@@ -23,7 +23,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   loader: async ({ context, params, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        getFilesQueryOptions({
+        getDocumentsQueryOptions({
           libraryId: params.libraryId,
           skip: deps.skip,
           take: deps.take,
@@ -40,7 +40,7 @@ function RouteComponent() {
   const { libraryId } = Route.useParams()
   const { t } = useTranslation()
 
-  const { data: files } = useSuspenseQuery(getFilesQueryOptions({ libraryId, skip, take, showArchived }))
+  const { data: files } = useSuspenseQuery(getDocumentsQueryOptions({ libraryId, skip, take, showArchived }))
   const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   return (

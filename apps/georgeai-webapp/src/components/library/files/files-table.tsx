@@ -98,7 +98,8 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
     return () => clearTimeout(timeout)
   }, [libraryId])
 
-  const { deleteFile, deleteFiles, triggerExtraction, triggerVectorization, isPending } = useLibraryActions(libraryId)
+  const { deleteDocument, deleteDocuments, triggerExtraction, triggerVectorization, isPending } =
+    useLibraryActions(libraryId)
 
   const dropDialogRef = useRef<HTMLDialogElement>(null)
   const processDialogRef = useRef<HTMLDialogElement>(null)
@@ -131,7 +132,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
   }
 
   const handleDropSelectedFiles = () => {
-    deleteFiles(selectedFileIds, {
+    deleteDocuments(selectedFileIds, {
       onSettled: () => {
         setSelectedFileIds([])
         dropDialogRef.current?.close()
@@ -363,7 +364,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                         disabled={isPending}
                         className="tooltip btn tooltip-right z-10 btn-square btn-xs"
                         data-tip={t('actions.drop')}
-                        onClick={() => deleteFile(file.id)}
+                        onClick={() => deleteDocument(file.id)}
                       >
                         <TrashIcon className="size-4" />
                       </button>

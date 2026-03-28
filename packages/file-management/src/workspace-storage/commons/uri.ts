@@ -1,29 +1,42 @@
 import { ExtractionMethod } from '@george-ai/app-schema'
 
 import { DocumentIdentifier, ExtractionIdentifier, LibraryIdentifier, WorkspaceIdentifier } from '../schema'
+import {
+  ANALYSIS_FOLDER_NAME,
+  ATTACHMENTS_FOLDER_NAME,
+  DOCUMENTS_FOLDER_NAME,
+  EXTRACTIONS_FOLDER_NAME,
+  FRAGMENTS_FOLDER_NAME,
+  LIBRARIES_FOLDER_NAME,
+} from './constants'
 
 export function getUri(
   identifier: WorkspaceIdentifier | LibraryIdentifier | DocumentIdentifier | ExtractionIdentifier,
-  attachmentFileName?: string,
+  options?: {
+    attachmentFileName?: string
+    analysisFileName?: string
+  },
 ): string {
-  const attachmentsSuffix = attachmentFileName ? `/attachments/${attachmentFileName}` : ''
+  const { attachmentFileName, analysisFileName } = options || {}
+  const attachmentsSuffix = attachmentFileName ? `/${ATTACHMENTS_FOLDER_NAME}/${attachmentFileName}` : ''
+  const analysisSuffix = analysisFileName ? `/${ANALYSIS_FOLDER_NAME}/${analysisFileName}` : ''
 
   switch (identifier.type) {
     case 'workspace': {
       const { workspaceId } = identifier
-      return `georgeai://workspaces/${workspaceId}${attachmentsSuffix}`
+      return `georgeai://workspaces/${workspaceId}${attachmentsSuffix}${analysisSuffix}`
     }
     case 'library': {
       const { workspaceId, libraryId } = identifier
-      return `georgeai://workspaces/${workspaceId}/libraries/${libraryId}${attachmentsSuffix}`
+      return `georgeai://workspaces/${workspaceId}/${LIBRARIES_FOLDER_NAME}/${libraryId}${attachmentsSuffix}${analysisSuffix}`
     }
     case 'document': {
       const { workspaceId, libraryId, documentId } = identifier
-      return `georgeai://workspaces/${workspaceId}/libraries/${libraryId}/documents/${documentId}${attachmentsSuffix}`
+      return `georgeai://workspaces/${workspaceId}/${LIBRARIES_FOLDER_NAME}/${libraryId}/${DOCUMENTS_FOLDER_NAME}/${documentId}${attachmentsSuffix}${analysisSuffix}`
     }
     case 'extraction': {
       const { workspaceId, libraryId, documentId, extractionMethod } = identifier
-      return `georgeai://workspaces/${workspaceId}/libraries/${libraryId}/documents/${documentId}/extractions/${extractionMethod}${attachmentsSuffix}`
+      return `georgeai://workspaces/${workspaceId}/${LIBRARIES_FOLDER_NAME}/${libraryId}/${DOCUMENTS_FOLDER_NAME}/${documentId}/${EXTRACTIONS_FOLDER_NAME}/${extractionMethod}${attachmentsSuffix}${analysisSuffix}`
     }
     default:
       throw new Error(`Unknown identifier type: ${identifier}`)
@@ -36,15 +49,24 @@ export function parseUri(uri: string): {
   documentId?: string
   extractionMethod?: ExtractionMethod
   attachmentFileName?: string
+  analysisFileName?: string
   fragment?: number
 } {
-  const regex =
-    /^georgeai:\/\/workspaces\/([^/]+)(?:\/libraries\/([^/]+))?(?:\/documents\/([^/]+))?(?:\/extractions\/([^/]+))?(?:\/fragments\/(\d+))?(?:\/attachments\/(.+))?$/
+  const regex = new RegExp(
+    `^georgeai://workspaces/([^/]+)` +
+      `(?:/${LIBRARIES_FOLDER_NAME}/([^/]+))?` +
+      `(?:/${DOCUMENTS_FOLDER_NAME}/([^/]+))?` +
+      `(?:/${EXTRACTIONS_FOLDER_NAME}/([^/]+))?` +
+      `(?:/${FRAGMENTS_FOLDER_NAME}/(\\d+))?` +
+      `(?:/${ATTACHMENTS_FOLDER_NAME}/(.+))?` +
+      `(?:/${ANALYSIS_FOLDER_NAME}/(.+))?$`,
+  )
   const match = uri.match(regex)
   if (!match) {
     throw new Error(`Invalid URI format: ${uri}`)
   }
-  const [, workspaceId, libraryId, documentId, extractionMethod, fragmentStr, attachmentFileName] = match
+  const [, workspaceId, libraryId, documentId, extractionMethod, fragmentStr, attachmentFileName, analysisFileName] =
+    match
   const fragment = fragmentStr ? parseInt(fragmentStr, 10) : undefined
   return {
     workspaceId,
@@ -52,6 +74,7 @@ export function parseUri(uri: string): {
     documentId,
     extractionMethod: extractionMethod as ExtractionMethod,
     attachmentFileName,
+    analysisFileName,
     fragment,
   }
 }
@@ -67,13 +90,13 @@ export function getLegacyUri(parameters: {
     return `georgeai://legacy/`
   }
   if (!fileId) {
-    return `georgeai://legacy//libraries/${libraryId}`
+    return `georgeai://legacy//${LIBRARIES_FOLDER_NAME}/${libraryId}`
   }
   if (!extractionMethod) {
-    return `georgeai://legacy//libraries/${libraryId}/files/${fileId}`
+    return `georgeai://legacy//${LIBRARIES_FOLDER_NAME}/${libraryId}/files/${fileId}`
   }
   if (!fragment) {
-    return `georgeai://legacy//libraries/${libraryId}/files/${fileId}/extractions/${extractionMethod}`
+    return `georgeai://legacy//${LIBRARIES_FOLDER_NAME}/${libraryId}/files/${fileId}/${EXTRACTIONS_FOLDER_NAME}/${extractionMethod}`
   }
-  return `georgeai://legacy//libraries/${libraryId}/files/${fileId}/extractions/${extractionMethod}/fragments/${fragment}`
+  return `georgeai://legacy//${LIBRARIES_FOLDER_NAME}/${libraryId}/files/${fileId}/${EXTRACTIONS_FOLDER_NAME}/${extractionMethod}/${FRAGMENTS_FOLDER_NAME}/${fragment}`
 }

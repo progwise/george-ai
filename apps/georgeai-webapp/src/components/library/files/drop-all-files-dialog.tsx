@@ -16,7 +16,7 @@ export const DropAllFilesDialog = ({ libraryId, totalItems }: DropAllFilesDialog
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
-  const { dropAllFiles, isPending } = useLibraryActions(libraryId)
+  const { dropAllDocuments, isPending } = useLibraryActions(libraryId)
 
   const textOfDropButton = t('actions.dropAllFiles')
 
@@ -34,7 +34,7 @@ export const DropAllFilesDialog = ({ libraryId, totalItems }: DropAllFilesDialog
         title={t('libraries.dropAllFilesDialog')}
         description={t('texts.dropAllFilesDialogDescription')}
         onSubmit={() => {
-          dropAllFiles(libraryId)
+          dropAllDocuments(libraryId)
         }}
         submitButtonText={textOfDropButton}
       >

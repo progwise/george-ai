@@ -61,6 +61,7 @@ import { Route as AuthenticatedLibrariesLibraryIdFilesFileIdIndexRouteImport } f
 import { Route as AuthenticatedLibrariesLibraryIdCrawlersCrawlerIdIndexRouteImport } from './routes/_authenticated/libraries/$libraryId/crawlers/$crawlerId/index'
 import { Route as AuthenticatedLibrariesLibraryIdFilesFileIdTasksRouteImport } from './routes/_authenticated/libraries/$libraryId/files/$fileId/tasks'
 import { Route as AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRouteImport } from './routes/_authenticated/libraries/$libraryId/files/$fileId/similarity'
+import { Route as AuthenticatedLibrariesLibraryIdFilesFileIdFilesRouteImport } from './routes/_authenticated/libraries/$libraryId/files/$fileId/files'
 import { Route as AuthenticatedLibrariesLibraryIdFilesFileIdChunksRouteImport } from './routes/_authenticated/libraries/$libraryId/files/$fileId/chunks'
 import { Route as AuthenticatedLibrariesLibraryIdCrawlersCrawlerIdRunsRouteRouteImport } from './routes/_authenticated/libraries/$libraryId/crawlers/$crawlerId/runs/route'
 import { Route as AuthenticatedLibrariesLibraryIdCrawlersCrawlerIdRunsIndexRouteImport } from './routes/_authenticated/libraries/$libraryId/crawlers/$crawlerId/runs/index'
@@ -372,6 +373,12 @@ const AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRoute =
     path: '/files/$fileId/similarity',
     getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
   } as any)
+const AuthenticatedLibrariesLibraryIdFilesFileIdFilesRoute =
+  AuthenticatedLibrariesLibraryIdFilesFileIdFilesRouteImport.update({
+    id: '/files/$fileId/files',
+    path: '/files/$fileId/files',
+    getParentRoute: () => AuthenticatedLibrariesLibraryIdRouteRoute,
+  } as any)
 const AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute =
   AuthenticatedLibrariesLibraryIdFilesFileIdChunksRouteImport.update({
     id: '/files/$fileId/chunks',
@@ -452,6 +459,7 @@ export interface FileRoutesByFullPath {
   '/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesIndexRoute
   '/libraries/$libraryId/crawlers/$crawlerId/runs': typeof AuthenticatedLibrariesLibraryIdCrawlersCrawlerIdRunsRouteRouteWithChildren
   '/libraries/$libraryId/files/$fileId/chunks': typeof AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute
+  '/libraries/$libraryId/files/$fileId/files': typeof AuthenticatedLibrariesLibraryIdFilesFileIdFilesRoute
   '/libraries/$libraryId/files/$fileId/similarity': typeof AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRoute
   '/libraries/$libraryId/files/$fileId/tasks': typeof AuthenticatedLibrariesLibraryIdFilesFileIdTasksRoute
   '/libraries/$libraryId/crawlers/$crawlerId/': typeof AuthenticatedLibrariesLibraryIdCrawlersCrawlerIdIndexRoute
@@ -501,6 +509,7 @@ export interface FileRoutesByTo {
   '/libraries/$libraryId/crawlers': typeof AuthenticatedLibrariesLibraryIdCrawlersIndexRoute
   '/libraries/$libraryId/files': typeof AuthenticatedLibrariesLibraryIdFilesIndexRoute
   '/libraries/$libraryId/files/$fileId/chunks': typeof AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute
+  '/libraries/$libraryId/files/$fileId/files': typeof AuthenticatedLibrariesLibraryIdFilesFileIdFilesRoute
   '/libraries/$libraryId/files/$fileId/similarity': typeof AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRoute
   '/libraries/$libraryId/files/$fileId/tasks': typeof AuthenticatedLibrariesLibraryIdFilesFileIdTasksRoute
   '/libraries/$libraryId/crawlers/$crawlerId': typeof AuthenticatedLibrariesLibraryIdCrawlersCrawlerIdIndexRoute
@@ -560,6 +569,7 @@ export interface FileRoutesById {
   '/_authenticated/libraries/$libraryId/files/': typeof AuthenticatedLibrariesLibraryIdFilesIndexRoute
   '/_authenticated/libraries/$libraryId/crawlers/$crawlerId/runs': typeof AuthenticatedLibrariesLibraryIdCrawlersCrawlerIdRunsRouteRouteWithChildren
   '/_authenticated/libraries/$libraryId/files/$fileId/chunks': typeof AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute
+  '/_authenticated/libraries/$libraryId/files/$fileId/files': typeof AuthenticatedLibrariesLibraryIdFilesFileIdFilesRoute
   '/_authenticated/libraries/$libraryId/files/$fileId/similarity': typeof AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRoute
   '/_authenticated/libraries/$libraryId/files/$fileId/tasks': typeof AuthenticatedLibrariesLibraryIdFilesFileIdTasksRoute
   '/_authenticated/libraries/$libraryId/crawlers/$crawlerId/': typeof AuthenticatedLibrariesLibraryIdCrawlersCrawlerIdIndexRoute
@@ -619,6 +629,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/files'
     | '/libraries/$libraryId/crawlers/$crawlerId/runs'
     | '/libraries/$libraryId/files/$fileId/chunks'
+    | '/libraries/$libraryId/files/$fileId/files'
     | '/libraries/$libraryId/files/$fileId/similarity'
     | '/libraries/$libraryId/files/$fileId/tasks'
     | '/libraries/$libraryId/crawlers/$crawlerId/'
@@ -668,6 +679,7 @@ export interface FileRouteTypes {
     | '/libraries/$libraryId/crawlers'
     | '/libraries/$libraryId/files'
     | '/libraries/$libraryId/files/$fileId/chunks'
+    | '/libraries/$libraryId/files/$fileId/files'
     | '/libraries/$libraryId/files/$fileId/similarity'
     | '/libraries/$libraryId/files/$fileId/tasks'
     | '/libraries/$libraryId/crawlers/$crawlerId'
@@ -726,6 +738,7 @@ export interface FileRouteTypes {
     | '/_authenticated/libraries/$libraryId/files/'
     | '/_authenticated/libraries/$libraryId/crawlers/$crawlerId/runs'
     | '/_authenticated/libraries/$libraryId/files/$fileId/chunks'
+    | '/_authenticated/libraries/$libraryId/files/$fileId/files'
     | '/_authenticated/libraries/$libraryId/files/$fileId/similarity'
     | '/_authenticated/libraries/$libraryId/files/$fileId/tasks'
     | '/_authenticated/libraries/$libraryId/crawlers/$crawlerId/'
@@ -1107,6 +1120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRouteImport
       parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteRoute
     }
+    '/_authenticated/libraries/$libraryId/files/$fileId/files': {
+      id: '/_authenticated/libraries/$libraryId/files/$fileId/files'
+      path: '/files/$fileId/files'
+      fullPath: '/libraries/$libraryId/files/$fileId/files'
+      preLoaderRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdFilesRouteImport
+      parentRoute: typeof AuthenticatedLibrariesLibraryIdRouteRoute
+    }
     '/_authenticated/libraries/$libraryId/files/$fileId/chunks': {
       id: '/_authenticated/libraries/$libraryId/files/$fileId/chunks'
       path: '/files/$fileId/chunks'
@@ -1270,6 +1290,7 @@ interface AuthenticatedLibrariesLibraryIdRouteRouteChildren {
   AuthenticatedLibrariesLibraryIdIndexRoute: typeof AuthenticatedLibrariesLibraryIdIndexRoute
   AuthenticatedLibrariesLibraryIdFilesIndexRoute: typeof AuthenticatedLibrariesLibraryIdFilesIndexRoute
   AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute
+  AuthenticatedLibrariesLibraryIdFilesFileIdFilesRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdFilesRoute
   AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRoute
   AuthenticatedLibrariesLibraryIdFilesFileIdTasksRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdTasksRoute
   AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute: typeof AuthenticatedLibrariesLibraryIdFilesFileIdIndexRoute
@@ -1293,6 +1314,8 @@ const AuthenticatedLibrariesLibraryIdRouteRouteChildren: AuthenticatedLibrariesL
       AuthenticatedLibrariesLibraryIdFilesIndexRoute,
     AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute:
       AuthenticatedLibrariesLibraryIdFilesFileIdChunksRoute,
+    AuthenticatedLibrariesLibraryIdFilesFileIdFilesRoute:
+      AuthenticatedLibrariesLibraryIdFilesFileIdFilesRoute,
     AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRoute:
       AuthenticatedLibrariesLibraryIdFilesFileIdSimilarityRoute,
     AuthenticatedLibrariesLibraryIdFilesFileIdTasksRoute:

@@ -1,5 +1,6 @@
 import { logger } from '../common'
 
+import './document-file'
 import './queries'
 import './mutations'
 import './file-chunks-selector'

@@ -22,7 +22,17 @@ export const FileNavigation = ({ fileId, libraryId }: FileNavigationProps) => {
         to="/libraries/$libraryId/files/$fileId"
         params={{ libraryId, fileId }}
       >
-        {t('labels.markdown')}
+        {t('labels.extractions')}
+      </Link>
+      <Link
+        className="tab"
+        activeOptions={{ exact: true, includeSearch: false }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId/files"
+        params={{ libraryId, fileId }}
+      >
+        {t('labels.files')}
       </Link>
       <Link
         className="tab"

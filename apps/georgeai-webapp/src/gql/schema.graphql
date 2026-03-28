@@ -988,6 +988,45 @@ type DocumentExtractionRequest implements EventQueueRequest {
 }
 
 """
+Files inside the document folder
+"""
+type DocumentFile {
+  documentId: String!
+  extractionMethod: ExtractionMethod
+  fileName: String!
+  fileType: DocumentFileType!
+  fileUri: String!
+  isAnalysis: Boolean!
+  isAttachment: Boolean!
+  isBackup: Boolean!
+  isDocumentRoot: Boolean!
+  isDocumentSourceFile: Boolean!
+  isExtractionMain: Boolean!
+  isExtractionPart: Boolean!
+  isManifest: Boolean!
+  libraryId: String!
+  mimeType: String
+  modified: DateTime
+  relativePath: String!
+  size: Int!
+  workspaceId: String!
+}
+
+"""
+Type of the document file
+"""
+enum DocumentFileType {
+  analysis
+  attachment
+  backup
+  extractionMain
+  extractionPart
+  manifest
+  source
+  unknown
+}
+
+"""
 Information about a file stored in the AI library
 """
 type DocumentManifest {
@@ -1207,7 +1246,7 @@ type FieldValueResult {
 }
 
 """
-Response type for files query
+Response type for documents query
 """
 type FilesQueryResponse {
   """
@@ -1573,8 +1612,8 @@ type Mutation {
   deleteAiLibraryCrawler(id: String!): AiLibraryCrawler
   deleteAutomation(id: ID!): Boolean!
   deleteConnector(id: ID!): Boolean!
-  deleteFile(fileId: String!, libraryId: String!): AiLibraryFile!
-  deleteFiles(fileIds: [ID!]!, libraryId: String!): Int!
+  deleteDocument(documentId: String!, libraryId: String!): AiLibraryFile!
+  deleteDocuments(documentIds: [ID!]!, libraryId: String!): Int!
   deleteLibrary(libraryId: String!): Boolean!
   deleteList(id: String!): AiList!
   deleteMessage(messageId: String!): AiConversationMessage
@@ -1645,6 +1684,7 @@ type Mutation {
     extractionMethod: ExtractionMethod
     libraryId: String!
   ): TriggerExtractionResult!
+  triggerFileAnalysis(fileName: String!, fileUri: String!, mimeType: String!): TriggerFileAnalysisResult!
   triggerVectorization(
     """
     IDs of the document to process
@@ -1772,6 +1812,7 @@ type Query {
   connectors(connectorType: String): [AiConnector!]!
   countFiles(libraryId: String!, namePrefix: String, originUriPrefix: String, showArchived: Boolean!): Int!
   currentUser: CurrentUser!
+  document(fileId: String!, libraryId: String!): AiLibraryFile!
   documentChunks(
     documentId: String!
     extractionMethod: ExtractionMethod
@@ -1780,6 +1821,15 @@ type Query {
     libraryId: String!
     take: Int
   ): VectorStoreChunkResponse
+  documentFiles(documentId: String!, libraryId: String!): [DocumentFile!]!
+  documents(
+    libraryId: String
+    showArchived: Boolean = false
+    skip: Int
+    sortField: LibraryFilesSortField = createdAt
+    sortOrder: SortOrder = desc
+    take: Int
+  ): FilesQueryResponse!
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
   eventQueueRequests(
     action: EventQueueAction!
@@ -1788,15 +1838,6 @@ type Query {
     workspaceId: String!
   ): EventQueueRequestsResult!
   extraction(extractionMethod: ExtractionMethod, fileId: String!, libraryId: String!): ExtractionManifest
-  file(fileId: String!, libraryId: String!): AiLibraryFile!
-  files(
-    libraryId: String
-    showArchived: Boolean = false
-    skip: Int
-    sortField: LibraryFilesSortField = createdAt
-    sortOrder: SortOrder = desc
-    take: Int
-  ): FilesQueryResponse!
   inferenceHostConfig: [InferenceHostConfig!]!
   inferenceHostState: [InferenceHostState!]!
   inferenceModelState: [InferenceModelState!]!
@@ -1830,7 +1871,12 @@ type Query {
     take: Int = 20
   ): AiLanguageModelsResult!
   myWorkspaceInvitations: [WorkspaceInvitation!]!
-  queryFileChunks(query: String!, selector: DocumentChunksSelector!, skip: Int, take: Int): DocumentChunksQueryResult!
+  queryDocumentChunks(
+    query: String!
+    selector: DocumentChunksSelector!
+    skip: Int
+    take: Int
+  ): DocumentChunksQueryResult!
   similarChunks(
     documentId: String
     fragment: Int
@@ -1935,6 +1981,10 @@ type TriggerAutomationResult {
 type TriggerExtractionResult {
   documentManifest: DocumentManifest!
   extractionMethod: ExtractionMethod
+  success: Boolean!
+}
+
+type TriggerFileAnalysisResult {
   success: Boolean!
 }
 

@@ -1,2 +1,2 @@
-import './delete-files'
+import './delete-documents'
 import './delete'

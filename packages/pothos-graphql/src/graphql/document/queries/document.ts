@@ -6,7 +6,7 @@ import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { builder } from '../../builder'
 import { logger } from '../../common'
 
-builder.queryField('file', (t) => {
+builder.queryField('document', (t) => {
   return t.withAuth({ isLoggedIn: true }).prismaField({
     type: 'AiLibraryFile',
     nullable: false,

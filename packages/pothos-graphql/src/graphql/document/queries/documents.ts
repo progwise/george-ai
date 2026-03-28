@@ -17,7 +17,7 @@ const responseType = builder
     archivedCount: number
   }>('FilesQueryResponse')
   .implement({
-    description: 'Response type for files query',
+    description: 'Response type for documents query',
     fields: (t) => ({
       items: t.withAuth({ isLoggedIn: true }).prismaField({
         type: ['AiLibraryFile'],
@@ -48,7 +48,7 @@ const responseType = builder
       }),
     }),
   })
-builder.queryField('files', (t) =>
+builder.queryField('documents', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: responseType,
     nullable: false,

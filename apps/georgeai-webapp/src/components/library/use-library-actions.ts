@@ -7,16 +7,16 @@ import { toastError, toastSuccess } from '../georgeToaster'
 import { logger } from './common'
 import {
   getDocumentChunksQueryOptions,
-  getFilesQueryOptions,
+  getDocumentsQueryOptions,
   getLibrariesQueryOptions,
   getLibraryQueryOptions,
 } from './queries'
 import {
   cancelFileUploadFn,
-  deleteLibraryFileFn,
-  deleteLibraryFilesFn,
+  deleteDocumentFn,
+  deleteDocumentsFn,
   deleteLibraryFn,
-  dropAllLibraryFilesFn,
+  dropAllLibraryDocumentsFn,
   prepareDesktopFileUploadsFn,
   triggerExtractionFn,
   triggerVectorizationFn,
@@ -37,7 +37,7 @@ export const useLibraryActions = (libraryId: string) => {
           )
         : []),
       queryClient.invalidateQueries({
-        queryKey: getFilesQueryOptions({
+        queryKey: getDocumentsQueryOptions({
           libraryId,
           skip: skip || 0,
           take: take || 20,
@@ -83,11 +83,11 @@ export const useLibraryActions = (libraryId: string) => {
     },
   })
 
-  const deleteFileMutation = useMutation({
-    mutationFn: (fileId: string) => deleteLibraryFileFn({ data: { libraryId, fileId } }),
+  const deleteDocumentMutation = useMutation({
+    mutationFn: (documentId: string) => deleteDocumentFn({ data: { libraryId, documentId } }),
     onError: (error: Error) => {
       const errorMessage = error instanceof Error ? `${error.message}: ${error.cause}` : ''
-      toastError(t('errors.dropFile', { error: errorMessage }))
+      toastError(t('errors.dropDocument', { error: errorMessage }))
     },
     onSuccess: (data) => {
       toastSuccess(t('actions.dropSuccess', { count: 1 }) + `: ${data.name}`)
@@ -97,23 +97,23 @@ export const useLibraryActions = (libraryId: string) => {
     },
   })
 
-  const deleteFilesMutation = useMutation({
-    mutationFn: async (fileIds: string[]) => deleteLibraryFilesFn({ data: { libraryId, fileIds } }),
+  const deleteDocumentsMutation = useMutation({
+    mutationFn: async (documentIds: string[]) => deleteDocumentsFn({ data: { libraryId, documentIds } }),
     onSuccess: (data) => {
-      toastSuccess(t('actions.dropSuccess', { count: data.deleteFiles }))
+      toastSuccess(t('actions.dropSuccess', { count: data.deleteDocuments }))
     },
     onError: (error) => {
-      toastError(t('errors.dropFilesError', { error: error instanceof Error ? error.message : '' }))
+      toastError(t('errors.dropDocumentsError', { error: error instanceof Error ? error.message : '' }))
     },
     onSettled: () => {
       invalidateQueries()
     },
   })
 
-  const dropFilesMutation = useMutation({
-    mutationFn: async (libraryId: string) => dropAllLibraryFilesFn({ data: { libraryId } }),
+  const dropDocumentsMutation = useMutation({
+    mutationFn: async (libraryId: string) => dropAllLibraryDocumentsFn({ data: { libraryId } }),
     onError: () => {
-      toastError(t('errors.dropAllFilesError'))
+      toastError(t('errors.dropAllDocumentsError'))
     },
     onSuccess: (data) => {
       toastSuccess(t('actions.dropSuccess', { count: data.clearFiles }))
@@ -163,9 +163,9 @@ export const useLibraryActions = (libraryId: string) => {
   return {
     updateLibrary: updateLibraryMutation.mutate,
     deleteLibrary: deleteLibraryMutation.mutate,
-    deleteFile: deleteFileMutation.mutate,
-    deleteFiles: deleteFilesMutation.mutate,
-    dropAllFiles: dropFilesMutation.mutate,
+    deleteDocument: deleteDocumentMutation.mutate,
+    deleteDocuments: deleteDocumentsMutation.mutate,
+    dropAllDocuments: dropDocumentsMutation.mutate,
     triggerExtraction: triggerExtractionMutation.mutate,
     triggerVectorization: triggerVectorizationMutation.mutate,
     prepareDesktopFileUploads: prepareDesktopFileUploadsMutate,
@@ -173,9 +173,9 @@ export const useLibraryActions = (libraryId: string) => {
     isPending:
       updateLibraryMutation.isPending ||
       deleteLibraryMutation.isPending ||
-      deleteFileMutation.isPending ||
-      deleteFilesMutation.isPending ||
-      dropFilesMutation.isPending ||
+      deleteDocumentMutation.isPending ||
+      deleteDocumentsMutation.isPending ||
+      dropDocumentsMutation.isPending ||
       cancelFileUploadPending ||
       prepareDesktopFilesIsPending ||
       triggerExtractionMutation.isPending ||

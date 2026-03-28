@@ -15,8 +15,8 @@ const getDocumentFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getFile($fileId: String!, $libraryId: String!) {
-          file(fileId: $fileId, libraryId: $libraryId) {
+        query getDocument($fileId: String!, $libraryId: String!) {
+          document(fileId: $fileId, libraryId: $libraryId) {
             ...FileCaptionCard_File
             id
             createdAt
@@ -54,7 +54,7 @@ const getDocumentFn = createServerFn({ method: 'GET' })
       `),
       data,
     )
-    return result.file
+    return result.document
   })
 
 export const getDocumentQueryOptions = (parameters: { fileId: string; libraryId: string }) => {

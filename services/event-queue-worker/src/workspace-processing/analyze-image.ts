@@ -15,15 +15,12 @@ import { getInferenceModelConnection } from '../invoke-fulfillment/common'
 
 export async function analyzeImage(request: AnalyzeImageRequest): Promise<void> {
   logger.debug('Starting image analysis', request)
-  const { workspaceId, libraryId, documentId, extractionMethod, fileName, mimeType } = request
+  const { workspaceId, fileName, mimeType } = request
 
   const statusEvent: AnalyzeImageStatus = {
     version: 1,
     workspaceId,
     action: 'analyzeImage',
-    libraryId,
-    documentId,
-    extractionMethod,
     status: 'started',
     timestamp: new Date(),
     message: `Worker started processing image analysis`,
@@ -43,7 +40,6 @@ export async function analyzeImage(request: AnalyzeImageRequest): Promise<void> 
   const visionSettings = workspaceSettings?.vision
   if (!visionSettings) {
     logger.info('Image analysis settings not found for library, skipping image analysis provider call', {
-      libraryId,
       workspaceId,
     })
     await publish({
@@ -110,6 +106,7 @@ Your goal is to transcribe images into Markdown.
     modelOptions: { think: false },
   })
 
+  const { documentId, libraryId, extractionMethod } = parseUri(request.imageUri)
   const identifier = getIdentifier({ workspaceId, libraryId, documentId, extractionMethod })
 
   const analysisWriter = await getAnalysisWriter(identifier, {
@@ -120,16 +117,7 @@ Your goal is to transcribe images into Markdown.
 
   try {
     const startDate = new Date()
-    await analysisWriter.write(`## Start Image Analysis
-| | |
-|-|-|
-| **File Name** | ${fileName} |
-| **MIME Type** | ${mimeType} |
-| **Inference Driver** | ${visionSettings.modelDriver} |
-| **Inference Model** | ${visionSettings.modelName} |
-| **Timestamp** | ${startDate.toISOString()} |
 
-    `)
     await publish({
       ...statusEvent,
       timestamp: new Date(),
@@ -141,10 +129,28 @@ Your goal is to transcribe images into Markdown.
     for await (const chunk of analysisStream) {
       if (!chunk.completionLine) continue
       analysisResults.push(chunk.completionLine)
-      await analysisWriter.write(chunk.completionLine + '\n')
     }
 
-    console.log('Full analysis results:', analysisResults.join('\n'))
+    const endDate = new Date()
+    const durationSeconds = ((endDate.getTime() - startDate.getTime()) / 1000).toFixed(2)
+
+    const rawOutput = analysisResults.join('\n')
+    logger.debug('Full analysis results', { rawOutput })
+    const content = rawOutput.replace(/(\|[^\n]*)\n\n+(?=\|)/g, '$1\n')
+
+    await analysisWriter.write(
+      `---
+fileName: ${fileName}
+mimeType: ${mimeType}
+driver: ${visionSettings.modelDriver}
+model: ${visionSettings.modelName}
+analyzedAt: ${endDate.toISOString()}
+durationSeconds: ${durationSeconds}
+---
+
+${content}
+`,
+    )
 
     await publish({
       ...statusEvent,
@@ -152,22 +158,6 @@ Your goal is to transcribe images into Markdown.
       message: `Finished writing analysis results, image analysis completed successfully with provider ${visionSettings.modelDriver} and model ${visionSettings.modelName}.`,
       status: 'progress',
     })
-
-    await analysisWriter.write(
-      `
-End of Image Analysis
-
-| | |
-|-|-|
-| **File Name** | ${fileName} |
-| **MIME Type** | ${mimeType} |
-| **Inference Driver** | ${visionSettings.modelDriver} |
-| **Inference Model** | ${visionSettings.modelName} |
-| **Timestamp** | ${new Date()} |
-| **Duration** | ${((new Date().getTime() - startDate.getTime()) / 1000).toFixed(2)} seconds |
-
-    Successfully analyzed image with provider ${visionSettings.modelDriver} and model ${visionSettings.modelName}.`,
-    )
 
     logger.debug('Image analysis provider call succeeded', {
       documentId,
