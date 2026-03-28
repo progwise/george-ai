@@ -4,12 +4,10 @@ import { getStreamSubjects } from './subject'
 
 export * from './invoke'
 export * from './publish'
-export * from './subscribe'
 export * from './schema'
 export * from './fulfill'
 export * from './view'
-
-export { pauseEventProcessing, resumeEventProcessing, eventProcessingStatus } from './consumer'
+export * from './subscribe'
 
 export async function ensureActionStream() {
   const subjects = getStreamSubjects()

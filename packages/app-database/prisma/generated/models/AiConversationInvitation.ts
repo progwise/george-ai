@@ -212,17 +212,18 @@ export type AiConversationInvitationGroupByOutputType = {
   _max: AiConversationInvitationMaxAggregateOutputType | null
 }
 
-type GetAiConversationInvitationGroupByPayload<T extends AiConversationInvitationGroupByArgs> = Prisma.PrismaPromise<
-  Array<
-    Prisma.PickEnumerable<AiConversationInvitationGroupByOutputType, T['by']> & {
-      [P in keyof T & keyof AiConversationInvitationGroupByOutputType]: P extends '_count'
-        ? T[P] extends boolean
-          ? number
+export type GetAiConversationInvitationGroupByPayload<T extends AiConversationInvitationGroupByArgs> =
+  Prisma.PrismaPromise<
+    Array<
+      Prisma.PickEnumerable<AiConversationInvitationGroupByOutputType, T['by']> & {
+        [P in keyof T & keyof AiConversationInvitationGroupByOutputType]: P extends '_count'
+          ? T[P] extends boolean
+            ? number
+            : Prisma.GetScalarType<T[P], AiConversationInvitationGroupByOutputType[P]>
           : Prisma.GetScalarType<T[P], AiConversationInvitationGroupByOutputType[P]>
-        : Prisma.GetScalarType<T[P], AiConversationInvitationGroupByOutputType[P]>
-    }
+      }
+    >
   >
->
 
 export type AiConversationInvitationWhereInput = {
   AND?: Prisma.AiConversationInvitationWhereInput | Prisma.AiConversationInvitationWhereInput[]

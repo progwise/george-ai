@@ -12,12 +12,15 @@ import {
 } from 'nats'
 import z from 'zod'
 
-import { createLogger, matchGlobPattern } from '@george-ai/app-commons'
+import { createLogger } from '@george-ai/app-commons'
 import { EventQueueStatus } from '@george-ai/app-schema'
 
 import { EventClient, EventClientConfig } from './event-client'
 
 const logger = createLogger('NATS Client')
+
+const MAX_DELIVERY_ATTEMPTS = 3
+const MAX_ACK_WAIT_MS = 120000
 
 /**
  * NATS JetStream client for George AI events
@@ -387,7 +390,7 @@ export class NatsClient implements EventClient {
   async startWorkerLoop<T extends z.ZodTypeAny>(params: {
     schema: T
     streamName: string
-    consumerGlobPattern: string
+    subjectFilters: string[]
     handler: (params: { subject: string; event: z.infer<T> }) => Promise<void>
   }): Promise<() => Promise<void>> {
     if (!this.js || !this.jsm) {
@@ -395,13 +398,13 @@ export class NatsClient implements EventClient {
       throw new Error('Not connected to NATS')
     }
 
-    const { schema, streamName, consumerGlobPattern, handler } = params
+    const { schema, streamName, subjectFilters, handler } = params
 
     const abortController = new AbortController()
     const signal = abortController.signal
 
-    logger.debug('Starting worker loop', { streamName, consumerGlobPattern })
-    const processingLoop = this.processWorkerLoop({ schema, streamName, consumerGlobPattern, handler, signal }).catch(
+    logger.debug('Starting worker loop', { streamName, subjectFilters })
+    const processingLoop = this.processWorkerLoop({ schema, streamName, subjectFilters, handler, signal }).catch(
       (error) => {
         logger.error('Error in worker processing loop', { error, params })
       },
@@ -414,10 +417,104 @@ export class NatsClient implements EventClient {
     }
   }
 
+  private generateDeliverGroupName(subjectFilters: string[]): string {
+    if (!subjectFilters || subjectFilters.length === 0) return 'default-group'
+
+    // 1. Split all filters into token arrays
+    const tokenized = subjectFilters.map((f) => f.split('.'))
+
+    // 2. Find the length of the longest filter to ensure we cover everything
+    const maxLen = Math.max(...tokenized.map((t) => t.length))
+    const resultTokens: string[] = []
+
+    for (let i = 0; i < maxLen; i++) {
+      // Get the i-th token from every filter (if it exists)
+      const currentTokens = tokenized.map((t) => t[i])
+
+      // Check if they are all identical and none are wildcards
+      const first = currentTokens[0]
+      const isUniform = currentTokens.every((t) => t === first && t !== '*' && t !== '>')
+
+      if (isUniform && first !== undefined) {
+        resultTokens.push(first)
+      } else {
+        // If there's a mismatch or a wildcard, use 'x'
+        resultTokens.push('x')
+      }
+    }
+
+    // 3. Clean up and format
+    return resultTokens
+      .join('-')
+      .replace(/-+/g, '-') // Remove double hyphens
+      .replace(/^-|-$/g, '') // Trim leading/trailing hyphens
+      .substring(0, 100) // NATS name limit safety
+  }
+
+  private async getEphemeralConsumer(params: {
+    streamName: string
+    deliverGroupName: string
+    subjectFilters: string[]
+  }) {
+    if (!this.js || !this.jsm) {
+      throw new Error('Not connected to NATS')
+    }
+    const { streamName, deliverGroupName, subjectFilters } = params
+    try {
+      return await this.js.consumers.get(streamName, deliverGroupName)
+    } catch (err) {
+      const errorCode = err instanceof Error && 'code' in err ? err.code : null
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error type'
+      if (!errorCode || (errorCode !== '404' && !errorMessage?.includes('not found'))) {
+        logger.error('Error fetching consumer info', {
+          streamName,
+          deliverGroupName,
+          subjectFilters,
+          errorCode,
+          errorMessage,
+        })
+        throw err
+      }
+      logger.warn('Consumer not found, attempting to create ephemeral consumer', {
+        streamName,
+        deliverGroupName,
+        subjectFilters,
+        errorCode,
+        errorMessage,
+      })
+      await this.jsm.consumers
+        .add(streamName, {
+          name: deliverGroupName, // Still use the name for the group identity
+          deliver_policy: DeliverPolicy.All,
+          ack_policy: AckPolicy.Explicit,
+          filter_subjects: subjectFilters,
+          max_ack_pending: 1000,
+          max_deliver: MAX_DELIVERY_ATTEMPTS,
+          ack_wait: MAX_ACK_WAIT_MS * 1e6,
+          inactive_threshold: 120 * 1000 * 1e6, // 2 minutes - auto-delete if not used to prevent buildup of unused consumers
+        })
+        .catch((addError) => {
+          const api_error_code =
+            addError instanceof Error &&
+            'api_error' in addError &&
+            typeof addError.api_error === 'object' &&
+            !!addError.api_error &&
+            'err_code' in addError.api_error
+              ? addError.api_error.err_code
+              : null
+
+          if (api_error_code !== 10148 && api_error_code !== 10096) {
+            throw addError
+          }
+        })
+      return await this.js.consumers.get(streamName, deliverGroupName)
+    }
+  }
+
   private async processWorkerLoop<T extends z.ZodTypeAny>(parameters: {
     schema: T
     streamName: string
-    consumerGlobPattern: string
+    subjectFilters: string[]
     handler: (params: { subject: string; event: z.infer<T> }) => Promise<void>
     signal: AbortSignal
   }): Promise<void> {
@@ -425,109 +522,105 @@ export class NatsClient implements EventClient {
       logger.error('Cannot process worker loop, not connected to NATS', { parameters })
       throw new Error('Not connected to NATS')
     }
-    const { schema, streamName, consumerGlobPattern, signal, handler } = parameters
+    const { schema, streamName, subjectFilters, signal, handler } = parameters
+    const deliverGroupName = this.generateDeliverGroupName(subjectFilters)
 
-    // TODO: use consumer.consume() instead for event-driven handling
-    while (true) {
-      if (signal.aborted) {
-        logger.debug('Worker loop aborted', { parameters })
-        break
-      }
-      const consumers = await this.jsm.consumers
-        .list(streamName)
-        .next()
-        .catch((error) => {
-          logger.warn('Error awaiting consumer list for stream in processsWorker loop. Will retry.', {
-            error,
-            streamName,
-          })
-          return []
-        })
-      logger.debug('Fetched consumers', { streamName, consumersCount: consumers.length })
-      // Filter and randomize to prevent workers from all hitting the same consumer first
-      const shuffledConsumers = consumers
-        .filter((c) => matchGlobPattern(c.name, consumerGlobPattern) && !c.paused)
-        .sort(() => Math.random() - 0.5)
+    while (!signal.aborted) {
+      logger.debug('Ensuring consumer for worker loop', { streamName, deliverGroupName, subjectFilters })
+      try {
+        const consumer = await this.getEphemeralConsumer({ streamName, deliverGroupName, subjectFilters })
 
-      logger.debug('Processing consumers', { streamName, consumerGlobPattern, consumers: shuffledConsumers.length })
+        while (!signal.aborted) {
+          try {
+            const messages = await consumer.fetch({ max_messages: 10, expires: 10000 })
 
-      for (const consumerInfo of shuffledConsumers) {
-        if (signal.aborted) {
-          logger.debug('Worker loop aborted', { streamName, consumerGlobPattern })
-          break
-        }
-        if (consumerInfo.paused) {
-          logger.debug('Skipping paused consumer', { streamName, consumerName: consumerInfo.name })
-          continue
-        }
-        const consumer = await this.js.consumers.get(streamName, consumerInfo.name)
-
-        logger.debug('Fetching message for consumer', {
-          streamName,
-          consumerName: consumerInfo.name,
-          subjects: consumerInfo.config.filter_subjects,
-          pending: consumerInfo.num_pending,
-        })
-        try {
-          const messages = await consumer.fetch({ max_messages: 10, expires: 1000 })
-
-          for await (const msg of messages) {
-            if (signal.aborted) {
-              logger.debug('Worker loop aborted', { streamName, consumerName: consumerInfo.name })
-              break
-            }
-            logger.debug('Received message for consumer', {
-              streamName,
-              subject: msg.subject,
-              consumerName: consumerInfo.name,
-              consumerSUbjects: consumerInfo.config.filter_subjects,
-            })
-
-            try {
-              const raw = new TextDecoder().decode(msg.data)
-              const json = JSON.parse(raw)
-              const event = schema.parse(json)
-              // Call handler
-              await handler({ subject: msg.subject, event })
-              // Acknowledge message
-              msg.ack()
-              logger.debug('Message processed and acknowledged', {
+            for await (const msg of messages) {
+              if (signal.aborted) {
+                logger.debug('Worker loop aborted', { streamName, subjectFilters })
+                break
+              }
+              logger.debug('Received message for consumer', {
                 streamName,
                 subject: msg.subject,
-                consumerName: consumerInfo.name,
+                subjectFilters,
               })
-            } catch (error) {
-              if (error instanceof SyntaxError || error instanceof z.ZodError) {
-                logger.error('Permanent error: malformed payload - removing from stream', { msg, error: error.message })
-                msg.ack() // ACK - stop trying
-              } else if (msg.info.deliveryCount >= (consumerInfo.config.max_deliver || 3)) {
-                // Log and drop the message
-                logger.error('Message reached max delivery attempts, dropping message', {
+
+              try {
+                const raw = new TextDecoder().decode(msg.data)
+                const json = JSON.parse(raw)
+                const event = schema.parse(json)
+                // Call handler
+                await handler({ subject: msg.subject, event })
+                // Acknowledge message
+                msg.ack()
+                logger.debug('Message processed and acknowledged', {
                   streamName,
-                  consumerName: consumerInfo.name,
                   subject: msg.subject,
-                  error,
+                  subjectFilters,
                 })
-                msg.ack() // ACK - stop trying
-              } else {
-                logger.error('Error processing event - will be redelivered', {
-                  streamName,
-                  consumerName: consumerInfo.name,
-                  subject: msg.subject,
-                  error,
-                })
-                // Negative acknowledge to retry later
-                msg.nak()
+              } catch (error) {
+                if (error instanceof SyntaxError || error instanceof z.ZodError) {
+                  logger.error('Permanent error: malformed payload - removing from stream', {
+                    msg,
+                    error: error.message,
+                  })
+                  msg.ack() // ACK - stop trying
+                } else if (msg.info.deliveryCount >= MAX_DELIVERY_ATTEMPTS) {
+                  // Log and drop the message
+                  logger.error('Message reached max delivery attempts, dropping message', {
+                    streamName,
+                    deliverGroupName,
+                    subject: msg.subject,
+                    error,
+                  })
+                  msg.ack() // ACK - stop trying
+                } else {
+                  logger.error('Error processing event - will be redelivered', {
+                    streamName,
+                    deliverGroupName,
+                    subject: msg.subject,
+                    error,
+                  })
+                  // Negative acknowledge to retry later
+                  msg.nak(5000)
+                }
               }
             }
+          } catch (error) {
+            const errorCode = error instanceof Error && 'code' in error ? error.code : null
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error type'
+            if (errorCode === '408' || errorMessage?.includes('timeout')) {
+              continue
+            }
+
+            if (errorCode === '503' || errorCode === '404') {
+              logger.warn('NATS consumer fetch error, likely due to consumer deletion or server issue. Will retry.', {
+                errorCode,
+                errorMessage,
+                streamName,
+                deliverGroupName,
+              })
+              throw error // Let it be retried by outer loop with backoff
+            }
+            logger.error('Error in worker loop fetch, will retry after delay', {
+              errorCode,
+              errorMessage,
+              streamName,
+              deliverGroupName,
+            })
+            await new Promise((resolve) => setTimeout(resolve, 2000)) // Backoff before retrying
           }
-        } catch (error) {
-          logger.debug('no message available', { error, streamName, consumerName: consumerInfo.name })
+          await new Promise((resolve) => setImmediate(resolve))
         }
-        // Yield to the event loop between consumers to allow GC to run
-        await new Promise((resolve) => setImmediate(resolve))
+      } catch (outerError) {
+        logger.error('Outer Error in worker loop, will retry after delay', {
+          outerError,
+          streamName,
+          deliverGroupName,
+          subjectFilters,
+        })
+        await new Promise((resolve) => setTimeout(resolve, 2000))
       }
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Prevent tight loop
     }
   }
 
@@ -631,7 +724,7 @@ export class NatsClient implements EventClient {
   async getMessages<T extends z.ZodTypeAny>(parameters: {
     streamName: string
     schema: T
-    subjectFilter: string
+    subjectFilters: string[]
     startSequence?: number
     take?: number
   }): Promise<{
@@ -643,11 +736,9 @@ export class NatsClient implements EventClient {
       logger.error('Cannot get messages, not connected to NATS', { parameters })
       throw new Error('Not connected to NATS')
     }
-    const { schema, streamName, subjectFilter, startSequence = 1, take = 20 } = parameters
+    const { schema, streamName, subjectFilters, startSequence = 1, take = 20 } = parameters
 
-    const streamInfo = await this.jsm.streams.info(streamName, {
-      subjects_filter: subjectFilter,
-    })
+    const streamInfo = await this.jsm.streams.info(streamName, {})
 
     const totalMessages = streamInfo.state.subjects ? Object.keys(streamInfo.state.subjects).length : 0
 
@@ -662,7 +753,7 @@ export class NatsClient implements EventClient {
     while (messages.length < take && currentSequence <= lastSeq) {
       try {
         const msg = await this.jsm.streams.getMessage(streamName, { seq: currentSequence })
-        if (this.matchesSubjectFilter({ subject: msg.subject, filter: subjectFilter })) {
+        if (subjectFilters.some((filter) => this.matchesSubjectFilter({ subject: msg.subject, filter }))) {
           const raw = textDecoder.decode(msg.data)
           const json = JSON.parse(raw)
           const entry = schema.parse(json)

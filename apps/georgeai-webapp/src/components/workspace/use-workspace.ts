@@ -8,7 +8,6 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { toastError, toastSuccess } from '../georgeToaster'
 import {
-  getEventProcessingStatusQueryOptions,
   getWorkspaceApiKeysQueryOptions,
   getWorkspaceEmbeddingStatisticsQueryOptions,
   getWorkspaceInvitationsQueryOptions,
@@ -58,10 +57,6 @@ export const useWorkspace = (user: CurrentUserFragment) => {
 
   const { isLoading: isLoadingVectorStore } = useQuery(
     getWorkspaceVectorStoreQueryOptions({ workspaceId: currentWorkspace?.id }),
-  )
-
-  const { data: processingStatus, isLoading: isLoadingProcessingStatus } = useQuery(
-    getEventProcessingStatusQueryOptions({ workspaceId: currentWorkspace?.id }),
   )
 
   // Set workspace and update cookie
@@ -280,7 +275,6 @@ export const useWorkspace = (user: CurrentUserFragment) => {
   return {
     workspaces: workspaces,
     embeddingStatistics,
-    processingStatus,
     currentWorkspace,
     currentWorkspaceId: currentWorkspace?.id || null,
     generateApiKey: generateApiKeyMutation.mutate,
@@ -308,7 +302,6 @@ export const useWorkspace = (user: CurrentUserFragment) => {
       isLoadingInvitations ||
       isLoadingEmbeddingStatistics ||
       isLoadingCurrentWorkspace ||
-      isLoadingProcessingStatus ||
       isLoadingVectorStore ||
       isLoadingManifest,
     isPending:

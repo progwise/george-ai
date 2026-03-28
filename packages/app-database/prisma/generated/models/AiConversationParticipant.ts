@@ -163,17 +163,18 @@ export type AiConversationParticipantGroupByOutputType = {
   _max: AiConversationParticipantMaxAggregateOutputType | null
 }
 
-type GetAiConversationParticipantGroupByPayload<T extends AiConversationParticipantGroupByArgs> = Prisma.PrismaPromise<
-  Array<
-    Prisma.PickEnumerable<AiConversationParticipantGroupByOutputType, T['by']> & {
-      [P in keyof T & keyof AiConversationParticipantGroupByOutputType]: P extends '_count'
-        ? T[P] extends boolean
-          ? number
+export type GetAiConversationParticipantGroupByPayload<T extends AiConversationParticipantGroupByArgs> =
+  Prisma.PrismaPromise<
+    Array<
+      Prisma.PickEnumerable<AiConversationParticipantGroupByOutputType, T['by']> & {
+        [P in keyof T & keyof AiConversationParticipantGroupByOutputType]: P extends '_count'
+          ? T[P] extends boolean
+            ? number
+            : Prisma.GetScalarType<T[P], AiConversationParticipantGroupByOutputType[P]>
           : Prisma.GetScalarType<T[P], AiConversationParticipantGroupByOutputType[P]>
-        : Prisma.GetScalarType<T[P], AiConversationParticipantGroupByOutputType[P]>
-    }
+      }
+    >
   >
->
 
 export type AiConversationParticipantWhereInput = {
   AND?: Prisma.AiConversationParticipantWhereInput | Prisma.AiConversationParticipantWhereInput[]

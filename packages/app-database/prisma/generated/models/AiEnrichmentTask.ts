@@ -234,7 +234,7 @@ export type AiEnrichmentTaskGroupByOutputType = {
   _max: AiEnrichmentTaskMaxAggregateOutputType | null
 }
 
-type GetAiEnrichmentTaskGroupByPayload<T extends AiEnrichmentTaskGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiEnrichmentTaskGroupByPayload<T extends AiEnrichmentTaskGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiEnrichmentTaskGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiEnrichmentTaskGroupByOutputType]: P extends '_count'

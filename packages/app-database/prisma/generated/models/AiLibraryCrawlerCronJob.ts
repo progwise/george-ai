@@ -263,17 +263,18 @@ export type AiLibraryCrawlerCronJobGroupByOutputType = {
   _max: AiLibraryCrawlerCronJobMaxAggregateOutputType | null
 }
 
-type GetAiLibraryCrawlerCronJobGroupByPayload<T extends AiLibraryCrawlerCronJobGroupByArgs> = Prisma.PrismaPromise<
-  Array<
-    Prisma.PickEnumerable<AiLibraryCrawlerCronJobGroupByOutputType, T['by']> & {
-      [P in keyof T & keyof AiLibraryCrawlerCronJobGroupByOutputType]: P extends '_count'
-        ? T[P] extends boolean
-          ? number
+export type GetAiLibraryCrawlerCronJobGroupByPayload<T extends AiLibraryCrawlerCronJobGroupByArgs> =
+  Prisma.PrismaPromise<
+    Array<
+      Prisma.PickEnumerable<AiLibraryCrawlerCronJobGroupByOutputType, T['by']> & {
+        [P in keyof T & keyof AiLibraryCrawlerCronJobGroupByOutputType]: P extends '_count'
+          ? T[P] extends boolean
+            ? number
+            : Prisma.GetScalarType<T[P], AiLibraryCrawlerCronJobGroupByOutputType[P]>
           : Prisma.GetScalarType<T[P], AiLibraryCrawlerCronJobGroupByOutputType[P]>
-        : Prisma.GetScalarType<T[P], AiLibraryCrawlerCronJobGroupByOutputType[P]>
-    }
+      }
+    >
   >
->
 
 export type AiLibraryCrawlerCronJobWhereInput = {
   AND?: Prisma.AiLibraryCrawlerCronJobWhereInput | Prisma.AiLibraryCrawlerCronJobWhereInput[]

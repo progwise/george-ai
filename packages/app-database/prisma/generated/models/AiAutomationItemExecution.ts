@@ -176,17 +176,18 @@ export type AiAutomationItemExecutionGroupByOutputType = {
   _max: AiAutomationItemExecutionMaxAggregateOutputType | null
 }
 
-type GetAiAutomationItemExecutionGroupByPayload<T extends AiAutomationItemExecutionGroupByArgs> = Prisma.PrismaPromise<
-  Array<
-    Prisma.PickEnumerable<AiAutomationItemExecutionGroupByOutputType, T['by']> & {
-      [P in keyof T & keyof AiAutomationItemExecutionGroupByOutputType]: P extends '_count'
-        ? T[P] extends boolean
-          ? number
+export type GetAiAutomationItemExecutionGroupByPayload<T extends AiAutomationItemExecutionGroupByArgs> =
+  Prisma.PrismaPromise<
+    Array<
+      Prisma.PickEnumerable<AiAutomationItemExecutionGroupByOutputType, T['by']> & {
+        [P in keyof T & keyof AiAutomationItemExecutionGroupByOutputType]: P extends '_count'
+          ? T[P] extends boolean
+            ? number
+            : Prisma.GetScalarType<T[P], AiAutomationItemExecutionGroupByOutputType[P]>
           : Prisma.GetScalarType<T[P], AiAutomationItemExecutionGroupByOutputType[P]>
-        : Prisma.GetScalarType<T[P], AiAutomationItemExecutionGroupByOutputType[P]>
-    }
+      }
+    >
   >
->
 
 export type AiAutomationItemExecutionWhereInput = {
   AND?: Prisma.AiAutomationItemExecutionWhereInput | Prisma.AiAutomationItemExecutionWhereInput[]

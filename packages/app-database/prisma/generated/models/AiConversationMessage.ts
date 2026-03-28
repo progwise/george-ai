@@ -224,7 +224,7 @@ export type AiConversationMessageGroupByOutputType = {
   _max: AiConversationMessageMaxAggregateOutputType | null
 }
 
-type GetAiConversationMessageGroupByPayload<T extends AiConversationMessageGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiConversationMessageGroupByPayload<T extends AiConversationMessageGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiConversationMessageGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiConversationMessageGroupByOutputType]: P extends '_count'

@@ -156,17 +156,18 @@ export type AiConnectorTypeWorkspaceGroupByOutputType = {
   _max: AiConnectorTypeWorkspaceMaxAggregateOutputType | null
 }
 
-type GetAiConnectorTypeWorkspaceGroupByPayload<T extends AiConnectorTypeWorkspaceGroupByArgs> = Prisma.PrismaPromise<
-  Array<
-    Prisma.PickEnumerable<AiConnectorTypeWorkspaceGroupByOutputType, T['by']> & {
-      [P in keyof T & keyof AiConnectorTypeWorkspaceGroupByOutputType]: P extends '_count'
-        ? T[P] extends boolean
-          ? number
+export type GetAiConnectorTypeWorkspaceGroupByPayload<T extends AiConnectorTypeWorkspaceGroupByArgs> =
+  Prisma.PrismaPromise<
+    Array<
+      Prisma.PickEnumerable<AiConnectorTypeWorkspaceGroupByOutputType, T['by']> & {
+        [P in keyof T & keyof AiConnectorTypeWorkspaceGroupByOutputType]: P extends '_count'
+          ? T[P] extends boolean
+            ? number
+            : Prisma.GetScalarType<T[P], AiConnectorTypeWorkspaceGroupByOutputType[P]>
           : Prisma.GetScalarType<T[P], AiConnectorTypeWorkspaceGroupByOutputType[P]>
-        : Prisma.GetScalarType<T[P], AiConnectorTypeWorkspaceGroupByOutputType[P]>
-    }
+      }
+    >
   >
->
 
 export type AiConnectorTypeWorkspaceWhereInput = {
   AND?: Prisma.AiConnectorTypeWorkspaceWhereInput | Prisma.AiConnectorTypeWorkspaceWhereInput[]

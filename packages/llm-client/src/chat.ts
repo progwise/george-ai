@@ -35,7 +35,7 @@ export const chatStream = async (parameters: {
   const { connection, modelName, messages, attachments, modelOptions } = parameters
   const { driver } = connection
 
-  logger.info('Starting chat completion stream with provider', { driver, modelName, connection, modelOptions })
+  logger.debug('Starting chat completion stream with provider', { driver, modelName, connection, modelOptions })
 
   switch (driver) {
     case 'ollama':

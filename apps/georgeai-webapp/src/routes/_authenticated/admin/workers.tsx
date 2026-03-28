@@ -2,8 +2,6 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { getWorkerEntriesQueryOptions } from '../../../components/admin/queries'
-import { ManageWorkersMenu } from '../../../components/admin/workers/manage-workers-menu'
-import { getEventProcessingStatusQueryOptions } from '../../../components/workspace/queries'
 import { WorkerRole } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { CpuIcon } from '../../../icons/cpu-icon'
@@ -13,24 +11,12 @@ import { ServerIcon } from '../../../icons/server-icon'
 export const Route = createFileRoute('/_authenticated/admin/workers')({
   component: RouteComponent,
   loader: async ({ context }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(
-        getEventProcessingStatusQueryOptions({ workspaceId: context.user.selectedWorkspaceId }),
-      ),
-      context.queryClient.ensureQueryData(getWorkerEntriesQueryOptions()),
-    ])
+    await Promise.all([context.queryClient.ensureQueryData(getWorkerEntriesQueryOptions())])
   },
 })
 
 function RouteComponent() {
   const { t } = useTranslation()
-  const { user } = Route.useRouteContext()
-
-  const { data: processStatistics } = useSuspenseQuery({
-    ...getEventProcessingStatusQueryOptions({ workspaceId: user.selectedWorkspaceId }),
-    refetchInterval: 5000, // Override refetch interval for auto-refresh
-  })
-
   const { data: workerEntries } = useSuspenseQuery({
     ...getWorkerEntriesQueryOptions(),
     refetchInterval: 7000, // Override refetch interval for auto-refresh
@@ -95,9 +81,7 @@ function RouteComponent() {
             <p className="text-base-content/60">{t('admin.manageWorkersDescription')}</p>
           </div>
         </div>
-        <div>
-          <ManageWorkersMenu />
-        </div>
+        <div></div>
       </div>
 
       {/* Overview Cards */}
@@ -189,13 +173,7 @@ function RouteComponent() {
           )}
         </div>
       </div>
-      <div>
-        {processStatistics && (
-          <pre className="rounded-md bg-base-200 p-4">
-            <code>{JSON.stringify(processStatistics, null, 2)}</code>
-          </pre>
-        )}
-      </div>
+      <div></div>
     </div>
   )
 }

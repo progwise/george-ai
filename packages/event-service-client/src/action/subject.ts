@@ -29,8 +29,8 @@ export function getAsyncSubject(event: WorkspaceRequest | WorkspaceStatus | Work
   return `george.ws.${event.workspaceId}.${event.verb}.${event.action}`
 }
 
-export function getAsyncSubjectFilter(args: { workspaceId?: string; verb?: WorkspaceVerb; action?: AsyncAction }) {
-  return `george.ws.${args.workspaceId ?? '*'}.${args.verb ?? '*'}.${args.action ?? '*'}`
+export function getAsyncSubjectFilters(args: { workspaceId?: string; verb?: WorkspaceVerb; action?: AsyncAction }) {
+  return [`george.ws.${args.workspaceId ?? '*'}.${args.verb ?? '*'}.${args.action ?? '*'}`]
 }
 
 export function getConsumerSubjectFilters(args: { workspaceId: string; action: AsyncAction }) {

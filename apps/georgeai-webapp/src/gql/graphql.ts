@@ -1636,9 +1636,7 @@ export type Mutation = {
   runAiLibraryCrawler: Scalars['String']['output']
   sendConfirmationMail?: Maybe<Scalars['Boolean']['output']>
   sendMessage: Array<AiConversationMessage>
-  startProcessing: Array<EventQueue>
   stopAiLibraryCrawler: Scalars['String']['output']
-  stopProcessing: Array<EventQueue>
   syncModels?: Maybe<SyncModelsResult>
   testConnectorConnection: TestConnectorConnectionResult
   testInferenceHostConnection: TestInferenceHostConnectionResult
@@ -1965,16 +1963,8 @@ export type MutationSendMessageArgs = {
   data: AiConversationMessageInput
 }
 
-export type MutationStartProcessingArgs = {
-  action: EventQueueAction
-}
-
 export type MutationStopAiLibraryCrawlerArgs = {
   crawlerId: Scalars['String']['input']
-}
-
-export type MutationStopProcessingArgs = {
-  action: EventQueueAction
 }
 
 export type MutationSyncModelsArgs = {
@@ -2173,7 +2163,6 @@ export type Query = {
   documentChunks?: Maybe<VectorStoreChunkResponse>
   embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
   eventQueueRequests: EventQueueRequestsResult
-  eventQueueStats: Array<EventQueue>
   extraction?: Maybe<ExtractionManifest>
   file: AiLibraryFile
   files: FilesQueryResponse
@@ -2370,10 +2359,6 @@ export type QueryEventQueueRequestsArgs = {
   action: EventQueueAction
   startSequence?: InputMaybe<Scalars['Int']['input']>
   take?: InputMaybe<Scalars['Int']['input']>
-  workspaceId: Scalars['String']['input']
-}
-
-export type QueryEventQueueStatsArgs = {
   workspaceId: Scalars['String']['input']
 }
 
@@ -3362,42 +3347,6 @@ export type RestoreDefaultProvidersMutation = {
       configuredVramGb?: number | null
     }>
   }
-}
-
-export type StartWorkspaceProcessingMutationVariables = Exact<{
-  action: EventQueueAction
-}>
-
-export type StartWorkspaceProcessingMutation = {
-  __typename?: 'Mutation'
-  startProcessing: Array<{
-    __typename?: 'EventQueue'
-    action: EventQueueAction
-    status: EventQueueStatus
-    error?: string | null
-    pending?: number | null
-    delivered?: number | null
-    redelivered?: number | null
-    waiting?: number | null
-  }>
-}
-
-export type StopWorkspaceProcessingMutationVariables = Exact<{
-  action: EventQueueAction
-}>
-
-export type StopWorkspaceProcessingMutation = {
-  __typename?: 'Mutation'
-  stopProcessing: Array<{
-    __typename?: 'EventQueue'
-    action: EventQueueAction
-    status: EventQueueStatus
-    error?: string | null
-    pending?: number | null
-    delivered?: number | null
-    redelivered?: number | null
-    waiting?: number | null
-  }>
 }
 
 export type TestInferenceHostConnectionFnMutationVariables = Exact<{
@@ -6793,24 +6742,6 @@ export type GetEventQueueRequestsQuery = {
       | { __typename?: 'MigrateFileRequest'; workspaceId: string; action: EventQueueAction; timestamp: string }
     >
   }
-}
-
-export type GetEventQueueQueryVariables = Exact<{
-  workspaceId: Scalars['String']['input']
-}>
-
-export type GetEventQueueQuery = {
-  __typename?: 'Query'
-  eventQueueStats: Array<{
-    __typename?: 'EventQueue'
-    action: EventQueueAction
-    status: EventQueueStatus
-    error?: string | null
-    pending?: number | null
-    delivered?: number | null
-    redelivered?: number | null
-    waiting?: number | null
-  }>
 }
 
 export type WorkspaceInvitationQueryVariables = Exact<{
@@ -13885,96 +13816,6 @@ export const RestoreDefaultProvidersDocument = {
     },
   ],
 } as unknown as DocumentNode<RestoreDefaultProvidersMutation, RestoreDefaultProvidersMutationVariables>
-export const StartWorkspaceProcessingDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'StartWorkspaceProcessing' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'EventQueueAction' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'startProcessing' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'action' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'action' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'pending' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'delivered' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'redelivered' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'waiting' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<StartWorkspaceProcessingMutation, StartWorkspaceProcessingMutationVariables>
-export const StopWorkspaceProcessingDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'mutation',
-      name: { kind: 'Name', value: 'StopWorkspaceProcessing' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'EventQueueAction' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'stopProcessing' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'action' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'action' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'pending' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'delivered' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'redelivered' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'waiting' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<StopWorkspaceProcessingMutation, StopWorkspaceProcessingMutationVariables>
 export const TestInferenceHostConnectionFnDocument = {
   kind: 'Document',
   definitions: [
@@ -21829,51 +21670,6 @@ export const GetEventQueueRequestsDocument = {
     },
   ],
 } as unknown as DocumentNode<GetEventQueueRequestsQuery, GetEventQueueRequestsQueryVariables>
-export const GetEventQueueDocument = {
-  kind: 'Document',
-  definitions: [
-    {
-      kind: 'OperationDefinition',
-      operation: 'query',
-      name: { kind: 'Name', value: 'getEventQueue' },
-      variableDefinitions: [
-        {
-          kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } } },
-        },
-      ],
-      selectionSet: {
-        kind: 'SelectionSet',
-        selections: [
-          {
-            kind: 'Field',
-            name: { kind: 'Name', value: 'eventQueueStats' },
-            arguments: [
-              {
-                kind: 'Argument',
-                name: { kind: 'Name', value: 'workspaceId' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
-              },
-            ],
-            selectionSet: {
-              kind: 'SelectionSet',
-              selections: [
-                { kind: 'Field', name: { kind: 'Name', value: 'action' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'status' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'error' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'pending' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'delivered' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'redelivered' } },
-                { kind: 'Field', name: { kind: 'Name', value: 'waiting' } },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-} as unknown as DocumentNode<GetEventQueueQuery, GetEventQueueQueryVariables>
 export const WorkspaceInvitationDocument = {
   kind: 'Document',
   definitions: [

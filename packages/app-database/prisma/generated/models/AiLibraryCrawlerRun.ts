@@ -181,7 +181,7 @@ export type AiLibraryCrawlerRunGroupByOutputType = {
   _max: AiLibraryCrawlerRunMaxAggregateOutputType | null
 }
 
-type GetAiLibraryCrawlerRunGroupByPayload<T extends AiLibraryCrawlerRunGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiLibraryCrawlerRunGroupByPayload<T extends AiLibraryCrawlerRunGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiLibraryCrawlerRunGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiLibraryCrawlerRunGroupByOutputType]: P extends '_count'

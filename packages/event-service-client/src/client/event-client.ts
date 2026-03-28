@@ -44,7 +44,7 @@ export interface EventClient {
   startWorkerLoop<T extends z.ZodTypeAny>(params: {
     schema: T
     streamName: string
-    consumerGlobPattern: string
+    subjectFilters: string[]
     handler: (params: { subject: string; event: z.infer<T> }) => Promise<void>
   }): Promise<() => Promise<void>>
 
@@ -82,7 +82,7 @@ export interface EventClient {
   getMessages<T extends z.ZodTypeAny>(parameters: {
     streamName: string
     schema: T
-    subjectFilter: string
+    subjectFilters: string[]
     startSequence?: number
     take?: number
   }): Promise<{

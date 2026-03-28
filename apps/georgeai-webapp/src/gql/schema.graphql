@@ -1624,9 +1624,7 @@ type Mutation {
   runAiLibraryCrawler(crawlerId: String!): String!
   sendConfirmationMail(activationUrl: String!, confirmationUrl: String!): Boolean
   sendMessage(data: AiConversationMessageInput!): [AiConversationMessage!]!
-  startProcessing(action: EventQueueAction!): [EventQueue!]!
   stopAiLibraryCrawler(crawlerId: String!): String!
-  stopProcessing(action: EventQueueAction!): [EventQueue!]!
   syncModels(driver: InferenceDriver): SyncModelsResult
   testConnectorConnection(id: ID!): TestConnectorConnectionResult!
   testInferenceHostConnection(
@@ -1789,7 +1787,6 @@ type Query {
     take: Int
     workspaceId: String!
   ): EventQueueRequestsResult!
-  eventQueueStats(workspaceId: String!): [EventQueue!]!
   extraction(extractionMethod: ExtractionMethod, fileId: String!, libraryId: String!): ExtractionManifest
   file(fileId: String!, libraryId: String!): AiLibraryFile!
   files(

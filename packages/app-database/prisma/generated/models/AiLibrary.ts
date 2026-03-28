@@ -262,7 +262,7 @@ export type AiLibraryGroupByOutputType = {
   _max: AiLibraryMaxAggregateOutputType | null
 }
 
-type GetAiLibraryGroupByPayload<T extends AiLibraryGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiLibraryGroupByPayload<T extends AiLibraryGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiLibraryGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiLibraryGroupByOutputType]: P extends '_count'

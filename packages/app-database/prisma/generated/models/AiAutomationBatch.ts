@@ -268,7 +268,7 @@ export type AiAutomationBatchGroupByOutputType = {
   _max: AiAutomationBatchMaxAggregateOutputType | null
 }
 
-type GetAiAutomationBatchGroupByPayload<T extends AiAutomationBatchGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiAutomationBatchGroupByPayload<T extends AiAutomationBatchGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiAutomationBatchGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiAutomationBatchGroupByOutputType]: P extends '_count'

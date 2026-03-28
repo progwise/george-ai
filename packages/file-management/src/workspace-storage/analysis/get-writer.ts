@@ -57,7 +57,7 @@ export async function getAnalysisWriter(
   const oldStats = await getFileStats(analysisFilePath)
 
   if (oldStats) {
-    logger.warn('Analysis file already exists for entry', {
+    logger.debug('Analysis file already exists for entry. Renaming to backup.', {
       ...identifier,
       analysisFileName,
       analysisFilePath,

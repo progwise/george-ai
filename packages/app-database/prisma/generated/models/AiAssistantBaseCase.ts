@@ -208,7 +208,7 @@ export type AiAssistantBaseCaseGroupByOutputType = {
   _max: AiAssistantBaseCaseMaxAggregateOutputType | null
 }
 
-type GetAiAssistantBaseCaseGroupByPayload<T extends AiAssistantBaseCaseGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiAssistantBaseCaseGroupByPayload<T extends AiAssistantBaseCaseGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiAssistantBaseCaseGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiAssistantBaseCaseGroupByOutputType]: P extends '_count'

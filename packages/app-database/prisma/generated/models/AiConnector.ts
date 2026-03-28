@@ -196,7 +196,7 @@ export type AiConnectorGroupByOutputType = {
   _max: AiConnectorMaxAggregateOutputType | null
 }
 
-type GetAiConnectorGroupByPayload<T extends AiConnectorGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiConnectorGroupByPayload<T extends AiConnectorGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiConnectorGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiConnectorGroupByOutputType]: P extends '_count'

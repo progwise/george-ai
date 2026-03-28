@@ -204,7 +204,7 @@ export type AiListFieldContextGroupByOutputType = {
   _max: AiListFieldContextMaxAggregateOutputType | null
 }
 
-type GetAiListFieldContextGroupByPayload<T extends AiListFieldContextGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiListFieldContextGroupByPayload<T extends AiListFieldContextGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiListFieldContextGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiListFieldContextGroupByOutputType]: P extends '_count'

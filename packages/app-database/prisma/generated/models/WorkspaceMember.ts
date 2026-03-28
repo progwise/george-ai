@@ -165,7 +165,7 @@ export type WorkspaceMemberGroupByOutputType = {
   _max: WorkspaceMemberMaxAggregateOutputType | null
 }
 
-type GetWorkspaceMemberGroupByPayload<T extends WorkspaceMemberGroupByArgs> = Prisma.PrismaPromise<
+export type GetWorkspaceMemberGroupByPayload<T extends WorkspaceMemberGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<WorkspaceMemberGroupByOutputType, T['by']> & {
       [P in keyof T & keyof WorkspaceMemberGroupByOutputType]: P extends '_count'

@@ -63,35 +63,6 @@ describe('GraphQL Processing Tests', () => {
     })
   })
 
-  it('Can query the event queue stats for a workspace', async () => {
-    const document = graphql(`
-      query eventQueueStats($workspaceId: String!) {
-        eventQueueStats(workspaceId: $workspaceId) {
-          action
-          status
-          error
-          pending
-          delivered
-          redelivered
-          waiting
-        }
-      }
-    `)
-    const result = await executeGraphQL(document, {
-      variables: {
-        workspaceId: TEST_WORKSPACE_ID,
-      },
-      context: {
-        session: {
-          user: TEST_USER,
-        },
-        workspaceId: TEST_WORKSPACE_ID,
-      },
-    })
-    expect(result.errors).toBeUndefined()
-    expect(result.data!['eventQueueStats']).toBeDefined()
-  }, 20000)
-
   it('Can query the event queue requests for a workspace', async () => {
     const document = graphql(`
       query eventQueueRequests($workspaceId: String!, $action: EventQueueAction!) {

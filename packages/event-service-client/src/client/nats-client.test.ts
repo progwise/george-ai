@@ -167,7 +167,7 @@ describe('Nats Client base tests', () => {
       const messagesResult = await eventClient.getMessages({
         schema,
         streamName: TEST_STREAM_NAME,
-        subjectFilter: `${TEST_SUBJECT_PREFIX}.group.2.>`,
+        subjectFilters: [`${TEST_SUBJECT_PREFIX}.group.2.>`],
         take: 7,
       })
 

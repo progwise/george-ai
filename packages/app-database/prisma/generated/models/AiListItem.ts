@@ -213,7 +213,7 @@ export type AiListItemGroupByOutputType = {
   _max: AiListItemMaxAggregateOutputType | null
 }
 
-type GetAiListItemGroupByPayload<T extends AiListItemGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiListItemGroupByPayload<T extends AiListItemGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiListItemGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiListItemGroupByOutputType]: P extends '_count'

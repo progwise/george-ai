@@ -1,7 +1,7 @@
 import { eventClient } from '../client'
 import { ACTION_STREAM_NAME } from './common'
 import { AsyncAction, EventQueueRequest, EventQueueRequestSchema } from './schema'
-import { getAsyncSubjectFilter } from './subject'
+import { getAsyncSubjectFilters } from './subject'
 
 export async function viewStreamedRequests(params: {
   workspaceId: string
@@ -14,12 +14,12 @@ export async function viewStreamedRequests(params: {
   lastSequence: number
 }> {
   const { workspaceId, action, take, startSequence } = params
-  const subjectFilter = getAsyncSubjectFilter({ workspaceId, action, verb: 'request' })
+  const subjectFilters = getAsyncSubjectFilters({ workspaceId, action, verb: 'request' })
 
   const { totalMessages, messages, lastSequence } = await eventClient.getMessages({
     streamName: ACTION_STREAM_NAME,
     schema: EventQueueRequestSchema,
-    subjectFilter,
+    subjectFilters,
     startSequence,
     take,
   })

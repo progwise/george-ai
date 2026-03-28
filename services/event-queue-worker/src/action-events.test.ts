@@ -15,7 +15,7 @@ import {
   prepareUpload,
   uploadDocumentSource,
 } from '@george-ai/app-domain'
-import { publish, resumeEventProcessing } from '@george-ai/event-service-client'
+import { publish } from '@george-ai/event-service-client'
 
 describe.sequential('Should process action events', () => {
   let TEST_WORKSPACE_ID: string
@@ -88,10 +88,6 @@ describe.sequential('Should process action events', () => {
       verb: 'request',
       timestamp: new Date(),
     })
-  })
-
-  it('And start the processing for the workspace...', async () => {
-    await resumeEventProcessing({ workspaceId: TEST_WORKSPACE_ID, action: 'documentExtraction' })
   })
 
   it('I should see the status completed event for the extraction', async () => {

@@ -169,17 +169,18 @@ export type AiAssistantEUActAnswersGroupByOutputType = {
   _max: AiAssistantEUActAnswersMaxAggregateOutputType | null
 }
 
-type GetAiAssistantEUActAnswersGroupByPayload<T extends AiAssistantEUActAnswersGroupByArgs> = Prisma.PrismaPromise<
-  Array<
-    Prisma.PickEnumerable<AiAssistantEUActAnswersGroupByOutputType, T['by']> & {
-      [P in keyof T & keyof AiAssistantEUActAnswersGroupByOutputType]: P extends '_count'
-        ? T[P] extends boolean
-          ? number
+export type GetAiAssistantEUActAnswersGroupByPayload<T extends AiAssistantEUActAnswersGroupByArgs> =
+  Prisma.PrismaPromise<
+    Array<
+      Prisma.PickEnumerable<AiAssistantEUActAnswersGroupByOutputType, T['by']> & {
+        [P in keyof T & keyof AiAssistantEUActAnswersGroupByOutputType]: P extends '_count'
+          ? T[P] extends boolean
+            ? number
+            : Prisma.GetScalarType<T[P], AiAssistantEUActAnswersGroupByOutputType[P]>
           : Prisma.GetScalarType<T[P], AiAssistantEUActAnswersGroupByOutputType[P]>
-        : Prisma.GetScalarType<T[P], AiAssistantEUActAnswersGroupByOutputType[P]>
-    }
+      }
+    >
   >
->
 
 export type AiAssistantEUActAnswersWhereInput = {
   AND?: Prisma.AiAssistantEUActAnswersWhereInput | Prisma.AiAssistantEUActAnswersWhereInput[]

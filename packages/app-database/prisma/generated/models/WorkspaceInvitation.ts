@@ -174,7 +174,7 @@ export type WorkspaceInvitationGroupByOutputType = {
   _max: WorkspaceInvitationMaxAggregateOutputType | null
 }
 
-type GetWorkspaceInvitationGroupByPayload<T extends WorkspaceInvitationGroupByArgs> = Prisma.PrismaPromise<
+export type GetWorkspaceInvitationGroupByPayload<T extends WorkspaceInvitationGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<WorkspaceInvitationGroupByOutputType, T['by']> & {
       [P in keyof T & keyof WorkspaceInvitationGroupByOutputType]: P extends '_count'

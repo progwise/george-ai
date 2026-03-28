@@ -255,7 +255,7 @@ export type AiLibraryFileGroupByOutputType = {
   _max: AiLibraryFileMaxAggregateOutputType | null
 }
 
-type GetAiLibraryFileGroupByPayload<T extends AiLibraryFileGroupByArgs> = Prisma.PrismaPromise<
+export type GetAiLibraryFileGroupByPayload<T extends AiLibraryFileGroupByArgs> = Prisma.PrismaPromise<
   Array<
     Prisma.PickEnumerable<AiLibraryFileGroupByOutputType, T['by']> & {
       [P in keyof T & keyof AiLibraryFileGroupByOutputType]: P extends '_count'
