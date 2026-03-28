@@ -196,9 +196,7 @@ function FileRow({ file }: { file: DocumentFile }) {
     <li className="list-row">
       <div className="relative">
         <FileIcon mimeType={file.mimeType} className="size-5" />
-        {file.isDocumentSourceFile && (
-          <CrownIcon className="absolute -top-2 -right-2 size-3.5 text-amber-400" />
-        )}
+        {file.isDocumentSourceFile && <CrownIcon className="absolute -top-2 -right-2 size-3.5 text-amber-400" />}
       </div>
       <div>
         <div className="flex items-center gap-2">
