@@ -19,6 +19,7 @@ export const queryKeys = {
   EventProcessingStatus: 'EventProcessingStatus',
   EventQueueRequests: 'EventQueueRequests',
   Extraction: 'Extraction',
+  FileDownloadUrl: 'FileDownloadUrl',
   FileManifest: 'FileManifest',
   FileUsages: 'FileUsages',
   KeycloakConfig: 'KeycloakConfig',

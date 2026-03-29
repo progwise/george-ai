@@ -68,8 +68,9 @@ export async function extractDocument(request: DocumentExtractionRequest) {
           version: 1,
           type: 'extraction',
         },
+        attachment.fileName,
         {
-          attachmentFileName: attachment.fileName,
+          attachment: true,
         },
       ),
       workspaceId,

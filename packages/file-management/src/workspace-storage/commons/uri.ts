@@ -5,6 +5,7 @@ import {
   ANALYSIS_FOLDER_NAME,
   ATTACHMENTS_FOLDER_NAME,
   DOCUMENTS_FOLDER_NAME,
+  EXTRACTIONS_BACKUP_FOLDER_NAME,
   EXTRACTIONS_FOLDER_NAME,
   FRAGMENTS_FOLDER_NAME,
   LIBRARIES_FOLDER_NAME,
@@ -12,31 +13,42 @@ import {
 
 export function getUri(
   identifier: WorkspaceIdentifier | LibraryIdentifier | DocumentIdentifier | ExtractionIdentifier,
+  fileName: string = 'manifest.json',
   options?: {
-    attachmentFileName?: string
-    analysisFileName?: string
+    attachment?: boolean
+    analysis?: boolean
+    /** Backup folder name (e.g. `pdfExtraction_1773510848855`) — routes to extractions_backup/ at the document level */
+    extractionBackup?: string
   },
 ): string {
-  const { attachmentFileName, analysisFileName } = options || {}
-  const attachmentsSuffix = attachmentFileName ? `/${ATTACHMENTS_FOLDER_NAME}/${attachmentFileName}` : ''
-  const analysisSuffix = analysisFileName ? `/${ANALYSIS_FOLDER_NAME}/${analysisFileName}` : ''
+  const { attachment, analysis, extractionBackup } = options || {}
+
+  const fileSuffix = attachment
+    ? `${ATTACHMENTS_FOLDER_NAME}/${fileName}`
+    : analysis
+      ? `${ANALYSIS_FOLDER_NAME}/${fileName}`
+      : fileName
 
   switch (identifier.type) {
     case 'workspace': {
       const { workspaceId } = identifier
-      return `georgeai://workspaces/${workspaceId}${attachmentsSuffix}${analysisSuffix}`
+      return `georgeai://workspaces/${workspaceId}/${fileSuffix}`
     }
     case 'library': {
       const { workspaceId, libraryId } = identifier
-      return `georgeai://workspaces/${workspaceId}/${LIBRARIES_FOLDER_NAME}/${libraryId}${attachmentsSuffix}${analysisSuffix}`
+      return `georgeai://workspaces/${workspaceId}/${LIBRARIES_FOLDER_NAME}/${libraryId}/${fileSuffix}`
     }
     case 'document': {
       const { workspaceId, libraryId, documentId } = identifier
-      return `georgeai://workspaces/${workspaceId}/${LIBRARIES_FOLDER_NAME}/${libraryId}/${DOCUMENTS_FOLDER_NAME}/${documentId}${attachmentsSuffix}${analysisSuffix}`
+      const base = `georgeai://workspaces/${workspaceId}/${LIBRARIES_FOLDER_NAME}/${libraryId}/${DOCUMENTS_FOLDER_NAME}/${documentId}`
+      if (extractionBackup) {
+        return `${base}/${EXTRACTIONS_BACKUP_FOLDER_NAME}/${extractionBackup}/${fileSuffix}`
+      }
+      return `${base}/${fileSuffix}`
     }
     case 'extraction': {
       const { workspaceId, libraryId, documentId, extractionMethod } = identifier
-      return `georgeai://workspaces/${workspaceId}/${LIBRARIES_FOLDER_NAME}/${libraryId}/${DOCUMENTS_FOLDER_NAME}/${documentId}/${EXTRACTIONS_FOLDER_NAME}/${extractionMethod}${attachmentsSuffix}${analysisSuffix}`
+      return `georgeai://workspaces/${workspaceId}/${LIBRARIES_FOLDER_NAME}/${libraryId}/${DOCUMENTS_FOLDER_NAME}/${documentId}/${EXTRACTIONS_FOLDER_NAME}/${extractionMethod}/${fileSuffix}`
     }
     default:
       throw new Error(`Unknown identifier type: ${identifier}`)
@@ -45,37 +57,53 @@ export function getUri(
 
 export function parseUri(uri: string): {
   workspaceId: string
-  libraryId?: string
-  documentId?: string
-  extractionMethod?: ExtractionMethod
-  attachmentFileName?: string
-  analysisFileName?: string
-  fragment?: number
-} {
+  fileName: string
+} & Partial<{
+  libraryId: string
+  documentId: string
+  extractionMethod: ExtractionMethod
+  /** Set when the URI points into an extractions_backup/ folder; value is the backup folder name e.g. `pdfExtraction_1773510848855` */
+  extractionBackupFolderName: string
+  attachment: boolean
+  analysis: boolean
+  fragment: number
+}> {
   const regex = new RegExp(
     `^georgeai://workspaces/([^/]+)` +
       `(?:/${LIBRARIES_FOLDER_NAME}/([^/]+))?` +
       `(?:/${DOCUMENTS_FOLDER_NAME}/([^/]+))?` +
-      `(?:/${EXTRACTIONS_FOLDER_NAME}/([^/]+))?` +
+      `(?:/${EXTRACTIONS_FOLDER_NAME}/([^/]+)|/${EXTRACTIONS_BACKUP_FOLDER_NAME}/([^/]+))?` +
       `(?:/${FRAGMENTS_FOLDER_NAME}/(\\d+))?` +
-      `(?:/${ATTACHMENTS_FOLDER_NAME}/(.+))?` +
-      `(?:/${ANALYSIS_FOLDER_NAME}/(.+))?$`,
+      `(?:/${ATTACHMENTS_FOLDER_NAME}/(.+)|/${ANALYSIS_FOLDER_NAME}/(.+)|/([^/]+))?$`,
   )
   const match = uri.match(regex)
   if (!match) {
     throw new Error(`Invalid URI format: ${uri}`)
   }
-  const [, workspaceId, libraryId, documentId, extractionMethod, fragmentStr, attachmentFileName, analysisFileName] =
-    match
-  const fragment = fragmentStr ? parseInt(fragmentStr, 10) : undefined
-  return {
+  const [
+    ,
     workspaceId,
     libraryId,
     documentId,
-    extractionMethod: extractionMethod as ExtractionMethod,
+    extractionMethod,
+    extractionBackupFolderName,
+    fragmentStr,
     attachmentFileName,
     analysisFileName,
-    fragment,
+    pureFileName,
+  ] = match
+  const fragment = fragmentStr ? parseInt(fragmentStr, 10) : undefined
+  const fileName = attachmentFileName ?? analysisFileName ?? pureFileName
+  return {
+    workspaceId,
+    ...(libraryId && { libraryId }),
+    ...(documentId && { documentId }),
+    ...(extractionMethod && { extractionMethod: extractionMethod as ExtractionMethod }),
+    ...(extractionBackupFolderName && { extractionBackupFolderName }),
+    fileName,
+    ...(!!attachmentFileName && { attachment: true }),
+    ...(!!analysisFileName && { analysis: true }),
+    ...(fragment !== undefined && { fragment }),
   }
 }
 

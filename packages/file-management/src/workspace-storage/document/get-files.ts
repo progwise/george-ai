@@ -24,9 +24,7 @@ export async function getDocumentFiles(params: {
     return []
   }
 
-  const allFiles = await (
-    await fileTree(rootPath)
-  ).map((file) => ({
+  const allFiles = (await fileTree(rootPath)).map((file) => ({
     ...file,
     relativePath: file.parentPath === rootPath ? '' : file.parentPath.slice(rootPath.length + 1),
   }))
@@ -35,10 +33,16 @@ export async function getDocumentFiles(params: {
     const isDocumentRoot = file.relativePath.length === 0
     const extractionMatch = file.relativePath.match(new RegExp(`(?:^|/)${EXTRACTIONS_FOLDER_NAME}/([^/]+)`))
     const extractionMethod = extractionMatch ? ExtractionMethodSchema.safeParse(extractionMatch[1]).data : undefined
-    const isAnalysis = file.relativePath.endsWith(`/${ANALYSIS_FOLDER_NAME}`) && file.name.endsWith('.analysis.md')
-    const isBackup = file.name.endsWith('.bak') || file.relativePath.includes(EXTRACTIONS_BACKUP_FOLDER_NAME)
-    const isExtractionMain = !!extractionMethod && file.name === 'output.md'
-    const isExtractionPart = !isExtractionMain && !!extractionMethod && file.name.endsWith('.md')
+    const extractionBackupMatch = file.relativePath.match(
+      new RegExp(`(?:^|/)${EXTRACTIONS_BACKUP_FOLDER_NAME}/([^/]+)`),
+    )
+    const extractionBackupFolderName = extractionBackupMatch?.[1]
+    const isInAnalysisFolder = file.relativePath.endsWith(`/${ANALYSIS_FOLDER_NAME}`)
+    const isAnalysis = isInAnalysisFolder && file.name.endsWith('.analysis.md')
+    const isBackup = file.name.endsWith('.bak') || !!extractionBackupFolderName
+    const isExtractionMain = !!extractionMethod && !extractionBackupFolderName && file.name === 'output.md'
+    const isExtractionPart =
+      !isExtractionMain && !!extractionMethod && !extractionBackupFolderName && file.name.endsWith('.md')
     const isManifest = file.name === 'manifest.json'
     const isDocumentSourceFile = file.name.includes(SOURCE_FILE_NAME) && isDocumentRoot
     const isAttachment = file.relativePath.includes(`/${ATTACHMENTS_FOLDER_NAME}`)
@@ -75,14 +79,17 @@ export async function getDocumentFiles(params: {
           workspaceId,
           libraryId,
           documentId,
-          extractionMethod,
+          extractionMethod: extractionBackupFolderName ? undefined : extractionMethod,
         }),
+        file.name,
         {
-          attachmentFileName: isAttachment ? file.name : undefined,
-          analysisFileName: isAnalysis ? file.name : undefined,
+          attachment: isAttachment,
+          analysis: isInAnalysisFolder,
+          extractionBackup: extractionBackupFolderName,
         },
       ),
       extractionMethod,
+      extractionBackupFolderName,
       isDocumentRoot,
       isAnalysis,
       isBackup,

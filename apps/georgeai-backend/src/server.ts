@@ -12,6 +12,7 @@ import { assistantIconMiddleware } from './assistant-icon-middleware'
 import { logger } from './common'
 import { conversationMessagesSSE } from './conversation-messages-sse'
 import { getUserContext } from './get-user-context'
+import { handleDownloadGet } from './handle-download-get'
 import { handleFileGet } from './handle-file-get'
 import { handleUploadPost } from './handle-upload-post'
 import { userAvatarMiddleware } from './user-avatar-middleware'
@@ -65,6 +66,7 @@ app.use(express.static('public'))
 app.use('/assistant-icon', assistantIconMiddleware)
 app.use('/avatar', userAvatarMiddleware)
 app.post('/upload', handleUploadPost)
+app.get('/download', handleDownloadGet)
 app.get('/library-files/:libraryId/:fileId', handleFileGet)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
 

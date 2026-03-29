@@ -6,6 +6,7 @@ import { logger } from './commons'
 export * from './constants'
 export * from './commons'
 export * from './uri'
+export * from './uri-reader'
 
 export { fs }
 

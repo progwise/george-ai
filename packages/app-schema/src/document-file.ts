@@ -22,6 +22,7 @@ export const DocumentFileSchema = z.object({
   documentId: z.string().nonempty(),
   relativePath: z.string().nonempty(),
   extractionMethod: ExtractionMethodSchema.optional(),
+  extractionBackupFolderName: z.string().optional(),
   fileType: DocumentFileTypeSchema,
   fileName: z.string().nonempty(),
   size: z.number().int().min(0),
