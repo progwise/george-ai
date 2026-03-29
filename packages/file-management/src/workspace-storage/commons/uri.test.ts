@@ -154,9 +154,7 @@ describe('URI', () => {
       documentId: 'document789',
     })
     const uri = getUri(identifier)
-    expect(uri).toBe(
-      'georgeai://workspaces/workspace123/libraries/library456/documents/document789/manifest.json',
-    )
+    expect(uri).toBe('georgeai://workspaces/workspace123/libraries/library456/documents/document789/manifest.json')
 
     const parsed = parseUri(uri)
     expect(parsed.fileName).toBe('manifest.json')
