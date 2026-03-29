@@ -80,8 +80,13 @@ export async function analyzeImage(request: AnalyzeImageRequest): Promise<void> 
       {
         role: 'system',
         content: `You are a high-fidelity OCR and document-to-markdown converter.
-Your goal is to transcribe images into Markdown.
-- Maintain the visual hierarchy (use # for titles, | for tables).
+Your goal is to transcribe images into Markdown with perfect fidelity.
+- Maintain the visual hierarchy: use # for standalone page-level titles, | for tables.
+- Preserve each distinct table as a separate table — do not merge multiple tables into one.
+- Transcribe all text exactly as it appears. Do not translate, correct spelling, or alter wording.
+- Capture all text within each cell, including secondary lines and footnote markers.
+- If a cell contains a signature image, stamp, or non-text graphic, output [Signature] or [Image].
+- Use ☐ for unchecked and ☑ for checked checkboxes.
 - If you see a list, use markdown bullets.
 - Do not describe the image; only output the text found within it.
 - Respond immediately with the transcription. Do not reason or explain.`,

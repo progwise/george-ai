@@ -699,6 +699,18 @@ export type AiListSourceInput = {
   libraryId: Scalars['String']['input']
 }
 
+export type AnalyzeImageRequest = EventQueueRequest & {
+  __typename?: 'AnalyzeImageRequest'
+  action: EventQueueAction
+  context?: Maybe<Scalars['String']['output']>
+  fileName: Scalars['String']['output']
+  imageUri: Scalars['String']['output']
+  mimeType: Scalars['String']['output']
+  timestamp: Scalars['DateTime']['output']
+  version?: Maybe<Scalars['Int']['output']>
+  workspaceId: Scalars['String']['output']
+}
+
 export type ApiCrawlerTemplate = {
   __typename?: 'ApiCrawlerTemplate'
   config: Scalars['String']['output']
@@ -2419,7 +2431,7 @@ export type QueryEmbeddingStatisticsArgs = {
 }
 
 export type QueryEventQueueRequestsArgs = {
-  action: EventQueueAction
+  action?: InputMaybe<EventQueueAction>
   startSequence?: InputMaybe<Scalars['Int']['input']>
   take?: InputMaybe<Scalars['Int']['input']>
   workspaceId: Scalars['String']['input']
@@ -6793,7 +6805,7 @@ export type GetWorkspaceLibrariesQuery = {
 
 export type GetEventQueueRequestsQueryVariables = Exact<{
   workspaceId: Scalars['String']['input']
-  action: EventQueueAction
+  action?: InputMaybe<EventQueueAction>
   take?: InputMaybe<Scalars['Int']['input']>
   startSequence?: InputMaybe<Scalars['Int']['input']>
 }>
@@ -6806,7 +6818,17 @@ export type GetEventQueueRequestsQuery = {
     lastSequence: number
     requests: Array<
       | {
-          __typename?: 'DocumentExtractionRequest'
+          __typename: 'AnalyzeImageRequest'
+          fileName: string
+          mimeType: string
+          imageUri: string
+          context?: string | null
+          workspaceId: string
+          action: EventQueueAction
+          timestamp: string
+        }
+      | {
+          __typename: 'DocumentExtractionRequest'
           extractionMethod: string
           libraryId: string
           documentId: string
@@ -6815,7 +6837,7 @@ export type GetEventQueueRequestsQuery = {
           timestamp: string
         }
       | {
-          __typename?: 'DocumentVectorizationRequest'
+          __typename: 'DocumentVectorizationRequest'
           libraryId: string
           documentId: string
           splitMethod: string
@@ -6827,7 +6849,7 @@ export type GetEventQueueRequestsQuery = {
           timestamp: string
         }
       | {
-          __typename?: 'FieldEnrichmentRequest'
+          __typename: 'FieldEnrichmentRequest'
           fieldId: string
           chatModelDriver: InferenceDriver
           chatModelName: string
@@ -6835,7 +6857,7 @@ export type GetEventQueueRequestsQuery = {
           action: EventQueueAction
           timestamp: string
         }
-      | { __typename?: 'MigrateFileRequest'; workspaceId: string; action: EventQueueAction; timestamp: string }
+      | { __typename: 'MigrateFileRequest'; workspaceId: string; action: EventQueueAction; timestamp: string }
     >
   }
 }
@@ -21779,7 +21801,7 @@ export const GetEventQueueRequestsDocument = {
         {
           kind: 'VariableDefinition',
           variable: { kind: 'Variable', name: { kind: 'Name', value: 'action' } },
-          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'EventQueueAction' } } },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'EventQueueAction' } },
         },
         {
           kind: 'VariableDefinition',
@@ -21831,6 +21853,7 @@ export const GetEventQueueRequestsDocument = {
                   selectionSet: {
                     kind: 'SelectionSet',
                     selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: '__typename' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'action' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'timestamp' } },
@@ -21876,6 +21899,31 @@ export const GetEventQueueRequestsDocument = {
                             { kind: 'Field', name: { kind: 'Name', value: 'fieldId' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'chatModelDriver' } },
                             { kind: 'Field', name: { kind: 'Name', value: 'chatModelName' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'MigrateFileRequest' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'action' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'timestamp' } },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'InlineFragment',
+                        typeCondition: { kind: 'NamedType', name: { kind: 'Name', value: 'AnalyzeImageRequest' } },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'fileName' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'mimeType' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'imageUri' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'context' } },
                           ],
                         },
                       },

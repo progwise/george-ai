@@ -651,6 +651,17 @@ input AiListSourceInput {
   libraryId: String!
 }
 
+type AnalyzeImageRequest implements EventQueueRequest {
+  action: EventQueueAction!
+  context: String
+  fileName: String!
+  imageUri: String!
+  mimeType: String!
+  timestamp: DateTime!
+  version: Int
+  workspaceId: String!
+}
+
 type ApiCrawlerTemplate {
   config: String!
   description: String!
@@ -1832,7 +1843,7 @@ type Query {
   ): FilesQueryResponse!
   embeddingStatistics(fileId: String, libraryId: String, workspaceId: String!): [EmbeddingStatistic!]
   eventQueueRequests(
-    action: EventQueueAction!
+    action: EventQueueAction
     startSequence: Int
     take: Int
     workspaceId: String!

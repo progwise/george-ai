@@ -3,14 +3,13 @@ import { createServerFn } from '@tanstack/react-start'
 import z from 'zod'
 
 import { graphql } from '../../../gql'
-import { EventQueueAction } from '../../../gql/graphql'
 import { EventQueueActionSchema } from '../../../gql/validation'
 import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 const GetEventQueuequestsParametersSchema = z.object({
   workspaceId: z.string().min(3),
-  action: EventQueueActionSchema,
+  action: EventQueueActionSchema.optional(),
   take: z.number().optional(),
   startSequence: z.number().optional(),
 })
@@ -20,16 +19,12 @@ const getProcessingEventsFn = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        query getEventQueueRequests(
-          $workspaceId: String!
-          $action: EventQueueAction!
-          $take: Int
-          $startSequence: Int
-        ) {
+        query getEventQueueRequests($workspaceId: String!, $action: EventQueueAction, $take: Int, $startSequence: Int) {
           eventQueueRequests(workspaceId: $workspaceId, action: $action, take: $take, startSequence: $startSequence) {
             totalMessages
             lastSequence
             requests {
+              __typename
               workspaceId
               action
               timestamp
@@ -51,6 +46,17 @@ const getProcessingEventsFn = createServerFn({ method: 'GET' })
                 chatModelDriver
                 chatModelName
               }
+              ... on MigrateFileRequest {
+                workspaceId
+                action
+                timestamp
+              }
+              ... on AnalyzeImageRequest {
+                fileName
+                mimeType
+                imageUri
+                context
+              }
             }
           }
         }
@@ -60,12 +66,7 @@ const getProcessingEventsFn = createServerFn({ method: 'GET' })
     return result.eventQueueRequests
   })
 
-export const getProcessingRequestsQueryOptions = (parameters: {
-  workspaceId?: string | null
-  action: EventQueueAction
-  take?: number
-  startSequence?: number
-}) =>
+export const getProcessingRequestsQueryOptions = (parameters: z.infer<typeof GetEventQueuequestsParametersSchema>) =>
   queryOptions({
     queryKey: [queryKeys.EventQueueRequests, parameters],
     queryFn: () =>

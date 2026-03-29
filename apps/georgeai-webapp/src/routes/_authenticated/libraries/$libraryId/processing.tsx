@@ -30,7 +30,7 @@ function RouteComponent() {
       workspaceId: user.selectedWorkspaceId,
       startSequence,
       take,
-      action: action ? action : EventQueueAction.DocumentExtraction,
+      action,
     }),
   )
 

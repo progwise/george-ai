@@ -83,6 +83,7 @@ export const EventQueueRequestSchema = z.discriminatedUnion('action', [
   DocumentVectorizationRequestSchema,
   FieldEnrichmentRequestSchema,
   MigrateFileRequestSchema,
+  AnalyzeImageRequestSchema,
 ])
 export type EventQueueRequest = z.infer<typeof EventQueueRequestSchema>
 
@@ -91,6 +92,7 @@ export const EventQueueStatusSchema = z.discriminatedUnion('action', [
   DocumentVectorizationStatusSchema,
   FieldEnrichmentStatusSchema,
   MigrateFileStatusSchema,
+  AnalyzeImageStatusSchema,
 ])
 
 export type EventQueueStatus = z.infer<typeof EventQueueStatusSchema>

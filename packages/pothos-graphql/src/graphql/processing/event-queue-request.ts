@@ -1,4 +1,5 @@
 import {
+  AnalyzeImageRequest,
   DocumentExtractionRequest,
   DocumentVectorizationRequest,
   EventQueueRequest,
@@ -20,6 +21,8 @@ builder.interfaceRef<EventQueueRequest>('EventQueueRequest').implement({
         return 'FieldEnrichmentRequest'
       case 'migrateFile':
         return 'MigrateFileRequest'
+      case 'analyzeImage':
+        return 'AnalyzeImageRequest'
       default:
         logger.error('Unknown request type for EventQueueRequest', { request })
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -85,5 +88,15 @@ builder.objectRef<MigrateFileRequest>('MigrateFileRequest').implement({
     createdAt: t.exposeString('createdAt', { nullable: false }),
     uploadedAt: t.exposeString('uploadedAt'),
     hash: t.exposeString('hash'),
+  }),
+})
+
+builder.objectRef<AnalyzeImageRequest>('AnalyzeImageRequest').implement({
+  interfaces: ['EventQueueRequest'],
+  fields: (t) => ({
+    imageUri: t.exposeString('imageUri', { nullable: false }),
+    fileName: t.exposeString('fileName', { nullable: false }),
+    mimeType: t.exposeString('mimeType', { nullable: false }),
+    context: t.exposeString('context'),
   }),
 })

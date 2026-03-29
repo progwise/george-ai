@@ -36,9 +36,11 @@ export async function extractDocument(request: DocumentExtractionRequest) {
 
   await publish({ ...statusEvent, timestamp: new Date(), message: `source extraction finished`, status: 'progress' })
 
-  const imageAttachments = extraction.attachments.filter((att) => att.mimeType.startsWith('image/')) || []
+  const imageAttachments = extraction.attachments.filter(
+    (att) => att.mimeType.startsWith('image/') && att.fileName.includes('_screenshot'),
+  )
   if (imageAttachments.length === 0) {
-    logger.info('No image attachments found, skipping image analysis provider call', {
+    logger.debug('No screenshot attachments found, skipping image analysis provider call', {
       documentId,
       workspaceId,
       libraryId,

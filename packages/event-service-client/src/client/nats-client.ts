@@ -752,8 +752,22 @@ export class NatsClient implements EventClient {
 
     while (messages.length < take && currentSequence <= lastSeq) {
       try {
-        const msg = await this.jsm.streams.getMessage(streamName, { seq: currentSequence })
-        if (subjectFilters.some((filter) => this.matchesSubjectFilter({ subject: msg.subject, filter }))) {
+        const msg = await this.jsm.streams.getMessage(streamName, { seq: currentSequence }).catch((error) => {
+          const errorCode = error instanceof Error && 'code' in error ? error.code : null
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error type'
+          if (errorCode === '404') {
+            logger.debug('Message not found, likely due to deletion. Skipping to next message.', {
+              streamName,
+              sequence: currentSequence,
+              errorCode,
+              errorMessage,
+            })
+            return null
+          }
+          logger.error('Error fetching message', { streamName, sequence: currentSequence, errorCode, errorMessage })
+          throw error
+        })
+        if (msg && subjectFilters.some((filter) => this.matchesSubjectFilter({ subject: msg.subject, filter }))) {
           const raw = textDecoder.decode(msg.data)
           const json = JSON.parse(raw)
           const entry = schema.parse(json)
@@ -770,6 +784,12 @@ export class NatsClient implements EventClient {
       currentSequence++
     }
 
+    logger.info('Fetched messages with filters', {
+      streamName,
+      subjectFilters,
+      totalMessages,
+      returnedMessages: messages.length,
+    })
     return { messages, totalMessages, lastSequence: currentSequence - 1 }
   }
 

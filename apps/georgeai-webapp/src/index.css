@@ -106,3 +106,13 @@ dl.properties dd {
     transform 0.2s ease-out,
     display 0.2s ease-out allow-discrete;
 }
+
+.frontmatter-meta th {
+  @apply py-1 pr-4 text-left font-medium whitespace-nowrap text-gray-500;
+}
+.frontmatter-meta td {
+  @apply py-1 text-gray-800;
+}
+.frontmatter-meta tr {
+  @apply border-b border-gray-100 last:border-0;
+}

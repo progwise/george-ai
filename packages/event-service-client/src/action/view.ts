@@ -1,11 +1,12 @@
 import { eventClient } from '../client'
+import { logger } from '../common'
 import { ACTION_STREAM_NAME } from './common'
 import { AsyncAction, EventQueueRequest, EventQueueRequestSchema } from './schema'
 import { getAsyncSubjectFilters } from './subject'
 
 export async function viewStreamedRequests(params: {
   workspaceId: string
-  action: AsyncAction
+  action?: AsyncAction
   take?: number
   startSequence?: number
 }): Promise<{
@@ -15,6 +16,14 @@ export async function viewStreamedRequests(params: {
 }> {
   const { workspaceId, action, take, startSequence } = params
   const subjectFilters = getAsyncSubjectFilters({ workspaceId, action, verb: 'request' })
+
+  logger.debug('Fetching messages with filters', {
+    streamName: ACTION_STREAM_NAME,
+    action,
+    subjectFilters,
+    startSequence,
+    take,
+  })
 
   const { totalMessages, messages, lastSequence } = await eventClient.getMessages({
     streamName: ACTION_STREAM_NAME,
