@@ -475,7 +475,7 @@ export class NatsClient implements EventClient {
         })
         throw err
       }
-      logger.warn('Consumer not found, attempting to create ephemeral consumer', {
+      logger.debug('Consumer not found, attempting to create ephemeral consumer', {
         streamName,
         deliverGroupName,
         subjectFilters,

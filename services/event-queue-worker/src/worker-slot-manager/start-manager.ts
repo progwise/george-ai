@@ -22,7 +22,12 @@ export async function startWorkerSlotManager(): Promise<() => Promise<void>> {
         failedHeartbeatCount,
       })
       if (failedHeartbeatCount >= 3) {
+        logger.warn('Failed to update worker heartbeat 3 times in a row. Restarting worker slot manager.', {
+          WORKER_ID,
+        })
         await stopProcessing('workerSlotManager')
+        await signupWorker({ workerId: WORKER_ID })
+        failedHeartbeatCount = 0
       }
     }
   }, 30 * 1000) // Every 30 seconds
