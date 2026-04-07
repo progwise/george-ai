@@ -54,6 +54,16 @@ export async function createInferenceHost(params: {
     configuredVramGb,
   }
 
-  await writeRegistryEntry(hostConfig)
+  try {
+    await writeRegistryEntry(hostConfig)
+  } catch (error) {
+    logger.error('Failed to write inference host config to registry, rolling back database entry', {
+      error,
+      hostConfig,
+    })
+    // TODO: Consider if writeRegistryEntry is atomic and does not need a cleanup.
+    await prisma.aiServiceProvider.delete({ where: { id: entity.id } })
+    throw new DomainError('Failed to register inference host configuration. Please try again.', 'inference')
+  }
   return hostConfig
 }

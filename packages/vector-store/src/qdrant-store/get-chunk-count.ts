@@ -15,7 +15,7 @@ export async function getChunkCount(parameters: {
 }): Promise<number | null> {
   const { workspaceId, modelDriver, modelName, libraryId, documentId, extractionMethod, fragment } = parameters
 
-  logger.debug('Getting chunk count', {
+  logger.info('Getting chunk count', {
     workspaceId,
     modelDriver,
     modelName,
@@ -32,10 +32,9 @@ export async function getChunkCount(parameters: {
     return null
   }
 
-  const filterConditions = getChunkSelector({ libraryId, documentId, extractionMethod, modelName, fragment })
-
-  logger.debug('Count chunks with filter', { collectionName, filterConditions: JSON.stringify(filterConditions) })
-
+  const filterConditions = getChunkSelector({ libraryId, documentId, extractionMethod, fragment })
   const count = await qdrantClient.count(collectionName, { filter: filterConditions })
+  logger.info('Count chunks with filter', { collectionName, count, filterConditions: JSON.stringify(filterConditions) })
+
   return count.count || 0
 }

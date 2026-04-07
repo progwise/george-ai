@@ -13,7 +13,7 @@ const InferenceHostConnectionBaseSchema = z.object({
 export const OllamaHostConnectionSchema = InferenceHostConnectionBaseSchema.extend({
   driver: z.literal('ollama').default('ollama'),
   baseUrl: z.string().url(),
-  encryptedApiKey: z.string().optional(),
+  encryptedApiKey: z.string().nullish(),
 })
 
 export type OllamaHostConnection = z.infer<typeof OllamaHostConnectionSchema>

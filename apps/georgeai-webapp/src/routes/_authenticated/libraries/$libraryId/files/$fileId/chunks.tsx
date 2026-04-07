@@ -10,7 +10,7 @@ import { CopyIcon } from '../../../../../../icons/copy-icon'
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/chunks')({
   component: RouteComponent,
   validateSearch: z.object({
-    firstChunk: z.coerce.number().default(0),
+    firstChunk: z.coerce.number().default(1),
     takeChunks: z.coerce.number().default(20),
     fragment: z.coerce.number().optional(),
   }),
@@ -63,7 +63,7 @@ function RouteComponent() {
       {/* Header Section */}
       <div className="mb-4 flex w-full items-end justify-between gap-4">
         <h3 className="text-xl font-bold">
-          Chunk {firstChunk + 1} - {Math.min(firstChunk + takeChunks, aiFileChunks.totalCount)} of{' '}
+          Chunk {firstChunk} - {Math.min(firstChunk + takeChunks - 1, aiFileChunks.totalCount)} of{' '}
           {aiFileChunks.totalCount} Chunks
           {fragment !== undefined && <span className="ml-2 badge badge-primary">Fragment {fragment}</span>}
         </h3>
@@ -85,7 +85,7 @@ function RouteComponent() {
                 const value = e.target.value
                 navigate({
                   search: {
-                    firstChunk: 0,
+                    firstChunk: 1,
                     takeChunks,
                     fragment: value ? parseInt(value, 10) : undefined,
                   },
@@ -96,14 +96,14 @@ function RouteComponent() {
           <Pagination
             totalItems={aiFileChunks.totalCount}
             itemsPerPage={takeChunks}
-            currentPage={Math.ceil((firstChunk + 1) / takeChunks)}
+            currentPage={Math.ceil(1 + (firstChunk - 1) / takeChunks)}
             onPageChange={(page) => {
               // TODO: Add prefetching here
-              navigate({ search: { firstChunk: (page - 1) * takeChunks, takeChunks, fragment } })
+              navigate({ search: { firstChunk: 1 + (page - 1) * takeChunks, takeChunks, fragment } })
             }}
             showPageSizeSelector={true}
             onPageSizeChange={(newPageSize) => {
-              navigate({ search: { firstChunk: 0, takeChunks: newPageSize, fragment } })
+              navigate({ search: { firstChunk: 1, takeChunks: newPageSize, fragment } })
             }}
           />
         </div>
@@ -117,7 +117,7 @@ function RouteComponent() {
               <div className="card-body p-3">
                 {/* Header with chunk number */}
                 <div className="mb-2">
-                  <div className="badge badge-outline badge-sm badge-primary">#{chunk.chunk + 1}</div>
+                  <div className="badge badge-outline badge-sm badge-primary">#{chunk.chunk}</div>
                   {chunk.fragment && <span className="ml-1 badge badge-ghost badge-xs">part {chunk.fragment}</span>}
                 </div>
 

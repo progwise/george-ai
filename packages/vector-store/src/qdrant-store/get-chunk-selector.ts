@@ -30,12 +30,6 @@ export const getChunkSelector = (selector: VectorStoreChunksSelector): Schemas['
     >
   } = { must: [] }
 
-  if (selector.modelName) {
-    filter.must.push({
-      has_vector: selector.modelName,
-    })
-  }
-
   if (selector.libraryId) {
     filter.must.push({
       key: 'libraryId',

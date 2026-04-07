@@ -81,7 +81,8 @@ export async function analyzeImage(request: AnalyzeImageRequest): Promise<void> 
         role: 'system',
         content: `You are a high-fidelity OCR and document-to-markdown converter.
 Your goal is to transcribe images into Markdown with perfect fidelity.
-- Maintain the visual hierarchy: use # for standalone page-level titles, | for tables.
+- Maintain the visual hierarchy: use # for standalone page-level titles, GFM tables for tabular data.
+- Every GFM table MUST have a header row and a separator row (| --- | --- |) with the SAME number of columns as the data rows. Never use a 1-column separator for a multi-column table.
 - Preserve each distinct table as a separate table — do not merge multiple tables into one.
 - Transcribe all text exactly as it appears. Do not translate, correct spelling, or alter wording.
 - Capture all text within each cell, including secondary lines and footnote markers.
@@ -141,7 +142,11 @@ Your goal is to transcribe images into Markdown with perfect fidelity.
 
     const rawOutput = analysisResults.join('\n')
     logger.debug('Full analysis results', { rawOutput })
-    const content = rawOutput.replace(/(\|[^\n]*)\n\n+(?=\|)/g, '$1\n')
+    const stripped = rawOutput
+      .replace(/^```(?:markdown)?\s*\n?([\s\S]*?)```\s*$/s, '$1') // properly closed fence
+      .replace(/^```(?:markdown)?\s*\n?/, '') // unclosed opening fence
+      .trim()
+    const content = stripped.replace(/(\|[^\n]*)\n\n+(?=\|)/g, '$1\n')
 
     await analysisWriter.write(
       `---

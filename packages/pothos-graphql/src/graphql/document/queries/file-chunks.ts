@@ -107,7 +107,7 @@ builder.queryField('documentChunks', (t) =>
         documentId,
         libraryId,
         take: take ?? 10,
-        firstChunk: firstChunk ?? 0,
+        firstChunk: firstChunk ?? 1,
         extractionMethod,
         fragment,
         totalCount,

@@ -1,6 +1,7 @@
 import { canAdminWorkspaceOrThrow, createInferenceHost } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 builder.mutationField('createInferenceHost', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
@@ -14,16 +15,21 @@ builder.mutationField('createInferenceHost', (t) =>
       const userId = session.user.id
       await canAdminWorkspaceOrThrow(workspaceId, userId)
 
-      const config = await createInferenceHost({
-        workspaceId,
-        driver: driver,
-        baseUrl: data.baseUrl ?? undefined,
-        apiKey: data.apiKey ?? undefined,
-        name: data.name,
-        configuredVramGb: data.vramGb ?? undefined,
-      })
+      try {
+        const config = await createInferenceHost({
+          workspaceId,
+          driver: driver,
+          baseUrl: data.baseUrl ?? undefined,
+          apiKey: data.apiKey ?? undefined,
+          name: data.name,
+          configuredVramGb: data.vramGb ?? undefined,
+        })
 
-      return config
+        return config
+      } catch (error) {
+        logger.error('Error creating inference host', { error, workspaceId, driver, data })
+        throw error instanceof Error ? error : new Error('Unknown error creating inference host')
+      }
     },
   }),
 )

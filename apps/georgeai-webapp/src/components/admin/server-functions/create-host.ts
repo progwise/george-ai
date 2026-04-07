@@ -15,8 +15,8 @@ export const createInferenceHostFn = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     const result = await backendRequest(
       graphql(`
-        mutation createInferenceHostFn($driver: InferenceDriver!, $data: InferenceHostInput!) {
-          createInferenceHost(driver: $driver, data: $data) {
+        mutation createInferenceHostFn($driver: InferenceDriver!, $input: InferenceHostInput!) {
+          createInferenceHost(driver: $driver, data: $input) {
             hostId
             driver
             name

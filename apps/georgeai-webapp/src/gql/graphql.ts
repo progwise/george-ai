@@ -3357,7 +3357,7 @@ export type WorkersQuery = {
 
 export type CreateInferenceHostFnMutationVariables = Exact<{
   driver: InferenceDriver
-  data: InferenceHostInput
+  input: InferenceHostInput
 }>
 
 export type CreateInferenceHostFnMutation = {
@@ -13740,7 +13740,7 @@ export const CreateInferenceHostFnDocument = {
         },
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
           type: {
             kind: 'NonNullType',
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'InferenceHostInput' } },
@@ -13762,7 +13762,7 @@ export const CreateInferenceHostFnDocument = {
               {
                 kind: 'Argument',
                 name: { kind: 'Name', value: 'data' },
-                value: { kind: 'Variable', name: { kind: 'Name', value: 'data' } },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'input' } },
               },
             ],
             selectionSet: {

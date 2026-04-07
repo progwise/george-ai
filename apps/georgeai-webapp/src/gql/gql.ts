@@ -33,7 +33,7 @@ type Documents = {
   '\n        mutation testConnectorConnection($id: ID!) {\n          testConnectorConnection(id: $id) {\n            success\n            message\n            details\n          }\n        }\n      ': typeof types.TestConnectorConnectionDocument
   '\n        mutation updateConnector($id: ID!, $data: AiConnectorInput!) {\n          updateConnector(id: $id, data: $data) {\n            id\n            name\n            connectorType\n            baseUrl\n            isConnected\n          }\n        }\n      ': typeof types.UpdateConnectorDocument
   '\n      query workers {\n        workers {\n          workerId\n          workerRole\n          lastHeartbeat\n        }\n      }\n    ': typeof types.WorkersDocument
-  '\n        mutation createInferenceHostFn($driver: InferenceDriver!, $data: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ': typeof types.CreateInferenceHostFnDocument
+  '\n        mutation createInferenceHostFn($driver: InferenceDriver!, $input: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $input) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ': typeof types.CreateInferenceHostFnDocument
   '\n        mutation deleteInferenceHostFn($hostId: String!) {\n          removeInferenceHost(hostId: $hostId)\n        }\n      ': typeof types.DeleteInferenceHostFnDocument
   '\n        mutation disableInferenceHostFn($hostId: String!) {\n          disableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ': typeof types.DisableInferenceHostFnDocument
   '\n        mutation enableInferenceHostFn($hostId: String!) {\n          enableInferenceHost(hostId: $hostId) {\n            hostId\n            enabled\n          }\n        }\n      ': typeof types.EnableInferenceHostFnDocument
@@ -286,7 +286,7 @@ const documents: Documents = {
     types.UpdateConnectorDocument,
   '\n      query workers {\n        workers {\n          workerId\n          workerRole\n          lastHeartbeat\n        }\n      }\n    ':
     types.WorkersDocument,
-  '\n        mutation createInferenceHostFn($driver: InferenceDriver!, $data: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ':
+  '\n        mutation createInferenceHostFn($driver: InferenceDriver!, $input: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $input) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ':
     types.CreateInferenceHostFnDocument,
   '\n        mutation deleteInferenceHostFn($hostId: String!) {\n          removeInferenceHost(hostId: $hostId)\n        }\n      ':
     types.DeleteInferenceHostFnDocument,
@@ -840,8 +840,8 @@ export function graphql(
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
-  source: '\n        mutation createInferenceHostFn($driver: InferenceDriver!, $data: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ',
-): (typeof documents)['\n        mutation createInferenceHostFn($driver: InferenceDriver!, $data: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $data) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ']
+  source: '\n        mutation createInferenceHostFn($driver: InferenceDriver!, $input: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $input) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ',
+): (typeof documents)['\n        mutation createInferenceHostFn($driver: InferenceDriver!, $input: InferenceHostInput!) {\n          createInferenceHost(driver: $driver, data: $input) {\n            hostId\n            driver\n            name\n            enabled\n          }\n        }\n      ']
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

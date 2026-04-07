@@ -38,7 +38,6 @@ export interface VectorStoreChunksSelector {
   extractionMethod?: ExtractionMethod | null
   fragment?: number | null
   chunk?: number | null
-  modelName?: string | null
   contentGlobPattern?: string | null
   documentNameGlobPattern?: string | null
   documentPathGlobPattern?: string | null

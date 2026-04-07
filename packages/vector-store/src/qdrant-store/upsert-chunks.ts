@@ -22,7 +22,7 @@ export async function upsertChunks(parameters: {
     }
   })
 
-  logger.info('Upserting chunks', {
+  logger.debug('Upserting chunks', {
     workspaceId,
     collectionName,
     points: points.map((point) => ({
