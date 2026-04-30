@@ -19,13 +19,13 @@ function MigrationStatusItem({
   label,
   status,
   isLoading,
-  migrate,
+  action,
 }: {
   type: 'workspace' | 'library'
   label: string
   status: string
   isLoading: boolean
-  migrate: () => void
+  action?: () => void
 }) {
   const isUpToDate = status === 'ok'
 
@@ -51,7 +51,7 @@ function MigrationStatusItem({
           type="button"
           className="btn btn-ghost btn-sm"
           title="This item requires migration to be up to date."
-          onClick={migrate}
+          onClick={action}
         >
           <ExclamationIcon className="size-4 shrink-0 text-warning" />
         </button>
@@ -73,6 +73,10 @@ export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps)
   } = useWorkspaceMigration()
 
   const isLoaded = !workspaceStatusIsLoading && !!workspace
+
+  const handleConfigureWorkspace = () => {
+    toastError('Please configure embedding and vision models for your workspace to use all features.')
+  }
 
   const handleMigrateWorkspace = () => {
     if (!workspace) {
@@ -111,15 +115,21 @@ export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps)
   const needsMigration =
     (isLoaded && workspaceStatus.status !== 'ok') || librariesStatus.some((lib) => lib.status !== 'ok')
 
+  const needsConfiguration =
+    isLoaded &&
+    (!workspace.manifest?.settings?.embedding?.modelName || !workspace.manifest?.settings?.vision?.modelName)
+
   const Icon = needsMigration ? ExclamationIcon : CheckIcon
   const alertClass = needsMigration ? 'alert-warning' : 'alert-success'
-  const title = needsMigration ? 'Migration Required' : 'Up to Date'
-  const description = needsMigration
-    ? 'This workspace needs to be updated to continue using all features. The migration updates file storage and search index to the latest formats.'
-    : 'Your workspace is up to date with the latest version.'
+  const title = needsConfiguration ? 'Configuration Required' : needsMigration ? 'Migration Required' : 'Up to Date'
+  const description = needsConfiguration
+    ? 'Your workspace needs to be configured with embedding and vision models to use all features.'
+    : needsMigration
+      ? 'This workspace needs to be updated for using all features.'
+      : 'Your workspace is up to date with the latest version.'
 
   return (
-    <dialog className="modal" open aria-label="Migrate Workspace">
+    <dialog className="modal" open aria-label="Configure Workspace">
       <div className="modal-box max-w-2xl">
         {!isLoaded ? (
           <>
@@ -179,7 +189,9 @@ export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps)
                   label={workspaceStatus.label}
                   isLoading={workspaceStatus.isLoading}
                   status={workspaceStatus.status}
-                  migrate={handleMigrateWorkspace}
+                  action={
+                    needsConfiguration ? handleConfigureWorkspace : needsMigration ? handleMigrateWorkspace : undefined
+                  }
                 />
               </>
               {librariesIsLoading && <span className="loading loading-sm loading-spinner" />}
@@ -190,7 +202,7 @@ export function MigrateWorkspaceDialog({ onClose }: MigrateWorkspaceDialogProps)
                   label={libraryStatus.label}
                   isLoading={libraryStatus.isLoading}
                   status={libraryStatus.status}
-                  migrate={() => handleMigrateLibrary(libraryStatus)}
+                  action={() => handleMigrateLibrary(libraryStatus)}
                 />
               ))}
             </div>

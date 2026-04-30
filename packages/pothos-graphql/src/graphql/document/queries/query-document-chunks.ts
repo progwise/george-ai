@@ -3,13 +3,15 @@ import { getWorkspaceSettings } from '@george-ai/file-management/src/workspace-s
 import { VectorStoreChunk, vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 builder.queryField('queryDocumentChunks', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
     type: builder
-      .objectRef<{ hitCount: number; chunks: Array<VectorStoreChunk> }>('DocumentChunksQueryResult')
+      .objectRef<{ message?: string; hitCount: number; chunks: Array<VectorStoreChunk> }>('DocumentChunksQueryResult')
       .implement({
         fields: (t) => ({
+          message: t.exposeString('message', { nullable: true }),
           hitCount: t.exposeInt('hitCount', { nullable: false }),
           results: t.expose('chunks', { type: ['VectorStoreChunk'], nullable: false }),
         }),
@@ -29,7 +31,12 @@ builder.queryField('queryDocumentChunks', (t) =>
       const workspaceSettings = await getWorkspaceSettings(workspaceId)
       const embedding = workspaceSettings?.embedding
       if (!embedding || !embedding.modelDriver || !embedding.modelName) {
-        throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+        logger.warn('Cannot query document chunks because embedding is not configured for workspace', { workspaceId })
+        return {
+          message: 'Embedding is not configured for this workspace',
+          hitCount: 0,
+          chunks: [],
+        }
       }
       const result = await vectorStore.queryChunks({
         workspaceId,

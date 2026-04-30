@@ -482,7 +482,7 @@ export type AiLibraryFile = {
   createdAt: Scalars['DateTime']['output']
   docPath?: Maybe<Scalars['String']['output']>
   dropError?: Maybe<Scalars['String']['output']>
-  embeddingStatistics: Array<EmbeddingStatistic>
+  embeddingStatistics?: Maybe<Array<EmbeddingStatistic>>
   id: Scalars['ID']['output']
   lastUpdate?: Maybe<AiLibraryUpdate>
   library: AiLibrary
@@ -1002,6 +1002,7 @@ export type DateTimePeriod = {
 export type DocumentChunksQueryResult = {
   __typename?: 'DocumentChunksQueryResult'
   hitCount: Scalars['Int']['output']
+  message?: Maybe<Scalars['String']['output']>
   results: Array<VectorStoreChunk>
 }
 
@@ -2706,7 +2707,7 @@ export type VectorStore = {
   __typename?: 'VectorStore'
   chunkCount?: Maybe<Scalars['Int']['output']>
   exists: Scalars['Boolean']['output']
-  name: Scalars['String']['output']
+  name?: Maybe<Scalars['String']['output']>
   status?: Maybe<Scalars['String']['output']>
   version?: Maybe<Scalars['Int']['output']>
   warnings?: Maybe<Array<Scalars['String']['output']>>
@@ -6946,7 +6947,7 @@ export type GetWorkspaceVectorStoreQuery = {
   vectorStore: {
     __typename?: 'VectorStore'
     workspaceId: string
-    name: string
+    name?: string | null
     exists: boolean
     version?: number | null
     status?: string | null
@@ -6980,6 +6981,17 @@ export type GetWorkspaceQuery = {
       __typename?: 'WorkspaceManifest'
       version: number
       workspaceId: string
+      settings: {
+        __typename?: 'WorkspaceSettings'
+        storageLimitFiles?: number | null
+        storageLimitBytes?: number | null
+        embedding?: {
+          __typename?: 'WorkspaceEmbeddingSettings'
+          modelDriver: InferenceDriver
+          modelName: string
+        } | null
+        vision?: { __typename?: 'WorkspaceVisionSettings'; modelDriver: InferenceDriver; modelName: string } | null
+      }
       storageStats: {
         __typename?: 'StorageStats'
         extractionBytes: any
@@ -22271,6 +22283,39 @@ export const GetWorkspaceDocument = {
                     selections: [
                       { kind: 'Field', name: { kind: 'Name', value: 'version' } },
                       { kind: 'Field', name: { kind: 'Name', value: 'workspaceId' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'settings' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            { kind: 'Field', name: { kind: 'Name', value: 'storageLimitFiles' } },
+                            { kind: 'Field', name: { kind: 'Name', value: 'storageLimitBytes' } },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'embedding' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'modelDriver' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
+                                ],
+                              },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'vision' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  { kind: 'Field', name: { kind: 'Name', value: 'modelDriver' } },
+                                  { kind: 'Field', name: { kind: 'Name', value: 'modelName' } },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
                       {
                         kind: 'Field',
                         name: { kind: 'Name', value: 'storageStats' },

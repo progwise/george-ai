@@ -21,7 +21,8 @@ builder.queryField('embeddingStatistics', (t) =>
       const workspaceSettings = await getWorkspaceSettings(workspaceId)
       const embedding = workspaceSettings?.embedding
       if (!embedding || !embedding.modelDriver || !embedding.modelName) {
-        throw new GraphQLError('Workspace Manifest not found for workspaceId: ' + workspaceId)
+        logger.warn('No embedding statistics because embedding was is configured for workspace', { workspaceId })
+        return null
       }
       try {
         const embeddingStatistics = await vectorStore.getEmbeddingStatistics({

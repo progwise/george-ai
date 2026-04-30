@@ -50,7 +50,16 @@ builder.mutationField('syncModels', (t) =>
         }),
       )
 
-      const discoveredModelMap = new Map<InferenceDriver, Set<string>>()
+      const discoveredModelMap = new Map<
+        InferenceDriver,
+        Set<{
+          modelName: string
+          canDoChatCompletion: boolean
+          canDoEmbedding: boolean
+          canDoVision: boolean
+          canDoFunctionCalling: boolean
+        }>
+      >()
 
       modelDiscoveryResponses.forEach((response) => {
         if (!response.success) {
@@ -58,7 +67,18 @@ builder.mutationField('syncModels', (t) =>
           return
         }
 
-        discoveredModelMap.set(response.connection.driver, new Set(response.models.map((model) => model.modelName)))
+        discoveredModelMap.set(
+          response.connection.driver,
+          new Set(
+            response.models.map((model) => ({
+              modelName: model.modelName,
+              canDoChatCompletion: model.canDoChatCompletion,
+              canDoEmbedding: model.canDoEmbedding,
+              canDoVision: model.canDoVision,
+              canDoFunctionCalling: model.canDoFunctionCalling,
+            })),
+          ),
+        )
       })
 
       for (const [providerType, discoveredModels] of discoveredModelMap.entries()) {
@@ -69,32 +89,50 @@ builder.mutationField('syncModels', (t) =>
           },
         })
 
-        const modelsToDisable = existingModels.filter((model) => !discoveredModels.has(model.name))
-        const modelsToEnable = existingModels.filter((model) => discoveredModels.has(model.name) && !model.enabled)
+        const discoveredModelNames = new Set(Array.from(discoveredModels).map((model) => model.modelName))
+
+        const modelsToDisable = existingModels.filter((model) => !discoveredModelNames.has(model.name))
+        const modelsToEnable = existingModels.filter((model) => discoveredModelNames.has(model.name) && !model.enabled)
         const modelsToCreate = Array.from(discoveredModels).filter(
-          (modelName) => !existingModels.some((m) => m.name === modelName),
+          (model) => !existingModels.some((m) => m.name === model.modelName),
         )
 
         await prisma.$transaction([
           ...modelsToDisable.map((model) =>
             prisma.aiLanguageModel.update({
               where: { id: model.id },
-              data: { enabled: false },
+              data: {
+                enabled: false,
+                canDoChatCompletion: model.canDoChatCompletion,
+                canDoEmbedding: model.canDoEmbedding,
+                canDoVision: model.canDoVision,
+                canDoFunctionCalling: model.canDoFunctionCalling,
+              },
             }),
           ),
           ...modelsToEnable.map((model) =>
             prisma.aiLanguageModel.update({
               where: { id: model.id },
-              data: { enabled: true },
+              data: {
+                enabled: true,
+                canDoChatCompletion: model.canDoChatCompletion,
+                canDoEmbedding: model.canDoEmbedding,
+                canDoVision: model.canDoVision,
+                canDoFunctionCalling: model.canDoFunctionCalling,
+              },
             }),
           ),
-          ...modelsToCreate.map((modelName) =>
+          ...modelsToCreate.map((model) =>
             prisma.aiLanguageModel.create({
               data: {
-                name: modelName,
+                name: model.modelName,
                 provider: providerType,
                 workspaceId,
                 enabled: true,
+                canDoChatCompletion: model.canDoChatCompletion,
+                canDoEmbedding: model.canDoEmbedding,
+                canDoVision: model.canDoVision,
+                canDoFunctionCalling: model.canDoFunctionCalling,
               },
             }),
           ),

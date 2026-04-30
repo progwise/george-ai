@@ -4,6 +4,7 @@ import { canWriteWorkspaceOrThrow, deleteLibrary } from '@george-ai/app-domain'
 import { getWorkspace } from '@george-ai/file-management'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 builder.mutationField('deleteLibrary', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
@@ -17,7 +18,8 @@ builder.mutationField('deleteLibrary', (t) =>
 
       const workspace = await getWorkspace(workspaceId)
       if (!workspace) {
-        throw new GraphQLError('Workspace Manifest not found for workspaceId: ' + workspaceId)
+        logger.error('Cannot delete library because workspace was not found', { workspaceId })
+        throw new GraphQLError('Cannot delete library: Workspace Manifest not found for workspaceId: ' + workspaceId)
       }
       await deleteLibrary(workspace, { libraryId })
 

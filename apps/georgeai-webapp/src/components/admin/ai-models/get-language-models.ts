@@ -116,7 +116,7 @@ export const getLanguageModelsQueryOptions = (params: {
   showDisabled?: boolean
 }) =>
   queryOptions({
-    queryKey: [queryKeys.AiLanguageModels, { ...params }],
+    queryKey: [queryKeys.InferenceModels, { ...params }],
     queryFn: () =>
       getLanguageModels({
         data: params,

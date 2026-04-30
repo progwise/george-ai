@@ -5,6 +5,7 @@ import { getWorkspaceSettings } from '@george-ai/file-management/src/workspace-s
 import { vectorStore } from '@george-ai/vector-store'
 
 import { builder } from '../builder'
+import { logger } from '../common'
 
 builder.prismaObject('AiLibraryFile', {
   name: 'AiLibraryFile',
@@ -60,7 +61,8 @@ builder.prismaObject('AiLibraryFile', {
         const workspaceSettings = await getWorkspaceSettings(workspaceId)
         const embedding = workspaceSettings?.embedding
         if (!embedding || !embedding.modelDriver || !embedding.modelName) {
-          throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+          logger.warn('No chunk count because embedding is not configured for workspace', { workspaceId })
+          return null
         }
         const chunkCount = await vectorStore.getChunkCount({
           workspaceId,
@@ -74,13 +76,14 @@ builder.prismaObject('AiLibraryFile', {
     }),
     embeddingStatistics: t.withAuth({ isLoggedIn: true }).field({
       type: ['EmbeddingStatistic'],
-      nullable: { list: false, items: false },
+      nullable: { list: true, items: false },
       resolve: async (file, _args, { workspaceId }) => {
         const workspaceSettings = await getWorkspaceSettings(workspaceId)
 
         const embedding = workspaceSettings?.embedding
         if (!embedding || !embedding.modelDriver || !embedding.modelName) {
-          throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+          logger.warn('No embedding statistics because embedding was is configured for workspace', { workspaceId })
+          return null
         }
         const stats = await vectorStore.getEmbeddingStatistics({
           workspaceId,

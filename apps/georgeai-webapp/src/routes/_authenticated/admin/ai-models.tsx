@@ -182,7 +182,7 @@ function AiModelsPage() {
             count: data.syncModels.modelsDiscovered.toString(),
           }),
         )
-        queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] })
+        queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceModels] })
       } else {
         toastError(
           <div>

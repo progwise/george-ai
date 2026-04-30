@@ -16,6 +16,18 @@ const workspaceQueryDocument = graphql(`
       manifest {
         version
         workspaceId
+        settings {
+          storageLimitFiles
+          storageLimitBytes
+          embedding {
+            modelDriver
+            modelName
+          }
+          vision {
+            modelDriver
+            modelName
+          }
+        }
         storageStats {
           extractionBytes
           attachmentBytes

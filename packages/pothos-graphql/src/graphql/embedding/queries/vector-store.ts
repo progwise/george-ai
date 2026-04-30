@@ -12,7 +12,7 @@ builder.queryField('vectorStore', (t) =>
     type: builder.simpleObject('VectorStore', {
       fields: (t) => ({
         workspaceId: t.string({ nullable: false }),
-        name: t.string({ nullable: false }),
+        name: t.string({ nullable: true }),
         exists: t.boolean({ nullable: false }),
         version: t.int({ nullable: true }),
         status: t.string({ nullable: true }),
@@ -29,7 +29,15 @@ builder.queryField('vectorStore', (t) =>
       const workspaceSettings = await getWorkspaceSettings(workspaceId)
       const embedding = workspaceSettings?.embedding
       if (!embedding || !embedding.modelDriver || !embedding.modelName) {
-        throw new GraphQLError('Workspace Manifest not found for workspaceId: ' + workspaceId)
+        logger.warn('Embedding not configured for workspace', { workspaceId })
+        return {
+          workspaceId,
+          exists: false,
+          version: null,
+          status: 'Embedding not configured',
+          chunkCount: null,
+          warnings: null,
+        }
       }
       try {
         const vectorStoreInformation = await vectorStore.getVectorStore({

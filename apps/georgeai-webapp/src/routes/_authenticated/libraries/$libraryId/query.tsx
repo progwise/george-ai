@@ -50,6 +50,11 @@ function RouteComponent() {
       take,
     }),
   )
+
+  if (!hits) {
+    return <div className="p-4">No results found.</div>
+  }
+
   return (
     <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <div>

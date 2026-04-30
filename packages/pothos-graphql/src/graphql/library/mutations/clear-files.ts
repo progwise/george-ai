@@ -2,6 +2,7 @@ import { canWriteWorkspaceOrThrow, library } from '@george-ai/app-domain'
 import { getWorkspace } from '@george-ai/file-management'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 builder.mutationField('clearFiles', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
@@ -14,7 +15,8 @@ builder.mutationField('clearFiles', (t) =>
       await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
       const workspace = await getWorkspace(workspaceId)
       if (!workspace) {
-        throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+        logger.error('Cannot clear files because workspace was not found', { workspaceId })
+        throw new Error('Cannot clear files: Manifest not found for workspaceId: ' + workspaceId)
       }
       return await library.clearDocuments(workspace, { libraryId })
     },

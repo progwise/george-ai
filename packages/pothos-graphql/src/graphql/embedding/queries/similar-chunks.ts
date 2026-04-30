@@ -49,6 +49,15 @@ builder.queryField('similarChunks', (t) =>
         return []
       }
 
+      const workspaceSettings = await getWorkspaceSettings(workspaceId)
+      const embedding = workspaceSettings?.embedding
+      if (!embedding || !embedding.modelDriver || !embedding.modelName) {
+        logger.warn('Cannot find similar chunks because embedding is not configured for workspace', { workspaceId })
+        return []
+      }
+      const driver = InferenceDriverSchema.parse(embedding.modelDriver)
+      const modelName = embedding.modelName
+
       logger.debug('Finding similar chunks', {
         workspaceId,
         libraryId,
@@ -56,15 +65,9 @@ builder.queryField('similarChunks', (t) =>
         termLength: term.length,
         maxResults,
         fragment,
+        driver,
+        modelName,
       })
-
-      const workspaceSettings = await getWorkspaceSettings(workspaceId)
-      const embedding = workspaceSettings?.embedding
-      if (!embedding || !embedding.modelDriver || !embedding.modelName) {
-        throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
-      }
-      const driver = InferenceDriverSchema.parse(embedding.modelDriver)
-      const modelName = embedding.modelName
 
       const request: EmbeddingRequest = {
         version: 1,

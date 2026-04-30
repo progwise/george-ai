@@ -31,7 +31,7 @@ export const EditModelButton = ({ model }: EditModelButtonProps) => {
   const updateMutation = useMutation({
     mutationFn: (data: { id: string; enabled?: boolean; adminNotes?: string }) => updateAiLanguageModel({ data }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] })
+      queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceModels] })
       toastSuccess(t('admin.aiModels.updateSuccess'))
       editDialogRef.current?.close()
     },

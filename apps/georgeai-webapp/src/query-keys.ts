@@ -29,7 +29,6 @@ export const queryKeys = {
   InferenceModels: 'InferenceModels',
   ProcessingTasks: 'ProcessingTasks',
   QueueStatus: 'QueueStatus',
-  AiLanguageModels: 'aiLanguageModels',
   AiModelUsageStats: 'aiModelUsageStats',
   GoogleDriveFiles: 'GoogleDriveFiles',
   Conversations: 'Conversations',

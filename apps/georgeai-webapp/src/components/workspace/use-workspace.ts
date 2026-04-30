@@ -77,7 +77,7 @@ export const useWorkspace = (user: CurrentUserFragment) => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.Automations] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceModels] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiModelUsageStats] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceHostConfig] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceHostStatus] }),

@@ -4,6 +4,7 @@ import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 import { getRegistryEntry } from '@george-ai/event-service-client'
 
 import { builder } from '../../builder'
+import { logger } from '../../common'
 
 builder.queryField('inferenceModels', (t) =>
   t.withAuth({ isLoggedIn: true }).field({
@@ -31,6 +32,8 @@ builder.queryField('inferenceModels', (t) =>
       if (!workspace) {
         throw new GraphQLError('Workspace not found')
       }
+
+      logger.debug('Fetched workspace registry entry', { workspaceId, workspace })
 
       const models = workspace.inferenceModels.filter((model) => {
         if (search && !model.modelName.toLowerCase().includes(search.toLowerCase())) {

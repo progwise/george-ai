@@ -65,6 +65,6 @@ export const getLanguageModelsQueryOptions = (
   } = {},
 ) =>
   queryOptions({
-    queryKey: [queryKeys.AiLanguageModels, parameters],
+    queryKey: [queryKeys.InferenceModels, parameters],
     queryFn: () => getLanguageModels({ data: parameters }),
   })

@@ -434,7 +434,7 @@ type AiLibraryFile {
   createdAt: DateTime!
   docPath: String
   dropError: String
-  embeddingStatistics: [EmbeddingStatistic!]!
+  embeddingStatistics: [EmbeddingStatistic!]
   id: ID!
   lastUpdate: AiLibraryUpdate
   library: AiLibrary!
@@ -959,6 +959,7 @@ scalar Decimal
 
 type DocumentChunksQueryResult {
   hitCount: Int!
+  message: String
   results: [VectorStoreChunk!]!
 }
 
@@ -2068,7 +2069,7 @@ type UserStatistic {
 type VectorStore {
   chunkCount: Int
   exists: Boolean!
-  name: String!
+  name: String
   status: String
   version: Int
   warnings: [String!]

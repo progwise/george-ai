@@ -79,7 +79,8 @@ builder.queryField('documentChunks', (t) =>
       const workspaceSettings = await getWorkspaceSettings(workspaceId)
       const embedding = workspaceSettings?.embedding
       if (!embedding || !embedding.modelDriver || !embedding.modelName) {
-        throw new Error('Workspace Manifest not found for workspaceId: ' + workspaceId)
+        logger.warn('Cannot get document chunks because embedding is not configured for workspace', { workspaceId })
+        return null
       }
       logger.debug('getting document chunks', {
         workspaceId,

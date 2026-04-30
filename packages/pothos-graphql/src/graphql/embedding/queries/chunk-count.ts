@@ -23,7 +23,8 @@ builder.queryField('chunkCount', (t) =>
       const workspaceSettings = await getWorkspaceSettings(workspaceId)
       const embedding = workspaceSettings?.embedding
       if (!embedding || !embedding.modelDriver || !embedding.modelName) {
-        throw new GraphQLError('Workspace Manifest not found for workspaceId: ' + workspaceId)
+        logger.warn('No chunk count because embedding is not configured for workspace', { workspaceId })
+        return null
       }
       try {
         const chunkCount = await vectorStore.getChunkCount({
