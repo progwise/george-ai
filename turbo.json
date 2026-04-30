@@ -17,6 +17,7 @@
         "TEST_DB_PORT",
         "TEST_DB_USER",
         "TEST_DB_PASSWORD",
+        "DATABASE_URL",
         "NATS_URL",
         "QDRANT_URL",
         "OLLAMA_BASE_URL",
