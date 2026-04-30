@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 import {
   AiAssistantInput,
-  AiAutomationInput,
   AiBaseCaseInputType,
   AiConnectorInput,
   AiConversationCreateInput,
@@ -10,9 +9,6 @@ import {
   AiLibraryCrawlerCredentialsInput,
   AiLibraryCrawlerCronJobInput,
   AiLibraryCrawlerInput,
-  AiLibraryFileInput,
-  AiLibraryFileSortOrder,
-  AiLibraryInput,
   AiListFieldContextInput,
   AiListFieldInput,
   AiListFilterInput,
@@ -21,28 +17,43 @@ import {
   AiListSortingDirection,
   AiListSortingInput,
   AiListSourceInput,
-  AiServiceProviderInput,
+  AutomationBatchStatus,
+  AutomationInput,
   AutomationItemStatus,
-  BatchStatus,
+  AutomationTriggerType,
   ConnectorConfigInput,
   ConversationInvitationInput,
   ConversationSortOrder,
   CrawlerUriType,
+  DateTimePeriod,
+  DocumentChunksSelector,
+  DocumentFileType,
+  EmbeddingSettingsInput,
   EmbeddingStatus,
   EnrichmentStatus,
-  ExtractionStatus,
-  LibrarySortOrder,
+  EventQueueAction,
+  EventQueueStatus,
+  ExtractionMethod,
+  InferenceAction,
+  InferenceDriver,
+  InferenceHostInput,
+  LibraryFilesSortField,
+  LibraryInput,
+  LibrarySortField,
   ListFieldContextType,
   ListFieldFileProperty,
   ListFieldSourceType,
   ListFieldType,
-  ProcessingStatus,
-  QueueType,
-  TestProviderConnectionInput,
-  TriggerType,
+  PrepareUploadInput,
+  SortOrder,
   UpdateAiLanguageModelInput,
-  UserInput,
   UserProfileInput,
+  VisionSettingsInput,
+  WorkerActionResult,
+  WorkerRole,
+  WorkspaceRole,
+  WorkspaceSettingsInput,
+  WorkspaceSortField,
 } from './graphql'
 
 type Properties<T> = Required<{
@@ -55,27 +66,39 @@ export const isDefinedNonNullAny = (v: any): v is definedNonNullAny => v !== und
 
 export const definedNonNullAnySchema = z.any().refine((v) => isDefinedNonNullAny(v))
 
-export const AiLibraryFileSortOrderSchema = z.nativeEnum(AiLibraryFileSortOrder)
-
 export const AiListFilterTypeSchema = z.nativeEnum(AiListFilterType)
 
 export const AiListSortingDirectionSchema = z.nativeEnum(AiListSortingDirection)
 
+export const AutomationBatchStatusSchema = z.nativeEnum(AutomationBatchStatus)
+
 export const AutomationItemStatusSchema = z.nativeEnum(AutomationItemStatus)
 
-export const BatchStatusSchema = z.nativeEnum(BatchStatus)
+export const AutomationTriggerTypeSchema = z.nativeEnum(AutomationTriggerType)
 
 export const ConversationSortOrderSchema = z.nativeEnum(ConversationSortOrder)
 
 export const CrawlerUriTypeSchema = z.nativeEnum(CrawlerUriType)
 
+export const DocumentFileTypeSchema = z.nativeEnum(DocumentFileType)
+
 export const EmbeddingStatusSchema = z.nativeEnum(EmbeddingStatus)
 
 export const EnrichmentStatusSchema = z.nativeEnum(EnrichmentStatus)
 
-export const ExtractionStatusSchema = z.nativeEnum(ExtractionStatus)
+export const EventQueueActionSchema = z.nativeEnum(EventQueueAction)
 
-export const LibrarySortOrderSchema = z.nativeEnum(LibrarySortOrder)
+export const EventQueueStatusSchema = z.nativeEnum(EventQueueStatus)
+
+export const ExtractionMethodSchema = z.nativeEnum(ExtractionMethod)
+
+export const InferenceActionSchema = z.nativeEnum(InferenceAction)
+
+export const InferenceDriverSchema = z.nativeEnum(InferenceDriver)
+
+export const LibraryFilesSortFieldSchema = z.nativeEnum(LibraryFilesSortField)
+
+export const LibrarySortFieldSchema = z.nativeEnum(LibrarySortField)
 
 export const ListFieldContextTypeSchema = z.nativeEnum(ListFieldContextType)
 
@@ -85,11 +108,15 @@ export const ListFieldSourceTypeSchema = z.nativeEnum(ListFieldSourceType)
 
 export const ListFieldTypeSchema = z.nativeEnum(ListFieldType)
 
-export const ProcessingStatusSchema = z.nativeEnum(ProcessingStatus)
+export const SortOrderSchema = z.nativeEnum(SortOrder)
 
-export const QueueTypeSchema = z.nativeEnum(QueueType)
+export const WorkerActionResultSchema = z.nativeEnum(WorkerActionResult)
 
-export const TriggerTypeSchema = z.nativeEnum(TriggerType)
+export const WorkerRoleSchema = z.nativeEnum(WorkerRole)
+
+export const WorkspaceRoleSchema = z.nativeEnum(WorkspaceRole)
+
+export const WorkspaceSortFieldSchema = z.nativeEnum(WorkspaceSortField)
 
 export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInput>> {
   return z.object({
@@ -98,19 +125,6 @@ export function AiAssistantInputSchema(): z.ZodObject<Properties<AiAssistantInpu
     languageModelId: z.string().nullish(),
     name: z.string(),
     url: z.string().nullish(),
-  })
-}
-
-export function AiAutomationInputSchema(): z.ZodObject<Properties<AiAutomationInput>> {
-  return z.object({
-    actionConfig: z.string().nullish(),
-    connectorAction: z.string().nullish(),
-    connectorId: z.string(),
-    executeOnEnrichment: z.boolean().nullish(),
-    filter: z.string().nullish(),
-    listId: z.string(),
-    name: z.string(),
-    schedule: z.string().nullish(),
   })
 }
 
@@ -188,30 +202,6 @@ export function AiLibraryCrawlerInputSchema(): z.ZodObject<Properties<AiLibraryC
   })
 }
 
-export function AiLibraryFileInputSchema(): z.ZodObject<Properties<AiLibraryFileInput>> {
-  return z.object({
-    libraryId: z.string(),
-    mimeType: z.string(),
-    name: z.string(),
-    originModificationDate: z.string(),
-    originUri: z.string(),
-    size: z.number(),
-  })
-}
-
-export function AiLibraryInputSchema(): z.ZodObject<Properties<AiLibraryInput>> {
-  return z.object({
-    autoProcessCrawledFiles: z.boolean().nullish(),
-    description: z.string().nullish(),
-    embeddingModelId: z.string().nullish(),
-    embeddingTimeoutMs: z.number().nullish(),
-    fileConverterOptions: z.string().nullish(),
-    name: z.string(),
-    ocrModelId: z.string().nullish(),
-    url: z.string().nullish(),
-  })
-}
-
 export function AiListFieldContextInputSchema(): z.ZodObject<Properties<AiListFieldContextInput>> {
   return z.object({
     contextFieldId: z.string().nullish(),
@@ -262,14 +252,16 @@ export function AiListSourceInputSchema(): z.ZodObject<Properties<AiListSourceIn
   })
 }
 
-export function AiServiceProviderInputSchema(): z.ZodObject<Properties<AiServiceProviderInput>> {
+export function AutomationInputSchema(): z.ZodObject<Properties<AutomationInput>> {
   return z.object({
-    apiKey: z.string().nullish(),
-    baseUrl: z.string().nullish(),
-    enabled: z.boolean().nullish(),
+    actionConfig: z.string().nullish(),
+    connectorAction: z.string().nullish(),
+    connectorId: z.string(),
+    executeOnEnrichment: z.boolean().nullish(),
+    filter: z.string().nullish(),
+    listId: z.string(),
     name: z.string(),
-    provider: z.string(),
-    vramGb: z.number().nullish(),
+    schedule: z.string().nullish(),
   })
 }
 
@@ -290,12 +282,70 @@ export function ConversationInvitationInputSchema(): z.ZodObject<Properties<Conv
   })
 }
 
-export function TestProviderConnectionInputSchema(): z.ZodObject<Properties<TestProviderConnectionInput>> {
+export function DateTimePeriodSchema(): z.ZodObject<Properties<DateTimePeriod>> {
+  return z.object({
+    earliest: z.string().nullish(),
+    latest: z.string().nullish(),
+  })
+}
+
+export function DocumentChunksSelectorSchema(): z.ZodObject<Properties<DocumentChunksSelector>> {
+  return z.object({
+    chunk: z.number().nullish(),
+    contentGlobPattern: z.string().nullish(),
+    creationAuthorGlobPattern: z.string().nullish(),
+    documentId: z.string().nullish(),
+    documentNameGlobPattern: z.string().nullish(),
+    extractionMethod: ExtractionMethodSchema.nullish(),
+    fragment: z.number().nullish(),
+    libraryId: z.string().nullish(),
+    modelName: z.string().nullish(),
+    nameCreatedAt: DateTimePeriodSchema().nullish(),
+    nameHash: z.string().nullish(),
+    nameMimeTypeGlobPattern: z.string().nullish(),
+    namePathGlobPattern: z.string().nullish(),
+    nameUpdatedAt: DateTimePeriodSchema().nullish(),
+    nameUploadedAt: DateTimePeriodSchema().nullish(),
+    updateAuthorGlobPattern: z.string().nullish(),
+  })
+}
+
+export function EmbeddingSettingsInputSchema(): z.ZodObject<Properties<EmbeddingSettingsInput>> {
+  return z.object({
+    modelDriver: InferenceDriverSchema,
+    modelName: z.string(),
+  })
+}
+
+export function InferenceHostInputSchema(): z.ZodObject<Properties<InferenceHostInput>> {
   return z.object({
     apiKey: z.string().nullish(),
     baseUrl: z.string().nullish(),
-    provider: z.string(),
-    providerId: z.string().nullish(),
+    name: z.string(),
+    vramGb: z.number().nullish(),
+  })
+}
+
+export function LibraryInputSchema(): z.ZodObject<Properties<LibraryInput>> {
+  return z.object({
+    autoProcessCrawledFiles: z.boolean().nullish(),
+    description: z.string().nullish(),
+    embeddingModelId: z.string().nullish(),
+    embeddingTimeoutMs: z.number().nullish(),
+    fileConverterOptions: z.string().nullish(),
+    name: z.string().nullish(),
+    ocrModelId: z.string().nullish(),
+    url: z.string().nullish(),
+  })
+}
+
+export function PrepareUploadInputSchema(): z.ZodObject<Properties<PrepareUploadInput>> {
+  return z.object({
+    mimeType: z.string(),
+    modificationDate: z.string().nullish(),
+    name: z.string(),
+    originUri: z.string(),
+    size: z.number().nullish(),
   })
 }
 
@@ -303,16 +353,6 @@ export function UpdateAiLanguageModelInputSchema(): z.ZodObject<Properties<Updat
   return z.object({
     adminNotes: z.string().nullish(),
     enabled: z.boolean(),
-  })
-}
-
-export function UserInputSchema(): z.ZodObject<Properties<UserInput>> {
-  return z.object({
-    avatarUrl: z.string().nullish(),
-    email: z.string(),
-    family_name: z.string().nullish(),
-    given_name: z.string().nullish(),
-    name: z.string(),
   })
 }
 
@@ -325,5 +365,21 @@ export function UserProfileInputSchema(): z.ZodObject<Properties<UserProfileInpu
     freeStorage: z.number().nullish(),
     lastName: z.string().nullish(),
     position: z.string().nullish(),
+  })
+}
+
+export function VisionSettingsInputSchema(): z.ZodObject<Properties<VisionSettingsInput>> {
+  return z.object({
+    modelDriver: InferenceDriverSchema,
+    modelName: z.string(),
+  })
+}
+
+export function WorkspaceSettingsInputSchema(): z.ZodObject<Properties<WorkspaceSettingsInput>> {
+  return z.object({
+    embedding: z.lazy(() => EmbeddingSettingsInputSchema().nullish()),
+    storageLimitBytes: z.number().nullish(),
+    storageLimitFiles: z.number().nullish(),
+    vision: z.lazy(() => VisionSettingsInputSchema().nullish()),
   })
 }

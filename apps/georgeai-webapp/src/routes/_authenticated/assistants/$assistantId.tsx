@@ -24,16 +24,14 @@ export const Route = createFileRoute('/_authenticated/assistants/$assistantId')(
 
 function RouteComponent() {
   const { user } = Route.useRouteContext()
-  const ownerId = user.id
+  const ownerId = user.userId
   const { assistantId } = Route.useParams()
 
   const {
     data: { aiAssistant, aiLibraryUsage },
   } = useSuspenseQuery(getAssistantQueryOptions(assistantId))
 
-  const {
-    data: { aiLibraries },
-  } = useSuspenseQuery(getLibrariesQueryOptions())
+  const { data: aiLibraries } = useSuspenseQuery(getLibrariesQueryOptions())
   const {
     data: { aiAssistants },
   } = useSuspenseQuery(getAiAssistantsQueryOptions())
@@ -53,7 +51,10 @@ function RouteComponent() {
         <div className="card grid grow rounded-box bg-base-200 p-3 sm:w-1/2">
           <AssistantForm assistant={aiAssistant} disabled={!ownerId} />
           <hr className="my-3" />
-          <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries} />
+          {/* Libraries Section
+          TODO: Implement agination for aiLibraries
+          */}
+          <AssistantLibraries assistant={aiAssistant} usages={aiLibraryUsage} libraries={aiLibraries.items} />
         </div>
         <div className="card grid grow rounded-box bg-base-200 p-3 sm:w-1/2">
           <AssistantBasecaseForm assistant={aiAssistant} />

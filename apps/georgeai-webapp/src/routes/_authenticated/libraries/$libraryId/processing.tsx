@@ -1,112 +1,67 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { aiLibraryFilesQueryOptions } from '../../../../components/library/files/get-files'
-import { getProcessingTasksQueryOptions } from '../../../../components/library/tasks/get-tasks'
-import { TaskAccordionItem } from '../../../../components/library/tasks/task-accordion-item'
-import { TaskMenu } from '../../../../components/library/tasks/task-menu'
-import { Pagination } from '../../../../components/table/pagination'
-import { ProcessingStatus } from '../../../../gql/graphql'
+import { getProcessingRequestsQueryOptions } from '../../../../components/workspace/queries'
+import { EventQueueAction } from '../../../../gql/graphql'
+import { useTranslation } from '../../../../i18n/use-translation-hook'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/processing')({
   component: RouteComponent,
   validateSearch: z.object({
-    skip: z.coerce.number().default(0),
+    startSequence: z.coerce.number().optional(),
     take: z.coerce.number().default(20),
-    status: z.nativeEnum(ProcessingStatus).optional(),
+    action: z.nativeEnum(EventQueueAction).optional(),
   }),
-  loaderDeps: ({ search: { skip, take, status } }) => ({
-    skip,
+  loaderDeps: ({ search: { startSequence, take } }) => ({
+    startSequence,
     take,
-    status,
   }),
-  loader: async ({ context, params, deps }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(
-        getProcessingTasksQueryOptions({
-          libraryId: params.libraryId,
-          skip: deps.skip,
-          take: deps.take,
-          status: deps.status,
-        }),
-      ),
-      context.queryClient.ensureQueryData(
-        aiLibraryFilesQueryOptions({
-          libraryId: params.libraryId,
-          skip: 0,
-          take: 1,
-        }),
-      ),
-    ])
-  },
 })
 
 function RouteComponent() {
+  const { user } = Route.useRouteContext()
   const { libraryId } = Route.useParams()
-  const { skip, take, status } = Route.useSearch()
-  const navigate = Route.useNavigate()
+  const { startSequence, take, action } = Route.useSearch()
+  const { t } = useTranslation()
 
-  const {
-    data: { aiContentProcessingTasks },
-  } = useSuspenseQuery(
-    getProcessingTasksQueryOptions({
-      libraryId,
-      skip,
+  const { data, isLoading, error } = useQuery(
+    getProcessingRequestsQueryOptions({
+      workspaceId: user.selectedWorkspaceId,
+      startSequence,
       take,
-      status,
+      action,
     }),
   )
-
-  const {
-    data: { aiLibraryFiles },
-  } = useSuspenseQuery(
-    aiLibraryFilesQueryOptions({
-      libraryId,
-      skip: 0,
-      take: 1,
-    }),
-  )
-
-  const tasks = aiContentProcessingTasks.tasks
-  const count = aiContentProcessingTasks.count
 
   return (
-    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
-      <div>
-        <TaskMenu
-          libraryId={libraryId}
-          files={aiLibraryFiles}
-          statusCounts={aiContentProcessingTasks.statusCounts}
-          totalTasksCount={aiContentProcessingTasks.count}
-        />
-
-        <div className="flex flex-row justify-end">
-          <Pagination
-            totalItems={count}
-            itemsPerPage={take}
-            currentPage={1 + skip / take}
-            onPageChange={(page) => {
-              navigate({ search: { skip: (page - 1) * take, take, status } })
-            }}
-            showPageSizeSelector={true}
-            onPageSizeChange={(newPageSize) => {
-              navigate({ search: { skip: 0, take: newPageSize, status } })
-            }}
-          />
+    <div className="flex h-full flex-col gap-2">
+      <h1 className="text-2xl font-bold">
+        {t('libraries.processingTasks')}
+        {libraryId}
+      </h1>
+      {isLoading && <div className="loading loading-sm loading-spinner"></div>}
+      {error && (
+        <div className="text-error">
+          {t('errors.withColon')}
+          {(error as Error).message}
         </div>
-      </div>
-      {tasks.length === 0 ? (
-        <div className="card bg-base-200">
-          <div className="card-body text-center">
-            <p className="text-base-content/60">No tasks found</p>
-          </div>
-        </div>
-      ) : (
-        <div className="overflow-auto">
-          {tasks.map((task, index) => (
-            <TaskAccordionItem key={task.id} task={task} index={index} skip={skip} take={take} hideFileName={false} />
-          ))}
+      )}
+      {data && (
+        <div>
+          <p>{t('libraries.totalRequests', { total: data.totalMessages })} </p>
+          <p>{t('libraries.lastSequence', { last: data.lastSequence })}</p>
+          <ul>
+            {data.requests.map((item) => (
+              <li key={`item-${item.action}-${item.timestamp}`}>
+                <div>{t('libraries.action', { action: item.action })}</div>
+                <div>{t('libraries.timestamp', { stamp: item.timestamp })}</div>
+                <pre>
+                  <code lang="json">{JSON.stringify(item)}</code>
+                </pre>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

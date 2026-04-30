@@ -1,24 +1,6 @@
 import { Locator, Page, expect } from '@playwright/test'
 
-export const automationSwitcher = (locator: Locator | Page) => {
-  return locator.getByRole('group', { name: /switch automation/i })
-}
-
-export const switchAutomation = async (locator: Locator | Page, automationName: string) => {
-  const switcher = automationSwitcher(locator)
-  await expect(switcher).toBeVisible()
-  const summary = switcher.locator('summary')
-  await expect(summary).toBeVisible()
-  const optionsList = switcher.getByRole('listbox')
-  const isExpanded = await optionsList.isVisible()
-  if (!isExpanded) {
-    await summary.click()
-  }
-  await expect(optionsList).toBeVisible()
-  await optionsList.getByRole('option', { name: automationName, exact: true }).click()
-  await expect(optionsList).not.toBeVisible()
-  await expect(summary).toContainText(automationName)
-}
+import { closeMigrationDialogIfPresent } from './migration-dialog-util'
 
 interface CreateAutomationOptions {
   name: string
@@ -36,9 +18,10 @@ export const createAutomation = async (page: Page, options: CreateAutomationOpti
   // Navigate to automations
   await page.goto('/automations')
   await page.waitForLoadState('networkidle')
-
+  await closeMigrationDialogIfPresent(page)
   // Click "New Automation" button
-  const newAutomationButton = page.getByRole('button', { name: /new automation/i })
+  await page.getByLabel('Open sidebar').click({ force: true })
+  const newAutomationButton = page.getByRole('button', { name: /create automation/i })
   await expect(newAutomationButton).toBeEnabled()
   await newAutomationButton.click()
 
@@ -50,17 +33,15 @@ export const createAutomation = async (page: Page, options: CreateAutomationOpti
   await dialog.getByLabel(/name/i).fill(name)
 
   // Select the list
-  await dialog.getByLabel(/list/i).click()
-  await page.getByRole('option', { name: list }).click()
+  await dialog.getByLabel(/list/i).selectOption({ label: list })
 
   // Select the connector
-  await dialog.getByLabel(/connector/i).click()
-  await page.getByRole('option', { name: connector }).click()
+  await dialog.getByLabel(/connector/i).selectOption({ label: connector })
 
   // Submit
   await dialog.getByRole('button', { name: /create/i }).click()
 
   // Wait for navigation to the new automation
-  const switcher = automationSwitcher(page)
-  await expect(switcher.locator('summary')).toContainText(name)
+  const nameGroup = page.getByRole('group', { name: 'Name', exact: true })
+  await expect(nameGroup.getByRole('textbox')).toHaveValue(name)
 }

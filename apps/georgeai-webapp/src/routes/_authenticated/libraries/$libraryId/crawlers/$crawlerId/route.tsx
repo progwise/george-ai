@@ -1,10 +1,10 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 
-import { dateString, timeString } from '@george-ai/web-utils'
+import { dateString, timeString } from '@george-ai/app-commons'
 
 import { CrawlersMenu } from '../../../../../../components/library/crawler/crawlers-menu'
-import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries/get-crawler'
+import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
 import { CheckIcon } from '../../../../../../icons/check-icon'
 import { WarnIcon } from '../../../../../../icons/warn-icon'
@@ -20,9 +20,7 @@ function RouteComponent() {
   const { t, language } = useTranslation()
 
   const { libraryId, crawlerId } = Route.useParams()
-  const {
-    data: { aiLibraryCrawler: crawler },
-  } = useSuspenseQuery(getCrawlerQueryOptions({ libraryId, crawlerId }))
+  const { data: crawler } = useSuspenseQuery(getCrawlerQueryOptions({ libraryId, crawlerId }))
 
   return (
     <div className="flex flex-col gap-4">

@@ -1,8 +1,9 @@
 import { Request, Response } from 'express'
 
-import { subscribeConversationMessagesUpdate, unsubscribeConversationMessagesUpdates } from '@george-ai/pothos-graphql'
-import { createLogger } from '@george-ai/web-utils'
+import { createLogger } from '@george-ai/app-commons'
+import { subscribeConversationMessagesUpdate, unsubscribeConversationMessagesUpdates } from '@george-ai/app-domain'
 
+// TODO: move this to a more appropriate place, e.g. conversation service in app-domain
 const logger = createLogger('SSE')
 const eventIds = new Map<string, number>()
 

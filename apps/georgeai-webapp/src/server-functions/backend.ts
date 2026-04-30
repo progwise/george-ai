@@ -1,9 +1,11 @@
 import { TypedDocumentNode } from '@graphql-typed-document-node/core'
+import { redirect } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
-import { getCookie } from '@tanstack/react-start/server'
+import { getCookie, getRequest } from '@tanstack/react-start/server'
 import request, { RequestDocument, Variables } from 'graphql-request'
 
-import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../auth/auth'
+import { KEYCLOAK_TOKEN_COOKIE_NAME } from '../auth'
+import { logger } from '../common'
 import { WORKSPACE_COOKIE_NAME } from '../components/workspace/server-functions/workspace-cookie'
 import { BACKEND_URL, GRAPHQL_API_KEY } from '../constants'
 import { graphql } from '../gql'
@@ -31,14 +33,24 @@ async function backendRequest<T, V extends Variables = Variables>(
     return await request(BACKEND_URL + '/graphql', document, variables, headers)
   } catch (error) {
     // Extract clean GraphQL error messages from response.errors
-    if (error && typeof error === 'object' && 'response' in error) {
+    if (typeof error === 'object' && 'response' in error) {
       const response = error.response as { errors?: Array<{ message: string }> }
       if (response.errors && response.errors.length > 0) {
+        if (response.errors.some((e) => e.message.includes('Unauthorized'))) {
+          logger.warn('Unauthorized error from backend GraphQL request . redirecting to login', { document, variables })
+          throw redirect({ to: '/login', search: { redirect: getRequest().url } })
+        }
+        logger.error('GraphQL errors returned from backend', {
+          errors: JSON.stringify(response.errors, null, 2),
+          document,
+          variables: JSON.stringify(variables),
+        })
         const errorMessages = response.errors.map((e) => e.message).join('\n')
         throw new Error(errorMessages)
       }
     }
     // Re-throw original error if it's not a GraphQL error
+    logger.error('Error during backend GraphQL request', { error, document, variables })
     throw error
   }
 }

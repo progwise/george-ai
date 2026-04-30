@@ -9,8 +9,8 @@ import './shopware6'
 
 // Core types needed by consumers
 export type {
-  ActionExecutionResult,
-  ActionInput,
+  ConnectorActionExecutionResult,
+  ConnectorActionInput,
   ConnectorAction,
   ConnectorConfig,
   ConnectorType,
@@ -23,9 +23,9 @@ export { getConnectorAction, getConnectorTypeFactory, registerConnectorType } fr
 // Validation schemas
 export { actionMappingsConfigSchema, connectorActionConfigSchema, rawActionConfigSchema } from './validation'
 export type {
-  ActionConfigValue,
-  ActionFieldMapping,
-  ActionMappingsConfig,
+  ConnectorActionConfigValue,
+  ConnectorActionFieldMapping,
+  ConnectorActionMappingsConfig,
   ConnectorActionConfig,
   TransformType,
 } from './validation'

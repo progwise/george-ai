@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 import { LibraryForm } from '../../../../components/library/library-form'
-import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
+import { getLibraryQueryOptions } from '../../../../components/library/queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/settings')({
   component: RouteComponent,
@@ -13,13 +13,14 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/setti
 
 function RouteComponent() {
   const { libraryId } = Route.useParams()
+  const { user } = Route.useRouteContext()
 
   const { data: aiLibrary } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   return (
     <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <div className="min-h-0 min-w-0">
-        <LibraryForm library={aiLibrary} />
+        <LibraryForm library={aiLibrary} user={user} />
       </div>
     </div>
   )

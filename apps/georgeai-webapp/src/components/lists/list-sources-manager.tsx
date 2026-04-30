@@ -20,9 +20,6 @@ graphql(`
       library {
         id
         name
-        owner {
-          name
-        }
       }
     }
   }
@@ -37,9 +34,7 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
   const queryClient = useQueryClient()
   const [selectedLibraryId, setSelectedLibraryId] = useState('')
 
-  const {
-    data: { aiLibraries },
-  } = useSuspenseQuery(getLibrariesQueryOptions())
+  const { data: aiLibraries } = useSuspenseQuery(getLibrariesQueryOptions())
 
   const { mutate: addSource, isPending: isAddingSource } = useMutation({
     mutationFn: addListSource,
@@ -71,7 +66,7 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
   }
 
   // Get available libraries (not already added as sources)
-  const availableLibraries = aiLibraries.filter(
+  const availableLibraries = aiLibraries.items.filter(
     (library) => !list.sources.some((source) => source.libraryId === library.id),
   )
 
@@ -98,7 +93,7 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
             <option value="">{t('lists.sources.selectLibrary')}</option>
             {availableLibraries.map((library) => (
               <option key={library.id} value={library.id}>
-                {library.name} ({library.owner.name})
+                {library.name}
               </option>
             ))}
           </select>
@@ -139,9 +134,6 @@ export const ListSourcesManager = ({ list }: ListSourcesManagerProps) => {
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-bold text-primary">{source.library?.name}</span>
                       <span className="badge badge-sm badge-success">Active</span>
-                    </div>
-                    <div className="mt-1 text-sm text-base-content/70">
-                      Owner: <span className="font-medium">{source.library?.owner.name}</span>
                     </div>
                   </div>
                   <div className="flex shrink-0">

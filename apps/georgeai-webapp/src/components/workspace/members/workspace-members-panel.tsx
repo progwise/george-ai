@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { UserFragment } from '../../../gql/graphql'
+import { CurrentUserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ClientDate } from '../../client-date'
 import { DialogForm } from '../../dialog-form'
@@ -10,7 +10,7 @@ import { useWorkspace } from '../use-workspace'
 import { InviteMemberDialog } from './invite-member-dialog'
 
 interface WorkspaceMembersPanelProps {
-  user: UserFragment
+  user: CurrentUserFragment
   onLeaveSuccess?: () => void
 }
 
@@ -37,6 +37,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
     currentUserRole,
     isLoading,
     isPending,
+    currentWorkspace,
   } = useWorkspace(user)
 
   const currentUserIsOwner = currentUserRole === 'owner'
@@ -65,7 +66,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold">{t('workspace.members.title')}</h3>
+          <h3 className="text-lg font-semibold">{currentWorkspace?.name}</h3>
           <p className="text-sm text-base-content/70">{t('workspace.members.description')}</p>
         </div>
         {currentUserCanManage && (
@@ -81,7 +82,7 @@ export const WorkspaceMembersPanel = ({ user, onLeaveSuccess }: WorkspaceMembers
           <div className="p-4 text-center text-base-content/70">{t('workspace.members.noMembers')}</div>
         ) : (
           members?.map((member) => {
-            const isCurrentUser = member.user.id === user?.id
+            const isCurrentUser = member.user.id === user.userId
             const isMemberAdmin = member.role === 'admin' || member.role === 'owner'
 
             return (

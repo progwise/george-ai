@@ -1,8 +1,4 @@
-/**
- * Generic REST API template
- * Minimal starting point for custom API integrations
- */
-import type { ApiCrawlerConfig } from '../types'
+import { ApiCrawlerConfig } from '../api-crawler-config'
 
 /**
  * Generic REST API crawler template

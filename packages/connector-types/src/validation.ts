@@ -63,7 +63,7 @@ export const actionMappingsConfigSchema = z.object({
   mappings: z.record(z.string(), fieldMappingSchema),
 })
 
-export type ActionMappingsConfig = z.infer<typeof actionMappingsConfigSchema>
+export type ConnectorActionMappingsConfig = z.infer<typeof actionMappingsConfigSchema>
 
 /**
  * Generic action config value (key-value pair for simple fields)
@@ -73,7 +73,7 @@ export const actionConfigValueSchema = z.object({
   value: z.string().nullable(),
 })
 
-export type ActionConfigValue = z.infer<typeof actionConfigValueSchema>
+export type ConnectorActionConfigValue = z.infer<typeof actionConfigValueSchema>
 
 /**
  * Generic action field mapping (for GraphQL output)
@@ -84,7 +84,7 @@ export const actionFieldMappingSchema = z.object({
   transform: z.string(),
 })
 
-export type ActionFieldMapping = z.infer<typeof actionFieldMappingSchema>
+export type ConnectorActionFieldMapping = z.infer<typeof actionFieldMappingSchema>
 
 /**
  * Generic connector action config structure (for GraphQL output)

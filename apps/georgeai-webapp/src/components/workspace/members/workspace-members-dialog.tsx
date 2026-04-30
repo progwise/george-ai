@@ -1,11 +1,11 @@
 import { RefObject } from 'react'
 
-import { UserFragment } from '../../../gql/graphql'
+import { CurrentUserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { WorkspaceMembersPanel } from './workspace-members-panel'
 
 interface WorkspaceMembersDialogProps {
-  user: UserFragment
+  user: CurrentUserFragment
   ref: RefObject<HTMLDialogElement | null>
 }
 

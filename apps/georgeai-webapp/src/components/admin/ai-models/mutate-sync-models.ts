@@ -9,6 +9,9 @@ export const syncModels = createServerFn({ method: 'POST' }).handler(async () =>
       mutation SyncModels {
         syncModels {
           success
+          modelsEnabled
+          modelsDisabled
+          modelsCreated
           modelsDiscovered
           errors
         }

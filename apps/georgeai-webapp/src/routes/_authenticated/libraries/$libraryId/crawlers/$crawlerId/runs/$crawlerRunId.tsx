@@ -3,7 +3,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 import { z } from 'zod'
 
-import { duration } from '@george-ai/web-utils'
+import { duration } from '@george-ai/app-commons'
 
 import { ClientDate } from '../../../../../../../components/client-date'
 import { getCrawlerRunQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler-run'
@@ -35,9 +35,7 @@ function RouteComponent() {
   const search = Route.useSearch()
   const { queryClient } = Route.useRouteContext()
   const { t } = useTranslation()
-  const {
-    data: { aiLibraryCrawlerRun: crawlerRun },
-  } = useSuspenseQuery(
+  const { data: crawlerRun } = useSuspenseQuery(
     getCrawlerRunQueryOptions({
       ...params,
       ...search,

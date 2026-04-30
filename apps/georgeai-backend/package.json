@@ -17,8 +17,10 @@
   },
   "dependencies": {
     "@george-ai/file-management": "workspace:*",
+    "@george-ai/app-domain": "workspace:*",
+    "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-schema": "workspace:*",
     "@george-ai/pothos-graphql": "workspace:*",
-    "@george-ai/web-utils": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -26,7 +28,6 @@
     "graphql": "^16.11.0",
     "graphql-yoga": "^5.16.0",
     "jsonwebtoken": "^9.0.2",
-    "prisma": "^7.2.0",
     "tsx": "^4.20.6"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 import { Link, useParams } from '@tanstack/react-router'
 import { useState } from 'react'
 
-import { dateString } from '@george-ai/web-utils'
+import { dateString } from '@george-ai/app-commons'
 
 import { graphql } from '../../gql'
 import { ConversationSelector_ConversationFragment } from '../../gql/graphql'
@@ -12,6 +12,7 @@ import { DeleteConversationsDialog } from './delete-conversations-dialog'
 graphql(`
   fragment ConversationSelector_Conversation on AiConversation {
     ...ConversationBase
+    ownerId
     owner {
       id
       name

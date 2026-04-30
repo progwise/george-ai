@@ -1,21 +1,5 @@
-import z from 'zod'
+import { default as vectorStore } from './qdrant-store'
 
-export const FileEmbeddingOptionsSchema = z.object({
-  embeddingModelName: z.string(),
-  embeddingModelProvider: z.string(),
-})
-
-export type FileEmbeddingOptions = z.infer<typeof FileEmbeddingOptionsSchema>
-
-export const FileEmbeddingResultSchema = z.object({
-  chunkCount: z.number(),
-  chunkSize: z.number(),
-  processingTimeMs: z.number(),
-  notes: z.string().optional(),
-  metadata: z.record(z.unknown()).optional(),
-  timeout: z.boolean(),
-  partialResult: z.boolean(),
-  success: z.boolean(),
-})
-
-export type FileEmbeddingResult = z.infer<typeof FileEmbeddingResultSchema>
+export type { VectorStoreChunk, VectorStoreChunksSelector } from './schema'
+export type { EmbeddingStatistic } from './qdrant-store'
+export { vectorStore }

@@ -1,68 +1,72 @@
 import { Link } from '@tanstack/react-router'
 
-import { AiLibraryFileInfo_CaptionCardFragment } from '../../../gql/graphql'
+import { useTranslation } from '../../../i18n/use-translation-hook'
 
 interface FileNavigationProps {
-  file: AiLibraryFileInfo_CaptionCardFragment
+  fileId: string
+  libraryId: string
 }
-export const FileNavigation = ({ file }: FileNavigationProps) => {
+export const FileNavigation = ({ fileId, libraryId }: FileNavigationProps) => {
+  const { t } = useTranslation()
+
   return (
-    <ul className="menu menu-horizontal flex-nowrap menu-sm rounded-box bg-base-200 shadow-lg">
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: true, includeSearch: false }}
-          to="/libraries/$libraryId/files/$fileId"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Markdown
-        </Link>
-      </li>
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/tasks"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Tasks
-        </Link>
-      </li>
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/chunks"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Chunks
-        </Link>
-      </li>
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/similarity"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Similarity
-        </Link>
-      </li>
-      <li>
-        <Link
-          className="btn rounded-full btn-xs"
-          activeProps={{ className: 'btn-active btn-primary' }}
-          activeOptions={{ exact: false }}
-          to="/libraries/$libraryId/files/$fileId/usages"
-          params={{ libraryId: file.libraryId, fileId: file.id }}
-        >
-          Usages
-        </Link>
-      </li>
-    </ul>
+    <div role="tablist" className="tabs-lift tabs">
+      <a className="tab tab-disabled flex-1 cursor-default text-center">
+        {/* Placeholder empty tab for filling up the line... */}
+      </a>
+      <Link
+        className="tab"
+        activeOptions={{ exact: true, includeSearch: false }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId"
+        params={{ libraryId, fileId }}
+      >
+        {t('labels.extractions')}
+      </Link>
+      <Link
+        className="tab"
+        activeOptions={{ exact: true, includeSearch: false }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId/files"
+        params={{ libraryId, fileId }}
+      >
+        {t('labels.files')}
+      </Link>
+      <Link
+        className="tab"
+        activeOptions={{ exact: false }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId/tasks"
+        params={{ libraryId, fileId }}
+      >
+        {t('labels.tasks')}
+      </Link>
+      <Link
+        className="tab"
+        activeOptions={{ exact: false }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId/chunks"
+        params={{ libraryId, fileId }}
+      >
+        {t('labels.chunks')}
+      </Link>
+      <Link
+        className="tab"
+        activeOptions={{ exact: false }}
+        activeProps={{ className: 'tab-active' }}
+        role="tab"
+        to="/libraries/$libraryId/files/$fileId/similarity"
+        params={{ libraryId, fileId }}
+      >
+        {t('labels.similarity')}
+      </Link>
+      <a className="tab tab-disabled flex-1 cursor-default text-center">
+        {/* Placeholder empty tab for filling up the line... */}
+      </a>
+    </div>
   )
 }

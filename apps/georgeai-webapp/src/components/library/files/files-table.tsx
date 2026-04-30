@@ -2,59 +2,90 @@ import { Link, useParams } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
+import { dateTimeStringShort } from '@george-ai/app-commons'
 import { formatBytes } from '@george-ai/web-utils'
 
 import { graphql } from '../../../gql'
-import { AiLibraryFile_TableItemFragment, ExtractionStatus, ProcessingStatus } from '../../../gql/graphql'
+import { AiLibraryFile_FilesTableFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ArchiveIcon } from '../../../icons/archive-icon'
 import { CalendarIcon } from '../../../icons/calendar-icon'
 import { CheckIcon } from '../../../icons/check-icon'
 import { ExclamationIcon } from '../../../icons/exclamation-icon'
 import { EyeIcon } from '../../../icons/eye-icon'
-import { PlayIcon } from '../../../icons/play-icon'
 import { ReprocessIcon } from '../../../icons/reprocess-icon'
 import { SparklesIcon } from '../../../icons/sparkles-icon'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { ClientDate } from '../../client-date'
 import { DialogForm } from '../../dialog-form'
-import { useFileActions } from './use-file-actions'
+import { toastSuccess } from '../../georgeToaster'
+import { useLibraryActions } from '../use-library-actions'
 
 const truncateFileName = (name: string, maxLength: number, truncatedLength: number) =>
   name.length > maxLength ? `${name.slice(0, truncatedLength)}...${name.slice(name.lastIndexOf('.'))}` : name
 
 graphql(`
-  fragment AiLibraryFile_TableItem on AiLibraryFile {
+  fragment AiLibrary_FilesTable on AiLibrary {
+    id
+    name
+    manifest {
+      name
+    }
+  }
+`)
+
+graphql(`
+  fragment AiLibraryFile_FilesTable on AiLibraryFile {
     id
     libraryId
     name
     originUri
     mimeType
     size
-    uploadedAt
     dropError
     createdAt
     originModificationDate
     archivedAt
-    taskCount
-    processingStatus
-    extractionStatus
-    embeddingStatus
-    lastSuccessfulEmbedding {
-      id
-      createdAt
-      processingFinishedAt
-      chunksCount
-      chunksSize
+    chunkCount
+    manifest {
+      version
+      documentId
+      name
+      mimeType
+      sourceHash
+      created
+      origin {
+        uri
+        hash
+        creationDate
+        lastModifiedDate
+        author
+      }
+      extractions {
+        extractionMethod
+        sourceHash
+        created
+        updated
+      }
+      storageStats {
+        extractionBytes
+        attachmentBytes
+        physicalBytes
+        extractionFileCount
+        physicalFileCount
+        attachmentFileCount
+        lastUpdate
+        lastReconcile
+      }
     }
   }
 `)
 interface FilesTableProps {
-  files: AiLibraryFile_TableItemFragment[]
+  files: AiLibraryFile_FilesTableFragment[]
   firstItemNumber: number
 }
 export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
-  const { t } = useTranslation()
+  const { t, language } = useTranslation()
   const { libraryId } = useParams({ from: '/_authenticated/libraries/$libraryId' })
   const [selectedFileIds, setSelectedFileIds] = useState<string[]>([])
   const pageFileIds = files?.map((file) => file.id) || []
@@ -67,9 +98,8 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
     return () => clearTimeout(timeout)
   }, [libraryId])
 
-  const { dropFile, dropFiles, createExtractionTasks, createEmbeddingTasks, fileActionPending } = useFileActions({
-    libraryId,
-  })
+  const { deleteDocument, deleteDocuments, triggerExtraction, triggerVectorization, isPending } =
+    useLibraryActions(libraryId)
 
   const dropDialogRef = useRef<HTMLDialogElement>(null)
   const processDialogRef = useRef<HTMLDialogElement>(null)
@@ -102,7 +132,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
   }
 
   const handleDropSelectedFiles = () => {
-    dropFiles(selectedFileIds, {
+    deleteDocuments(selectedFileIds, {
       onSettled: () => {
         setSelectedFileIds([])
         dropDialogRef.current?.close()
@@ -110,22 +140,18 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
     })
   }
 
-  const handleProcessSelectedFiles = () => {
-    createExtractionTasks(selectedFileIds, {
-      onSettled: () => {
-        setSelectedFileIds([])
-        processDialogRef.current?.close()
-      },
-    })
+  const handleExtractSelectedFiles = () => {
+    for (const documentId of selectedFileIds) {
+      triggerExtraction({ documentId })
+    }
+    toastSuccess(`Extraction of ${selectedFileIds.length} documents triggered. `)
   }
 
   const handleEmbedSelectedFiles = () => {
-    createEmbeddingTasks(selectedFileIds, {
-      onSettled: () => {
-        setSelectedFileIds([])
-        embedDialogRef.current?.close()
-      },
-    })
+    for (const documentId of selectedFileIds) {
+      triggerVectorization({ documentId })
+    }
+    toastSuccess(`Vectorizatrion of ${selectedFileIds.length} documents triggered. `)
   }
 
   return (
@@ -199,23 +225,42 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       {t('labels.archived')}
                     </span>
                   )}
-                  {file.extractionStatus !== ExtractionStatus.None && (
+                  {!file.manifest ? (
                     <span
-                      className={twMerge(
-                        'badge gap-1 badge-sm',
-                        file.extractionStatus === ExtractionStatus.Pending && 'badge-info',
-                        file.extractionStatus === ExtractionStatus.Running && 'badge-primary',
-                        file.extractionStatus === ExtractionStatus.Completed && 'badge-success',
-                        file.extractionStatus === ExtractionStatus.Failed && 'badge-error',
-                      )}
-                      title={file.extractionStatus}
+                      className="badge gap-1 badge-outline badge-sm badge-warning"
+                      title={t('errors.fileMissingInfo')}
                     >
-                      {file.extractionStatus === ExtractionStatus.Pending && <CalendarIcon className="size-3" />}
-                      {file.extractionStatus === ExtractionStatus.Running && <PlayIcon className="size-3" />}
-                      {file.extractionStatus === ExtractionStatus.Completed && <CheckIcon className="size-3" />}
-                      {file.extractionStatus === ExtractionStatus.Failed && <ExclamationIcon className="size-3" />}
-                      {file.extractionStatus}
+                      <ExclamationIcon className="size-3" />
+                      {t('errors.missingInfo')}
                     </span>
+                  ) : file.manifest.extractions.length === 0 ? (
+                    <span className="badge gap-1 badge-outline badge-sm badge-info" title={t('files.noExtractionsYet')}>
+                      <CalendarIcon className="size-3" />
+                      {t('files.noExtractions')}
+                    </span>
+                  ) : (
+                    file.manifest.extractions
+                      .sort(
+                        (a, b) =>
+                          new Date(a.updated || a.created).getTime() - new Date(b.updated || b.created).getTime(),
+                      )
+                      .map((extraction) => (
+                        <span
+                          key={`${file.id}-extraction-${extraction.extractionMethod}`}
+                          className={twMerge(
+                            'badge gap-1 badge-sm',
+                            file.manifest?.sourceHash === extraction.sourceHash ? 'badge-success' : 'badge-warning',
+                          )}
+                          title={`${t('files.extractionMethod')}: ${extraction.extractionMethod}`}
+                        >
+                          {file.manifest?.sourceHash === extraction.sourceHash ? (
+                            <CheckIcon className="size-3" />
+                          ) : (
+                            <ExclamationIcon className="size-3" />
+                          )}
+                          {`${extraction.extractionMethod} (${dateTimeStringShort(extraction.updated || extraction.created, language)})`}
+                        </span>
+                      ))
                   )}
                 </div>
               </div>
@@ -224,9 +269,8 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                 <span>{t('labels.size')}:</span>
                 <span>{file.size ?? '-'}</span>
                 <span>{t('labels.chunks')}:</span>
-                <span>{file.lastSuccessfulEmbedding?.chunksCount ?? '-'}</span>
+                <span>{file.chunkCount !== null && file.chunkCount !== undefined ? file.chunkCount : '-'}</span>
                 <span>{t('labels.processed')}:</span>
-                <ClientDate date={file.lastSuccessfulEmbedding?.processingFinishedAt} format="dateTime" fallback="-" />
                 {file.originModificationDate && (
                   <>
                     <span>{t('labels.originModified')}:</span>
@@ -240,12 +284,12 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden size-full overflow-auto lg:block">
-        <table className="table-pin-rows table-pin-cols table table-zebra table-sm">
+      <div className="hidden h-full lg:block">
+        <table className="table-pin-rows table-pin-cols table table-zebra">
           <thead>
             <tr>
               <th>
-                <div className="flex flex-row flex-nowrap justify-between text-sm">
+                <div className="flex flex-row flex-nowrap items-center justify-between text-sm">
                   <input
                     type="checkbox"
                     className="checkbox m-0 checkbox-xs p-0 text-xs"
@@ -256,7 +300,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
 
                   <button
                     type="button"
-                    className="tooltip btn tooltip-right btn-square btn-xs"
+                    className="tooltip btn tooltip-right z-20 btn-square btn-xs"
                     onClick={() => embedDialogRef.current?.showModal()}
                     data-tip={t('actions.embedSelected', { count: selectedFileIds.length })}
                     disabled={selectedFileIds.length === 0}
@@ -265,7 +309,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                   </button>
                   <button
                     type="button"
-                    className="tooltip btn tooltip-right btn-square btn-xs"
+                    className="tooltip btn tooltip-right z-10 btn-square btn-xs"
                     onClick={() => dropDialogRef.current?.showModal()}
                     data-tip={t('actions.dropSelected', { count: selectedFileIds.length })}
                     disabled={selectedFileIds.length === 0}
@@ -286,10 +330,10 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
               <td>{t('labels.name')}</td>
               <td>#{t('labels.size')}</td>
               <td>
-                #{t('labels.conversions')}/ #{t('labels.chunks')}
+                #{t('labels.activeExtractions')}/ #{t('labels.extractions')}
               </td>
-              <td>{t('labels.processed')}</td>
-              <td>{t('labels.originModified')}</td>
+              <td>{t('labels.lastUpdate')}</td>
+              <td>{t('labels.lastReconcile')}</td>
             </tr>
           </thead>
           <tbody>
@@ -310,17 +354,17 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       <Link
                         to="/libraries/$libraryId/files/$fileId"
                         params={{ libraryId: file.libraryId, fileId: file.id }}
-                        className="tooltip btn tooltip-right btn-square btn-xs"
+                        className="tooltip btn tooltip-right z-20 btn-square btn-xs"
                         data-tip={t('actions.view')}
                       >
                         <EyeIcon className="size-4" />
                       </Link>
                       <button
                         type="button"
-                        disabled={fileActionPending}
-                        className="tooltip btn tooltip-right btn-square btn-xs"
+                        disabled={isPending}
+                        className="tooltip btn tooltip-right z-10 btn-square btn-xs"
                         data-tip={t('actions.drop')}
-                        onClick={() => dropFile(file.id)}
+                        onClick={() => deleteDocument(file.id)}
                       >
                         <TrashIcon className="size-4" />
                       </button>
@@ -328,15 +372,10 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                         type="button"
                         className="tooltip btn tooltip-right btn-square btn-xs"
                         data-tip={t('actions.reprocess')}
-                        onClick={() => createExtractionTasks([file.id])}
+                        onClick={() => triggerExtraction({ documentId: file.id })}
                       >
                         <ReprocessIcon className="size-4" />
                       </button>
-                      {file.processingStatus === ProcessingStatus.Failed && (
-                        <span className="tooltip tooltip-right" data-tip={file.processingStatus}>
-                          <ExclamationIcon className="size-4" />
-                        </span>
-                      )}
 
                       {file.dropError && (
                         <span className="tooltip-right lg:tooltip" data-tip={t('libraries.dropFileError')}>
@@ -347,7 +386,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                   </div>
                 </th>
 
-                <td className="flex flex-col truncate" title={file.name}>
+                <td className="truncate" title={file.name}>
                   <div className="flex items-center gap-2">
                     <Link
                       to="/libraries/$libraryId/files/$fileId"
@@ -362,19 +401,23 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
                       </span>
                     )}
                   </div>
-                  <a href={file.originUri || '#'} target="_blank" className="link text-xs" rel="noopener noreferrer">
-                    {file.originUri || 'n/a'}
-                  </a>
                 </td>
                 <td className="text-nowrap">{formatBytes(file.size) ?? '-'}</td>
                 <td>
-                  {file.taskCount ?? '-'}/{file.lastSuccessfulEmbedding?.chunksCount ?? '-'}
+                  {file.manifest?.extractions.filter(
+                    (extraction) => extraction.sourceHash === file.manifest?.sourceHash,
+                  ).length ?? '-'}
+                  /{file.manifest?.extractions.length ?? '-'}
                 </td>
                 <td className="text-nowrap">
-                  <ClientDate date={file.lastSuccessfulEmbedding?.processingFinishedAt} format="dateTime" fallback="" />
+                  <ClientDate
+                    date={file?.manifest?.origin?.lastModifiedDate || file?.manifest?.origin?.creationDate}
+                    format="dateTime"
+                    fallback=""
+                  />
                 </td>
                 <td className="text-nowrap">
-                  <ClientDate date={file.originModificationDate} format="dateTime" fallback="" />
+                  <ClientDate date={file?.manifest?.storageStats.lastReconcile} format="dateTime" fallback="" />
                 </td>
               </tr>
             ))}
@@ -389,7 +432,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
         description={t('texts.dropFilesDialogDescription')}
         onSubmit={handleDropSelectedFiles}
         submitButtonText={t('actions.drop')}
-        disabledSubmit={fileActionPending}
+        disabledSubmit={isPending}
       >
         <div className="w-full">
           <div className="mb-4">
@@ -404,9 +447,9 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
         ref={processDialogRef}
         title={t('libraries.processFilesDialog')}
         description={t('texts.processFilesDialogDescription')}
-        onSubmit={handleProcessSelectedFiles}
+        onSubmit={handleExtractSelectedFiles}
         submitButtonText={t('actions.reprocess')}
-        disabledSubmit={fileActionPending}
+        disabledSubmit={isPending}
       >
         <div className="w-full">
           <div className="mb-4">
@@ -421,7 +464,7 @@ export const FilesTable = ({ files, firstItemNumber }: FilesTableProps) => {
         description={t('texts.embedFilesDialogDescription')}
         onSubmit={handleEmbedSelectedFiles}
         submitButtonText={t('actions.reembed')}
-        disabledSubmit={fileActionPending}
+        disabledSubmit={isPending}
       >
         <div className="w-full">
           <div className="mb-4">

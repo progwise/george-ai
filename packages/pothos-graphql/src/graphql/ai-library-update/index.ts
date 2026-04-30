@@ -1,6 +1,6 @@
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-database'
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 
-import { canAccessLibraryOrThrow } from '../../domain'
 import { builder } from '../builder'
 
 builder.prismaObject('AiLibraryUpdate', {
@@ -33,8 +33,7 @@ const LibraryUpdateQueryResult = builder
       library: t.withAuth({ isLoggedIn: true }).prismaField({
         type: 'AiLibrary',
         nullable: false,
-        resolve: async (query, root, _args, context) => {
-          await canAccessLibraryOrThrow(root.libraryId, context.session.user.id)
+        resolve: async (query, root) => {
           const library = await prisma.aiLibrary.findUniqueOrThrow({
             ...query,
             where: { id: root.libraryId },
@@ -48,8 +47,7 @@ const LibraryUpdateQueryResult = builder
       count: t.withAuth({ isLoggedIn: true }).field({
         type: 'Int',
         nullable: false,
-        resolve: async (root, _args, context) => {
-          await canAccessLibraryOrThrow(root.libraryId, context.session.user.id)
+        resolve: async (root) => {
           return prisma.aiLibraryUpdate.count({
             where: { libraryId: root.libraryId, ...(root.crawlerId && { crawlerRun: { crawlerId: root.crawlerId } }) },
           })
@@ -58,8 +56,7 @@ const LibraryUpdateQueryResult = builder
       updates: t.withAuth({ isLoggedIn: true }).prismaField({
         type: ['AiLibraryUpdate'],
         nullable: false,
-        resolve: async (query, root, _args, context) => {
-          await canAccessLibraryOrThrow(root.libraryId, context.session.user.id)
+        resolve: async (query, root) => {
           return prisma.aiLibraryUpdate.findMany({
             ...query,
             where: { libraryId: root.libraryId, ...(root.crawlerId && { crawlerRun: { crawlerId: root.crawlerId } }) },
@@ -82,7 +79,8 @@ builder.queryField('aiLibraryUpdates', (t) =>
       take: t.arg.int({ defaultValue: 10, required: false }),
       skip: t.arg.int({ defaultValue: 0, required: false }),
     },
-    resolve: (_root, args) => {
+    resolve: async (_root, args, { workspaceId, session }) => {
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
       return {
         libraryId: args.libraryId,
         crawlerId: args.crawlerId ?? undefined,

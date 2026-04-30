@@ -1,3 +1,4 @@
+import { useRouteContext } from '@tanstack/react-router'
 import { RefObject, useState } from 'react'
 import { z } from 'zod'
 
@@ -8,11 +9,10 @@ import { useTranslation } from '../../i18n/use-translation-hook'
 import { CopyIcon } from '../../icons/copy-icon'
 import { Input } from '../form/input'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { useLibraryActions } from './use-library-actions'
+import { useWorkspace } from '../workspace'
 
 export interface ApiKeyGenerationModalProps {
   ref: RefObject<HTMLDialogElement | null>
-  libraryId: string
 }
 
 const getApiKeyFormSchema = (language: Language) =>
@@ -23,12 +23,13 @@ const getApiKeyFormSchema = (language: Language) =>
       .max(100, translate('apiKeys.validation.nameTooLong', language)),
   })
 
-export const ApiKeyGenerationModal = ({ ref, libraryId }: ApiKeyGenerationModalProps) => {
+export const ApiKeyGenerationModal = ({ ref }: ApiKeyGenerationModalProps) => {
+  const { user } = useRouteContext({ from: '/_authenticated' })
   const { t, language } = useTranslation()
   const [generatedKey, setGeneratedKey] = useState<string | null>(null)
   const [keyName, setKeyName] = useState<string>('')
 
-  const { generateApiKey, isPending } = useLibraryActions(libraryId)
+  const { generateApiKey, isPending } = useWorkspace(user)
   const schema = getApiKeyFormSchema(language)
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

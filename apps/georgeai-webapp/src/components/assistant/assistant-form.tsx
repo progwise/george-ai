@@ -7,11 +7,11 @@ import { graphql } from '../../gql'
 import { AssistantForm_AssistantFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { getBackendPublicUrl } from '../../queries'
 import { backendRequest } from '../../server-functions/backend'
-import { getBackendPublicUrl } from '../common'
 import { IconUpload } from '../form/icon-upload'
 import { Input } from '../form/input'
-import { ModelSelect } from '../form/model-select'
+import { ModelSelect } from '../model'
 import { getAssistantQueryOptions } from './get-assistant'
 
 graphql(`
@@ -20,9 +20,10 @@ graphql(`
     name
     iconUrl
     description
-    ownerId
     languageModel {
       id
+      modelName
+      modelDriver
       provider
       name
     }
@@ -160,7 +161,6 @@ export const AssistantForm = ({ assistant, disabled }: AssistantEditFormProps): 
         label={t('labels.languageModel')}
         value={assistant.languageModel}
         className="col-span-1"
-        placeholder={t('assistants.placeholders.languageModel')}
         capability="chat"
         {...fieldProps}
       />

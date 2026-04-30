@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 
-import { dateString } from '@george-ai/web-utils'
+import { dateString } from '@george-ai/app-commons'
 
-import { ManagedUserFragment, UserFragment } from '../../../gql/graphql'
+import { CurrentUserFragment, ManagedUserFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { toastError } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
@@ -16,7 +16,7 @@ export const UserTable = ({
   onChange,
 }: {
   users: ManagedUserFragment[]
-  currentUser: UserFragment
+  currentUser: CurrentUserFragment
   onChange: () => void
 }) => {
   const { t, language } = useTranslation()
@@ -84,7 +84,7 @@ export const UserTable = ({
                 <input
                   type="checkbox"
                   defaultChecked={user.isAdmin}
-                  disabled={user.id === currentUser.id}
+                  disabled={user.id === currentUser.userId}
                   aria-label="IsAdmin"
                   className="checkbox"
                   onClick={() => {

@@ -13,15 +13,27 @@
   "type": "module",
   "scripts": {
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:debug": "LOG_LEVEL=DEBUG vitest run"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-schema": "workspace:*",
+    "dotenv": "^16.4.5",
+    "mime-types": "^2.1.35",
+    "p-limit": "^7.2.0",
+    "zod": "^3.23.8"
+  },
   "devDependencies": {
-    "@george-ai/package-configs": "workspace:*",
     "@eslint/js": "^9.16.0",
-    "@types/node": "^22.10.7",
+    "@george-ai/package-configs": "workspace:*",
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^22.13.8",
+    "dotenv": "^16.4.5",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.44.1"
+    "typescript-eslint": "^8.44.1",
+    "vitest": "^3.1.1"
   }
 }

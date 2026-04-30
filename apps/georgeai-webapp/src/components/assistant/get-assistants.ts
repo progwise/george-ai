@@ -12,7 +12,6 @@ graphql(`
     description
     iconUrl
     updatedAt
-    ownerId
   }
 `)
 

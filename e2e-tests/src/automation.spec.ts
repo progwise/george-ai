@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-import { automationSwitcher, createAutomation } from './webapp-utils/automation-util'
+import { createAutomation } from './webapp-utils/automation-util'
 import { loginToWebapp } from './webapp-utils/login-util'
 import { switchWorkspace } from './webapp-utils/workspace-switcher-util'
 
@@ -48,8 +48,8 @@ test.describe('Automations', () => {
       await switchWorkspace(page, 'E2E Test Workspace 2')
 
       // Verify we were redirected to automations (Workspace 2 has a pre-created automation)
-      const switcher = automationSwitcher(page)
-      await expect(switcher.locator('summary')).toContainText('E2E Test Automation - WS2')
+      const pageContent = page.getByRole('main')
+      await expect(pageContent.getByText('E2E Test Automation - WS2', { exact: true })).toBeVisible()
     })
 
     test('should show different automations in different workspaces', async ({ page }) => {
@@ -62,22 +62,19 @@ test.describe('Automations', () => {
       await switchWorkspace(page, 'E2E Test Workspace 2')
 
       // Verify automation is NOT visible in Workspace 2's automation list
-      const switcher2 = automationSwitcher(page)
-      await switcher2.locator('summary').click()
-      await expect(switcher2.locator('ul')).toBeVisible()
-      await expect(switcher2.getByText(automationName)).not.toBeVisible()
-      await switcher2.locator('summary').click() // close dropdown
+      const sidebar = page.getByRole('complementary', { name: /main menu/i })
+
+      await expect(sidebar.getByText('Automations', { exact: true })).toBeVisible({ timeout: 10000 })
+      await sidebar.getByText('Automations', { exact: true }).click()
+      await expect(sidebar.getByText(automationName)).toBeHidden()
 
       // Switch back to Workspace 1
       await switchWorkspace(page, 'E2E Test Workspace 1')
 
       // Verify automation is available in workspace 1
       // App may auto-select a different automation, so open dropdown to verify ours is listed
-      const switcher = automationSwitcher(page)
-      await expect(switcher).toBeVisible({ timeout: 10000 })
-      await switcher.locator('summary').click()
-      await expect(switcher.locator('ul')).toBeVisible()
-      await expect(switcher.getByText(automationName)).toBeVisible()
+      await expect(sidebar.getByText('Automations', { exact: true })).toBeVisible({ timeout: 10000 })
+      await expect(sidebar.getByText(automationName, { exact: true })).toBeVisible()
     })
 
     test('should delete automation', async ({ page }) => {
@@ -99,10 +96,9 @@ test.describe('Automations', () => {
       await expect(deleteDialog).not.toBeVisible()
 
       // Verify automation is deleted (not in the automation switcher)
-      const switcher = automationSwitcher(page)
-      await switcher.locator('summary').click()
-      await expect(switcher.locator('ul')).toBeVisible()
-      await expect(switcher.getByText(automationName)).not.toBeVisible()
+      const sidebar = page.getByRole('complementary', { name: /main menu/i })
+      await sidebar.getByText('Automations', { exact: true }).click()
+      await expect(sidebar.getByText(automationName)).toBeHidden()
     })
   })
 

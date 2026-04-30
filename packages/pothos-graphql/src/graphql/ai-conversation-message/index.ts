@@ -1,11 +1,9 @@
-import type { ServiceProviderType } from '@george-ai/ai-service-client'
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-database'
+import { callConversationMessagesUpdateSubscriptions } from '@george-ai/app-domain'
+import { InferenceDriverSchema } from '@george-ai/app-schema'
 import { askAssistantChain } from '@george-ai/langchain-chat'
 
-import { callConversationMessagesUpdateSubscriptions } from '../../subscriptions'
 import { builder } from '../builder'
-
-console.log('Setting up: AiConversationMessage')
 
 builder.prismaObject('AiConversationMessage', {
   fields: (t) => ({
@@ -269,7 +267,7 @@ builder.mutationField('sendMessage', (t) =>
           })),
           assistant: {
             ...assistant,
-            languageModelProvider: (assistant.languageModel?.provider || 'ollama') as ServiceProviderType,
+            languageModelProvider: InferenceDriverSchema.parse(assistant.languageModel?.provider || 'ollama'),
             languageModel: assistant.languageModel?.name || '',
             description:
               assistant.description ||
@@ -280,7 +278,7 @@ builder.mutationField('sendMessage', (t) =>
             name: usage.library.name,
             description: usage.library.description || '',
             usedFor: usage.usedFor || '',
-            embeddingModelProvider: (usage.library.embeddingModel?.provider || 'ollama') as ServiceProviderType,
+            embeddingModelProvider: InferenceDriverSchema.parse(usage.library.embeddingModel?.provider || 'ollama'),
             embeddingModelName: usage.library.embeddingModel?.name || '',
           })),
         })) {

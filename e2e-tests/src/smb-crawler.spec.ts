@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { loginToWebapp } from './webapp-utils/login-util'
+import { closeMigrationDialogIfPresent } from './webapp-utils/migration-dialog-util'
 import { switchWorkspace } from './webapp-utils/workspace-switcher-util'
 
 // SMB test server hostname (varies by environment)
@@ -18,6 +19,8 @@ test.describe('SMB Crawler', () => {
 
     // Navigate to libraries and select E2E Test Library
     await page.goto('/libraries')
+    await page.waitForLoadState('networkidle')
+    await closeMigrationDialogIfPresent(page)
     await page.getByRole('link', { name: 'E2E Test Library' }).click()
   })
 

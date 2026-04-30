@@ -6,7 +6,12 @@
 import { z } from 'zod'
 
 import { transformValue } from '../../transforms'
-import type { ActionExecutionResult, ActionInput, ConnectorAction, ConnectorConfig } from '../../types'
+import type {
+  ConnectorAction,
+  ConnectorActionExecutionResult,
+  ConnectorActionInput,
+  ConnectorConfig,
+} from '../../types'
 import type { TransformType } from '../../validation'
 import { createApiClient, updateProduct } from '../api'
 
@@ -39,7 +44,10 @@ export type WriteProductDescriptionConfig = z.infer<typeof WriteProductDescripti
 /**
  * Execute the write product description action
  */
-async function execute(connectorConfig: ConnectorConfig, input: ActionInput): Promise<ActionExecutionResult> {
+async function execute(
+  connectorConfig: ConnectorConfig,
+  input: ConnectorActionInput,
+): Promise<ConnectorActionExecutionResult> {
   const config = WriteProductDescriptionConfigSchema.parse(input.actionConfig)
 
   // Get product ID from enrichment field
@@ -97,7 +105,10 @@ async function execute(connectorConfig: ConnectorConfig, input: ActionInput): Pr
 /**
  * Preview what will be written without executing
  */
-async function preview(_connectorConfig: ConnectorConfig, input: ActionInput): Promise<Record<string, unknown>> {
+async function preview(
+  _connectorConfig: ConnectorConfig,
+  input: ConnectorActionInput,
+): Promise<Record<string, unknown>> {
   const config = WriteProductDescriptionConfigSchema.parse(input.actionConfig)
 
   const productId = input.item.fieldValues[config.productIdField]

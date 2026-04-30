@@ -2,19 +2,17 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { AutomationMenu } from '../../../../components/automations/automation-menu'
-import { getAutomationQueryOptions, getAutomationsQueryOptions } from '../../../../components/automations/queries'
+import { getAutomationQueryOptions } from '../../../../components/automations/queries'
 import { useTranslation } from '../../../../i18n/use-translation-hook'
 import { EditIcon } from '../../../../icons/edit-icon'
+import { LinkIcon } from '../../../../icons/link-icon'
 import { ListViewIcon } from '../../../../icons/list-view-icon'
 import { StatisticsIcon } from '../../../../icons/statistics-icon'
 
 export const Route = createFileRoute('/_authenticated/automations/$automationId')({
   component: RouteComponent,
   loader: async ({ params, context }) => {
-    await Promise.all([
-      context.queryClient.ensureQueryData(getAutomationsQueryOptions()),
-      context.queryClient.ensureQueryData(getAutomationQueryOptions(params.automationId)),
-    ])
+    await Promise.all([context.queryClient.ensureQueryData(getAutomationQueryOptions(params.automationId))])
   },
 })
 
@@ -23,16 +21,15 @@ function RouteComponent() {
   const params = Route.useParams()
 
   const {
-    data: { automations },
-  } = useSuspenseQuery(getAutomationsQueryOptions())
-  const {
     data: { automation },
   } = useSuspenseQuery(getAutomationQueryOptions(params.automationId))
 
   return (
-    <div className="grid h-[calc(100dvh-6rem)] w-[calc(100dvw-4rem)] grid-rows-[auto_auto_1fr] gap-4">
-      <div>
-        <AutomationMenu automation={automation} selectableAutomations={automations} />
+    <div className="grid h-[calc(100dvh-6rem)] grid-rows-[auto_auto_1fr] gap-4">
+      <div className="flex flex-row items-center justify-center gap-1">
+        <LinkIcon className="mr-2" />
+        <h3 className="text-xl font-bold text-nowrap">{automation.name}</h3>
+        <AutomationMenu automation={automation} />
       </div>
       <div role="tablist" className="tabs-lift tabs justify-end">
         <a className="tab tab-disabled flex-1 cursor-default text-center">

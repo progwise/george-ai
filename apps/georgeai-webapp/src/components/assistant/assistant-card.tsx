@@ -3,14 +3,14 @@ import React from 'react'
 
 import { AssistantBaseFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
-import { AssistantDeleteOrLeaveDialogButton } from './assistant-delete-or-leave-dialog-button/assistant-delete-or-leave-dialog-button'
+import { AssistantDeleteDialog } from './assistant-delete-or-leave-dialog-button/assistant-delete-dialog'
 
 export interface AssistantCardProps {
   assistant: AssistantBaseFragment
   userId: string
 }
 
-export const AssistantCard = ({ assistant, userId }: AssistantCardProps): React.ReactElement => {
+export const AssistantCard = ({ assistant }: AssistantCardProps): React.ReactElement => {
   const { t } = useTranslation()
 
   return (
@@ -43,7 +43,7 @@ export const AssistantCard = ({ assistant, userId }: AssistantCardProps): React.
             <div className="badge badge-outline">Sequential</div>
           </div>
           <div className="flex w-full place-content-between">
-            <AssistantDeleteOrLeaveDialogButton assistant={assistant} userId={userId} />
+            <AssistantDeleteDialog assistant={assistant} />
             <Link
               type="button"
               className="btn btn-ghost btn-sm"

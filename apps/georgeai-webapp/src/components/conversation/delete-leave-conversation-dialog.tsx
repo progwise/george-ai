@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useRef } from 'react'
 
-import { dateString } from '@george-ai/web-utils'
+import { dateString } from '@george-ai/app-commons'
 
 import { graphql } from '../../gql'
 import { ConversationDelete_ConversationFragment } from '../../gql/graphql'

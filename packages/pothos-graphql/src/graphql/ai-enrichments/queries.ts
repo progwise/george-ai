@@ -1,8 +1,8 @@
-import { getListStatistics, prisma } from '@george-ai/app-domain'
+import { getListStatistics, prisma } from '@george-ai/app-database'
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+import { EnrichmentStatusType } from '@george-ai/app-domain'
 
 import { EnrichmentStatus } from '.'
-import { canAccessListOrThrow, getCanAccessListWhere } from '../../domain'
-import { EnrichmentStatusType } from '../../domain/enrichment'
 import { builder } from '../builder'
 
 const EnrichmentQueueResult = builder
@@ -27,8 +27,6 @@ const EnrichmentQueueResult = builder
         type: ['AiEnrichmentTask'],
         nullable: { list: false, items: false },
         resolve: async (query, { workspaceId, listId, itemId, fieldId, take, skip, status }) => {
-          const listWhere = getCanAccessListWhere(workspaceId)
-
           return prisma.aiEnrichmentTask.findMany({
             ...query,
             where: {
@@ -37,7 +35,7 @@ const EnrichmentQueueResult = builder
                 itemId ? { itemId } : {},
                 fieldId ? { fieldId } : {},
                 status ? { status } : {},
-                { list: listWhere },
+                { list: { workspaceId } },
               ],
             },
             take,
@@ -49,8 +47,6 @@ const EnrichmentQueueResult = builder
       totalCount: t.int({
         nullable: false,
         resolve: async ({ workspaceId, listId, itemId, fieldId, status }) => {
-          const listWhere = getCanAccessListWhere(workspaceId)
-
           return prisma.aiEnrichmentTask.count({
             where: {
               AND: [
@@ -58,7 +54,7 @@ const EnrichmentQueueResult = builder
                 itemId ? { itemId } : {},
                 fieldId ? { fieldId } : {},
                 status ? { status } : {},
-                { list: listWhere },
+                { list: { workspaceId } },
               ],
             },
           })
@@ -80,8 +76,6 @@ const EnrichmentQueueResult = builder
         ],
         nullable: false,
         resolve: async ({ workspaceId, listId, itemId, fieldId }) => {
-          const listWhere = getCanAccessListWhere(workspaceId)
-
           const counts = await prisma.aiEnrichmentTask.groupBy({
             by: ['status'],
             where: {
@@ -89,7 +83,7 @@ const EnrichmentQueueResult = builder
                 listId ? { listId } : {},
                 itemId ? { itemId } : {},
                 fieldId ? { fieldId } : {},
-                { list: listWhere },
+                { list: { workspaceId } },
               ],
             },
             _count: {
@@ -180,7 +174,7 @@ builder.queryField('aiListEnrichmentsStatistics', (t) =>
       listId: t.arg.string({ required: true }),
     },
     resolve: async (_parent, { listId }, context) => {
-      await canAccessListOrThrow(listId, context.session.user.id)
+      await canReadWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       const result = await prisma.$queryRawTyped(getListStatistics(listId))
       return result.map((r) => ({
         listId: r.listId,

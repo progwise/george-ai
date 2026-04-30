@@ -1,0 +1,75 @@
+import { CronJob } from 'cron'
+
+import { AiLibraryCrawlerCronJob, prisma } from '@george-ai/app-database'
+
+import { logger } from './common'
+import { runCrawler } from './crawler-run'
+import { getCronExpression } from './get-cron-expression'
+
+const cronJobByIds = new Map<string, CronJob<() => void, null>>()
+
+const restoreCronJobsFromDatabase = async () => {
+  logger.info('Restoring cron jobs from database...')
+  const activeCronJobs = await prisma.aiLibraryCrawlerCronJob.findMany({
+    where: { active: true },
+    include: { crawler: { include: { library: true } } },
+  })
+
+  for (const cronJob of activeCronJobs) {
+    await upsertCronJob(cronJob.crawler.library.workspaceId, cronJob)
+  }
+  logger.info(`Restored ${activeCronJobs.length} active cron job(s)`)
+}
+
+/**
+ * Adds a cron job to the cron job manager.
+ * If the cron job is already running, it will be stopped first.
+ * If the cron job is not active, it will not be added.
+ */
+export const upsertCronJob = async (workspaceId: string, cronJob: AiLibraryCrawlerCronJob) => {
+  await stopCronJob(cronJob)
+
+  const cronExpression = getCronExpression(cronJob)
+  if (!cronExpression) {
+    return
+  }
+
+  const job = new CronJob(
+    cronExpression,
+    async () => {
+      try {
+        logger.info('Running cron job', { cronJobId: cronJob.id })
+        // TODO: specify how to run the cron job as a specific user
+        await runCrawler({
+          workspaceId,
+          crawlerId: cronJob.crawlerId,
+          runByCronJob: true,
+          userId: 'cronJob',
+        })
+      } catch (error) {
+        logger.error('Error running cron job', { cronJobId: cronJob.id, error })
+      }
+    },
+    () => {
+      logger.info('Cron job completed', { cronJobId: cronJob.id })
+    },
+    true, // start the job right now
+  )
+
+  cronJobByIds.set(cronJob.id, job)
+}
+
+export const stopCronJob = async (cronJob: AiLibraryCrawlerCronJob) => {
+  const job = cronJobByIds.get(cronJob.id)
+
+  if (job) {
+    await job.stop()
+    cronJobByIds.delete(cronJob.id)
+  }
+}
+
+// After the server starts, restore all cron jobs from the database
+// Run in background without blocking server startup
+restoreCronJobsFromDatabase().catch((error) => {
+  logger.error('Failed to restore cron jobs', { error })
+})

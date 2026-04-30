@@ -1,0 +1,5 @@
+import './automation'
+import './automation-batches'
+import './automation-item'
+import './automation-items'
+import './automations'

@@ -28,21 +28,26 @@ WORKDIR /app
 
 COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 COPY packages/ai-act/package.json ./packages/ai-act/
 COPY packages/ai-service-client/package.json ./packages/ai-service-client/
 COPY packages/api-crawler/package.json ./packages/api-crawler/
 COPY packages/app-domain/package.json ./packages/app-domain/
+COPY packages/app-commons/package.json ./packages/app-commons/
+COPY packages/app-database/package.json ./packages/app-database/
+COPY packages/app-domain/package.json ./packages/app-domain/
 COPY packages/connector-types/package.json ./packages/connector-types/
+COPY packages/event-service-client/package.json ./packages/event-service-client/
 COPY packages/file-converter/package.json ./packages/file-converter/
 COPY packages/file-management/package.json ./packages/file-management/
-COPY packages/html-crawler/package.json ./packages/html-crawler/
+COPY packages/html-crawler-client/package.json ./packages/html-crawler-client/
 COPY packages/langchain-chat/package.json ./packages/langchain-chat/
 COPY packages/mailer/package.json ./packages/mailer/
 COPY packages/package-configs/package.json ./packages/package-configs/
 COPY packages/pothos-graphql/package.json ./packages/pothos-graphql/
-COPY packages/smb-crawler/package.json ./packages/smb-crawler/
+COPY packages/smb-crawler-client/package.json ./packages/smb-crawler-client/
+COPY packages/vector-store/package.json ./packages/vector-store/
 COPY packages/web-utils/package.json ./packages/web-utils/
-COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 
 RUN pnpm i --frozen-lockfile
 
@@ -50,21 +55,25 @@ RUN pnpm i --frozen-lockfile
 COPY LICENSE ./
 
 # Copy only the source files for packages that backend depends on
+COPY apps/georgeai-backend ./apps/georgeai-backend
 COPY packages/ai-act ./packages/ai-act
 COPY packages/ai-service-client ./packages/ai-service-client
 COPY packages/api-crawler ./packages/api-crawler
+COPY packages/app-commons ./packages/app-commons
+COPY packages/app-database ./packages/app-database
 COPY packages/app-domain ./packages/app-domain
 COPY packages/connector-types ./packages/connector-types
+COPY packages/event-service-client ./packages/event-service-client
 COPY packages/file-converter ./packages/file-converter
 COPY packages/file-management ./packages/file-management
-COPY packages/html-crawler ./packages/html-crawler
+COPY packages/html-crawler-client ./packages/html-crawler-client
 COPY packages/langchain-chat ./packages/langchain-chat
 COPY packages/mailer ./packages/mailer
 COPY packages/package-configs ./packages/package-configs
 COPY packages/pothos-graphql ./packages/pothos-graphql
-COPY packages/smb-crawler ./packages/smb-crawler
+COPY packages/smb-crawler-client ./packages/smb-crawler-client
+COPY packages/vector-store ./packages/vector-store
 COPY packages/web-utils ./packages/web-utils
-COPY apps/georgeai-backend ./apps/georgeai-backend
 
 # ARG here to avoid cache invalidation of dependency layers when only commit SHA changes
 ARG GIT_COMMIT_SHA
@@ -92,10 +101,10 @@ COPY --from=builder --chown=server:nodejs /app/packages/package-configs/tsconfig
 
 # Copy Prisma directory to predictable location for runtime migrations
 # pnpm deploy stores packages in .pnpm with complex naming, so we copy to /app/prisma
-COPY --from=builder --chown=server:nodejs /app/packages/app-domain/prisma /app/prisma
+COPY --from=builder --chown=server:nodejs /app/packages/app-database/prisma /app/prisma
 
 # Copy Prisma config file for Prisma v7 (needed to find datasource URL)
-COPY --from=builder --chown=server:nodejs /app/packages/app-domain/prisma.config.ts /app/prisma.config.ts
+COPY --from=builder --chown=server:nodejs /app/packages/app-database/prisma.config.ts /app/prisma.config.ts
 
 # Create crawler credentials directory with proper permissions
 RUN mkdir -p /app/.crawler-credentials && chown -R server:nodejs /app/.crawler-credentials

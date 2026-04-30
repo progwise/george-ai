@@ -25,7 +25,7 @@ interface CrawlerUpdateDialogProps {
 
 export const CrawlerUpdateDialog = ({ crawler, updateDialogRef }: CrawlerUpdateDialogProps) => {
   const { t } = useTranslation()
-  const { updateCrawler, isPending } = useCrawlerActions({ libraryId: crawler.libraryId })
+  const { updateCrawler, isPending } = useCrawlerActions(crawler.libraryId)
 
   const handleUpdateSubmit = async (formData: FormData) => {
     updateCrawler(

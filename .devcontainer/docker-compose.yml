@@ -1,19 +1,15 @@
-version: '3.8'
-
 services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ../..:/workspaces:cached
-
+      - app_home:/home/node
+      - ~/:/home/node/host
+      - ~/.ssh:/home/node/.ssh:ro
+    user: node
     # Enable init process to reap zombie processes
     init: true
-
-    # Run in privileged mode for SMB mounting
-    # mount.cifs requires this to adjust capabilities at runtime
-    # privileged: true
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
@@ -24,31 +20,24 @@ services:
 
     # Port mappings for host access (backend only - frontend uses Vite with dynamic HMR ports via VS Code forwarding)
     ports:
+      - '3001:3001'
       - '3003:3003'
-
-    # Runs app on the same network as the typesense container, allows "forwardPorts" in devcontainer.json function.
-
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
+      - '2222:22' # SSH access to container for development
 
   gai-nats:
-    image: nats:2.12-alpine
-    container_name: gai-nats
+    build:
+      context: ../services/nats-service
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - '4222:4222' # Client connections
       - '8222:8222' # HTTP monitoring
       - '6222:6222' # Cluster routing (for future clustering)
     volumes:
-      - ../.nats-data:/data
-      - ./nats-server.conf:/etc/nats/nats-server.conf:ro
-    command:
-      - '--config'
-      - '/etc/nats/nats-server.conf'
+      - nats_data:/data
 
   gai-qdrant:
     image: qdrant/qdrant:latest
-    container_name: gai-qdrant
     restart: unless-stopped
     environment:
       # Qdrant configuration
@@ -62,52 +51,40 @@ services:
       # Collection defaults
       - QDRANT__COLLECTION__DEFAULT_REPLICATION_FACTOR=1
       - QDRANT__COLLECTION__DEFAULT_WRITE_CONSISTENCY_FACTOR=1
+      # API Key
+      - QDRANT__SERVICE__API_KEY=Test123
     ports:
       - '6333:6333' # HTTP API
       - '6334:6334' # gRPC API
     volumes:
-      - ../.qdrant-data:/qdrant/storage
-
-  gai-typesense:
-    image: typesense/typesense:27.1
-    container_name: gai-typesense
-    restart: unless-stopped
-    environment:
-      - TYPESENSE_API_HOST=gai-typesense
-      - TYPESENSE_API_PORT=8108
-      - TYPESENSE_API_PROTOCOL=http
-      - TYPESENSE_API_KEY=xyz
-    ports:
-      - '8108:8108'
-    volumes:
-      - ../.typesense-data:/typesensedata
-    command: '--data-dir /typesensedata --api-key=xyz --enable-cors --enable-access-logging --enable-search-logging --log-dir=/typesensedata --healthy-read-lag=2000 --healthy-write-lag=3000'
+      - qdrant_data:/qdrant/storage
 
   gai-chatweb-db:
     image: postgres:16
-    container_name: gai-chatweb-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: chatweb
       POSTGRES_USER: chatweb
       POSTGRES_PASSWORD: password
     ports:
-      - '5434:5432'
+      - '5432:5432'
     volumes:
-      - ../.postgres-data-chatweb:/var/lib/postgresql/data
+      - chatweb_db_data:/var/lib/postgresql/data
 
-  gai-chatweb-db-test:
+  gai-test-db:
     image: postgres:16
-    container_name: gai-chatweb-db-test
     restart: unless-stopped
     environment:
       POSTGRES_DB: postgres
-      POSTGRES_USER: chatweb-test
-      POSTGRES_PASSWORD: password
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - '5434:5432'
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
 
   gai-keycloak-db:
     image: postgres:16
-    container_name: gai-keycloak-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: keycloak
@@ -116,22 +93,18 @@ services:
     ports:
       - '5433:5432'
     volumes:
-      - ../.postgres-data-keycloak:/var/lib/postgresql/data
+      - keycloak_db_data:/var/lib/postgresql/data
 
   gai-keycloak:
     image: quay.io/keycloak/keycloak:26.4
-    container_name: gai-keycloak
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://gai-keycloak-db:5432/keycloak
       KC_DB_USERNAME: keycloak
       KC_DB_PASSWORD: password
 
-      KC_HOSTNAME: localhost
       KC_HOSTNAME_PORT: 8180
       KC_HOSTNAME_STRICT: false
-      KC_HOSTNAME_STRICT_HTTPS: false
-      KC_PROXY: edge
 
       KC_HTTP_ENABLED: true
       KC_LOG_LEVEL: info
@@ -153,13 +126,12 @@ services:
     ports:
       - 15080:80
     volumes:
-      - ../.pgadmin-data:/var/lib/pgadmin/
+      - pgadmin_data:/var/lib/pgadmin/
 
   gai-smb-test:
     build:
       context: ..
       dockerfile: apps/smb-test-server/Dockerfile
-    container_name: gai-smb-test
     hostname: gai-smb-test
     ports:
       - '10445:445' # SMB over TCP
@@ -188,7 +160,6 @@ services:
     build:
       context: ..
       dockerfile: ./services/webcrawler-service/Dockerfile
-    container_name: gai-crawl4ai
     restart: unless-stopped
     ports:
       - '11245:11245'
@@ -200,4 +171,13 @@ services:
       start_period: 40s
 
 volumes:
+  app_home:
   n8n_data:
+  pgadmin_data:
+  chatweb_db_data:
+  qdrant_data:
+  typesense_data:
+  keycloak_db_data:
+  test_db_data:
+  pnpm_store:
+  nats_data:

@@ -26,6 +26,9 @@
 @theme {
   /* horizontal spacing on body */
   --spacing-body: --spacing(2);
+  --default-font-family:
+    'ui-sans-serif', '-apple-system', 'system-ui', 'Segoe UI', 'Helvetica', 'Apple Color Emoji', 'Arial', 'sans-serif',
+    'Segoe UI Emoji', 'Segoe UI Symbol';
 }
 
 @layer utilities {
@@ -77,4 +80,39 @@ dl.properties dt {
 }
 dl.properties dd {
   @apply mb-1 ml-2 text-base-content/50;
+}
+
+/* 1. The state when the popover is OPEN */
+[popover]:popover-open {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 2. The state BEFORE it opens (The "Hidden" state) */
+@starting-style {
+  [popover]:popover-open {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* 3. The state when it is CLOSED (for the exit animation) */
+[popover] {
+  opacity: 0;
+  transform: scale(0.95);
+  /* transition-behavior: allow-discrete is the secret sauce for display: none */
+  transition:
+    opacity 0.2s ease-out,
+    transform 0.2s ease-out,
+    display 0.2s ease-out allow-discrete;
+}
+
+.frontmatter-meta th {
+  @apply py-1 pr-4 text-left font-medium whitespace-nowrap text-gray-500;
+}
+.frontmatter-meta td {
+  @apply py-1 text-gray-800;
+}
+.frontmatter-meta tr {
+  @apply border-b border-gray-100 last:border-0;
 }

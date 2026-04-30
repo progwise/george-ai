@@ -2,10 +2,8 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { getLibraryQueryOptions } from '../../../../components/library/queries/get-library'
-import { LibraryQueryInput } from '../../../../components/library/query/library-query-input'
-import { LibraryQueryResult } from '../../../../components/library/query/library-query-result'
-import { getQueryLibraryFilesQueryOptions } from '../../../../components/library/query/query-files'
+import { getLibraryQueryOptions, queryDocumentsQueryOptions } from '../../../../components/library/queries'
+import { LibraryQueryInput, LibraryQueryResult } from '../../../../components/library/query'
 import { Pagination } from '../../../../components/table/pagination'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/query')({
@@ -24,8 +22,10 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/query
     await Promise.all([
       context.queryClient.ensureQueryData(getLibraryQueryOptions(params.libraryId)),
       context.queryClient.ensureQueryData(
-        getQueryLibraryFilesQueryOptions({
-          libraryId: params.libraryId,
+        queryDocumentsQueryOptions({
+          selector: {
+            libraryId: params.libraryId,
+          },
           query: deps.query ?? '*',
           skip: deps.skip,
           take: deps.take,
@@ -40,16 +40,21 @@ function RouteComponent() {
   const { libraryId } = Route.useParams()
   const { query, skip, take } = Route.useSearch()
   const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
-  const {
-    data: { queryAiLibraryFiles: hits },
-  } = useSuspenseQuery(
-    getQueryLibraryFilesQueryOptions({
-      libraryId,
+  const { data: hits } = useSuspenseQuery(
+    queryDocumentsQueryOptions({
+      selector: {
+        libraryId,
+      },
       query: query ?? '*',
       skip,
       take,
     }),
   )
+
+  if (!hits) {
+    return <div className="p-4">No results found.</div>
+  }
+
   return (
     <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
       <div>
@@ -83,7 +88,7 @@ function RouteComponent() {
       <div className="overflow-auto">
         <LibraryQueryResult
           libraryId={libraryId}
-          hits={hits.hits}
+          hits={hits.results}
           offset={skip}
           searchTerm={query ?? '*'}
           hitCount={hits.hitCount}

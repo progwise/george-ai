@@ -1,12 +1,7 @@
-import { prisma } from '@george-ai/app-domain'
-import { sendMail } from '@george-ai/mailer'
+import { prisma } from '@george-ai/app-database'
+import { conversation } from '@george-ai/app-domain'
 
-import { PUBLIC_APP_URL } from '../../global-config'
 import { builder } from '../builder'
-
-const generateInvitationLink = (conversationId: string, invitationId: string): string => {
-  return `${PUBLIC_APP_URL}/conversations/${conversationId}/confirm-invitation/${invitationId}`
-}
 
 const conversationInvitationInput = builder.inputType('ConversationInvitationInput', {
   fields: (t) => ({
@@ -15,23 +10,6 @@ const conversationInvitationInput = builder.inputType('ConversationInvitationInp
     allowMultipleParticipants: t.boolean({ required: true }),
   }),
 })
-
-const sendInvitationEmail = async ({
-  email,
-  conversationId,
-  invitationId,
-}: {
-  email: string
-  conversationId: string
-  invitationId: string
-}) => {
-  const link = generateInvitationLink(conversationId, invitationId)
-  const subject = 'You are invited to a conversation at George-Ai'
-  const text = `You have been invited to join a conversation at George-Ai (george-ai.net). Use this link to join: ${link}`
-  const html = `<p>You have been invited to join a conversation at George-Ai (george-ai.net). Use this link to join: <a href="${link}">${link}</a></p>`
-
-  await sendMail(email, subject, text, html)
-}
 
 builder.mutationField('createConversationInvitations', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
@@ -70,13 +48,15 @@ builder.mutationField('createConversationInvitations', (t) =>
 
       await Promise.all(
         createdInvitations.map((invitation) =>
-          sendInvitationEmail({
-            email: invitation.email,
-            conversationId,
-            invitationId: invitation.id,
-          }).catch((error) => {
-            console.error('Error sending invitation email:', error)
-          }),
+          conversation
+            .sendInvitationEmail({
+              email: invitation.email,
+              conversationId,
+              invitationId: invitation.id,
+            })
+            .catch((error) => {
+              console.error('Error sending invitation email:', error)
+            }),
         ),
       )
 

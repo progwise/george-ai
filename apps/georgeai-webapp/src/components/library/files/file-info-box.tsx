@@ -1,63 +1,135 @@
+import { type ReactNode } from 'react'
+
+import { formatBytes } from '@george-ai/web-utils'
+
 import { graphql } from '../../../gql'
-import { AiLibraryFile_InfoBoxFragment } from '../../../gql/graphql'
+import { FileInfoBox_FileFragment } from '../../../gql/graphql'
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { ClientDate } from '../../client-date'
 
 graphql(`
-  fragment AiLibraryFile_InfoBox on AiLibraryFile {
-    originModificationDate
+  fragment FileInfoBox_File on AiLibraryFile {
+    id
+    name
+    libraryId
     size
-    uploadedAt
-    archivedAt
-    taskCount
     status
+    chunkCount
+    originUri
+    createdAt
+    archivedAt
     crawler {
-      id
       uri
       uriType
     }
-    lastSuccessfulExtraction {
-      id
-      createdAt
-      extractionStartedAt
-      extractionFinishedAt
-      processingStatus
-      metadata
+    manifest {
+      documentId
+      name
+      mimeType
+      sourceHash
+      created
+      origin {
+        uri
+        hash
+        creationDate
+        lastModifiedDate
+        author
+      }
+      extractions {
+        extractionMethod
+        sourceHash
+        created
+        updated
+      }
+      storageStats {
+        extractionBytes
+        attachmentBytes
+        physicalBytes
+        extractionFileCount
+        physicalFileCount
+        attachmentFileCount
+        lastUpdate
+        lastReconcile
+      }
     }
-    lastSuccessfulEmbedding {
-      id
-      createdAt
-      embeddingStartedAt
-      embeddingFinishedAt
-      processingStatus
-      metadata
-      chunksCount
-    }
+    originModificationDate
   }
 `)
 
+const InfoField = ({ label, value }: { label: string; value: ReactNode }) => (
+  <div>
+    <div className="text-xs text-base-content/60">{label}</div>
+    <div className="wrap-break-word text-base-content/90 italic">{value}</div>
+  </div>
+)
+
 interface FileInfoBoxProps {
-  file: AiLibraryFile_InfoBoxFragment
+  file: FileInfoBox_FileFragment
 }
 
 export const FileInfoBox = ({ file }: FileInfoBoxProps) => {
   const { t } = useTranslation()
   return (
-    <dl className="properties max-w-100 text-xs">
-      <dt>{t('labels.size')}</dt>
-      <dd>{file.size} bytes</dd>
-      <dt>{t('labels.status')}</dt>
-      <dd>{file.status}</dd>
-      <dt>{t('labels.chunks')}</dt>
-      <dd>{file.lastSuccessfulEmbedding?.chunksCount || 'unknown'}</dd>
-      <dt>{t('labels.tasks')}</dt>
-      <dd>{file.taskCount}</dd>
-      <dt>{t('labels.crawler')}</dt>
-      <dd>{file.crawler ? `${file.crawler.uri} (${file.crawler.uriType})` : '-'}</dd>
-      <dt>{t('labels.originModified')}</dt>
-      <dd>
-        <ClientDate date={file.originModificationDate} />
-      </dd>
-    </dl>
+    <div className="p-2 text-xs lg:text-sm">
+      <section>
+        <div className="my-2 grid grid-cols-1 gap-x-4 gap-y-2">
+          <InfoField label="Origin URI" value={file.originUri ?? '-'} />
+        </div>
+        <div className="grid grid-cols-1 gap-x-4 gap-y-2">
+          <InfoField label="Source hash" value={file.manifest?.sourceHash ?? '-'} />
+        </div>
+      </section>
+      <div className="divider my-0" />
+
+      <section>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+          <InfoField label="Status" value={file.status} />
+          <InfoField label="Total Size" value={formatBytes(file.manifest?.storageStats.physicalBytes)} />
+        </div>
+      </section>
+      <div className="divider my-0" />
+
+      <section>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+          <InfoField label="Extractions" value={formatBytes(file.manifest?.storageStats.extractionBytes)} />
+          <InfoField label="Chunks" value={file.chunkCount ?? '-'} />
+          <InfoField label="Crawler" value={file.crawler ? `${file.crawler.uri} (${file.crawler.uriType})` : '-'} />
+        </div>
+      </section>
+      <div className="divider my-0" />
+
+      <section>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+          <InfoField
+            label="Extractions"
+            value={file.manifest?.extractions.map((extraction) => extraction.extractionMethod).join(', ') || '-'}
+          />
+          <InfoField
+            label="Last Reconcile"
+            value={
+              file.manifest?.storageStats?.lastReconcile ? (
+                <ClientDate date={file.manifest.storageStats.lastReconcile} />
+              ) : (
+                '-'
+              )
+            }
+          />
+        </div>
+      </section>
+
+      <div className="divider my-0" />
+
+      <section>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+          <InfoField label={t('labels.originModified')} value={<ClientDate date={file.originModificationDate} />} />
+          <InfoField label="Created" value={<ClientDate date={file.createdAt} />} />
+          <InfoField
+            label="Origin last modified"
+            value={file.manifest ? <ClientDate date={file.manifest.origin?.lastModifiedDate} /> : '-'}
+          />
+          <InfoField label="Archived" value={file.archivedAt ? <ClientDate date={file.archivedAt} /> : '-'} />
+        </div>
+      </section>
+    </div>
   )
 }

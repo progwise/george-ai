@@ -1,0 +1,96 @@
+import { prisma } from '@george-ai/app-database'
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
+
+import { builder } from '../../builder'
+
+const responseType = builder
+  .objectRef<{
+    input: {
+      skip: number
+      take: number
+      showArchived?: boolean | null
+      libraryId?: string | null
+      sortOrder?: 'asc' | 'desc' | null
+      sortField?: 'createdAt' | 'name' | null
+    }
+    totalCount: number
+    archivedCount: number
+  }>('FilesQueryResponse')
+  .implement({
+    description: 'Response type for documents query',
+    fields: (t) => ({
+      items: t.withAuth({ isLoggedIn: true }).prismaField({
+        type: ['AiLibraryFile'],
+        nullable: false,
+        resolve: async (query, { input }) => {
+          return prisma.aiLibraryFile.findMany({
+            ...query,
+            where: {
+              ...(input.libraryId ? { libraryId: input.libraryId } : {}),
+              ...(input.showArchived ? {} : { archivedAt: null }),
+            },
+            skip: input.skip,
+            take: input.take,
+            orderBy:
+              input.sortOrder === 'asc'
+                ? { [input.sortField as string]: 'asc' }
+                : { [input.sortField as string]: 'desc' },
+          })
+        },
+      }),
+      totalCount: t.exposeInt('totalCount', {
+        nullable: false,
+        description: 'Total number of files to support pagination',
+      }),
+      archivedCount: t.exposeInt('archivedCount', {
+        nullable: false,
+        description: 'Total number of archived files to support pagination',
+      }),
+    }),
+  })
+builder.queryField('documents', (t) =>
+  t.withAuth({ isLoggedIn: true }).field({
+    type: responseType,
+    nullable: false,
+    args: {
+      libraryId: t.arg.string({ required: false }),
+      skip: t.arg.int({ required: false }),
+      take: t.arg.int({ required: false }),
+      showArchived: t.arg.boolean({ required: false, defaultValue: false }),
+      sortOrder: t.arg({
+        type: 'SortOrder',
+        required: false,
+        defaultValue: 'desc',
+      }),
+      sortField: t.arg({
+        type: builder.enumType('LibraryFilesSortField', {
+          values: ['createdAt', 'name'],
+        }),
+        required: false,
+        defaultValue: 'createdAt',
+      }),
+    },
+    resolve: async (_root, args, { session, workspaceId }) => {
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
+      const totalCount = await prisma.aiLibraryFile.count({
+        where: {
+          ...(args.libraryId ? { libraryId: args.libraryId } : {}),
+          ...(args.showArchived ? {} : { archivedAt: null }),
+        },
+      })
+      const archivedCount = await prisma.aiLibraryFile.count({
+        where: {
+          ...(args.libraryId ? { libraryId: args.libraryId } : {}),
+          archivedAt: {
+            not: null,
+          },
+        },
+      })
+      return {
+        input: { ...args, skip: args.skip ?? 0, take: args.take ?? 20 },
+        totalCount,
+        archivedCount,
+      }
+    },
+  }),
+)

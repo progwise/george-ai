@@ -1,16 +1,80 @@
-// Export Prisma client singleton (what everyone uses)
-export { prisma } from './prisma'
+import apiKey from './api-key'
+import assistant from './assistant'
+import automation from './automation'
+import conversation from './conversation'
+import document from './document'
+import enrichment from './enrichment'
+import file from './file'
+import { initializeOnce } from './initialize'
+import languageModel from './languageModel'
+import library from './library'
+import list from './list'
+import processing from './processing'
+import subscriptions from './subscriptions'
+import user from './user'
+import workspace from './workspace'
 
-// Export Prisma namespace for types (filters, enums, etc.)
-export { Prisma } from '../prisma/generated/client'
+initializeOnce().catch((error) => {
+  console.error('Error initializing app domain:', error)
+})
 
-// Export all generated types for convenience
-export type * from '../prisma/generated/client'
+export * from './access-control'
+export * from './crawler'
+export * from './assistant'
+export * from './automation'
+export * from './context'
+export * from './conversation'
+export * from './document'
+export * from './enrichment'
+export * from './file'
+export * from './inference'
+export * from './languageModel'
+export * from './library'
+export * from './list'
+export * from './processing'
+export * from './workspace'
+export * from './user'
+export * from './subscriptions'
+export * from './api-key'
+export * from './error'
 
-export type * from '../prisma/generated/models'
+export default {
+  apiKey,
+  assistant,
+  conversation,
+  automation,
+  document,
+  enrichment,
+  file,
+  languageModel,
+  library,
+  list,
+  processing,
+  workspace,
+  user,
+  subscriptions,
+}
 
-export * from '../prisma/generated/sql'
+export {
+  apiKey,
+  assistant,
+  conversation,
+  automation,
+  document,
+  enrichment,
+  file,
+  languageModel,
+  library,
+  list,
+  processing,
+  workspace,
+  user,
+  subscriptions,
+}
 
-// Export Pothos types (only used by pothos-graphql)
-export type { default as PothosTypes } from '../prisma/generated/pothos'
-export { getDatamodel } from '../prisma/generated/pothos'
+export type {
+  ExtractionManifest,
+  WorkspaceManifest,
+  DocumentManifest,
+  LibraryManifest,
+} from '@george-ai/file-management'

@@ -1,18 +1,5 @@
-/**
- * Shopware 6 API Provider
- */
-import { createLogger } from '@george-ai/web-utils'
-
+import { delay, logger } from '../common'
 import type { ApiProvider, FetchConfig, RawApiItem } from './types'
-
-const logger = createLogger('Shopware6 Provider')
-
-/**
- * Delay helper
- */
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
 
 /**
  * Get nested value from object using dot notation
@@ -132,7 +119,13 @@ export const shopware6Provider: ApiProvider = {
     }
 
     while (hasMore) {
-      logger.debug(`Fetching page ${page}...`)
+      logger.debug('Fetching page', {
+        page,
+        limit,
+        url,
+        associations: associationsObject ? Object.keys(associationsObject) : 'none',
+        config,
+      })
 
       // Build request body for Search API
       const body: Record<string, unknown> = {
@@ -167,7 +160,7 @@ export const shopware6Provider: ApiProvider = {
       const items = data.data || []
       const total = data.total || 0
 
-      logger.debug(`Page ${page}: ${items.length} items (total: ${total})`)
+      logger.debug('Fetched items:', { count: items.length, total, config })
 
       for (const item of items) {
         yield item
@@ -184,7 +177,7 @@ export const shopware6Provider: ApiProvider = {
       }
     }
 
-    logger.debug('Shopware 6 fetch complete')
+    logger.debug('Shopware 6 fetch complete', config)
   },
 
   buildOriginUri(baseUrl: string, item: RawApiItem): string | undefined {

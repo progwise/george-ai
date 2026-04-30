@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 
 import { graphql } from '../../gql'
-import { ConversationForm_ConversationFragment, UserFragment, UserProfileFragment } from '../../gql/graphql'
+import { ConversationForm_ConversationFragment, CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { ChevronDownIcon } from '../../icons/chevron-down-icon'
 import { sendMessage } from '../../server-functions/conversations'
@@ -26,10 +26,9 @@ graphql(`
 
 interface ConversationFormProps {
   conversation: ConversationForm_ConversationFragment
-  user: UserFragment
-  profile?: UserProfileFragment
+  user: CurrentUserFragment
 }
-export const ConversationForm = ({ conversation, user, profile }: ConversationFormProps) => {
+export const ConversationForm = ({ conversation, user }: ConversationFormProps) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [message, setMessage] = useState('')
@@ -41,8 +40,6 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
   const [unselectedAssistantIds, setUnselectedAssistantIds] = useState<string[]>([])
 
   const formRef = useRef<HTMLFormElement>(null)
-
-  const remainingMessages = (profile?.freeMessages || 0) - (profile?.usedMessages || 0)
 
   const scrollToBottom = () => {
     window.scrollTo({
@@ -73,10 +70,6 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
     mutationFn: async (data: { content: string; recipientAssistantIds: string[] }) => {
       if (!data.content || data.content.trim().length < 3) {
         throw new Error(t('errors.messageTooShort'))
-      }
-
-      if (remainingMessages < 1) {
-        throw new Error(t('errors.noFreeMessages'))
       }
 
       const result = await sendMessage({
@@ -224,13 +217,7 @@ export const ConversationForm = ({ conversation, user, profile }: ConversationFo
               </ul>
             </div>
 
-            <button
-              name="send"
-              type="submit"
-              className="tooltip btn tooltip-left btn-sm btn-primary"
-              disabled={isPending || remainingMessages < 1}
-              data-tip={`${remainingMessages} ${t('tooltips.remainingMessages')}`}
-            >
+            <button name="send" type="submit" className="tooltip btn tooltip-left btn-sm btn-primary">
               {t('actions.send')}
             </button>
           </div>

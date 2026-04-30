@@ -4,25 +4,29 @@ import { useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 import { z } from 'zod'
 
-import { FileMarkdownViewer } from '../../../../../../components/library/files/file-markdown-viewer'
-import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
-import { MarkdownFileSelector } from '../../../../../../components/library/files/markdown-file-selector'
-import { useMarkdownDownload } from '../../../../../../components/library/files/use-markdown-download'
+import { DocumentExtractionViewer, ExtractionSelector } from '../../../../../../components/library/files'
+import { getDocumentQueryOptions, getExtractionQueryOptions } from '../../../../../../components/library/queries'
 import { Pagination } from '../../../../../../components/table/pagination'
+import { ExtractionMethodSchema } from '../../../../../../gql/validation'
 import { useTranslation } from '../../../../../../i18n/use-translation-hook'
+import { getBackendPublicUrlQueryOptions } from '../../../../../../queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files/$fileId/')({
   component: RouteComponent,
   validateSearch: z.object({
-    markdownUrl: z.string().optional(),
-    part: z.coerce.number().optional(),
+    extractionMethod: ExtractionMethodSchema.optional(),
+    fragment: z.coerce.number().optional(),
   }),
-  loaderDeps: ({ search: { markdownUrl, part } }) => ({
-    markdownUrl,
-    part,
+  loaderDeps: ({ search: { extractionMethod, fragment } }) => ({
+    extractionMethod,
+    fragment,
   }),
-  loader: async ({ context, params }) => {
-    await context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId }))
+  loader: async ({ context, params, deps }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(getExtractionQueryOptions({ ...params, ...deps })),
+      context.queryClient.ensureQueryData(getDocumentQueryOptions(params)),
+      context.queryClient.ensureQueryData(getBackendPublicUrlQueryOptions()),
+    ])
   },
 })
 
@@ -30,95 +34,85 @@ function RouteComponent() {
   const { t } = useTranslation()
   const { fileId, libraryId } = Route.useParams()
   const navigate = Route.useNavigate()
-  const { markdownUrl, part } = Route.useSearch()
+  const { extractionMethod, fragment } = Route.useSearch()
   const [viewMarkdownSource, setViewMarkdownSource] = useState(false)
 
-  const toggleViewMarkdownSource = () => {
-    setViewMarkdownSource((prev) => !prev)
-  }
-  const {
-    data: { aiLibraryFile },
-  } = useSuspenseQuery(getFileInfoQueryOptions({ fileId: fileId }))
+  const { data: aiLibraryFile } = useSuspenseQuery(getDocumentQueryOptions({ fileId, libraryId }))
+  const { data: backendPublicUrl } = useSuspenseQuery(getBackendPublicUrlQueryOptions())
 
-  // Check if there are no available extractions
-  const hasNoExtractions = !aiLibraryFile.availableExtractions || aiLibraryFile.availableExtractions.length === 0
-
-  // Select the first available extraction by default
-  const selectedMarkdownUrl = markdownUrl || (aiLibraryFile.availableExtractions?.[0]?.mainFileUrl ?? undefined)
-
-  // Find the selected extraction for pagination
-  const selectedExtraction = aiLibraryFile.availableExtractions.find(
-    (extraction) => extraction.mainFileUrl === selectedMarkdownUrl,
+  const { data: { extraction: selectedExtraction } = {} } = useSuspenseQuery(
+    getExtractionQueryOptions({
+      fileId,
+      libraryId,
+      extractionMethod,
+    }),
   )
 
-  // Build URL with part parameter if specified
-  let urlToLoad = selectedMarkdownUrl
-  if (part && selectedMarkdownUrl) {
-    // Add part as query parameter to the main file URL
-    const url = new URL(selectedMarkdownUrl)
-    url.searchParams.set('part', part.toString())
-    urlToLoad = url.toString()
-  }
-
-  const { content, isLoading, progress, error } = useMarkdownDownload({
-    url: urlToLoad,
-  })
   return (
-    <div className="flex h-full flex-col gap-2 bg-base-100">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <MarkdownFileSelector
-            file={aiLibraryFile}
-            selectedUrl={selectedMarkdownUrl}
-            onChange={(url) => navigate({ search: { markdownUrl: url || undefined } })}
-          />
-          {part && selectedExtraction && (
-            <button
-              type="button"
-              className="btn btn-ghost btn-sm"
-              onClick={() => navigate({ search: { markdownUrl: selectedMarkdownUrl } })}
-            >
-              ← Back to Summary
-            </button>
+    <div className="grid size-full grid-rows-[auto_1fr] gap-2 bg-base-100">
+      <div className="grid w-full grid-cols-2 items-center gap-4 pt-2">
+        <ExtractionSelector
+          documentId={fileId}
+          libraryId={libraryId}
+          sourceHash={aiLibraryFile.manifest?.sourceHash}
+          extractions={aiLibraryFile.manifest?.extractions || []}
+          selectedExtractionMethod={selectedExtraction?.extractionMethod}
+          availableExtractionMethods={aiLibraryFile.supportedExtractionMethods || []}
+        />
+        <ul className="menu menu-horizontal w-full items-center justify-end menu-xs">
+          <li className="flex items-center"></li>
+          {fragment && selectedExtraction && (
+            <li>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => navigate({ search: { extractionMethod: selectedExtraction?.extractionMethod } })}
+              >
+                ← Back to Summary
+              </button>
+            </li>
           )}
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="flex items-center gap-1 text-sm">
-            <input
-              type="checkbox"
-              className={twMerge('toggle toggle-sm', viewMarkdownSource ? 'toggle-primary' : 'toggle-secondary')}
-              checked={viewMarkdownSource}
-              onChange={toggleViewMarkdownSource}
-            />
-            <span className={twMerge(viewMarkdownSource ? 'text-primary' : 'opacity-50')}>Source</span>
-          </label>
-        </div>
+          {!fragment && selectedExtraction && selectedExtraction.hasFragments && (
+            <li className="flex items-center justify-center">
+              <Pagination
+                totalItems={selectedExtraction.fragmentCount || 0}
+                currentPage={1}
+                itemsPerPage={1}
+                onPageChange={(page) =>
+                  navigate({ search: { extractionMethod: selectedExtraction?.extractionMethod, fragment: page } })
+                }
+              />
+            </li>
+          )}
+          {fragment && selectedExtraction && selectedExtraction.hasFragments && (
+            <li className="flex items-center justify-center">
+              <Pagination
+                totalItems={selectedExtraction.fragmentCount || 0}
+                currentPage={fragment}
+                itemsPerPage={1}
+                onPageChange={(page) =>
+                  navigate({ search: { extractionMethod: selectedExtraction?.extractionMethod, fragment: page } })
+                }
+              />
+            </li>
+          )}
+
+          <li>
+            <label className="flex items-center gap-1 text-sm">
+              <input
+                type="checkbox"
+                className={twMerge('toggle toggle-sm', viewMarkdownSource ? 'toggle-primary' : 'toggle-secondary')}
+                checked={viewMarkdownSource}
+                onChange={() => setViewMarkdownSource((prev) => !prev)}
+              />
+              <span className={twMerge(viewMarkdownSource ? 'text-primary' : 'opacity-50')}>Source</span>
+            </label>
+          </li>
+        </ul>
       </div>
 
-      {!part && selectedExtraction && selectedExtraction.isBucketed && (
-        <div className="flex items-center justify-center">
-          <Pagination
-            totalItems={selectedExtraction.totalParts}
-            currentPage={1}
-            itemsPerPage={1}
-            onPageChange={(page) => navigate({ search: { markdownUrl: selectedMarkdownUrl, part: page } })}
-          />
-        </div>
-      )}
-
-      {part && selectedExtraction && selectedExtraction.isBucketed && (
-        <div className="flex items-center justify-center">
-          <Pagination
-            totalItems={selectedExtraction.totalParts}
-            currentPage={part}
-            itemsPerPage={1}
-            onPageChange={(page) => navigate({ search: { markdownUrl: selectedMarkdownUrl, part: page } })}
-          />
-        </div>
-      )}
-
-      <div className="min-h-0 min-w-0 overflow-auto rounded-box bg-base-300 p-5">
-        {hasNoExtractions ? (
+      <div className="overflow-auto">
+        {!selectedExtraction ? (
           <div className="alert alert-info">
             <div className="flex flex-col gap-2">
               <span className="font-semibold">{t('files.noProcessedFiles')}</span>
@@ -138,33 +132,15 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          <>
-            {error && (
-              <div className="alert alert-error">
-                <span>Error loading markdown: {error.message}</span>
-              </div>
-            )}
-            {!error &&
-              (viewMarkdownSource ? (
-                isLoading ? (
-                  <div className="flex items-center gap-4 p-8">
-                    <div className="loading loading-spinner"></div>
-                    <div>Loading... {progress > 0 && `${Math.round(progress)}%`}</div>
-                  </div>
-                ) : (
-                  <pre className="text-sm whitespace-pre-wrap">
-                    <code lang="markdown">{content || t('files.noContentAvailable')}</code>
-                  </pre>
-                )
-              ) : (
-                <FileMarkdownViewer
-                  markdown={content || t('files.noContentAvailable')}
-                  className="text-sm font-semibold"
-                  isLoading={isLoading}
-                  progress={progress}
-                />
-              ))}
-          </>
+          <DocumentExtractionViewer
+            libraryId={libraryId}
+            documentId={fileId}
+            extractionMethod={selectedExtraction.extractionMethod}
+            fragment={fragment}
+            className="text-sm font-semibold"
+            backendPublicUrl={backendPublicUrl}
+            viewMarkdownSource={viewMarkdownSource}
+          />
         )}
       </div>
     </div>

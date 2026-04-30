@@ -1,4 +1,4 @@
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-database'
 import { getConnectorTypeFactory } from '@george-ai/connector-types'
 
 import { builder } from '../builder'

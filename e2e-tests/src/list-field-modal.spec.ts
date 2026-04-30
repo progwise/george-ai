@@ -2,6 +2,7 @@ import { Page, expect, test } from '@playwright/test'
 
 import { deleteField, switchList } from './webapp-utils/list-util'
 import { loginToWebapp } from './webapp-utils/login-util'
+import { closeMigrationDialogIfPresent } from './webapp-utils/migration-dialog-util'
 import { switchWorkspace } from './webapp-utils/workspace-switcher-util'
 
 const TEST_LIST = 'E2E Test List'
@@ -18,10 +19,7 @@ const TEST_LIST = 'E2E Test List'
  * Cleanup: All test lists are deleted in global-teardown.ts
  */
 
-test.describe('List Field Modal', () => {
-  // Serial mode: tests depend on each other (e.g., "Comprehensive Field" created in one test, used in later tests)
-  test.describe.configure({ mode: 'serial' })
-
+test.describe.serial('List Field Modal', () => {
   let page: Page
 
   test.beforeAll(async ({ browser }) => {
@@ -32,6 +30,8 @@ test.describe('List Field Modal', () => {
     // Navigate to lists and select test list
     await page.goto('/lists')
     await page.waitForLoadState('networkidle')
+    await closeMigrationDialogIfPresent(page)
+
     await switchList(page, TEST_LIST)
   })
 
@@ -43,6 +43,8 @@ test.describe('List Field Modal', () => {
     // Ensure we're on the test list page before each test
     await page.goto('/lists')
     await page.waitForLoadState('networkidle')
+    await closeMigrationDialogIfPresent(page)
+
     await switchList(page, TEST_LIST)
   })
 

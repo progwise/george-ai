@@ -1,6 +1,6 @@
 import { GraphQLError } from 'graphql'
 
-import { Prisma, prisma } from '@george-ai/app-domain'
+import { Prisma, prisma } from '@george-ai/app-database'
 import { getConnectorTypeFactory } from '@george-ai/connector-types'
 
 import { builder } from '../builder'

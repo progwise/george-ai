@@ -9,12 +9,15 @@
       "dependsOn": []
     },
     "test": {
+      "outputs": ["node_modules/.vitest-reports/test-summary-metadata.json"],
+      "cache": true,
       "dependsOn": [],
       "env": [
         "TEST_DB_HOST",
         "TEST_DB_PORT",
         "TEST_DB_USER",
         "TEST_DB_PASSWORD",
+        "DATABASE_URL",
         "NATS_URL",
         "QDRANT_URL",
         "OLLAMA_BASE_URL",
@@ -34,7 +37,13 @@
         "SMTP_USER",
         "SMTP_PASSWORD",
         "SMTP_FROM",
-        "SMTP_TEST_RECIPIENT"
+        "SMTP_TEST_RECIPIENT",
+        "STORAGE_PATH_WORKSPACES",
+        "STORAGE_PATH_WORKSPACES_BACKUP",
+        "STORAGE_PATH_ASSISTANTS",
+        "STORAGE_PATH_USERS",
+        "STORAGE_PATH_CREDENTIALS",
+        "STORAGE_PATH_LEGACY_LIBRARIES"
       ]
     },
     "lint": {
@@ -45,13 +54,13 @@
       "persistent": true
     },
     "typecheck": {
-      "dependsOn": []
+      "dependsOn": ["^typecheck"]
     },
     "prisma:generate": {
-      "dependsOn": []
+      "cache": false
     },
     "prisma:migrate": {
-      "dependsOn": []
+      "cache": false
     }
   }
 }

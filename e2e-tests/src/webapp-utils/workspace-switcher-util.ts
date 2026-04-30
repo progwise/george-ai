@@ -1,5 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test'
 
+import { closeMigrationDialogIfPresent } from './migration-dialog-util'
+
 export const workspaceSwitcher = (locator: Locator | Page) => {
   return locator.getByRole('group', { name: /select workspace/i })
 }
@@ -24,7 +26,9 @@ export const switchWorkspace = async (locator: Locator | Page, workspaceName: st
   // Check if locator is a Page (has waitForLoadState) or a Locator (has page() method)
   if ('waitForLoadState' in locator) {
     await locator.waitForLoadState('networkidle')
+    await closeMigrationDialogIfPresent(locator)
   } else {
     await locator.page().waitForLoadState('networkidle')
+    await closeMigrationDialogIfPresent(locator.page())
   }
 }

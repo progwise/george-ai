@@ -14,6 +14,7 @@ import 'dotenv/config'
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  timeout: process.env.TEST_TIMEOUT ? parseInt(process.env.TEST_TIMEOUT) : 30 * 1000, // 30 seconds default
   testDir: './src',
   /* Global setup - runs once before all tests */
   globalSetup: './src/global-setup.ts',

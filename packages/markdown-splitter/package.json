@@ -1,0 +1,37 @@
+{
+  "name": "@george-ai/markdown-splitter",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "packageManager": "pnpm@9.15.4",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Michael Vogt <info@george-ai.net>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/progwise/george-ai"
+  },
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-schema": "workspace:*",
+    "@langchain/textsplitters": "^1.0.1",
+    "p-retry": "^7.1.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@george-ai/package-configs": "workspace:*",
+    "@george-ai/test-utils": "workspace:*",
+    "@types/node": "^22.13.8",
+    "dotenv": "^16.4.5",
+    "eslint": "^9.39.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.44.1",
+    "vitest": "^3.1.1"
+  }
+}

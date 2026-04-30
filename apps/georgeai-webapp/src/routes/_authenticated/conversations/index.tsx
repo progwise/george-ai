@@ -34,13 +34,13 @@ function RouteComponent() {
   }, [latestConversation, navigate])
 
   return (
-    <div className="absolute flex h-screen w-full">
+    <div className="absolute flex w-full">
       <div className="mx-auto prose mt-8">
         <p>{t('conversations.firstConversation')}</p>
         <ConversationParticipantsDialogButton
           assistants={assistantsQuery.data.aiAssistants}
           users={usersQuery.data.users}
-          userId={user.id}
+          userId={user.userId}
           variant="primary"
         />
       </div>

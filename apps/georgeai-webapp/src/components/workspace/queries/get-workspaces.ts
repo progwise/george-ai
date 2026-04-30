@@ -8,18 +8,21 @@ import { backendRequest } from '../../../server-functions/backend'
 const workspacesQueryDocument = graphql(`
   query GetWorkspaces {
     workspaces {
-      id
-      name
-      slug
-      isDefault
-      createdAt
-      updatedAt
+      totalCount
+      items {
+        id
+        name
+        slug
+        isDefault
+        createdAt
+        updatedAt
+      }
     }
   }
 `)
 
 const getWorkspaces = createServerFn({ method: 'GET' }).handler(async () => {
-  const { workspaces } = await backendRequest(workspacesQueryDocument, {})
+  const { workspaces } = await backendRequest(workspacesQueryDocument)
   return workspaces
 })
 

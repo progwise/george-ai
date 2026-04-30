@@ -166,7 +166,6 @@ export const ConversationMessage = ({ isLoading, message, conversationOwnerId, u
                 description: null,
                 iconUrl: message.sender.assistant?.iconUrl || null,
                 updatedAt: message.sender.assistant?.updatedAt || '',
-                ownerId: '',
               }}
               className="size-8 overflow-hidden rounded-full"
             />

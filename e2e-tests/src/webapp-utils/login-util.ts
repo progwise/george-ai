@@ -1,5 +1,7 @@
 import { Page, expect } from '@playwright/test'
 
+import { closeMigrationDialogIfPresent } from './migration-dialog-util'
+
 export const E2E_USERNAME = process.env.E2E_USERNAME!
 export const E2E_PASSWORD = process.env.E2E_PASSWORD!
 
@@ -21,6 +23,6 @@ export const loginToWebapp = async (page: Page) => {
   await page.getByRole('button', { name: 'Sign in' }).click()
 
   // Wait for login to complete
-  await expect(page.getByRole('heading', { name: /overview/i })).toBeVisible()
-  await page.waitForLoadState('networkidle')
+  await expect(page.getByRole('heading', { name: /overview/i })).toBeVisible({ timeout: 20000 })
+  await closeMigrationDialogIfPresent(page)
 }

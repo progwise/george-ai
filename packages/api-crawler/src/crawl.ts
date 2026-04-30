@@ -1,35 +1,21 @@
-/**
- * Main crawl function
- * Orchestrates authentication and provider-based content extraction
- */
-import { createLogger } from '@george-ai/web-utils'
-
+import { ApiCrawlerConfig } from './api-crawler-config'
 import { authenticate } from './auth'
+import { logger } from './common'
 import { getProvider } from './providers'
-import type { ApiCrawlItem, ApiCrawlerConfig } from './types'
-
-const logger = createLogger('API Crawler')
+import type { ApiCrawlItem } from './types'
 
 /**
  * Crawl an API endpoint and extract data (streaming version)
  * Yields items as they are fetched and processed
  */
 export async function* crawlApiStream(config: ApiCrawlerConfig): AsyncGenerator<ApiCrawlItem, void, void> {
-  logger.debug('Starting crawl...')
+  logger.info('Starting API crawl with config', config)
 
-  // 1. Get provider
-  const providerType = config.provider || 'custom'
-  logger.debug('Using provider:', providerType)
-  const provider = getProvider(providerType, config.baseUrl, config.endpoint, config.providerConfig)
-  logger.debug('Provider initialized:', provider.name)
+  const provider = getProvider(config.provider, config.baseUrl, config.endpoint, config.providerConfig)
+  logger.debug('Provider initialized:', { provider, config })
 
-  // 2. Authenticate
-  logger.debug('Authenticating with auth type:', config.authType)
   const authHeaders = await authenticate(config.authType, config.authConfig)
-  logger.debug('Authentication successful')
-
-  // 3. Fetch items using provider
-  const headers = { ...config.headers, ...authHeaders }
+  logger.debug('Authentication headers obtained', { authHeaders, config })
 
   let totalYielded = 0
   let skippedItems = 0
@@ -37,7 +23,7 @@ export async function* crawlApiStream(config: ApiCrawlerConfig): AsyncGenerator<
   for await (const item of provider.fetchItems({
     baseUrl: config.baseUrl,
     endpoint: config.endpoint,
-    headers,
+    headers: { ...config.headers, ...authHeaders },
     requestDelay: config.requestDelay,
     associations: config.associationsConfig?.associations,
   })) {
@@ -45,7 +31,7 @@ export async function* crawlApiStream(config: ApiCrawlerConfig): AsyncGenerator<
     const originUri = provider.buildOriginUri(config.baseUrl, item)
     if (!originUri) {
       skippedItems++
-      logger.warn('Skipping item - could not build origin URI')
+      logger.warn('Skipping item - could not build origin URI', { item, config })
       continue
     }
 
@@ -56,14 +42,11 @@ export async function* crawlApiStream(config: ApiCrawlerConfig): AsyncGenerator<
     totalYielded++
 
     if (totalYielded === 1) {
-      logger.debug('First item sample - title:', title, 'originUri:', originUri)
+      logger.debug('First item sample - title:', { title, originUri, contentSample: content.slice(0, 100) })
     }
 
     yield { title, content, raw: item, originUri }
   }
 
-  logger.info('Crawl complete. Total items yielded:', totalYielded)
-  if (skippedItems > 0) {
-    logger.warn('Items skipped (no identifier):', skippedItems)
-  }
+  logger.info('Crawl complete. Total items yielded:', { totalYielded, skippedItems, config })
 }

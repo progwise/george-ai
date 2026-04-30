@@ -1,32 +1,34 @@
 import { useEffect, useState } from 'react'
 
+import { logger } from '../common'
+
 export const useMarkdownDownload = ({
   url,
   chunkSize = 100 * 1024, // 100KB chunks
 }: {
-  url: string | undefined
+  url: string | undefined | null
   chunkSize?: number
 }) => {
-  const [content, setContent] = useState<string>('')
-  const [isLoading, setIsLoading] = useState(true)
+  const [markdown, setMarkdown] = useState<string>('')
   const [bytesLoaded, setBytesLoaded] = useState(0)
   const [totalBytes, setTotalBytes] = useState(0)
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
     if (!url) return
-
+    if (error) return // Don't attempt to download if there's already an error
+    const timeouts = Array<NodeJS.Timeout>()
     const controller = new AbortController()
-    const downloadMarkdown = async () => {
+    const downloadMarkdown = async (downloadUrl: string) => {
+      console.log('Starting markdown download from URL:', downloadUrl) // Debug log
       try {
-        setIsLoading(true)
-        setContent('')
-        setBytesLoaded(0)
-
-        const response = await fetch(url, {
+        const response = await fetch(downloadUrl, {
           credentials: 'include',
           signal: controller.signal,
         })
+
+        // eslint-disable-next-line @eslint-react/web-api/no-leaked-timeout
+        await new Promise((resolve) => timeouts.push(setTimeout(resolve, 500))) // Simulate network delay for testing
 
         if (!response.ok) throw new Error(`Failed to download: ${response.statusText}`)
 
@@ -42,6 +44,8 @@ export const useMarkdownDownload = ({
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
+          // eslint-disable-next-line @eslint-react/web-api/no-leaked-timeout
+          await new Promise((resolve) => timeouts.push(setTimeout(resolve, 500))) // Simulate network delay for testing
 
           const chunk = decoder.decode(value, { stream: true })
           accumulatedContent += chunk
@@ -49,33 +53,49 @@ export const useMarkdownDownload = ({
 
           // Update content every chunkSize bytes for progressive rendering
           if (accumulatedContent.length % chunkSize < chunk.length) {
-            setContent(accumulatedContent)
+            setMarkdown(accumulatedContent)
           }
         }
+        // eslint-disable-next-line @eslint-react/web-api/no-leaked-timeout
+        await new Promise((resolve) => timeouts.push(setTimeout(resolve, 500))) // Simulate network delay for testing
 
-        setContent(accumulatedContent) // Final update
-        setIsLoading(false)
+        setMarkdown(accumulatedContent) // Final update
       } catch (err) {
+        logger.error('Error downloading markdown file:', err, { url: downloadUrl })
+        controller.abort(err)
         // Ignore AbortErrors (expected when component unmounts or URL changes)
         if ((err as Error).name !== 'AbortError') {
-          console.error('Error downloading markdown file:', err)
           setError(err as Error)
-          setIsLoading(false)
         }
+      } finally {
+        timeouts.forEach(clearTimeout) // Clear any pending timeouts when download completes or fails
       }
     }
 
-    downloadMarkdown()
+    downloadMarkdown(url)
 
-    return () => controller.abort()
-  }, [url, chunkSize])
+    return () => {
+      controller.abort() // Cancel fetch on unmount or URL change
+      timeouts.forEach(clearTimeout) // Clear any pending timeouts on unmount or URL change
+    }
+  }, [url, chunkSize, error]) // Added markdown, error, and totalBytes to dependencies for better debugging
+
+  useEffect(() => {
+    const timeoutId = setTimeout(async () => {
+      setMarkdown('')
+      setBytesLoaded(0)
+      setTotalBytes(0)
+      setError(null)
+    }, 0)
+    return () => clearTimeout(timeoutId)
+  }, [url]) // Debug effect to log markdown updates
 
   return {
-    content,
-    isLoading,
+    markdown,
     bytesLoaded,
     totalBytes,
     progress: totalBytes > 0 ? (bytesLoaded / totalBytes) * 100 : 0,
+    isLoading: bytesLoaded < totalBytes && !error,
     error,
   }
 }

@@ -2,9 +2,9 @@ import { createServerFn } from '@tanstack/react-start'
 import { ReactElement, RefObject } from 'react'
 import { z } from 'zod'
 
-import { useAuth } from '../../auth/auth'
+import { useAuth } from '../../auth'
 import { graphql } from '../../gql'
-import { UserProfileForm_UserProfileFragment } from '../../gql/graphql'
+import { CurrentUserFragment, UserProfileForm_UserProfileFragment } from '../../gql/graphql'
 import { Language, getLanguage, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { backendRequest } from '../../server-functions/backend'
@@ -20,10 +20,6 @@ graphql(`
     email
     firstName
     lastName
-    freeMessages
-    usedMessages
-    freeStorage
-    usedStorage
     createdAt
     updatedAt
     confirmationDate
@@ -85,21 +81,14 @@ export const updateProfile = createServerFn({ method: 'POST' })
 
 interface UserProfileFormProps {
   userProfile: UserProfileForm_UserProfileFragment
-  user?: { id: string; name?: string | null; avatarUrl?: string | null } | null
+  user?: CurrentUserFragment
   onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void
   isAdmin?: boolean
   saveButton?: ReactElement | null
   formRef?: RefObject<HTMLFormElement | null>
 }
 
-export const UserProfileForm = ({
-  isAdmin,
-  userProfile,
-  user,
-  onSubmit,
-  formRef,
-  saveButton,
-}: UserProfileFormProps) => {
+export const UserProfileForm = ({ userProfile, user, onSubmit, formRef, saveButton }: UserProfileFormProps) => {
   const { t, language } = useTranslation()
   const { logout } = useAuth()
 
@@ -236,50 +225,6 @@ export const UserProfileForm = ({
           >
             {t('actions.increaseLimits')}
           </a>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          {/* Storage */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-base-content/80">Storage</h3>
-            <div className="space-y-3">
-              <Input
-                name="freeStorage"
-                label={t('labels.freeStorage')}
-                value={userProfile.freeStorage}
-                type="number"
-                disabled={!isAdmin}
-              />
-              <Input
-                name="usedStorage"
-                label={t('labels.usedStorage')}
-                value={userProfile.usedStorage}
-                type="number"
-                disabled
-              />
-            </div>
-          </div>
-
-          {/* Messages */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-base-content/80">Messages</h3>
-            <div className="space-y-3">
-              <Input
-                name="freeMessages"
-                label={t('labels.freeMessages')}
-                value={userProfile.freeMessages}
-                type="number"
-                disabled={!isAdmin}
-              />
-              <Input
-                name="usedMessages"
-                label={t('labels.usedMessages')}
-                value={userProfile.usedMessages}
-                type="number"
-                disabled
-              />
-            </div>
-          </div>
         </div>
       </div>
 

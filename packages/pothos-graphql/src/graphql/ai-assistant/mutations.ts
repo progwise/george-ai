@@ -1,4 +1,5 @@
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-database'
+import { canAdminWorkspaceOrThrow } from '@george-ai/app-domain'
 
 import { builder } from '../builder'
 
@@ -21,15 +22,7 @@ builder.mutationField('deleteAiAssistant', (t) =>
       assistantId: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { assistantId }, context) => {
-      // Only owner can delete an assistant
-      const assistant = await prisma.aiAssistant.findUniqueOrThrow({
-        where: { id: assistantId },
-        select: { ownerId: true },
-      })
-
-      if (assistant.ownerId !== context.session.user.id) {
-        throw new Error('Only the owner can delete this assistant')
-      }
+      await canAdminWorkspaceOrThrow(context.workspaceId, context.session.user.id)
 
       return prisma.aiAssistant.delete({
         ...query,
@@ -46,7 +39,8 @@ builder.mutationField('updateAiAssistant', (t) =>
       id: t.arg.string({ required: true }),
       data: t.arg({ type: AiAssistantInput, required: true }),
     },
-    resolve: async (query, _source, { id, data }) => {
+    resolve: async (query, _source, { id, data }, context) => {
+      await canAdminWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       const result = await prisma.aiAssistant.update({
         ...query,
         where: { id },
@@ -64,12 +58,11 @@ builder.mutationField('createAiAssistant', (t) =>
       name: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { name }, context) => {
-      const userId = context.session.user.id
+      await canAdminWorkspaceOrThrow(context.workspaceId, context.session.user.id)
       return prisma.aiAssistant.create({
         ...query,
         data: {
           name,
-          ownerId: userId,
           workspaceId: context.workspaceId,
         },
       })
@@ -87,13 +80,14 @@ const BaseCaseInputType = builder.inputType('AiBaseCaseInputType', {
 })
 
 builder.mutationField('upsertAiBaseCases', (t) =>
-  t.prismaField({
+  t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['AiAssistantBaseCase'],
     args: {
       assistantId: t.arg.string({ required: true }),
       baseCases: t.arg({ type: [BaseCaseInputType], required: true }),
     },
-    resolve: async (query, _source, { assistantId, baseCases }) => {
+    resolve: async (query, _source, { assistantId, baseCases }, { workspaceId, session }) => {
+      await canAdminWorkspaceOrThrow(workspaceId, session.user.id)
       const assistant = await prisma.aiAssistant.findUnique({
         where: { id: assistantId },
         include: { baseCases: true },

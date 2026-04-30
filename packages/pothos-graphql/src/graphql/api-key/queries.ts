@@ -1,25 +1,21 @@
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-database'
+import { canReadWorkspaceOrThrow } from '@george-ai/app-domain'
 
-import { canAccessLibraryOrThrow } from '../../domain'
 import { builder } from '../builder'
 
-console.log('Setting up: ApiKey Queries')
-
-builder.queryField('apiKeys', (t) =>
+builder.queryField('workspaceApiKeys', (t) =>
   t.withAuth({ isLoggedIn: true }).prismaField({
     type: ['ApiKey'],
     nullable: false,
-    args: {
-      libraryId: t.arg.string({ required: true }),
-    },
-    resolve: async (query, _source, { libraryId }, context) => {
-      // Check if user has access to this library
-      await canAccessLibraryOrThrow(libraryId, context.session.user.id)
+    args: {},
+    resolve: async (query, _source, _args, { workspaceId, session }) => {
+      // Check if user has access to this workspace
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
 
-      // Return all API keys for this library
+      // Return all API keys for this workspace
       return prisma.apiKey.findMany({
         ...query,
-        where: { libraryId },
+        where: { workspaceId },
         orderBy: { createdAt: 'desc' },
       })
     },

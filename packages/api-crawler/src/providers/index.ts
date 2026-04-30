@@ -1,15 +1,18 @@
+import { ConnectorApiProviderType } from '@george-ai/app-schema'
+
+import { ApiCustomProviderConfig } from '../api-crawler-config'
 import { createCustomProvider } from './custom'
 import { jtlProvider } from './jtl'
 import { shopware5Provider } from './shopware5'
 import { shopware6Provider } from './shopware6'
-import type { ApiProvider, CustomProviderConfig } from './types'
+import type { ApiProvider } from './types'
 import { weclappProvider } from './weclapp'
 
 /**
  * API Providers
  * Platform-specific implementations for crawling different APIs
  */
-export type { ApiProvider, CustomProviderConfig, RawApiItem } from './types'
+export type { ApiProvider, RawApiItem } from './types'
 export { shopware6Provider } from './shopware6'
 export { shopware5Provider } from './shopware5'
 export { weclappProvider } from './weclapp'
@@ -17,18 +20,13 @@ export { jtlProvider } from './jtl'
 export { createCustomProvider } from './custom'
 
 /**
- * Supported provider types
- */
-export type ProviderType = 'shopware6' | 'shopware5' | 'weclapp' | 'jtl' | 'custom'
-
-/**
  * Get a provider by type
  */
 export function getProvider(
-  type: ProviderType,
+  type: ConnectorApiProviderType,
   baseUrl: string,
   endpoint: string,
-  customConfig?: CustomProviderConfig,
+  customConfig?: ApiCustomProviderConfig,
 ): ApiProvider {
   switch (type) {
     case 'shopware6':

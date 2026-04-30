@@ -25,8 +25,11 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copy package configs (needed for TypeScript)
 COPY packages/package-configs/package.json ./packages/package-configs/
 
+# Copy app-commons package (needed for TypeScript)
+COPY packages/app-commons/package.json ./packages/app-commons/
+
 # Copy smb-crawler package (dependency)
-COPY packages/smb-crawler/package.json ./packages/smb-crawler/
+COPY packages/smb-crawler-client/package.json ./packages/smb-crawler-client/
 
 # Copy smb2-client package (dependency)
 COPY packages/smb2-client/package.json ./packages/smb2-client/
@@ -41,7 +44,8 @@ RUN pnpm i --frozen-lockfile
 COPY LICENSE ./
 
 # Copy source files
-COPY packages/smb-crawler ./packages/smb-crawler
+COPY packages/app-commons ./packages/app-commons
+COPY packages/smb-crawler-client ./packages/smb-crawler-client
 COPY packages/smb2-client ./packages/smb2-client
 COPY services/smb-crawler-service ./services/smb-crawler-service
 

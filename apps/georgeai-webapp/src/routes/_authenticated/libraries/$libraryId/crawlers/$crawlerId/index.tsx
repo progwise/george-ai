@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
-import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries/get-crawler'
+import { getCrawlerQueryOptions } from '../../../../../../components/library/crawler/queries'
 
 export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawlers/$crawlerId/')({
   component: RouteComponent,
@@ -13,9 +13,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/crawl
 function RouteComponent() {
   const params = Route.useParams()
 
-  const {
-    data: { aiLibraryCrawler: crawler },
-  } = useSuspenseQuery(getCrawlerQueryOptions(params))
+  const { data: crawler } = useSuspenseQuery(getCrawlerQueryOptions(params))
 
   return <div>Crawler overview for {crawler.uri} with statistics, runs, etc coming soon!</div>
 }

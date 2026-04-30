@@ -5,7 +5,7 @@ import {
   AiActQuestion,
   performRiskAssessment,
 } from '@george-ai/ai-act'
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-database'
 
 import { builder } from '../builder'
 import { getQuestionsWithAnswers } from './answers'

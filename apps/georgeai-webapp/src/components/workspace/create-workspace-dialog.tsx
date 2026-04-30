@@ -1,7 +1,7 @@
 import { RefObject, useState } from 'react'
 import { z } from 'zod'
 
-import { UserFragment } from '../../gql/graphql'
+import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { DialogForm } from '../dialog-form'
 import { Input } from '../form/input'
@@ -9,7 +9,7 @@ import { useWorkspace } from './use-workspace'
 
 interface CreateWorkspaceDialogProps {
   dialogRef: RefObject<HTMLDialogElement | null>
-  user: UserFragment
+  user: CurrentUserFragment
 }
 
 export const CreateWorkspaceDialog = ({ dialogRef, user }: CreateWorkspaceDialogProps) => {

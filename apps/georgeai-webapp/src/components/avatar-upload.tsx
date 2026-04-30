@@ -2,17 +2,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
 import { useRef, useState } from 'react'
 
-import { UserFragment } from '../gql/graphql'
+import { CurrentUserFragment, UserFragment } from '../gql/graphql'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { CameraIcon } from '../icons/camera-icon'
+import { getBackendPublicUrl } from '../queries'
 import { queryKeys } from '../query-keys'
 import { isProviderAvatar } from './avatar-provider'
-import { getBackendPublicUrl } from './common'
 import { toastError, toastSuccess } from './georgeToaster'
 import { UserAvatar } from './user-avatar'
 
 interface AvatarUploadProps {
-  user: { id: string; name?: string | null; avatarUrl?: string | null }
+  user: CurrentUserFragment
   className?: string
 }
 
@@ -26,7 +26,7 @@ export const AvatarUpload = ({ user, className = 'size-12' }: AvatarUploadProps)
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
       const fileExtension = file.name.split('.').pop() || 'png'
-      const uploadUrl = (await getBackendPublicUrl()) + `/avatar?userId=${user.id}`
+      const uploadUrl = (await getBackendPublicUrl()) + `/avatar?userId=${user.userId}`
 
       await fetch(uploadUrl, {
         method: 'POST',
@@ -60,7 +60,7 @@ export const AvatarUpload = ({ user, className = 'size-12' }: AvatarUploadProps)
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      const deleteUrl = (await getBackendPublicUrl()) + `/avatar?userId=${user.id}`
+      const deleteUrl = (await getBackendPublicUrl()) + `/avatar?userId=${user.userId}`
 
       await fetch(deleteUrl, {
         method: 'DELETE',

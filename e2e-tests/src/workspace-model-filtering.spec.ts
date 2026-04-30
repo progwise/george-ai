@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 import { loginToWebapp } from './webapp-utils/login-util'
+import { closeMigrationDialogIfPresent } from './webapp-utils/migration-dialog-util'
 import { switchWorkspace } from './webapp-utils/workspace-switcher-util'
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY
@@ -25,14 +26,21 @@ test.describe('Workspace Model Filtering', () => {
 
   test.beforeEach(async ({ page }) => {
     await loginToWebapp(page)
+    await page.waitForLoadState('networkidle')
+    await closeMigrationDialogIfPresent(page)
   })
 
   test('should show only OpenAI models in workspace with OpenAI provider', async ({ page }) => {
     await switchWorkspace(page, 'E2E Test Workspace 1')
 
     // Navigate to library creation
-    await page.getByRole('link', { name: 'Libraries' }).click()
-    await page.getByRole('button', { name: /new/i }).click()
+    const sidebar = page.getByRole('complementary', { name: /main menu/i })
+    await closeMigrationDialogIfPresent(page)
+    await sidebar.getByLabel('Open sidebar').click({ force: true })
+
+    const newLibraryButton = sidebar.getByRole('button', { name: /create library/i })
+    await expect(newLibraryButton).toBeEnabled()
+    await newLibraryButton.click()
 
     const dialog = page.locator('dialog[open]')
     await expect(dialog).toBeVisible()
@@ -86,8 +94,12 @@ test.describe('Workspace Model Filtering', () => {
     await switchWorkspace(page, 'E2E Test Workspace 2')
 
     // Navigate to library creation
-    await page.getByRole('link', { name: 'Libraries' }).click()
-    await page.getByRole('button', { name: /new/i }).click()
+    const sidebar = page.getByRole('complementary', { name: /main menu/i })
+    await sidebar.getByLabel('Open sidebar').click({ force: true })
+
+    const newLibraryButton = sidebar.getByRole('button', { name: /create library/i })
+    await expect(newLibraryButton).toBeEnabled()
+    await newLibraryButton.click()
 
     const dialog = page.locator('dialog[open]')
     await expect(dialog).toBeVisible()

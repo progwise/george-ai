@@ -1,4 +1,96 @@
 {
   "prisma.pinToPrisma6": false,
-  "vitest.maximumConfigs": 10
+  "vitest.maximumConfigs": 40,
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "pnpm.executionEnv": "container",
+  "eslint.runtime": "node",
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "remote.autoForwardPorts": true,
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.associations": {
+    "*.mdx": "mdx"
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "search.followSymlinks": false,
+  "files.exclude": {
+    "**/.storage/**": true,
+    "**/.storage-*/**": true,
+    "**/.uploads/**": true,
+    "**/.uploads-*/**": true,
+    "**/.pgadmin-*/**": true,
+    "**/.postgres-*/**": true,
+    "**/.qdrant-*/**": true,
+    "**/.typesense-*/**": true,
+    "**/.nats-data/**": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.pnpm-store/**": true,
+    "**/.turbo/**": true,
+    "**/dist/**": true,
+    "**/.nats-*/**": true,
+    "**/.next/**": true,
+    "**/.cache/**": true,
+    "**/.storage/**": true,
+    "**/.storage-*/**": true,
+    "**/.uploads/**": true,
+    "**/.uploads-*/**": true,
+    "**/.pgadmin-*/**": true,
+    "**/.postgres-*/**": true,
+    "**/.qdrant-*/**": true,
+    "**/.typesense-*/**": true,
+    "**/build/**": true,
+    "**/coverage/**": true,
+    "**/pnpm-lock.yaml": true,
+    "**/pnpm-workspace.yaml": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.turbo": true,
+    "**/dist": true,
+    "**/.next": true,
+    "pnpm-lock.yaml": true,
+    "**/.cache": true,
+    "**/.nats-*": true,
+    "**/.pnpm-store/**": true,
+    "**/.storage": true,
+    "**/.storage*": true,
+    "**/.uploads": true,
+    "**/.uploads*": true,
+    "**/.pgadmin-*": true,
+    "**/.postgres-*": true,
+    "**/.qdrant-*": true,
+    "**/.typesense-*": true
+  },
+  "tailwindCSS.files.exclude": [
+    "**/.git/**",
+    "**/.hg/**",
+    "**/.nats-*/**",
+    "**/.pgadmin-*/**",
+    "**/.postgres-*/**",
+    "**/.qdrant-*/**",
+    "**/.storage/**",
+    "**/.storage-*/**",
+    "**/.svn/**",
+    "**/.turbo/**",
+    "**/.typesense-*/**",
+    "**/.uploads/**",
+    "**/.uploads-*/**",
+    "**/node_modules/**",
+    "**/.pnpm-store/**"
+  ]
 }

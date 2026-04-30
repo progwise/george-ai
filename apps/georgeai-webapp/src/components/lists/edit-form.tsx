@@ -15,7 +15,6 @@ graphql(`
   fragment ListEditForm_List on AiList {
     id
     name
-    ownerId
     createdAt
     updatedAt
   }

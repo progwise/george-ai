@@ -26,7 +26,6 @@ export const AiAssistant = builder.prismaObject('AiAssistant', {
     description: t.exposeString('description'),
     url: t.exposeString('url'),
     iconUrl: t.exposeString('iconUrl'),
-    ownerId: t.exposeID('ownerId', { nullable: false }),
     createdAt: t.expose('createdAt', { type: 'DateTime', nullable: false }),
     updatedAt: t.expose('updatedAt', { type: 'DateTime' }),
     languageModel: t.relation('languageModel'),

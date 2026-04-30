@@ -5,48 +5,21 @@ import cors from 'cors'
 import express from 'express'
 import { createYoga } from 'graphql-yoga'
 
-import {
-  initializeWorkspace,
-  schema,
-  startContentProcessingWorker,
-  startEnrichmentQueueWorker,
-} from '@george-ai/pothos-graphql'
-import { createLogger } from '@george-ai/web-utils'
+import { getConfigReport } from '@george-ai/app-commons'
+import { schema } from '@george-ai/pothos-graphql'
 
-import { assistantIconMiddleware } from './assistantIconMiddleware'
-import { avatarMiddleware } from './avatarMiddleware'
+import { assistantIconMiddleware } from './assistant-icon-middleware'
+import { logger } from './common'
 import { conversationMessagesSSE } from './conversation-messages-sse'
-import { getUserContext } from './getUserContext'
-import { libraryFiles } from './library-files'
-import { dataUploadMiddleware } from './upload'
+import { getUserContext } from './get-user-context'
+import { handleDownloadGet } from './handle-download-get'
+import { handleFileGet } from './handle-file-get'
+import { handleUploadPost } from './handle-upload-post'
+import { userAvatarMiddleware } from './user-avatar-middleware'
 
-const logger = createLogger('Server')
+logger.info('*** Starting GeorgeAi backend server ***')
+logger.info(`\n${getConfigReport()}\n`)
 
-logger.info('Starting GeorgeAI GraphQL server...')
-
-logger.info(`
-  Environment: ${process.env.NODE_ENV || 'development'}
-  GraphQL API Key: ${process.env.GRAPHQL_API_KEY ? '******' : 'not set'}
-  GraphQL Endpoint: ${process.env.GRAPHQL_ENDPOINT || '/graphql'}
-  Server Port: ${process.env.PORT || 3003}
-  Assistant Icon Path: ${process.env.ASSISTANT_ICON_PATH || '/assistant-icon'}
-  Avatar Path: ${process.env.AVATAR_PATH || '/avatar'}
-  Data Upload Path: ${process.env.DATA_UPLOAD_PATH || '/upload'}
-  OLLAMA_BASE_URL: ${process.env.OLLAMA_BASE_URL || 'not set'}
-  OPENAI_API_KEY: ${process.env.OPENAI_API_KEY ? '******' : 'not set'}
-  `)
-
-// Initialize workspace provider cache
-initializeWorkspace()
-// Start workers
-if (process.env.AUTOSTART_ENRICHMENT_WORKER === 'true') {
-  logger.info('Auto-starting enrichment queue worker...')
-  startEnrichmentQueueWorker().catch((error) => logger.error('Enrichment worker error:', error))
-}
-if (process.env.AUTOSTART_CONTENT_PROCESSING_WORKER === 'true') {
-  logger.info('Auto-starting content processing worker...')
-  startContentProcessingWorker().catch((error) => logger.error('Content worker error:', error))
-}
 const yoga = createYoga({
   schema,
   graphqlEndpoint: '/graphql',
@@ -67,6 +40,15 @@ const yoga = createYoga({
         workspaceId: workspaceIdHeader,
       }
     }),
+  maskedErrors: {
+    isDev: false,
+    maskError: (error, message) => {
+      if (error instanceof Error) {
+        return error
+      }
+      return new Error(message)
+    },
+  }, // Set to true in production to avoid leaking error details
 })
 
 const app = express()
@@ -82,9 +64,10 @@ app.use(cookieParser())
 // Serve static files (robots.txt)
 app.use(express.static('public'))
 app.use('/assistant-icon', assistantIconMiddleware)
-app.use('/avatar', avatarMiddleware)
-app.use('/upload', dataUploadMiddleware)
-app.get('/library-files/:libraryId/:fileId', libraryFiles)
+app.use('/avatar', userAvatarMiddleware)
+app.post('/upload', handleUploadPost)
+app.get('/download', handleDownloadGet)
+app.get('/library-files/:libraryId/:fileId', handleFileGet)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
 
 // Only check API key or user JWT for /graphql POST requests
@@ -136,7 +119,7 @@ server.on('error', (error: NodeJS.ErrnoException) => {
 
 // Graceful shutdown handlers
 const shutdown = async (signal: string) => {
-  logger.info(`${signal} received, shutting down gracefully`)
+  logger.info('*** Shutting down GeorgeAi backend server ***', { signal })
 
   // Close server first to stop accepting new connections
   server.close(() => {

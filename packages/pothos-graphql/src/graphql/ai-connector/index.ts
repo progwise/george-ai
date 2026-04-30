@@ -2,6 +2,9 @@ import { getConnectorTypeFactory } from '@george-ai/connector-types'
 
 import { builder } from '../builder'
 
+import './action-config'
+import './action-config-value'
+import './action-field-mapping'
 import './mutations'
 import './queries'
 

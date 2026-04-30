@@ -1,0 +1,34 @@
+import { subscribe } from '@george-ai/event-service-client'
+
+import { WORKER_ID } from '../common'
+import { processingMap } from '../processing'
+import { logger } from './common'
+import { extractDocument } from './extract-document'
+import { handleStatus } from './handle-status'
+
+export async function startExtraction(): Promise<() => Promise<void>> {
+  logger.info('Starting document extraction subscription', { WORKER_ID })
+  const unsubscribeExtraction = await subscribe({
+    action: 'documentExtraction',
+    handler: async ({ event }) => {
+      processingMap.updateStats('workspaceProcessing')
+      logger.debug('Received document extraction event', {
+        WORKER_ID,
+        workerType: 'workspaceProcessing',
+        event,
+      })
+      switch (event.verb) {
+        case 'status':
+          await handleStatus(event)
+          return
+        case 'request':
+          await extractDocument(event)
+          break
+        default:
+          throw new Error(`Handling of event verb not implemented for document extraction`)
+      }
+    },
+  })
+
+  return unsubscribeExtraction
+}

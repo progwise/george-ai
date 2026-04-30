@@ -64,7 +64,7 @@ export const useAutomationActions = () => {
         queryClient.cancelQueries(getAutomationQueryOptions(automationId)),
       ])
       await Promise.all([
-        queryClient.removeQueries(getAutomationsQueryOptions()),
+        queryClient.invalidateQueries(getAutomationsQueryOptions()),
         queryClient.removeQueries(getAutomationQueryOptions(automationId)),
       ])
       await navigate({ to: '/automations' })

@@ -6,7 +6,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import type { SMB2Client } from '@george-ai/smb2-client'
-import type { SmbCrawlOptions } from '@george-ai/smb-crawler'
 
 import { crawlDirectory } from './file-crawler'
 
@@ -34,19 +33,15 @@ describe('File Crawler - Path Handling', () => {
       }),
     } as unknown as SMB2Client
 
-    // Setup: Crawler options with full URI including subdirectories
-    const options: SmbCrawlOptions = {
-      uri: '//fileserver.example.com/documents/Department/Team/Projects',
-      username: 'test-user',
-      password: 'test-pass',
-    }
-
     // Setup: basePath is the extracted subdirectory path (from connection-manager)
     const basePath = 'Department/Team/Projects'
 
     // Execute: Crawl the directory
     const files: unknown[] = []
-    for await (const file of crawlDirectory(mockClient, basePath, options)) {
+    for await (const file of crawlDirectory(mockClient, {
+      basePath,
+      jobId: 'test-job',
+    })) {
       files.push(file)
     }
 
@@ -69,17 +64,14 @@ describe('File Crawler - Path Handling', () => {
       }),
     } as unknown as SMB2Client
 
-    const options: SmbCrawlOptions = {
-      uri: '//fileserver.example.com/documents',
-      username: 'test-user',
-      password: 'test-pass',
-    }
-
     // Empty basePath means we're at the share root
     const basePath = ''
 
     const files: unknown[] = []
-    for await (const file of crawlDirectory(mockClient, basePath, options)) {
+    for await (const file of crawlDirectory(mockClient, {
+      basePath,
+      jobId: 'test-job',
+    })) {
       files.push(file)
     }
 
@@ -98,16 +90,13 @@ describe('File Crawler - Path Handling', () => {
       }),
     } as unknown as SMB2Client
 
-    const options: SmbCrawlOptions = {
-      uri: '//fileserver.example.com/documents/Sales Department',
-      username: 'test-user',
-      password: 'test-pass',
-    }
-
     const basePath = 'Sales Department'
 
     const files: unknown[] = []
-    for await (const file of crawlDirectory(mockClient, basePath, options)) {
+    for await (const file of crawlDirectory(mockClient, {
+      basePath,
+      jobId: 'test-job',
+    })) {
       files.push(file)
     }
 

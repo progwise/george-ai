@@ -14,7 +14,7 @@ interface CrawlerAddDialogProps {
 export const CrawlerAddDialog = ({ libraryId, ref, onSuccess }: CrawlerAddDialogProps) => {
   const { t } = useTranslation()
 
-  const { addCrawler, isPending } = useCrawlerActions({ libraryId })
+  const { addCrawler, isPending } = useCrawlerActions(libraryId)
 
   const handleAddSubmit = async (formData: FormData) => {
     addCrawler(

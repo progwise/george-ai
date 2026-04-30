@@ -3,7 +3,7 @@ import { Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { duration, simpleHash } from '@george-ai/web-utils'
+import { duration, simpleHash } from '@george-ai/app-commons'
 
 import { graphql } from '../../gql'
 import {

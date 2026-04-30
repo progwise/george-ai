@@ -2,51 +2,62 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useMemo } from 'react'
 
-import { UserFragment } from '../../gql/graphql'
+import { CurrentUserFragment, WorkspaceSettings } from '../../gql/graphql'
 import { useLocalstorage } from '../../hooks/use-local-storage'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { queryKeys } from '../../query-keys'
 import { toastError, toastSuccess } from '../georgeToaster'
-import { getWorkspaceInvitationsQueryOptions } from './members/queries/get-workspace-invitations'
-import { getWorkspaceMembersQueryOptions } from './members/queries/get-workspace-members'
-import { inviteWorkspaceMemberFn } from './members/server-functions/invite-member'
-import { leaveWorkspaceFn } from './members/server-functions/leave-workspace'
-import { removeWorkspaceMemberFn } from './members/server-functions/remove-member'
-import { revokeWorkspaceInvitationFn } from './members/server-functions/revoke-invitation'
-import { updateWorkspaceMemberRoleFn } from './members/server-functions/update-member-role'
-import { getWorkspacesQueryOptions } from './queries/get-workspaces'
-import { createWorkspaceFn } from './server-functions/create-workspace'
-import { deleteWorkspaceFn } from './server-functions/delete-workspace'
-import { workspaceDeleteValidationQueryOptions } from './server-functions/validate-workspace-deletion'
-import { setWorkspaceCookie } from './server-functions/workspace-cookie'
+import {
+  getWorkspaceApiKeysQueryOptions,
+  getWorkspaceEmbeddingStatisticsQueryOptions,
+  getWorkspaceInvitationsQueryOptions,
+  getWorkspaceManifestQueryOptions,
+  getWorkspaceMembersQueryOptions,
+  getWorkspaceVectorStoreQueryOptions,
+  getWorkspacesQueryOptions,
+} from './queries'
+import { getWorkspaceQueryOptions } from './queries/get-workspace'
+import {
+  createWorkspaceFn,
+  deleteWorkspaceFn,
+  generateApiKeyFn,
+  inviteWorkspaceMemberFn,
+  leaveWorkspaceFn,
+  removeWorkspaceMemberFn,
+  revokeApiKeyFn,
+  revokeWorkspaceInvitationFn,
+  setWorkspaceCookie,
+  updateWorkspaceFn,
+  updateWorkspaceMemberRoleFn,
+} from './server-functions'
 
 const WORKSPACE_KEY = 'selectedWorkspaceId'
 
-export const useWorkspace = (user: UserFragment) => {
+export const useWorkspace = (user: CurrentUserFragment) => {
   const navigate = useNavigate()
 
   const queryClient = useQueryClient()
   const { t } = useTranslation()
+
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useQuery(getWorkspacesQueryOptions())
-  const [selectedWorkspaceId, setSelectedWorkspaceId] = useLocalstorage<string>(WORKSPACE_KEY)
 
-  // Get current workspace from selection or fallback to user's default workspace
-  const currentWorkspace = useMemo(() => {
-    if (!workspaces) return null
+  const [, setSelectedWorkspaceId] = useLocalstorage<string>(WORKSPACE_KEY)
 
-    if (selectedWorkspaceId) {
-      const workspace = workspaces.find((w: { id: string }) => w.id === selectedWorkspaceId)
-      if (workspace) return workspace
-    }
-    // Fallback to user's default workspace (not first alphabetically)
-    const defaultWorkspaceId = user?.defaultWorkspaceId
-    if (defaultWorkspaceId) {
-      const defaultWorkspace = workspaces.find((w: { id: string }) => w.id === defaultWorkspaceId)
-      if (defaultWorkspace) return defaultWorkspace
-    }
-    // Final fallback to first workspace (if user has no default set)
-    return workspaces[0] ?? null
-  }, [workspaces, selectedWorkspaceId, user?.defaultWorkspaceId])
+  const { data: manifest, isLoading: isLoadingManifest } = useQuery(
+    getWorkspaceManifestQueryOptions({ workspaceId: user.selectedWorkspaceId }),
+  )
+
+  const { data: currentWorkspace, isLoading: isLoadingCurrentWorkspace } = useQuery(
+    getWorkspaceQueryOptions({ workspaceId: user.selectedWorkspaceId }),
+  )
+
+  const { data: embeddingStatistics, isLoading: isLoadingEmbeddingStatistics } = useQuery(
+    getWorkspaceEmbeddingStatisticsQueryOptions({ workspaceId: currentWorkspace?.id }),
+  )
+
+  const { isLoading: isLoadingVectorStore } = useQuery(
+    getWorkspaceVectorStoreQueryOptions({ workspaceId: currentWorkspace?.id }),
+  )
 
   // Set workspace and update cookie
   const setWorkspace = useCallback(
@@ -66,10 +77,14 @@ export const useWorkspace = (user: UserFragment) => {
         queryClient.invalidateQueries({ queryKey: [queryKeys.Automations] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiAssistants] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.Conversations] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.AiLanguageModels] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceModels] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiModelUsageStats] }),
-        queryClient.invalidateQueries({ queryKey: [queryKeys.AiServiceStatus] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceHostConfig] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.InferenceHostStatus] }),
         queryClient.invalidateQueries({ queryKey: [queryKeys.AiServiceProviders] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.EventProcessingStatistics] }),
+        queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceWorkers] }),
+
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceMembers] }),
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceInvitations] }),
         queryClient.removeQueries({ queryKey: [queryKeys.WorkspaceDeletionValidation] }),
@@ -94,12 +109,8 @@ export const useWorkspace = (user: UserFragment) => {
 
   const { data: members, isLoading: isLoadingMembers } = useQuery(getWorkspaceMembersQueryOptions(currentWorkspace?.id))
 
-  const { data: validation, isLoading: isLoadingValidation } = useQuery(
-    workspaceDeleteValidationQueryOptions(currentWorkspace?.id),
-  )
-
   const currentUserRole = useMemo(() => {
-    const membership = members?.find((m) => m.user.id === user.id)
+    const membership = members?.find((m) => m.user.id === user.userId)
     return !membership?.role
       ? null
       : membership.role === 'admin'
@@ -109,11 +120,11 @@ export const useWorkspace = (user: UserFragment) => {
           : membership.role === 'owner'
             ? ('owner' as const)
             : ('unknown' as const)
-  }, [members, user.id])
+  }, [members, user.userId])
 
   const currentUserMembership = useMemo(() => {
-    return members?.find((m) => m.user.id === user.id) || null
-  }, [members, user.id])
+    return members?.find((m) => m.user.id === user.userId) || null
+  }, [members, user.userId])
 
   const currentUserCanManage = useMemo(() => {
     return currentUserRole === 'admin' || currentUserRole === 'owner'
@@ -121,7 +132,7 @@ export const useWorkspace = (user: UserFragment) => {
 
   const isDefaultWorkspace = useMemo(() => {
     return user.defaultWorkspaceId === currentWorkspace?.id
-  }, [user.defaultWorkspaceId, currentWorkspace?.id])
+  }, [user, currentWorkspace?.id])
 
   const { data: invitations, isLoading: isLoadingInvitations } = useQuery({
     ...getWorkspaceInvitationsQueryOptions(currentWorkspace?.id),
@@ -146,7 +157,6 @@ export const useWorkspace = (user: UserFragment) => {
   const updateRoleMutation = useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
       if (!currentWorkspace) throw new Error('No current workspace selected')
-
       return await updateWorkspaceMemberRoleFn({ data: { workspaceId: currentWorkspace.id, userId, role } })
     },
     onSuccess: (result) => {
@@ -165,7 +175,7 @@ export const useWorkspace = (user: UserFragment) => {
     },
     onSuccess: () => {
       toastSuccess(t('workspace.members.leaveSuccess'))
-      setWorkspace(user.defaultWorkspaceId)
+      setWorkspace(user!.defaultWorkspaceId)
 
       queryClient.invalidateQueries({ queryKey: [queryKeys.Workspaces] })
       queryClient.invalidateQueries({ queryKey: [queryKeys.WorkspaceMembers] })
@@ -206,10 +216,9 @@ export const useWorkspace = (user: UserFragment) => {
     mutationFn: async (data: { name: string; slug: string }) => {
       return await createWorkspaceFn({ data })
     },
-    onSuccess: async ({ id }) => {
+    onSuccess: async ({ workspaceId }) => {
       toastSuccess(t('workspace.createSuccess'))
-      console.log('Switching to new workspace:', id)
-      await setWorkspace(id)
+      await setWorkspace(workspaceId)
     },
     onError: (error) => {
       toastError(error.message)
@@ -217,12 +226,12 @@ export const useWorkspace = (user: UserFragment) => {
   })
 
   const deleteWorkspaceMutation = useMutation({
-    mutationFn: async (workspaceId: string) => {
-      return await deleteWorkspaceFn({ data: { workspaceId } })
+    mutationFn: async () => {
+      return await deleteWorkspaceFn()
     },
     onSuccess: async () => {
       toastSuccess(t('workspace.deleteSuccess'))
-      await setWorkspace(user.defaultWorkspaceId)
+      await setWorkspace(user!.defaultWorkspaceId)
     },
     onError: (error) => {
       toastError(error.message)
@@ -236,12 +245,42 @@ export const useWorkspace = (user: UserFragment) => {
     })
   }
 
+  const generateApiKeyMutation = useMutation({
+    mutationFn: (name: string) => generateApiKeyFn({ data: { name } }),
+    onSuccess: () => {
+      toastSuccess(t('apiKeys.generateSuccess'))
+      queryClient.invalidateQueries(getWorkspaceApiKeysQueryOptions({ workspaceId: user.selectedWorkspaceId }))
+    },
+    onError: (error) => {
+      toastError(t('toasts.error', { error: error.message }))
+    },
+  })
+
+  const revokeApiKeyMutation = useMutation({
+    mutationFn: (id: string) => revokeApiKeyFn({ data: { id } }),
+    onSuccess: () => {
+      toastSuccess(t('apiKeys.revokeSuccess'))
+      queryClient.invalidateQueries(getWorkspaceApiKeysQueryOptions({ workspaceId: user.selectedWorkspaceId }))
+    },
+    onError: (error) => {
+      toastError(t('toasts.error', { error: error.message }))
+    },
+  })
+
+  const updateWorkspaceMutation = useMutation({
+    mutationFn: (data: { workspaceId: string; name?: string; settings?: WorkspaceSettings }) =>
+      updateWorkspaceFn({ data }),
+  })
+
   return {
-    workspaces: workspaces ?? [],
+    workspaces: workspaces,
+    embeddingStatistics,
     currentWorkspace,
     currentWorkspaceId: currentWorkspace?.id || null,
+    generateApiKey: generateApiKeyMutation.mutate,
     isDefaultWorkspace,
     setWorkspace,
+    manifest,
     members,
     invitations,
     currentUserRole,
@@ -250,19 +289,31 @@ export const useWorkspace = (user: UserFragment) => {
     inviteMember: inviteMutation.mutate,
     leaveWorkspace: leaveWorkspaceMutation.mutate,
     removeMember: removeMemberMutation.mutate,
+    revokeApiKey: revokeApiKeyMutation.mutate,
     revokeInvitation: revokeInvitationMutation.mutate,
     updateRole: updateRoleMutation.mutate,
     validate,
-    validation,
     createWorkspace: createWorkspaceMutation.mutate,
     deleteWorkspace: deleteWorkspaceMutation.mutate,
-    isLoading: isLoadingWorkspaces || isLoadingMembers || isLoadingInvitations || isLoadingValidation,
+    updateWorkspace: updateWorkspaceMutation.mutate,
+    isLoading:
+      isLoadingWorkspaces ||
+      isLoadingMembers ||
+      isLoadingInvitations ||
+      isLoadingEmbeddingStatistics ||
+      isLoadingCurrentWorkspace ||
+      isLoadingVectorStore ||
+      isLoadingManifest,
     isPending:
       leaveWorkspaceMutation.isPending ||
       removeMemberMutation.isPending ||
       revokeInvitationMutation.isPending ||
       updateRoleMutation.isPending ||
       inviteMutation.isPending ||
-      deleteWorkspaceMutation.isPending,
+      deleteWorkspaceMutation.isPending ||
+      createWorkspaceMutation.isPending ||
+      revokeApiKeyMutation.isPending ||
+      generateApiKeyMutation.isPending ||
+      updateWorkspaceMutation.isPending,
   }
 }

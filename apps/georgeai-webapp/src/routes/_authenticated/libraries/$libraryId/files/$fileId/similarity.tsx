@@ -1,11 +1,10 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import React, { useRef } from 'react'
 import { z } from 'zod'
 
 import { toastSuccess } from '../../../../../../components/georgeToaster'
-import { getFileInfoQueryOptions } from '../../../../../../components/library/files/get-file-info'
-import { getSimilarFileChunksOptions } from '../../../../../../components/library/files/get-file-similarity'
+import { getDocumentQueryOptions, getSimilarFileChunksQueryOptions } from '../../../../../../components/library/queries'
 import { getContentQueriesQueryOptions } from '../../../../../../components/lists/queries'
 import { CopyIcon } from '../../../../../../icons/copy-icon'
 
@@ -14,27 +13,27 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   validateSearch: z.object({
     term: z.string().optional(),
     hits: z.coerce.number().default(20),
-    part: z.coerce.number().optional(),
-    useQuery: z.coerce.boolean().default(false),
+    fragment: z.coerce.number().optional(),
+    query: z.coerce.boolean().default(false),
   }),
-  loaderDeps: ({ search: { hits, term, part, useQuery } }) => ({
+  loaderDeps: ({ search: { hits, term, fragment, query } }) => ({
     hits,
     term,
-    part,
-    useQuery,
+    fragment,
+    query,
   }),
   loader: async ({ context, params, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        getSimilarFileChunksOptions({
-          fileId: params.fileId,
+        getSimilarFileChunksQueryOptions({
+          libraryId: params.libraryId,
+          documentId: params.fileId,
           term: deps.term,
           hits: deps.hits,
-          part: deps.part,
-          useQuery: deps.useQuery,
+          fragment: deps.fragment,
         }),
       ),
-      context.queryClient.ensureQueryData(getFileInfoQueryOptions({ fileId: params.fileId })),
+      context.queryClient.ensureQueryData(getDocumentQueryOptions(params)),
       context.queryClient.ensureQueryData(getContentQueriesQueryOptions({ libraryId: params.libraryId })),
     ])
   },
@@ -42,18 +41,16 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
 
 function RouteComponent() {
   const termInputRef = useRef<HTMLTextAreaElement>(null)
-  const { fileId } = Route.useParams()
-  const { hits, term, part, useQuery } = Route.useSearch()
+  const { fileId, libraryId } = Route.useParams()
+  const { hits, term, fragment, query } = Route.useSearch()
   const navigate = Route.useNavigate()
-  const {
-    data: { aiSimilarFileChunks },
-  } = useSuspenseQuery(
-    getSimilarFileChunksOptions({
-      fileId,
+  const { data: similarChunks } = useQuery(
+    getSimilarFileChunksQueryOptions({
+      libraryId,
+      documentId: fileId,
       term: term,
       hits: hits,
-      part: part,
-      useQuery: useQuery,
+      fragment: fragment,
     }),
   )
 
@@ -69,7 +66,7 @@ function RouteComponent() {
     if (!termInputRef.current) return
     const term = termInputRef.current.value.trim()
     if (!term || term.length === 0) return
-    await navigate({ search: { term, hits, part, useQuery } })
+    await navigate({ search: { term, hits, fragment, query } })
   }
 
   const handleTermKeyDown = async (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -78,14 +75,6 @@ function RouteComponent() {
       event.preventDefault()
       await handleTermSubmit()
     }
-  }
-
-  const handleChunkClick = async (chunkText: string) => {
-    if (!termInputRef.current) return
-    // Use first 100 characters of chunk text as search term
-    const searchTerm = chunkText.slice(0, 100).trim()
-    termInputRef.current.value = searchTerm
-    await navigate({ search: { term: searchTerm, hits, part, useQuery } })
   }
 
   const handleCopyChunk = async (text: string) => {
@@ -101,12 +90,12 @@ function RouteComponent() {
           <div className="flex-1">
             <h1 className="text-3xl font-bold text-base-content">
               Similarity
-              {part !== undefined && <span className="ml-2 badge badge-primary">Part {part}</span>}
+              {fragment !== undefined && <span className="ml-2 badge badge-primary">Fragment {fragment}</span>}
             </h1>
             <p className="mt-2 text-base-content/70">Find semantically similar content in your documents</p>
           </div>
           <div className="flex items-center gap-2">
-            <label className="input input-xs w-36">
+            <label className="input input-xs flex w-auto items-center gap-2">
               <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
                   <circle cx="11" cy="11" r="8"></circle>
@@ -117,15 +106,15 @@ function RouteComponent() {
                 type="search"
                 required
                 placeholder="Part#"
-                value={part ?? ''}
+                value={fragment ?? ''}
                 onChange={(e) => {
                   const value = e.target.value
                   navigate({
                     search: {
                       term,
                       hits,
-                      part: value ? parseInt(value, 10) : undefined,
-                      useQuery,
+                      fragment: value ? parseInt(value, 10) : undefined,
+                      query,
                     },
                   })
                 }}
@@ -140,8 +129,8 @@ function RouteComponent() {
                   search: {
                     term,
                     hits: newHits,
-                    part,
-                    useQuery,
+                    fragment,
+                    query,
                   },
                 })
               }}
@@ -161,8 +150,8 @@ function RouteComponent() {
                     search: {
                       term,
                       hits,
-                      part,
-                      useQuery: !e.target.checked,
+                      fragment,
+                      query: !e.target.checked,
                     },
                   })
                 }}
@@ -215,7 +204,7 @@ function RouteComponent() {
                             onClick={async () => {
                               if (!termInputRef.current) return
                               termInputRef.current.value = cq.contentQuery || ''
-                              await navigate({ search: { term: cq.contentQuery || '', hits, part, useQuery } })
+                              await navigate({ search: { term: cq.contentQuery || '', hits, fragment, query } })
                             }}
                           >
                             Take
@@ -253,7 +242,7 @@ function RouteComponent() {
 
       {/* Results Section */}
       <div>
-        {aiSimilarFileChunks.length === 0 ? (
+        {!similarChunks?.length ? (
           <div className="card bg-base-100 shadow-sm">
             <div className="card-body py-12 text-center">
               <div className="text-base-content/50">
@@ -273,10 +262,10 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {aiSimilarFileChunks.map((chunk, index) => {
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            {similarChunks.map((chunk, index) => {
               // Calculate distance gap from previous chunk
-              const prevChunk = index > 0 ? aiSimilarFileChunks[index - 1] : null
+              const prevChunk = index > 0 ? similarChunks[index - 1] : null
               const distanceGap =
                 prevChunk && chunk.distance && prevChunk.distance ? chunk.distance - prevChunk.distance : 0
               const hasSignificantGap = distanceGap > 0.05 // Threshold for "significant" gap (lowered for 0-1 range)
@@ -287,7 +276,7 @@ function RouteComponent() {
               const opacity = 1 - normalizedDistance * 0.4 // Scale opacity from 1.0 to 0.6 (more noticeable)
 
               return (
-                <React.Fragment key={chunk.id}>
+                <React.Fragment key={chunk.chunk}>
                   {/* Show separator if there's a significant gap */}
                   {hasSignificantGap && index > 0 && (
                     <div className="col-span-full flex items-center justify-center">
@@ -309,17 +298,9 @@ function RouteComponent() {
                       <div className="mb-2">
                         <div className="mb-1 flex items-start justify-between">
                           <div>
-                            <div
-                              className="badge cursor-pointer badge-outline badge-sm transition-colors badge-primary hover:text-primary-content hover:badge-primary"
-                              onClick={() => handleChunkClick(chunk.text)}
-                              title="Click to search for similar content"
-                            >
-                              #{chunk.chunkIndex + 1}
-                            </div>
-                            {chunk.subChunkIndex > 0 && (
-                              <span className="ml-1 badge badge-ghost badge-xs">sub {chunk.subChunkIndex + 1}</span>
+                            {chunk.fragment && (
+                              <span className="ml-1 badge badge-ghost badge-xs">part {chunk.fragment}</span>
                             )}
-                            {chunk.part && <span className="ml-1 badge badge-ghost badge-xs">part {chunk.part}</span>}
                           </div>
                           <div className="text-right">
                             <div className="font-mono text-xs font-bold">
@@ -333,8 +314,8 @@ function RouteComponent() {
 
                       {/* Path information */}
                       <div className="mb-2">
-                        <div className="truncate text-xs text-base-content/70" title={chunk.headingPath}>
-                          {chunk.headingPath}
+                        <div className="truncate text-xs text-base-content/70" title={chunk.id}>
+                          {chunk.id}
                         </div>
                       </div>
 
@@ -344,12 +325,12 @@ function RouteComponent() {
                           <button
                             type="button"
                             className="btn absolute top-1 right-1 opacity-50 btn-ghost btn-xs hover:opacity-100"
-                            onClick={() => handleCopyChunk(chunk.text)}
+                            onClick={() => handleCopyChunk(chunk.content || '')}
                             title="Copy to clipboard"
                           >
                             <CopyIcon className="size-3" />
                           </button>
-                          <pre className="text-xs leading-tight text-base-content/90">{chunk.text}</pre>
+                          <pre className="text-xs/tight text-base-content/90">{chunk.content}</pre>
                         </div>
                       </div>
 

@@ -3,6 +3,6 @@ packages:
   - 'apps/georgeai-webapp'
   - 'apps/georgeai-backend'
   - 'services/smb-crawler-service'
-  - 'services/model-manager-service'
+  - 'services/event-queue-worker'
   - 'packages/*'
   - '!packages/ai-models'

@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { closeMigrationDialogIfPresent } from './webapp-utils/migration-dialog-util'
+
 const E2E_USERNAME = process.env.E2E_USERNAME!
 const E2E_PASSWORD = process.env.E2E_PASSWORD!
 
@@ -13,15 +15,6 @@ test.describe('Changelog', () => {
     }
 
     await page.goto('/')
-
-    // Login
-    await page.getByRole('button', { name: 'Sign in' }).click()
-    await page.getByRole('textbox', { name: 'Username or email' }).fill(E2E_USERNAME)
-    await page.getByRole('textbox', { name: 'Password' }).fill(E2E_PASSWORD)
-    await page.getByRole('button', { name: 'Sign in' }).click()
-
-    // Wait for dashboard to load
-    await expect(page.getByRole('heading', { name: /overview/i })).toBeVisible()
 
     // Open user menu dropdown
     await page.getByRole('button', { name: 'User menu' }).click()
@@ -63,6 +56,7 @@ test.describe('Changelog', () => {
 
     // Navigate directly to changelog
     await page.goto('/changelog')
+    await closeMigrationDialogIfPresent(page)
 
     // Verify the page loads correctly
     await expect(page.getByRole('heading', { name: 'Changelog', level: 1 })).toBeVisible()

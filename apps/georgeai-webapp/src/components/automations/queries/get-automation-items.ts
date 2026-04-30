@@ -6,7 +6,7 @@ import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 graphql(`
-  fragment AutomationItemList_AutomationItem on AiAutomationItem {
+  fragment AutomationItemList_AutomationItem on AutomationItem {
     id
     createdAt
     updatedAt

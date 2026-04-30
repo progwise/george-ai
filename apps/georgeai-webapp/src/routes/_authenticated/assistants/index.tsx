@@ -42,7 +42,7 @@ function RouteComponent() {
           <h3>{t('assistants.noAssistantsFound')}</h3>
         ) : (
           data?.aiAssistants?.map((assistant) => (
-            <AssistantCard key={assistant.id} assistant={assistant} userId={user.id} />
+            <AssistantCard key={assistant.id} assistant={assistant} userId={user.userId} />
           ))
         )}
       </div>

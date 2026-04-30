@@ -149,7 +149,6 @@ export const ConversationParticipants = ({
                         description: null,
                         iconUrl: participant.assistant?.iconUrl || null,
                         updatedAt: participant.assistant?.updatedAt || '',
-                        ownerId: '',
                       }}
                       className="size-full"
                     />

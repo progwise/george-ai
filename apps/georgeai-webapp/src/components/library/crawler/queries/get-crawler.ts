@@ -15,7 +15,7 @@ const getCrawler = createServerFn({ method: 'GET' })
       .parse(data),
   )
   .handler(async (ctx) => {
-    return await backendRequest(
+    const result = await backendRequest(
       graphql(`
         query GetCrawler($libraryId: String!, $crawlerId: String!) {
           aiLibraryCrawler(libraryId: $libraryId, crawlerId: $crawlerId) {
@@ -54,6 +54,7 @@ const getCrawler = createServerFn({ method: 'GET' })
       `),
       { libraryId: ctx.data.libraryId, crawlerId: ctx.data.crawlerId },
     )
+    return result.aiLibraryCrawler
   })
 
 export const getCrawlerQueryOptions = ({ libraryId, crawlerId }: { libraryId: string; crawlerId: string }) =>
@@ -62,6 +63,6 @@ export const getCrawlerQueryOptions = ({ libraryId, crawlerId }: { libraryId: st
     queryFn: () => getCrawler({ data: { libraryId, crawlerId } }),
     refetchInterval: (query) => {
       const lastData = query.state.data
-      return lastData?.aiLibraryCrawler.isRunning ? 3000 : 0
+      return lastData?.isRunning ? 3000 : 0
     },
   })

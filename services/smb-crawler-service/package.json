@@ -18,11 +18,11 @@
     "lint": "eslint . --max-warnings 0"
   },
   "dependencies": {
-    "@george-ai/smb-crawler": "workspace:*",
+    "@george-ai/app-commons": "workspace:*",
+    "@george-ai/smb-crawler-client": "workspace:*",
     "@george-ai/smb2-client": "workspace:*",
     "express": "^4.21.2",
     "mime-types": "^2.1.35",
-    "minimatch": "^10.1.1",
     "tsx": "^4.19.2",
     "zod": "^3.23.8"
   },
@@ -30,7 +30,7 @@
     "@george-ai/package-configs": "workspace:*",
     "@types/express": "^5.0.0",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "^22.10.2",
+    "@types/node": "^22.13.8",
     "typescript": "^5.9.3",
     "vitest": "^3.1.1"
   }

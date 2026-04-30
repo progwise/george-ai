@@ -7,13 +7,13 @@ import { queryKeys } from '../../../query-keys'
 import { backendRequest } from '../../../server-functions/backend'
 
 // Server functions
-const getAiLanguageModels = createServerFn({ method: 'GET' })
+const getLanguageModels = createServerFn({ method: 'GET' })
   .inputValidator((data: object) =>
     z
       .object({
         skip: z.number().int().min(0).default(0),
         take: z.number().int().min(1).default(20),
-        providers: z.array(z.string()).optional(),
+        providers: z.array(z.enum(['ollama', 'openai'])).optional(),
         capabilities: z.array(z.string()).optional(),
         onlyUsed: z.boolean().default(false),
         showDisabled: z.boolean().default(false),
@@ -26,7 +26,7 @@ const getAiLanguageModels = createServerFn({ method: 'GET' })
         query GetAiLanguageModels(
           $skip: Int = 0
           $take: Int = 20
-          $providers: [String!]
+          $providers: [InferenceDriver!]
           $canDoEmbedding: Boolean
           $canDoChatCompletion: Boolean
           $canDoVision: Boolean
@@ -34,7 +34,7 @@ const getAiLanguageModels = createServerFn({ method: 'GET' })
           $onlyUsed: Boolean = false
           $showDisabled: Boolean = false
         ) {
-          aiLanguageModels(
+          models(
             skip: $skip
             take: $take
             providers: $providers
@@ -60,7 +60,7 @@ const getAiLanguageModels = createServerFn({ method: 'GET' })
               visionCount
               functionCount
             }
-            models {
+            items {
               id
               name
               provider
@@ -103,11 +103,11 @@ const getAiLanguageModels = createServerFn({ method: 'GET' })
         showDisabled: ctx.data.showDisabled,
       },
     )
-    return result.aiLanguageModels
+    return result.models
   })
 
 // Query options
-export const aiLanguageModelsQueryOptions = (params: {
+export const getLanguageModelsQueryOptions = (params: {
   skip: number
   take: number
   providers?: string[]
@@ -116,16 +116,9 @@ export const aiLanguageModelsQueryOptions = (params: {
   showDisabled?: boolean
 }) =>
   queryOptions({
-    queryKey: [queryKeys.AiLanguageModels, { ...params }],
+    queryKey: [queryKeys.InferenceModels, { ...params }],
     queryFn: () =>
-      getAiLanguageModels({
-        data: {
-          skip: params.skip,
-          take: params.take,
-          providers: params.providers,
-          capabilities: params.capabilities,
-          onlyUsed: params.onlyUsed ?? false,
-          showDisabled: params.showDisabled ?? false,
-        },
+      getLanguageModels({
+        data: params,
       }),
   })

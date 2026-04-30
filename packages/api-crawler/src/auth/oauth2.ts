@@ -1,26 +1,21 @@
-/**
- * OAuth2 authentication (Client Credentials flow)
- */
-import { createLogger } from '@george-ai/web-utils'
-
-import type { AuthConfig } from '../types'
-
-const logger = createLogger('OAuth2')
+import { ApiAuthConfig } from '../api-crawler-config'
+import { logger } from '../common'
 
 /**
  * Fetch OAuth2 access token using client credentials flow
  */
-async function fetchAccessToken(config: AuthConfig): Promise<string> {
+async function fetchAccessToken(config: ApiAuthConfig): Promise<string> {
   if (!config.tokenUrl) {
+    logger.error('Token URL is missing in auth config for OAuth2', { config })
     throw new Error('Token URL is required for OAuth2')
   }
 
   if (!config.clientId || !config.clientSecret) {
+    logger.error('Client ID or client secret is missing in auth config for OAuth2', { config })
     throw new Error('Client ID and client secret are required for OAuth2')
   }
 
-  logger.debug('Fetching access token from:', config.tokenUrl)
-  logger.debug('Client ID:', config.clientId)
+  logger.debug('Fetching access token from:', { config })
 
   const body = new URLSearchParams({
     grant_type: 'client_credentials',
@@ -30,7 +25,7 @@ async function fetchAccessToken(config: AuthConfig): Promise<string> {
 
   if (config.scope) {
     body.append('scope', config.scope)
-    logger.debug('Scope:', config.scope)
+    logger.debug('Scope:', { scope: config.scope, config })
   }
 
   try {
@@ -42,11 +37,11 @@ async function fetchAccessToken(config: AuthConfig): Promise<string> {
       body: body.toString(),
     })
 
-    logger.debug('Token response status:', response.status)
+    logger.debug('Token response status:', { status: response.status, config })
 
     if (!response.ok) {
       const errorText = await response.text()
-      logger.error('Token request failed:', errorText)
+      logger.error('Token request failed:', { status: response.status, errorText, config })
       throw new Error(`OAuth2 token request failed: ${response.status} ${errorText}`)
     }
 
@@ -54,14 +49,14 @@ async function fetchAccessToken(config: AuthConfig): Promise<string> {
     logger.debug('Token response keys:', Object.keys(data))
 
     if (!data.access_token) {
-      logger.error('Response missing access_token. Response:', data)
+      logger.error('Response missing access_token. Response:', { data, config })
       throw new Error('OAuth2 response missing access_token')
     }
 
-    logger.debug('Access token received successfully')
+    logger.debug('Access token received successfully', { config })
     return data.access_token
   } catch (error) {
-    logger.error('Authentication error:', error)
+    logger.error('Authentication error:', { error, config })
     if (error instanceof Error) {
       throw new Error(`OAuth2 authentication failed: ${error.message}`)
     }
@@ -74,7 +69,7 @@ async function fetchAccessToken(config: AuthConfig): Promise<string> {
  * If accessToken is already provided, use it directly
  * Otherwise, fetch a new token using client credentials
  */
-export async function authenticateOAuth2(config: AuthConfig): Promise<Record<string, string>> {
+export async function authenticateOAuth2(config: ApiAuthConfig): Promise<Record<string, string>> {
   // If access token is already provided, use it
   if (config.accessToken) {
     return {

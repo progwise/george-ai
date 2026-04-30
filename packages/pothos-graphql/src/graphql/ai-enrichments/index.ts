@@ -1,12 +1,14 @@
-import { EnrichmentMetadataSchema, EnrichmentStatusValues } from '../../domain'
+import { EnrichmentMetadataSchema, EnrichmentStatusValues } from '@george-ai/app-domain'
+
 import { builder } from '../builder'
 
 import './queries'
 import './mutations'
 
+import { logger } from '../common'
 import { AiEnrichmentTaskProcessingData } from './processing-data'
 
-console.log('Setting up: AiEnrichments')
+logger.info('Setting up: AiEnrichments')
 
 export const EnrichmentStatus = builder.enumType('EnrichmentStatus', {
   values: EnrichmentStatusValues,

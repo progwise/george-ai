@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-database'
+import { ListFieldType, canReadWorkspaceOrThrow, list as lst } from '@george-ai/app-domain'
 
-import { FieldType, LIST_FIELD_FILE_PROPERTIES, LIST_FIELD_SOURCE_TYPES } from '../../domain/list'
 import { builder } from '../builder'
 import { AiListFilterInput, AiListSortingInput, ListItemsQueryResult } from './field-values'
 
@@ -14,6 +14,7 @@ builder.queryField('aiLists', (t) =>
     nullable: false,
     resolve: async (query, _source, _args, context) => {
       const workspaceId = context.workspaceId
+      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
       // Any workspace member can access all lists in the workspace
       return prisma.aiList.findMany({
         ...query,
@@ -34,6 +35,8 @@ builder.queryField('aiList', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { id }, context) => {
+      const workspaceId = context.workspaceId
+      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
       // Any workspace member can access lists in their workspace
       const list = await prisma.aiList.findUniqueOrThrow({
         ...query,
@@ -52,6 +55,8 @@ builder.queryField('aiListItem', (t) =>
       id: t.arg.string({ required: true }),
     },
     resolve: async (query, _source, { id }, context) => {
+      const workspaceId = context.workspaceId
+      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
       // Any workspace member can access items in lists in their workspace
       const item = await prisma.aiListItem.findFirstOrThrow({
         ...query,
@@ -83,6 +88,8 @@ builder.queryField('aiListItems', (t) =>
       showArchived: t.arg.boolean({ required: false, defaultValue: false }),
     },
     resolve: async (_root, args, context) => {
+      const workspaceId = context.workspaceId
+      await canReadWorkspaceOrThrow(workspaceId, context.session.user.id)
       // Any workspace member can access lists in their workspace
       const list = await prisma.aiList.findUniqueOrThrow({
         where: { id: args.listId, workspaceId: context.workspaceId },
@@ -108,9 +115,9 @@ builder.queryField('aiListItems', (t) =>
           id: field.id,
           listId: field.listId,
           name: field.name,
-          sourceType: z.enum(LIST_FIELD_SOURCE_TYPES).parse(field.sourceType),
-          fileProperty: z.enum(LIST_FIELD_FILE_PROPERTIES).nullable().parse(field.fileProperty),
-          type: field.type as FieldType,
+          sourceType: z.enum(lst.LIST_FIELD_SOURCE_TYPES).parse(field.sourceType),
+          fileProperty: z.enum(lst.LIST_FIELD_FILE_PROPERTIES).nullable().parse(field.fileProperty),
+          type: field.type as ListFieldType,
         })),
         skip: args.skip ?? 0,
         take: args.take ?? 20,

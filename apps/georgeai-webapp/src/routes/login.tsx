@@ -2,7 +2,8 @@ import { createFileRoute, redirect } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-adapter'
 import { z } from 'zod'
 
-import { useAuth } from '../auth/auth'
+import { useAuth } from '../auth'
+import { logger } from '../common'
 import { useTranslation } from '../i18n/use-translation-hook'
 import { BowlerLogoIcon } from '../icons/bowler-logo-icon'
 
@@ -19,6 +20,8 @@ export const Route = createFileRoute('/login')({
       throw redirect({
         to: search.redirect ?? '/',
       })
+    } else {
+      context.queryClient.clear()
     }
   },
 })
@@ -26,6 +29,7 @@ export const Route = createFileRoute('/login')({
 function RouteComponent() {
   const { login, isReady } = useAuth()
   const { t } = useTranslation()
+  logger.info('Login route rendered...')
 
   const handleLogin = () => {
     if (isReady) {
@@ -34,7 +38,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-base-100 pt-32">
+    <div className="flex items-start justify-center bg-base-100 pt-32">
       <div className="max-w-md space-y-8 p-8 text-center">
         <div className="mx-auto flex flex-col items-center">
           <BowlerLogoIcon className="size-32" gradientColors={['#1d4ed8', '#d946ef']} />

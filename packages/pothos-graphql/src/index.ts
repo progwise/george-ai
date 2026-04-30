@@ -1,58 +1,35 @@
 import { builder } from './graphql/builder'
 
-import './domain/crawler/cron-jobs'
-import './graphql/ai-service'
-import './graphql/ai-service-provider'
+// TODO: Refactor
 import './graphql/ai-act-assessment'
-import './graphql/queue-management'
 import './graphql/ai-assistant'
-import './graphql/ai-automation'
 import './graphql/ai-connector'
-import './graphql/ai-content-extraction'
-import './graphql/ai-content-processing-task'
 import './graphql/ai-conversation'
 import './graphql/ai-conversation-invitation'
 import './graphql/ai-conversation-message'
 import './graphql/ai-conversation-participation'
 import './graphql/ai-enrichments'
-import './graphql/ai-library'
 import './graphql/ai-library-crawler'
-import './graphql/ai-library-crawler-cronjob'
-import './graphql/ai-library-file'
 import './graphql/ai-library-update'
 import './graphql/ai-library-usage'
-import './graphql/ai-language-model'
 import './graphql/ai-list'
 import './graphql/ai-list-field'
 import './graphql/api-key'
+// Refactored:
+import './graphql/automation'
+import './graphql/common'
+import './graphql/embedding'
+import './graphql/event-system'
+import './graphql/document'
+import './graphql/inference'
+import './graphql/library'
+import './graphql/processing'
 import './graphql/scalars'
+import './graphql/settings'
 import './graphql/user'
-import './graphql/user-profile'
-import './graphql/version'
 import './graphql/workspace'
+import './init'
 
 const schema = builder.toSchema()
 
 export { schema }
-
-export { checkAssistant, getAssistantIconsPath, updateAssistantIconUrl } from './domain/assistant'
-export { checkUser, updateUserAvatarUrl, getUserByMail, getUserById, getUserAvatarsPath } from './domain/user'
-export { isProviderAvatar } from './domain/user/avatar-provider'
-export { getFileInfo, getMimeTypeForFile, markUploadFinished, canAccessFileOrThrow } from './domain/file'
-export { canAccessLibraryOrThrow } from './domain/library'
-export { canAccessListOrThrow } from './domain/list'
-export { validateApiKey } from './domain/api-key'
-export type { ApiKeyValidationResult } from './domain/api-key'
-export {
-  getWorkspaceMembership,
-  getLibraryWorkspace,
-  getWorkspaceProviders,
-  initializeWorkspace,
-  SYSTEM_WORKSPACE_ID,
-} from './domain/workspace'
-export type { WorkspaceMembershipInfo } from './domain/workspace'
-
-export { startEnrichmentQueueWorker } from './worker-queue/enrichment-queue-worker'
-export { startContentProcessingWorker } from './worker-queue/content-processing-worker'
-export { subscribeConversationMessagesUpdate, unsubscribeConversationMessagesUpdates } from './subscriptions'
-export type { Context } from './graphql/context'

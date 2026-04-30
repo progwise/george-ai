@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { Link, Outlet, createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
 
-import { duration } from '@george-ai/web-utils'
+import { duration } from '@george-ai/app-commons'
 
 import { ClientDate } from '../../../../../../../components/client-date'
 import { getCrawlerQueryOptions } from '../../../../../../../components/library/crawler/queries/get-crawler'
@@ -36,9 +36,7 @@ function RouteComponent() {
   const {
     data: { runs: crawlerRuns },
   } = useSuspenseQuery(getCrawlerRunsQueryOptions({ ...params, ...{ skip: search.skipRuns, take: search.takeRuns } }))
-  const {
-    data: { aiLibraryCrawler: crawler },
-  } = useSuspenseQuery(getCrawlerQueryOptions(params))
+  const { data: crawler } = useSuspenseQuery(getCrawlerQueryOptions(params))
   return (
     <div className="drawer grow gap-4 lg:drawer-open">
       <input id="conversation-drawer" type="checkbox" className="drawer-toggle" />

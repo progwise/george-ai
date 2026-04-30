@@ -1,6 +1,7 @@
 // PDF layout detection thresholds
 export const PDF_LAYOUT = {
   VERTICAL_LINE_THRESHOLD: 2, // Group items within 2 units vertically
+  FORM_FIELD_Y_THRESHOLD: 15, // Larger threshold for form fields (they may not align perfectly with text)
   SMALL_GAP_THRESHOLD: 5, // Small spacing between words
   LARGE_GAP_THRESHOLD: 20, // Large spacing (likely column separator)
   MIN_FONT_SIZE: 6, // Minimum font size to consider
@@ -20,11 +21,20 @@ export const SUPPORTED_MIME_TYPES = [
   'text/x-markdown',
   'application/csv',
   'application/json',
+  'application/jsonl',
   'application/xhtml+xml',
   'application/xml',
   'application/javascript',
   'text/html',
   'message/rfc822', // Email files (.eml)
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/tiff', // Common image formats for OCR
 ] as const
 
 export type SupportedMimeType = (typeof SUPPORTED_MIME_TYPES)[number]
+
+export function isSupportedMimeType(s: string): s is SupportedMimeType {
+  return SUPPORTED_MIME_TYPES.includes(s as SupportedMimeType)
+}

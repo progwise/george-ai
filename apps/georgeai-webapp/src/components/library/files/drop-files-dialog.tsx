@@ -1,41 +1,38 @@
-import { useMutation } from '@tanstack/react-query'
 import { useRef } from 'react'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { DialogForm } from '../../dialog-form'
-import { toastError, toastSuccess } from '../../georgeToaster'
 import { LoadingSpinner } from '../../loading-spinner'
-import { deleteLibraryFilesFn } from '../server-functions/delete-files'
+import { useLibraryActions } from '../use-library-actions'
 
 interface DropFilesDialogProps {
+  libraryId: string
   disabled: boolean
   tableDataChanged: () => void
   checkedFileIds: string[]
   setCheckedFileIds: (fileIds: string[]) => void
 }
 
-export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataChanged }: DropFilesDialogProps) => {
+export const DropFilesDialog = ({
+  libraryId,
+  checkedFileIds,
+  setCheckedFileIds,
+  tableDataChanged,
+}: DropFilesDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
-  const { mutate: dropFilesMutate, isPending } = useMutation({
-    mutationFn: async (fileIds: string[]) => {
-      await deleteLibraryFilesFn({ data: { fileIds } })
-    },
-    onSuccess: () => {
-      toastSuccess(t('actions.dropSuccess', { count: checkedFileIds.length }))
-    },
-    onError: () => {
-      toastError(t('errors.dropFilesError'))
-    },
-    onSettled: () => {
-      setCheckedFileIds([])
-      tableDataChanged()
-      dialogRef.current?.close()
-    },
-  })
+  const { deleteDocuments, isPending } = useLibraryActions(libraryId)
 
-  const textOfDropButton = t('actions.drop')
+  const handleDeleteFiles = async (fileIds: string[]) => {
+    deleteDocuments(fileIds, {
+      onSettled: () => {
+        setCheckedFileIds([])
+        tableDataChanged()
+        dialogRef.current?.close()
+      },
+    })
+  }
 
   return (
     <>
@@ -44,9 +41,9 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
         className="tooltip btn tooltip-bottom btn-xs btn-primary"
         data-tip={t('tooltips.dropDescription')}
         onClick={() => dialogRef.current?.showModal()}
-        disabled={checkedFileIds.length === 0}
+        disabled={checkedFileIds.length === 0 || isPending}
       >
-        {textOfDropButton}
+        {t('actions.drop')}
       </button>
 
       <LoadingSpinner isLoading={isPending} />
@@ -55,8 +52,8 @@ export const DropFilesDialog = ({ checkedFileIds, setCheckedFileIds, tableDataCh
         ref={dialogRef}
         title={t('libraries.dropFilesDialog')}
         description={t('texts.dropFilesDialogDescription')}
-        onSubmit={() => dropFilesMutate(checkedFileIds)}
-        submitButtonText={textOfDropButton}
+        onSubmit={() => handleDeleteFiles(checkedFileIds)}
+        submitButtonText={t('actions.drop')}
       >
         <div className="w-full">
           <div className="mb-4">

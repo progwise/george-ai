@@ -9,7 +9,7 @@ import { ConversationParticipantsDialogButton } from '../../../components/conver
 import { DeleteLeaveConversationDialog } from '../../../components/conversation/delete-leave-conversation-dialog'
 import { getConversationQueryOptions } from '../../../components/conversation/get-conversation'
 import { MenuIcon } from '../../../icons/menu-icon'
-import { getProfileQueryOptions, getUsersQueryOptions } from '../../../server-functions/users'
+import { getUsersQueryOptions } from '../../../server-functions/users'
 
 export const Route = createFileRoute('/_authenticated/conversations/$conversationId')({
   component: RouteComponent,
@@ -29,7 +29,6 @@ function RouteComponent() {
     data: { aiAssistants },
   } = useSuspenseQuery(getAiAssistantsQueryOptions())
   const { data: conversation } = useSuspenseQuery(getConversationQueryOptions(conversationId))
-  const { data: profile } = useSuspenseQuery(getProfileQueryOptions())
 
   return (
     <div className="drawer-content flex flex-col">
@@ -39,9 +38,9 @@ function RouteComponent() {
             <label htmlFor="conversation-drawer" className="btn btn-sm lg:hidden">
               <MenuIcon className="size-6" />
             </label>
-            <ConversationParticipantsDialogButton assistants={aiAssistants} users={users} userId={user.id} />
+            <ConversationParticipantsDialogButton assistants={aiAssistants} users={users} userId={user.userId} />
             <div>
-              <DeleteLeaveConversationDialog conversation={conversation} userId={user.id} />
+              <DeleteLeaveConversationDialog conversation={conversation} userId={user.userId} />
             </div>
           </div>
           <div className="flex justify-between">
@@ -49,15 +48,15 @@ function RouteComponent() {
               conversation={conversation}
               assistants={aiAssistants}
               users={users}
-              userId={user.id}
+              userId={user.userId}
             />
           </div>
         </div>
       </div>
 
       <div className="flex h-full flex-col">
-        <ConversationHistory conversation={conversation} userId={user.id} />
-        <ConversationForm conversation={conversation} user={user} profile={profile ?? undefined} />
+        <ConversationHistory conversation={conversation} userId={user.userId} />
+        <ConversationForm conversation={conversation} user={user} />
       </div>
     </div>
   )

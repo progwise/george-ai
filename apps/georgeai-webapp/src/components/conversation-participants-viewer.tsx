@@ -106,7 +106,6 @@ export const ConversationParticipantsViewer = ({
                           description: null,
                           iconUrl: participant.assistant?.iconUrl || null,
                           updatedAt: participant.assistant?.updatedAt || '',
-                          ownerId: '',
                         }}
                         className="size-full"
                       />

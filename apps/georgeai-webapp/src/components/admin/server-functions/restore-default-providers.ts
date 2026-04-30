@@ -9,12 +9,12 @@ const restoreDefaultProvidersMutationDocument = graphql(`
       created
       skipped
       providers {
-        id
+        hostId
         name
-        provider
-        baseUrl
+        driver
+        url
         enabled
-        vramGb
+        configuredVramGb
       }
     }
   }

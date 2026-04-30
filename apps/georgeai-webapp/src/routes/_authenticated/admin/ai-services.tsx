@@ -1,19 +1,24 @@
 import { useMutation, useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
-import { getAiServiceStatusQueryOptions } from '../../../components/admin/ai-services/get-ai-service-status'
-import { getAiProvidersQueryOptions } from '../../../components/admin/queries/get-ai-providers'
-import { createProviderFn } from '../../../components/admin/server-functions/create-provider'
-import { deleteProviderFn } from '../../../components/admin/server-functions/delete-provider'
-import { restoreDefaultProvidersFn } from '../../../components/admin/server-functions/restore-default-providers'
-import { testProviderConnectionFn } from '../../../components/admin/server-functions/test-provider-connection'
-import { toggleProviderFn } from '../../../components/admin/server-functions/toggle-provider'
-import { updateProviderFn } from '../../../components/admin/server-functions/update-provider'
-import { ClientDate } from '../../../components/client-date'
+import {
+  createInferenceHostFn,
+  deleteInferenceHostFn,
+  disableInferenceHostFn,
+  enableInferenceHostFn,
+  restoreDefaultProvidersFn,
+  testInferenceHostConnectionFn,
+  updateInferenceHostFn,
+} from '../../../components/admin/server-functions'
 import { DialogForm } from '../../../components/dialog-form'
 import { toastError, toastSuccess } from '../../../components/georgeToaster'
-import { AiServiceProviderInput } from '../../../gql/graphql'
+import {
+  getInferenceHostConfigQueryOptions,
+  getInferenceHostStatusQueryOptions,
+} from '../../../components/workspace/queries'
+import { InferenceDriver, InferenceHostInput } from '../../../gql/graphql'
+import { InferenceDriverSchema } from '../../../gql/validation'
 import BotIcon from '../../../icons/bot-icon'
 import { EditIcon } from '../../../icons/edit-icon'
 import { OllamaLogoIcon } from '../../../icons/ollama-logo-icon'
@@ -25,15 +30,15 @@ export const Route = createFileRoute('/_authenticated/admin/ai-services')({
   component: AiServicesAdminPage,
   loader: async ({ context }) => {
     await Promise.all([
-      context.queryClient.ensureQueryData(getAiServiceStatusQueryOptions()),
-      context.queryClient.ensureQueryData(getAiProvidersQueryOptions()),
+      context.queryClient.ensureQueryData(getInferenceHostStatusQueryOptions()),
+      context.queryClient.ensureQueryData(getInferenceHostConfigQueryOptions()),
     ])
   },
 })
 
 type ProviderFormData = {
-  id?: string
-  provider: string
+  hostId?: string
+  driver: string
   name: string
   enabled: boolean
   baseUrl?: string
@@ -66,7 +71,7 @@ const getProviderHealthBadge = (isOnline: boolean | null) => {
 }
 
 function AiServicesAdminPage() {
-  const { queryClient } = Route.useRouteContext()
+  const { queryClient, user } = Route.useRouteContext()
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [editingProvider, setEditingProvider] = useState<ProviderFormData | null>(null)
   const [deletingProviderId, setDeletingProviderId] = useState<string | null>(null)
@@ -76,18 +81,32 @@ function AiServicesAdminPage() {
   const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
   const { data: serviceStatus } = useSuspenseQuery({
-    ...getAiServiceStatusQueryOptions(),
+    ...getInferenceHostStatusQueryOptions(),
     refetchInterval: autoRefresh ? 5000 : false,
   })
 
-  const { data: providers } = useSuspenseQuery(getAiProvidersQueryOptions())
+  const { data: providers } = useSuspenseQuery(getInferenceHostConfigQueryOptions())
+
+  const statusWithProvider = useMemo(
+    () =>
+      serviceStatus.map((status) => {
+        const provider = providers.find((provider) => provider.hostId === status.hostId)
+        return {
+          ...status,
+          name: provider?.name,
+          isOnline: status.state === 'healthy',
+          provider,
+        }
+      }),
+    [providers, serviceStatus],
+  )
 
   const createMutation = useMutation({
-    mutationFn: (data: AiServiceProviderInput) => createProviderFn({ data }),
+    mutationFn: (data: { driver: InferenceDriver; input: InferenceHostInput }) => createInferenceHostFn({ data }),
     onSuccess: () => {
       toastSuccess('Provider created successfully')
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -98,12 +117,11 @@ function AiServicesAdminPage() {
   })
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: AiServiceProviderInput }) =>
-      updateProviderFn({ data: { id, data } }),
+    mutationFn: (data: { hostId: string; input: InferenceHostInput }) => updateInferenceHostFn({ data }),
     onSuccess: () => {
       toastSuccess('Provider updated successfully')
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
       providerDialogRef.current?.close()
       setEditingProvider(null)
     },
@@ -114,11 +132,11 @@ function AiServicesAdminPage() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteProviderFn({ data: id }),
+    mutationFn: (data: { hostId: string }) => deleteInferenceHostFn({ data }),
     onSuccess: () => {
       toastSuccess('Provider deleted successfully')
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
       deleteDialogRef.current?.close()
       setDeletingProviderId(null)
     },
@@ -129,10 +147,11 @@ function AiServicesAdminPage() {
   })
 
   const toggleMutation = useMutation({
-    mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => toggleProviderFn({ data: { id, enabled } }),
+    mutationFn: (data: { hostId: string; enabled: boolean }) =>
+      data.enabled ? enableInferenceHostFn({ data }) : disableInferenceHostFn({ data }),
     onSuccess: () => {
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
@@ -144,8 +163,8 @@ function AiServicesAdminPage() {
     mutationFn: restoreDefaultProvidersFn,
     onSuccess: (result) => {
       toastSuccess(`Restored ${result.created} providers (${result.skipped} already existed)`)
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
     },
     onError: (error) => {
       const message = error instanceof Error ? error.message : String(error)
@@ -154,21 +173,24 @@ function AiServicesAdminPage() {
   })
 
   const testConnectionMutation = useMutation({
-    mutationFn: (data: { providerId?: string; provider: string; baseUrl?: string; apiKey?: string }) =>
-      testProviderConnectionFn({ data }),
+    mutationFn: (data: {
+      workspaceId: string
+      hostId?: string
+      driver: InferenceDriver
+      baseUrl?: string
+      apiKey?: string
+    }) => testInferenceHostConnectionFn({ data }),
     onSuccess: (result) => {
       if (result.success) {
         toastSuccess(
           <div>
             <div>{result.message}</div>
-            {result.details && <div className="text-xs opacity-70">{result.details}</div>}
           </div>,
         )
       } else {
         toastError(
           <div>
             <div>{result.message}</div>
-            {result.details && <div className="text-xs opacity-70">{result.details}</div>}
           </div>,
         )
       }
@@ -178,14 +200,14 @@ function AiServicesAdminPage() {
       toastError(message || 'Connection test failed')
     },
     onSettled: () => {
-      queryClient.invalidateQueries(getAiProvidersQueryOptions())
-      queryClient.invalidateQueries(getAiServiceStatusQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostConfigQueryOptions())
+      queryClient.invalidateQueries(getInferenceHostStatusQueryOptions())
     },
   })
 
   const handleAddProvider = () => {
     setEditingProvider({
-      provider: 'ollama',
+      driver: 'ollama',
       name: '',
       enabled: true,
     })
@@ -195,15 +217,15 @@ function AiServicesAdminPage() {
 
   const handleEditProvider = (provider: (typeof providers)[0]) => {
     setEditingProvider({
-      id: provider.id,
-      provider: provider.provider,
-      name: provider.name,
+      hostId: provider.hostId,
+      driver: provider.driver,
+      name: provider.name ?? 'Host not named', // TODO
       enabled: provider.enabled,
-      baseUrl: provider.baseUrl ?? undefined,
+      baseUrl: provider.url ?? undefined,
       apiKeyHint: provider.apiKeyHint,
-      vramGb: provider.vramGb ?? undefined,
+      vramGb: provider.configuredVramGb ?? undefined,
     })
-    setSelectedProviderType(provider.provider)
+    setSelectedProviderType(provider.driver)
     providerDialogRef.current?.showModal()
   }
 
@@ -219,26 +241,27 @@ function AiServicesAdminPage() {
     const formBaseUrl = (formData.get('baseUrl') as string)?.trim()
     const formApiKey = (formData.get('apiKey') as string)?.trim()
 
-    const data: AiServiceProviderInput = {
-      provider: selectedProviderType,
+    const input: InferenceHostInput = {
       name: formData.get('name') as string,
-      enabled: formData.get('enabled') === 'on',
       baseUrl: formBaseUrl || undefined,
       // Send undefined if empty - backend will preserve existing value when updating
       apiKey: formApiKey || undefined,
       vramGb: formData.get('vramGb') ? Number(formData.get('vramGb')) : undefined,
     }
 
-    if (editingProvider?.id) {
-      updateMutation.mutate({ id: editingProvider.id, data })
+    if (editingProvider?.hostId) {
+      updateMutation.mutate({ hostId: editingProvider.hostId, input })
     } else {
-      createMutation.mutate(data)
+      createMutation.mutate({
+        driver: InferenceDriverSchema.parse(selectedProviderType),
+        input,
+      })
     }
   }
 
   const handleConfirmDelete = () => {
     if (deletingProviderId) {
-      deleteMutation.mutate(deletingProviderId)
+      deleteMutation.mutate({ hostId: deletingProviderId })
     }
   }
 
@@ -310,15 +333,15 @@ function AiServicesAdminPage() {
           ) : (
             providers.map((provider) => {
               // Find matching instance from service status
-              const instance = serviceStatus.instances.find((inst) => inst.url === provider.baseUrl)
-              const isOnline = instance ? instance.isOnline : null
+              const instance = serviceStatus.find((inst) => inst.url === provider.url)
+              const isOnline = instance ? instance.state === 'healthy' : null
 
               return (
-                <div key={provider.id} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
+                <div key={provider.hostId} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
                   <div className="flex h-full flex-col items-start justify-between gap-2">
                     <h3 className="flex w-full items-start justify-between gap-2 text-base font-bold">
                       <div className="flex items-center gap-2">
-                        {getProviderIcon(provider.provider, 'h-6 w-6')}
+                        {getProviderIcon(provider.driver, 'h-6 w-6')}
                         {provider.name}
                       </div>
                       <div className="flex flex-wrap justify-end gap-1">
@@ -329,9 +352,9 @@ function AiServicesAdminPage() {
                       </div>
                     </h3>
                     <div className="flex-1">
-                      {provider.baseUrl && <p className="text-sm opacity-70">{provider.baseUrl}</p>}
-                      {typeof provider.vramGb === 'number' && !isNaN(provider.vramGb) && (
-                        <p className="text-sm opacity-70">VRAM: {provider.vramGb} GB</p>
+                      {provider.url && <p className="text-sm opacity-70">{provider.url}</p>}
+                      {typeof provider.configuredVramGb === 'number' && !isNaN(provider.configuredVramGb) && (
+                        <p className="text-sm opacity-70">VRAM: {provider.configuredVramGb} GB</p>
                       )}
                       {provider.apiKeyHint && (
                         <p className="text-sm opacity-50">API Key: **** **** **** {provider.apiKeyHint}</p>
@@ -344,7 +367,9 @@ function AiServicesAdminPage() {
                           type="checkbox"
                           className="toggle toggle-sm toggle-success"
                           checked={provider.enabled}
-                          onChange={(e) => toggleMutation.mutate({ id: provider.id, enabled: e.target.checked })}
+                          onChange={(e) =>
+                            toggleMutation.mutate({ hostId: provider.hostId, enabled: e.target.checked })
+                          }
                         />
                         <span className="text-sm">{provider.enabled ? 'Disable' : 'Enable'}</span>
                       </div>
@@ -359,7 +384,7 @@ function AiServicesAdminPage() {
                         </button>
                         <button
                           className="btn btn-ghost btn-sm btn-error"
-                          onClick={() => handleDeleteProvider(provider.id)}
+                          onClick={() => handleDeleteProvider(provider.hostId)}
                           type="button"
                         >
                           <TrashIcon className="mr-1 size-4" />
@@ -391,22 +416,30 @@ function AiServicesAdminPage() {
             <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">
               Ollama Instances
             </div>
-            <div className="text-3xl font-bold text-secondary">{serviceStatus.totalInstances}</div>
-            <div className="mt-1 text-sm text-base-content/70">{serviceStatus.healthyInstances} healthy</div>
+            <div className="text-3xl font-bold text-secondary">{serviceStatus.length}</div>
+            <div className="mt-1 text-sm text-base-content/70">
+              {serviceStatus.map((host) => host.state === 'healthy').length} healthy
+            </div>
           </div>
 
           <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
             <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">Total VRAM</div>
-            <div className="text-3xl font-bold text-accent">{formatMemory(serviceStatus.totalMemory)}</div>
+            <div className="text-3xl font-bold text-accent">
+              {formatMemory(serviceStatus.reduce((prev, acc) => prev + (acc.totalMemoryMb || 0), 0))}
+            </div>
             <div className="mt-1 text-sm text-base-content/70">
-              {formatMemory(serviceStatus.totalUsedMemory)} used (
-              {getMemoryUtilization(serviceStatus.totalUsedMemory, serviceStatus.totalMemory)}%)
+              {formatMemory(serviceStatus.reduce((prev, acc) => prev + (acc.usedMemoryMb || 0), 0))} used (
+              {getMemoryUtilization(
+                serviceStatus.reduce((prev, acc) => prev + (acc.usedMemoryMb || 0), 0),
+                serviceStatus.reduce((prev, acc) => prev + (acc.totalMemoryMb || 0), 0),
+              )}
+              %)
             </div>
           </div>
 
           <div className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
             <div className="mb-2 text-xs font-semibold tracking-wide text-base-content/60 uppercase">Queue Length</div>
-            <div className="text-3xl font-bold text-info">{serviceStatus.totalQueueLength}</div>
+            <div className="text-3xl font-bold text-info">?? TODO ??</div>
             <div className="mt-1 text-sm text-base-content/70">Total waiting requests</div>
           </div>
         </div>
@@ -416,15 +449,15 @@ function AiServicesAdminPage() {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Ollama Instance Details</h2>
 
-        {serviceStatus.instances.length === 0 ? (
+        {statusWithProvider.length === 0 ? (
           <div className="rounded-lg border border-warning bg-warning/10 p-4 text-sm">
             <span>No Ollama instances found. Please check your configuration.</span>
           </div>
         ) : (
-          serviceStatus.instances
-            .sort((a, b) => a.name.localeCompare(b.name))
+          statusWithProvider
+            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
             .map((instance) => {
-              const memoryUtilization = getMemoryUtilization(instance.usedVram, instance.totalVram)
+              const memoryUtilization = getMemoryUtilization(instance.usedMemoryMb || 0, instance.totalMemoryMb || 0)
 
               return (
                 <div key={instance.name} className="rounded-lg border border-base-300 bg-base-100 p-6 shadow-sm">
@@ -436,17 +469,19 @@ function AiServicesAdminPage() {
                         <div className={`badge ${getStatusBadge(instance.isOnline)}`}>
                           {instance.isOnline ? 'Online' : 'Offline'}
                         </div>
-                        <div className="badge badge-outline">{instance.type}</div>
+                        <div className="badge badge-outline">{instance.driver}</div>
                       </h3>
                       <p className="text-sm opacity-70">{instance.url}</p>
-                      {instance.version && <p className="text-xs opacity-50">Version: {instance.version}</p>}
+                      <p className="text-xs opacity-50">Version: MISSING</p>
                     </div>
 
                     <div className="flex flex-col gap-4 rounded-lg bg-base-200 p-4 lg:flex-row">
                       <div className="text-center">
                         <div className="text-xs font-medium text-base-content/60">VRAM Usage</div>
-                        <div className="text-sm font-bold">{formatMemory(instance.usedVram)}</div>
-                        <div className="text-xs text-base-content/70">of {formatMemory(instance.totalVram)}</div>
+                        <div className="text-sm font-bold">{formatMemory(instance.usedMemoryMb || 0)}</div>
+                        <div className="text-xs text-base-content/70">
+                          of {formatMemory(instance.totalMemoryMb || 0)}
+                        </div>
                       </div>
                       <div className="text-center">
                         <div className="text-xs font-medium text-base-content/60">Utilization</div>
@@ -467,32 +502,31 @@ function AiServicesAdminPage() {
                       <details className="rounded-lg bg-base-200">
                         <summary className="cursor-pointer p-4 text-sm font-semibold">
                           <div className="flex items-center gap-2">
-                            <div className="badge badge-sm badge-info">{instance.availableModels?.length || 0}</div>
+                            <div className="badge badge-sm badge-info">{instance.models?.length || 0}</div>
                             Available Models
                           </div>
                         </summary>
                         <div className="px-4 pb-4">
                           <div className="max-h-48 space-y-1 overflow-y-auto">
-                            {instance.availableModels && instance.availableModels.length > 0 ? (
-                              instance.availableModels.map((model) => (
-                                <div key={model.name} className="rounded-sm border border-base-300 bg-base-100 p-2">
-                                  <div className="font-mono text-xs font-medium">{model.name}</div>
+                            {instance.models && instance.models.length > 0 ? (
+                              instance.models.map((model) => (
+                                <div
+                                  key={model.modelName}
+                                  className="rounded-sm border border-base-300 bg-base-100 p-2"
+                                >
+                                  <div className="font-mono text-xs font-medium">{model.modelName}</div>
                                   <div className="text-xs opacity-70">
-                                    {model.family && (
-                                      <span className="mr-1 badge badge-ghost badge-xs">{model.family}</span>
-                                    )}
-                                    {model.size !== undefined && <span>Size: {formatMemory(model.size)}</span>}
-                                    {model.parameterSize && <span> • {model.parameterSize} params</span>}
+                                    <span className="mr-1 badge badge-ghost badge-xs">MODEL FAMILY</span>
+                                    <span>Size: MISSING</span>
+                                    <span> • MISSING params</span>
                                   </div>
-                                  {model.capabilities && model.capabilities.length > 0 && (
-                                    <div className="mt-1 flex flex-wrap gap-1">
-                                      {model.capabilities.map((cap) => (
-                                        <div key={cap} className="badge badge-outline badge-xs">
-                                          {cap}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
+                                  <div className="mt-1 flex flex-wrap gap-1">
+                                    {['Embedding', 'Completion', 'Function Calling'].map((cap) => (
+                                      <div key={cap} className="badge badge-outline badge-xs">
+                                        {cap}
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
                               ))
                             ) : (
@@ -505,64 +539,9 @@ function AiServicesAdminPage() {
 
                     <div>
                       <h4 className="mb-3 flex items-center gap-2 font-semibold">
-                        <div className="badge badge-sm badge-success">{instance.runningModels?.length || 0}</div>
+                        <div className="badge badge-sm badge-success">{instance.models?.length || 0}</div>
                         Running Models
                       </h4>
-                      <div className="max-h-48 space-y-2 overflow-y-auto">
-                        {instance.runningModels && instance.runningModels.length > 0 ? (
-                          instance.runningModels.map((model) => (
-                            <div key={model.name} className="rounded-sm border border-base-300 bg-base-200 p-3">
-                              <div className="flex items-center justify-between">
-                                <span className="font-mono text-sm font-medium">{model.name}</span>
-                                <div className="badge badge-sm badge-info">{model.activeRequests} active</div>
-                              </div>
-                              <div className="flex justify-between text-xs opacity-70">
-                                <span>Size: {formatMemory(model.size)}</span>
-                                {model.expiresAt && (
-                                  <span>
-                                    Expires: <ClientDate date={model.expiresAt} format="time" />
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <p className="py-4 text-center text-sm opacity-50">No models currently running</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="mb-3 flex items-center gap-2 font-semibold">
-                        <div className="badge badge-sm badge-warning">{instance.modelQueues?.length || 0}</div>
-                        Model Queues
-                      </h4>
-                      <div className="max-h-48 space-y-2 overflow-y-auto">
-                        {instance.modelQueues && instance.modelQueues.length > 0 ? (
-                          instance.modelQueues.map((queue) => (
-                            <div key={queue.modelName} className="rounded-sm border border-base-300 bg-base-200 p-3">
-                              <div className="flex items-center justify-between">
-                                <span className="font-mono text-sm font-medium">{queue.modelName}</span>
-                                <div className="badge badge-outline badge-sm">
-                                  {queue.queueLength}/{queue.maxConcurrency}
-                                </div>
-                              </div>
-                              <div className="text-xs opacity-70">
-                                Est. size per request: {formatMemory(queue.estimatedRequestSize)}
-                              </div>
-                              {queue.queueLength > 0 && (
-                                <progress
-                                  className="progress w-full progress-warning"
-                                  value={queue.queueLength}
-                                  max={queue.maxConcurrency}
-                                />
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          <p className="py-4 text-center text-sm opacity-50">No active queues</p>
-                        )}
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -573,23 +552,23 @@ function AiServicesAdminPage() {
 
       <dialog className="modal" ref={providerDialogRef}>
         <div className="modal-box w-11/12 max-w-3xl">
-          <h3 className="mb-6 text-2xl font-bold">{editingProvider?.id ? 'Edit Provider' : 'Add Provider'}</h3>
-          <form key={editingProvider?.id || 'new'} onSubmit={handleSubmitProvider} className="space-y-6">
+          <h3 className="mb-6 text-2xl font-bold">{editingProvider?.hostId ? 'Edit Provider' : 'Add Provider'}</h3>
+          <form key={editingProvider?.hostId || 'new'} onSubmit={handleSubmitProvider} className="space-y-6">
             <div>
               <label className="mb-2 block text-sm font-semibold">Provider Type</label>
               <select
                 name="provider"
                 className="select w-full"
-                defaultValue={editingProvider?.provider}
+                defaultValue={editingProvider?.driver}
                 onChange={(e) => setSelectedProviderType(e.target.value)}
-                disabled={!!editingProvider?.id}
+                disabled={!!editingProvider?.hostId}
                 required
               >
                 <option value="ollama">Ollama - Self-hosted LLM runtime</option>
                 <option value="openai">OpenAI - GPT models</option>
               </select>
               <p className="mt-1 text-xs text-base-content/60">
-                {editingProvider?.id
+                {editingProvider?.hostId
                   ? 'Provider type cannot be changed. Only one non-Ollama provider of each type can be enabled.'
                   : 'Choose the AI service provider type. Only one non-Ollama provider of each type can be enabled.'}
               </p>
@@ -684,10 +663,11 @@ function AiServicesAdminPage() {
                   const formApiKey = (formData.get('apiKey') as string)?.trim()
 
                   testConnectionMutation.mutate({
-                    providerId: editingProvider?.id,
-                    provider: selectedProviderType,
+                    hostId: editingProvider?.hostId,
+                    driver: InferenceDriverSchema.parse(selectedProviderType),
                     baseUrl: formBaseUrl || undefined,
                     apiKey: formApiKey || undefined,
+                    workspaceId: user.selectedWorkspaceId,
                   })
                 }}
                 disabled={testConnectionMutation.isPending}
@@ -743,10 +723,10 @@ function AiServicesAdminPage() {
                 {createMutation.isPending || updateMutation.isPending ? (
                   <>
                     <span className="loading loading-spinner" />
-                    {editingProvider?.id ? 'Updating...' : 'Creating...'}
+                    {editingProvider?.hostId ? 'Updating...' : 'Creating...'}
                   </>
                 ) : (
-                  <>{editingProvider?.id ? 'Update Provider' : 'Create Provider'}</>
+                  <>{editingProvider?.hostId ? 'Update Provider' : 'Create Provider'}</>
                 )}
               </button>
             </div>

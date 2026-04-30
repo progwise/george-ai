@@ -1,6 +1,8 @@
 import { useEffect, useMemo } from 'react'
 
-import { debounce } from '@george-ai/web-utils'
+import { debounce } from '@george-ai/app-commons'
+
+import { useTranslation } from '../../../i18n/use-translation-hook'
 
 interface LibraryQueryInputProps {
   libraryName: string
@@ -9,6 +11,7 @@ interface LibraryQueryInputProps {
 }
 
 export const LibraryQueryInput = ({ libraryName, onSearchTermChange, defaultSearchTerm }: LibraryQueryInputProps) => {
+  const { t } = useTranslation()
   const debounceInput = useMemo(
     () =>
       debounce((value: string) => {
@@ -26,7 +29,9 @@ export const LibraryQueryInput = ({ libraryName, onSearchTermChange, defaultSear
 
   return (
     <fieldset className="fieldset grid items-center gap-4">
-      <h3 className="self-center text-center text-lg">Library {libraryName}</h3>
+      <h3 className="self-center text-center text-lg">
+        {t('libraries.title')} {libraryName}
+      </h3>
       <label className="input m-auto">
         <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
@@ -39,7 +44,7 @@ export const LibraryQueryInput = ({ libraryName, onSearchTermChange, defaultSear
           defaultValue={defaultSearchTerm}
           type="search"
           className="grow"
-          placeholder="Search"
+          placeholder={t('search.placeholder')}
           onChange={(event) => {
             debounceInput(event.target.value)
           }}

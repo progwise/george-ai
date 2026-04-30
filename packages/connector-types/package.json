@@ -19,13 +19,13 @@
   "dependencies": {
     "markdown-it": "^14.1.0",
     "zod": "^3.23.8",
-    "@george-ai/web-utils": "workspace:*"
+    "@george-ai/app-commons": "workspace:*"
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
     "@eslint/js": "^9.16.0",
     "@types/markdown-it": "^14.1.2",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.13.8",
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.44.1",

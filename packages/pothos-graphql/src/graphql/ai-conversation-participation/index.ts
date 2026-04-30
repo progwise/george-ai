@@ -1,8 +1,9 @@
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-database'
 
 import { builder } from '../builder'
+import { logger } from '../common'
 
-console.log('Setting up: AiParticipation')
+logger.info('Setting up: AiParticipation')
 
 const conversationParticipantInterface = builder.prismaInterface('AiConversationParticipant', {
   name: 'AiConversationParticipant',

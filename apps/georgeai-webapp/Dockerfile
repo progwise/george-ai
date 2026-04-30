@@ -22,6 +22,7 @@ WORKDIR /app
 COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/package-configs/package.json ./packages/package-configs/
+COPY packages/app-commons/package.json ./packages/app-commons/
 COPY packages/web-utils/package.json ./packages/web-utils/
 COPY apps/georgeai-webapp/package.json ./apps/georgeai-webapp/
 
@@ -29,6 +30,7 @@ RUN pnpm i --frozen-lockfile
 
 # Copy source files afterwards to allow Docker layer caching
 COPY packages/package-configs ./packages/package-configs
+COPY packages/app-commons ./packages/app-commons
 COPY packages/web-utils ./packages/web-utils
 COPY apps/georgeai-webapp ./apps/georgeai-webapp
 COPY CHANGELOG.md LICENSE ./

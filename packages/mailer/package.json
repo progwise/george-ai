@@ -26,6 +26,7 @@
     "vitest": "^3.1.1"
   },
   "dependencies": {
+    "@george-ai/app-commons": "workspace:*",
     "nodemailer": "^6.10.0",
     "zod": "^3.23.8"
   }

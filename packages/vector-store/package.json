@@ -25,7 +25,10 @@
     "vitest": "^3.1.1"
   },
   "dependencies": {
+    "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-schema": "workspace:*",
     "@qdrant/js-client-rest": "^1.16.2",
+    "uuid": "^13.0.0",
     "zod": "^3.23.8"
   }
 }

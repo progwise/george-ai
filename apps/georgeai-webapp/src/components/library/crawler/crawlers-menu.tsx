@@ -43,7 +43,7 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
   const updateDialogRef = useRef<HTMLDialogElement>(null)
   const navigate = useNavigate({ from: '/libraries/$libraryId/crawlers/' })
   const { t } = useTranslation()
-  const { runCrawler, stopCrawler } = useCrawlerActions({ libraryId })
+  const { runCrawler, stopCrawler } = useCrawlerActions(libraryId)
 
   useEffect(() => {
     if (detailsRef.current && selectedCrawler) {
@@ -73,13 +73,13 @@ export const CrawlersMenu = ({ libraryId, selectedCrawler, crawlers }: CrawlersM
             <details ref={detailsRef} className="w-90">
               <summary className="text-sm font-semibold">
                 <span className="overflow-auto text-nowrap text-ellipsis">
-                  {selectedCrawler ? `${selectedCrawler.uriType}: ${selectedCrawler.uri}` : 'All Crawlers'}
+                  {selectedCrawler ? `${selectedCrawler.uriType}: ${selectedCrawler.uri}` : t('labels.allCrawlers')}
                 </span>
               </summary>
               <ul className="z-40">
                 <li>
                   <Link to="/libraries/$libraryId/crawlers" params={{ libraryId }} search={{ crawlerId: undefined }}>
-                    All
+                    {t('labels.allCrawlers')}
                   </Link>
                 </li>
                 {crawlers.map((crawler) => (

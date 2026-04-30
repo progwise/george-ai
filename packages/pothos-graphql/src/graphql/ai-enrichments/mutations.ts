@@ -1,13 +1,11 @@
-import { Prisma, prisma } from '@george-ai/app-domain'
-import { createLogger } from '@george-ai/web-utils'
+import { Prisma, prisma } from '@george-ai/app-database'
+import { canWriteWorkspaceOrThrow } from '@george-ai/app-domain'
+import { ValidatedFieldSchema, getEnrichmentTaskInputMetadata, getListFiltersWhere } from '@george-ai/app-domain'
+import { InferenceDriver } from '@george-ai/app-schema'
 
-import { canAccessListOrThrow } from '../../domain'
-import { getEnrichmentTaskInputMetadata, getFieldEnrichmentValidationSchema } from '../../domain/enrichment'
-import { getListFiltersWhere } from '../../domain/list'
 import { AiListFilterInput } from '../ai-list/field-values'
 import { builder } from '../builder'
-
-const logger = createLogger('Enrichment Tasks')
+import { logger } from '../common'
 
 // PostgreSQL has a limit of 32,767 bind variables in prepared statements
 // Use a safe batch size that accounts for complex queries with multiple binds per item
@@ -45,9 +43,10 @@ builder.mutationField('createEnrichmentTasks', (t) =>
       }),
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId, onlyMissingValues, filters }, { session }) => {
-      logger.info(`Starting enrichment task creation for listId: ${listId}, fieldId: ${fieldId}`)
-      const list = await canAccessListOrThrow(listId, session.user.id, {
+    resolve: async (_source, { listId, fieldId, itemId, onlyMissingValues, filters }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
+
+      const list = await prisma.aiList.findFirstOrThrow({
         include: {
           fields: {
             where: { id: fieldId },
@@ -102,7 +101,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         listId,
         ...filterConditions,
         ...(itemId ? { id: itemId } : {}),
-        sourceFile: { archivedAt: null },
+        file: { archivedAt: null },
         ...(onlyMissingValues
           ? {
               OR: [
@@ -141,7 +140,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
       const itemInclude = {
         cache: { where: { fieldId: { in: allFieldIds } } },
-        sourceFile: {
+        file: {
           include: {
             crawledByCrawler: { select: { id: true, uri: true } },
             library: {
@@ -183,7 +182,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
 
       // Transform field to match validation schema (convert languageModel relation to string)
       const fieldWithRelation = listField as typeof listField & {
-        languageModel?: { id: string; provider: string; name: string } | null
+        languageModel?: { id: string; provider: InferenceDriver; name: string } | null
       }
       const fieldForValidation = {
         ...fieldWithRelation,
@@ -196,7 +195,7 @@ builder.mutationField('createEnrichmentTasks', (t) =>
         success: fieldValidationSuccess,
         data: validatedField,
         error: fieldValidationError,
-      } = getFieldEnrichmentValidationSchema().safeParse(fieldForValidation)
+      } = ValidatedFieldSchema.safeParse(fieldForValidation)
 
       if (!fieldValidationSuccess) {
         throw new Error(
@@ -281,8 +280,8 @@ builder.mutationField('deletePendingEnrichmentTasks', (t) =>
       itemId: t.arg.string({ required: false, description: 'Item ID to stop enrichment for' }),
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId, filters }, { session }) => {
-      await canAccessListOrThrow(listId, session.user.id)
+    resolve: async (_source, { listId, fieldId, itemId, filters }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
 
       const filterConditions = await getListFiltersWhere(filters || [])
 
@@ -360,8 +359,8 @@ builder.mutationField('clearListEnrichments', (t) =>
       }),
       filters: t.arg({ type: [AiListFilterInput!], required: false }),
     },
-    resolve: async (_source, { listId, fieldId, itemId, filters }, { session }) => {
-      await canAccessListOrThrow(listId, session.user.id)
+    resolve: async (_source, { listId, fieldId, itemId, filters }, { workspaceId, session }) => {
+      await canWriteWorkspaceOrThrow(workspaceId, session.user.id)
 
       const filterConditions = await getListFiltersWhere(filters || [])
 

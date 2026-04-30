@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 import { FilesActionsBar } from '../../../../../components/library/files/files-actions-bar'
 import { FilesTable } from '../../../../../components/library/files/files-table'
-import { aiLibraryFilesQueryOptions } from '../../../../../components/library/files/get-files'
+import { getDocumentsQueryOptions, getLibraryQueryOptions } from '../../../../../components/library/queries'
 import { Pagination } from '../../../../../components/table/pagination'
 import { useTranslation } from '../../../../../i18n/use-translation-hook'
 
@@ -23,7 +23,7 @@ export const Route = createFileRoute('/_authenticated/libraries/$libraryId/files
   loader: async ({ context, params, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(
-        aiLibraryFilesQueryOptions({
+        getDocumentsQueryOptions({
           libraryId: params.libraryId,
           skip: deps.skip,
           take: deps.take,
@@ -40,53 +40,47 @@ function RouteComponent() {
   const { libraryId } = Route.useParams()
   const { t } = useTranslation()
 
-  const aiLibraryFilesQuery = useSuspenseQuery(aiLibraryFilesQueryOptions({ libraryId, skip, take, showArchived }))
-  const aiLibraryFiles = aiLibraryFilesQuery.data.aiLibraryFiles
-  const archivedCount = aiLibraryFiles.archivedCount
+  const { data: files } = useSuspenseQuery(getDocumentsQueryOptions({ libraryId, skip, take, showArchived }))
+  const { data: library } = useSuspenseQuery(getLibraryQueryOptions(libraryId))
 
   return (
-    <div className="grid size-full grid-rows-[auto_1fr] bg-base-100">
-      <div>
-        <div className="align-text-top text-xs text-nowrap text-primary italic">
-          {showArchived
-            ? t('files.allFilesForLibrary', { count: aiLibraryFiles.count })
-            : t('files.activeFilesForLibrary', {
-                count: aiLibraryFiles.count,
-              })}
+    <div className="grid size-full grid-rows-[auto_1fr] gap-14">
+      <div className="flex justify-between align-top">
+        <div className="z-49 md:flex">
+          <FilesActionsBar
+            hasLegacyData={library.manifest?.version !== 1}
+            libraryId={libraryId}
+            totalItems={files.totalCount}
+            showArchived={showArchived}
+            archivedCount={files.archivedCount}
+          />
         </div>
-        <div className="relative flex justify-between align-top">
-          <div className="flex flex-col gap-1 overflow-y-auto">
-            <h3 className="text-xl font-bold text-nowrap text-base-content">{aiLibraryFiles.library.name}</h3>
+
+        <div>
+          <div className="text-sm text-base-content/70">
+            {showArchived
+              ? t('files.allFilesForLibrary', { count: files.totalCount })
+              : t('files.activeFilesForLibrary', {
+                  count: files.totalCount,
+                })}
           </div>
-          <div className="absolute right-0 z-49 md:flex">
-            <FilesActionsBar
-              libraryId={libraryId}
-              totalItems={aiLibraryFiles.count}
-              showArchived={showArchived}
-              archivedCount={archivedCount}
-            />
-          </div>
-        </div>
-        <div className="mt-10 flex flex-col">
-          <div className="flex flex-col md:items-end">
-            <Pagination
-              totalItems={aiLibraryFiles.count}
-              itemsPerPage={take}
-              currentPage={1 + aiLibraryFiles.skip / take}
-              onPageChange={(page) => {
-                // TODO: Add prefetching here
-                navigate({ search: { skip: (page - 1) * take, take, showArchived } })
-              }}
-              showPageSizeSelector={true}
-              onPageSizeChange={(newPageSize) => {
-                navigate({ search: { skip: 0, take: newPageSize, showArchived } })
-              }}
-            />
-          </div>
+          <Pagination
+            totalItems={files.totalCount}
+            itemsPerPage={take}
+            currentPage={1 + skip / take}
+            onPageChange={(page) => {
+              // TODO: Add prefetching here
+              navigate({ search: { skip: (page - 1) * take, take, showArchived } })
+            }}
+            showPageSizeSelector={true}
+            onPageSizeChange={(newPageSize) => {
+              navigate({ search: { skip: 0, take: newPageSize, showArchived } })
+            }}
+          />
         </div>
       </div>
-      <div className="overflow-auto">
-        <FilesTable firstItemNumber={skip + 1} files={aiLibraryFiles.files} />
+      <div className="max-h-[80vh] min-h-24 overflow-auto">
+        <FilesTable firstItemNumber={skip + 1} files={files.items} />
       </div>
     </div>
   )

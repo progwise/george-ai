@@ -15,9 +15,9 @@ import {
 import { Language, translate } from '../../i18n'
 import { useTranslation } from '../../i18n/use-translation-hook'
 import { Input } from '../form/input'
-import { ModelSelect } from '../form/model-select'
 import { Select } from '../form/select'
 import { toastError, toastSuccess } from '../georgeToaster'
+import { ModelSelect } from '../model'
 import { FullContent } from './context/full-content'
 import { ReferencedFields } from './context/referenced-fields'
 import { SimilarContent } from './context/similar-content'
@@ -77,6 +77,8 @@ graphql(`
     failureTerms
     languageModel {
       id
+      modelName
+      modelDriver
       provider
       name
     }
@@ -436,7 +438,6 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                       placeholder={t('lists.fields.selectAiModel')}
                       capability="chat"
                       className="w-full"
-                      schema={schema}
                       required
                     />
 
@@ -447,7 +448,6 @@ export const FieldModal = ({ list, maxOrder, editField, ref }: FieldModalProps) 
                         name="prompt"
                         placeholder={t('lists.fields.aiPromptPlaceholder')}
                         value={editField?.prompt}
-                        schema={schema}
                         required
                         className="h-40"
                       />

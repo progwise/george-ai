@@ -26,7 +26,7 @@ function RouteComponent() {
   const { t } = useTranslation()
 
   return (
-    <div className="absolute flex h-screen w-full">
+    <div className="flex">
       <div className="mx-auto prose mt-8">
         <p>{t('lists.firstList')}</p>
         <button

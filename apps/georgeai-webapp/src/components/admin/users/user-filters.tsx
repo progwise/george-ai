@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 
-import { debounce } from '@george-ai/web-utils'
+import { debounce } from '@george-ai/app-commons'
 
 import { useTranslation } from '../../../i18n/use-translation-hook'
 import { SearchIcon } from '../../../icons/search-icon'

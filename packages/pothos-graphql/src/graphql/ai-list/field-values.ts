@@ -1,20 +1,18 @@
-import type { Prisma } from '@george-ai/app-domain'
-import { prisma } from '@george-ai/app-domain'
-
-import { getFieldValue } from '../../domain'
+import { type Prisma, prisma } from '@george-ai/app-database'
 import {
-  type AiListFilterType,
-  AiListFilterTypeValues,
-  FieldFileProperty,
-  FieldSourceType,
-  FieldType,
-  getListFiltersWhere,
-} from '../../domain/list'
+  LIST_FILTER_TYPE_VALUES,
+  ListFieldFileProperty,
+  ListFieldSourceType,
+  ListFieldType,
+  ListFilterType,
+  list as lst,
+} from '@george-ai/app-domain'
+
 import { builder } from '../builder'
 import { getItemIdsForListItems } from './get-item-ids'
 
 export const AiListFilterEnumType = builder.enumType('AiListFilterType', {
-  values: AiListFilterTypeValues,
+  values: LIST_FILTER_TYPE_VALUES,
 })
 
 export const AiListFilterInput = builder.inputType('AiListFilterInput', {
@@ -82,7 +80,6 @@ export const ListItemResult = builder
       docPath: t.exposeString('docPath', { nullable: true }),
       mimeType: t.exposeString('mimeType', { nullable: false }),
       size: t.exposeInt('size', { nullable: true }),
-      uploadedAt: t.expose('uploadedAt', { type: 'DateTime', nullable: true }),
       libraryId: t.exposeString('libraryId', {
         nullable: false,
       }),
@@ -102,13 +99,10 @@ export const ListItemQueryResult = builder
   .objectRef<{
     item: Prisma.AiListItemGetPayload<{
       include: {
-        sourceFile: {
+        file: {
           include: {
             library: true
             crawledByCrawler: true
-            contentExtractionTasks: {
-              select: { extractionFinishedAt: true }
-            }
           }
         }
         cache: true
@@ -139,7 +133,7 @@ export const ListItemQueryResult = builder
         type: ListItemResult,
         nullable: false,
         resolve: (root) => {
-          return root.item.sourceFile
+          return root.item.file
         },
       }),
       values: t.field({
@@ -151,7 +145,7 @@ export const ListItemQueryResult = builder
             fieldName: field.name,
             fieldType: field.type,
             ...(() => {
-              const { value, errorMessage, failedEnrichmentValue } = getFieldValue(item, field)
+              const { value, errorMessage, failedEnrichmentValue } = lst.getFieldValue(item, field)
               const fieldTask = item.enrichmentTasks.find((task) => task.fieldId === field.id)
               return {
                 displayValue: value ? value : errorMessage,
@@ -173,14 +167,14 @@ export const ListItemsQueryResult = builder
       id: string
       listId: string
       name: string
-      sourceType: FieldSourceType
-      fileProperty: FieldFileProperty | null
-      type: FieldType
+      sourceType: ListFieldSourceType
+      fileProperty: ListFieldFileProperty | null
+      type: ListFieldType
     }[]
     skip: number
     take: number
     sorting: { fieldId: string; direction: 'asc' | 'desc' }[]
-    filters: { fieldId: string; filterType: AiListFilterType; value: string }[]
+    filters: { fieldId: string; filterType: ListFilterType; value: string }[]
     selectedItemId?: string
     showArchived?: boolean
   }>('ListItemsQueryResult')
@@ -205,15 +199,10 @@ export const ListItemsQueryResult = builder
 
           const items = await prisma.aiListItem.findMany({
             include: {
-              sourceFile: {
+              file: {
                 include: {
                   library: true,
                   crawledByCrawler: true,
-                  contentExtractionTasks: {
-                    where: { extractionFinishedAt: { not: null } },
-                    orderBy: { extractionFinishedAt: 'desc' },
-                    take: 1,
-                  },
                 },
               },
               cache: {
@@ -249,11 +238,11 @@ export const ListItemsQueryResult = builder
           if (selectedItemId) {
             return 1
           }
-          const filtersWhere = await getListFiltersWhere(filters)
+          const filtersWhere = await lst.getListFiltersWhere(filters)
 
           const where: Prisma.AiListItemWhereInput = {
             listId: list.id,
-            ...(showArchived ? {} : { sourceFile: { archivedAt: null } }),
+            ...(showArchived ? {} : { file: { archivedAt: null } }),
             ...filtersWhere,
           }
           return prisma.aiListItem.count({
@@ -267,7 +256,7 @@ export const ListItemsQueryResult = builder
         resolve: async ({ list, showArchived }) => {
           const where: Prisma.AiListItemWhereInput = {
             listId: list.id,
-            ...(showArchived ? {} : { sourceFile: { archivedAt: null } }),
+            ...(showArchived ? {} : { file: { archivedAt: null } }),
           }
           return prisma.aiListItem.count({
             where,

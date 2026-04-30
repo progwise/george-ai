@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router'
 import { useRef } from 'react'
 import { twMerge } from 'tailwind-merge'
 
-import { duration } from '@george-ai/web-utils'
+import { duration } from '@george-ai/app-commons'
 
 import { graphql } from '../../gql'
 import { EnrichmentAccordionItem_EnrichmentFragment, EnrichmentStatus } from '../../gql/graphql'
@@ -75,7 +75,7 @@ graphql(`
     }
     item {
       id
-      sourceFile {
+      file {
         id
         name
         library {
@@ -123,7 +123,7 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2 text-sm">
               <span className="text-base-content/60">File:</span>
-              <span className="font-mono text-base-content">{enrichment.item.sourceFile.name}</span>
+              <span className="font-mono text-base-content">{enrichment.item.file.name}</span>
               <span className="text-base-content/40">→</span>
               <span className="text-primary">{enrichment.field.name}</span>
             </div>
@@ -249,16 +249,16 @@ export const EnrichmentAccordionItem = ({ enrichment, index }: EnrichmentAccordi
               </div>
               <div className="flex gap-2">
                 <span className="min-w-[80px] text-base-content/60">Library:</span>
-                <span className="font-medium">{enrichment.item.sourceFile.library.name}</span>
+                <span className="font-medium">{enrichment.item.file.library.name}</span>
               </div>
               <div className="flex gap-2">
                 <span className="min-w-[80px] text-base-content/60">File:</span>
                 <Link
                   to="/libraries/$libraryId/files/$fileId"
-                  params={{ libraryId: enrichment.item.sourceFile.library.id, fileId: enrichment.item.sourceFile.id }}
+                  params={{ libraryId: enrichment.item.file.library.id, fileId: enrichment.item.file.id }}
                   className="link link-primary"
                 >
-                  {enrichment.item.sourceFile.name}
+                  {enrichment.item.file.name}
                 </Link>
               </div>
             </div>

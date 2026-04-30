@@ -38,6 +38,42 @@ services:
     networks:
       - george-ai-e2e
 
+  gai-e2e-nats:
+    build:
+      context: ../services/nats-service
+      dockerfile: Dockerfile
+    container_name: gai-e2e-nats
+    restart: unless-stopped
+    ports:
+      - '4132:4222' # Client connections
+      - '8132:8222' # HTTP monitoring
+      - '6132:6222' # Cluster routing (for future clustering)
+    volumes:
+      - nats-data:/data
+    networks:
+      - george-ai-e2e
+
+  gai-e2e-qdrant:
+    image: qdrant/qdrant:latest
+    container_name: gai-e2e-qdrant
+    restart: unless-stopped
+    environment:
+      # Qdrant configuration
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      # Enable API key authentication (optional - uncomment for production)
+      # - QDRANT__SERVICE__API_KEY=your-secret-api-key-here
+      # Performance settings
+      - QDRANT__STORAGE__PERFORMANCE__MAX_SEARCH_THREADS=4
+      - QDRANT__STORAGE__PERFORMANCE__MAX_OPTIMIZATION_THREADS=2
+      # Collection defaults
+      - QDRANT__COLLECTION__DEFAULT_REPLICATION_FACTOR=1
+      - QDRANT__COLLECTION__DEFAULT_WRITE_CONSISTENCY_FACTOR=1
+    volumes:
+      - qdrant-data:/qdrant/storage
+    networks:
+      - george-ai-e2e
+
   # Backend API
   gai-e2e-backend:
     build:
@@ -77,7 +113,7 @@ services:
       PUBLIC_APP_URL: http://localhost:3011
 
       # File uploads
-      UPLOADS_PATH: /tmp/uploads
+      UPLOADS_PATH: /app/.test-uploads
 
       # Workers (disabled for e2e tests)
       AUTOSTART_ENRICHMENT_WORKER: true
@@ -104,6 +140,13 @@ services:
 
       # Git
       GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+
+      # NATS
+      NATS_URL: nats://gai-e2e-nats:4222
+
+      # QDRANT
+      QDRANT_URL: http://gai-e2e-qdrant:6333
+
     ports:
       - '3013:3003'
     depends_on:
@@ -111,6 +154,10 @@ services:
         condition: service_healthy
       gai-e2e-typesense:
         condition: service_started
+      gai-e2e-nats:
+        condition: service_started
+    volumes:
+      - file-storage:/app/.test-uploads
     networks:
       - george-ai-e2e
 
@@ -202,9 +249,74 @@ services:
     networks:
       - george-ai-e2e
 
+  # Event Queue Worker for processing background tasks
+  gai-e2e-event-worker:
+    build:
+      context: ..
+      dockerfile: services/event-queue-worker/Dockerfile
+      args:
+        GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+    container_name: gai-e2e-event-worker
+    environment:
+      # Node environment
+      NODE_ENV: production
+
+      # Database
+      DATABASE_URL: postgresql://chatweb:password@gai-e2e-backend-db:5432/chatweb?schema=public
+
+      # Encryption key for sensitive connector credentials (required for automations)
+      # This is a test key - DO NOT use in production
+      ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+
+      CRAWLER_CREDENTIALS_DIR: ./.crawler-credentials
+
+      # Backend config
+      GRAPHQL_API_KEY: TestKey
+      BACKEND_URL: http://gai-e2e-backend:3003
+      BACKEND_PUBLIC_URL: http://localhost:3013
+      PUBLIC_APP_URL: http://localhost:3011
+
+      # File Management
+      UPLOADS_PATH: /app/.test-uploads
+
+      # SMB Crawler Service
+      SMB_CRAWLER_URL: http://gai-e2e-smb-crawler:3006
+
+      # SMTP Email Configuration (optional - for notifications and contact forms)
+      SMTP_HOSTNAME: ${SMTP_HOSTNAME:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-noreply@george-ai.net}
+      SMTP_TEST_RECIPIENT: ${SMTP_TEST_RECIPIENT:-}
+
+      # Git
+      GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
+
+      # NATS
+      NATS_URL: nats://gai-e2e-nats:4222
+
+      # QDRANT
+      QDRANT_URL: http://gai-e2e-qdrant:6333
+
+    depends_on:
+      gai-e2e-backend:
+        condition: service_healthy
+      gai-e2e-nats:
+        condition: service_started
+      gai-e2e-qdrant:
+        condition: service_started
+    volumes:
+      - file-storage:/app/.test-uploads
+    networks:
+      - george-ai-e2e
+
 networks:
   george-ai-e2e:
     driver: bridge
 
 volumes:
   typesense-data-local:
+  nats-data:
+  qdrant-data:
+  file-storage:

@@ -421,7 +421,7 @@ async function globalSetup() {
 
       for (const file of filesResult.rows) {
         await client.query(
-          `INSERT INTO "AiListItem" (id, "listId", "sourceId", "sourceFileId", "itemName", "createdAt", "updatedAt")
+          `INSERT INTO "AiListItem" (id, "listId", "sourceId", "fileId", "itemName", "createdAt", "updatedAt")
            VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())`,
           [listId, sourceId, file.id, file.name],
         )

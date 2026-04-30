@@ -52,7 +52,7 @@ function RouteComponent() {
     isLoading: userProfileIsLoading,
     refetch: refetchProfile,
   } = useSuspenseQuery({
-    queryKey: [queryKeys.UserProfile, user.id],
+    queryKey: [queryKeys.UserProfile, user.userId],
     queryFn: () => getUserProfile(),
   })
 
@@ -63,7 +63,7 @@ function RouteComponent() {
 
   const activationLink = useLinkProps({
     to: '/admin/users/$userId',
-    params: { userId: user.id },
+    params: { userId: user.userId },
   })
 
   const { mutate: sendConfirmationMailMutation, isPending: sendConfirmationMailIsPending } = useMutation({

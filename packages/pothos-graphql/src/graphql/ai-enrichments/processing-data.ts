@@ -1,4 +1,5 @@
-import { EnrichmentMetadata } from '../../domain'
+import { EnrichmentMetadata } from '@george-ai/app-domain'
+
 import { builder } from '../builder'
 
 const AiEnrichmentTaskProcessingDataInput = builder

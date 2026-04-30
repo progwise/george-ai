@@ -19,21 +19,23 @@ const getItemDetail = createServerFn({ method: 'GET' })
             id
             itemName
             chunkCount
-            extractionIndex
-            metadata
-            contentUrl
-            sourceFileId
-            sourceFile {
+            fragment
+            extractionMethod
+            fileId
+            file {
               id
               name
               libraryId
             }
-            extraction {
-              extractionMethod
-              extractionMethodParameter
-              displayName
-              isBucketed
-              totalParts
+            fileInfo {
+              name
+              extractions {
+                extractionMethod
+              }
+            }
+            extractionInfo {
+              fragmentCount
+              hasFragments
             }
           }
         }

@@ -15,29 +15,34 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "prisma:generate": "prisma generate && prisma generate --sql",
-    "prisma:generate:client": "prisma generate",
-    "prisma:generate:client-only": "prisma generate --generator client",
-    "prisma:migrate": "prisma migrate deploy",
     "test": "vitest run"
   },
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
-    "@george-ai/web-utils": "workspace:*",
-    "@pothos/plugin-prisma": "^4.14.1",
-    "@types/node": "^25.0.3",
-    "@types/pg": "^8.16.0",
+    "@george-ai/test-utils": "workspace:*",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^22.13.8",
     "eslint": "^9.39.1",
-    "pg": "^8.16.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.44.1",
     "vitest": "^3.1.1"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
+    "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-schema": "workspace:*",
+    "@george-ai/app-database": "workspace:*",
+    "@george-ai/event-service-client": "workspace:*",
+    "@george-ai/file-converter": "workspace:*",
+    "@george-ai/file-management": "workspace:*",
+    "@george-ai/mailer": "workspace:*",
+    "@george-ai/markdown-splitter": "workspace:*",
+    "@george-ai/api-crawler": "workspace:*",
+    "@george-ai/html-crawler-client": "workspace:*",
+    "@george-ai/smb-crawler-client": "workspace:*",
+    "@george-ai/vector-store": "workspace:*",
+    "cron": "^4.3.0",
+    "bcrypt": "^6.0.0",
     "dotenv": "^16.4.5",
-    "pg": "^8.16.3",
-    "prisma": "^7.2.0"
+    "zod": "^3.23.8"
   }
 }

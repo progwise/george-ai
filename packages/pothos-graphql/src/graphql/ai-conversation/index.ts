@@ -1,4 +1,4 @@
-import { prisma } from '@george-ai/app-domain'
+import { prisma } from '@george-ai/app-database'
 
 import { builder } from '../builder'
 
@@ -79,8 +79,8 @@ builder.prismaObject('AiConversation', {
         })
       },
     }),
-    owner: t.relation('owner', { nullable: false }),
     ownerId: t.exposeString('ownerId', { nullable: false }),
+    owner: t.relation('owner', { nullable: false }),
     workspace: t.relation('workspace', { nullable: false }),
     workspaceId: t.exposeString('workspaceId', { nullable: false }),
   }),
@@ -106,7 +106,7 @@ builder.queryField('aiConversation', (t) =>
         (await prisma.aiConversationParticipant.findFirst({
           where: {
             conversationId,
-            OR: [{ userId: user.id }, { assistant: { ownerId: user.id } }],
+            userId: user.id,
           },
         })) != null
 

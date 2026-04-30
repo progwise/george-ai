@@ -4,7 +4,7 @@ import { useTranslation } from '../../../i18n/use-translation-hook'
 import { TrashIcon } from '../../../icons/trash-icon'
 import { DialogForm } from '../../dialog-form'
 import { LoadingSpinner } from '../../loading-spinner'
-import { useFileActions } from './use-file-actions'
+import { useLibraryActions } from '../use-library-actions'
 
 interface DropAllFilesDialogProps {
   libraryId: string
@@ -16,7 +16,7 @@ export const DropAllFilesDialog = ({ libraryId, totalItems }: DropAllFilesDialog
   const dialogRef = useRef<HTMLDialogElement>(null)
   const { t } = useTranslation()
 
-  const { dropAllFiles, fileActionPending: isPending } = useFileActions({ libraryId })
+  const { dropAllDocuments, isPending } = useLibraryActions(libraryId)
 
   const textOfDropButton = t('actions.dropAllFiles')
 
@@ -34,7 +34,7 @@ export const DropAllFilesDialog = ({ libraryId, totalItems }: DropAllFilesDialog
         title={t('libraries.dropAllFilesDialog')}
         description={t('texts.dropAllFilesDialogDescription')}
         onSubmit={() => {
-          dropAllFiles(libraryId)
+          dropAllDocuments(libraryId)
         }}
         submitButtonText={textOfDropButton}
       >
