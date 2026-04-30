@@ -1,8 +1,5 @@
 {
   "extends": "@george-ai/package-configs/tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "./dist"
-  },
-  "include": ["src"],
+  "include": ["./src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
