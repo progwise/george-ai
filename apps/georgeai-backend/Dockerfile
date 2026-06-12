@@ -108,6 +108,10 @@ COPY --from=builder --chown=server:nodejs /app/packages/app-database/prisma /app
 # Copy Prisma config file for Prisma v7 (needed to find datasource URL)
 COPY --from=builder --chown=server:nodejs /app/packages/app-database/prisma.config.ts /app/prisma.config.ts
 
+# Create symlinks for prisma CLI and package (pnpm deploy --prod hoists to .pnpm/node_modules but not top-level)
+RUN ln -s /app/node_modules/.pnpm/node_modules/prisma /app/node_modules/prisma && \
+    ln -s /app/node_modules/.pnpm/node_modules/.bin/prisma /app/node_modules/.bin/prisma
+
 # Create crawler credentials directory with proper permissions
 RUN mkdir -p /app/.crawler-credentials && chown -R server:nodejs /app/.crawler-credentials
 
