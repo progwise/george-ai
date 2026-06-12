@@ -70,6 +70,163 @@ const faqs = [
 
     <!-- Software Plans -->
     <div class="mb-16">
+      <h2 class="text-3xl font-bold text-center mb-2">Get your own Workspace</h2>
+      <p class="text-center text-base-content/70 mb-8">George Pro included</p>
+      <div class="grid md:grid-cols-2 gap-6">    
+
+      <!-- Cloud -->
+      <div class="card bg-primary text-primary-content shadow-xl border-4 border-primary">
+        <div class="card-body">
+          <span class="badge badge-secondary mb-2">Recommended</span>
+          <h2 class="text-3xl font-bold">Core</h2>
+          <span class="text-4xl font-bold mt-4">
+            7-Day Free
+          </span>
+          <span class="text-sm font-normal opacity-85">then €149 / month</span>
+
+          <div class="divider"></div>
+
+          <ul class="space-y-2 mb-6 text-sm">
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>Everything in Community</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Zero DevOps - We manage infrastructure</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>100 GB</strong> ingested data</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>10</strong> users included</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span class="text-xs opacity-70">Additional capacity available - contact sales</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>EU-hosted (GDPR compliant)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Automatic backups & updates</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Email support</span>
+            </li>
+          </ul>
+
+          <div class="card-actions">
+            
+            <button id="buy-btn-core" data-price-id="price_1TRu2UBqw3foifMLHYDieN1f" class="btn btn-secondary btn-block">Get started for free</button>
+
+            <script>
+              import { actions } from 'astro:actions'
+
+              document.getElementById('buy-btn-core')?.addEventListener('click', async (e) => {
+                const priceId = (e.currentTarget as HTMLElement).dataset.priceId!
+                const workspaceId = new URLSearchParams(window.location.search).get('workspaceId') ?? ''
+
+                const { data, error } = await actions.checkout({ priceId, quantity: 1, workspaceId, subscriptionType: 'core' })
+
+                if (error) {
+                  console.error('Checkout action failed:', error)
+                  return
+                }
+
+                window.location.href = data.url
+              })
+            </script>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Priority Support & AI Consulting -->
+      <div class="card bg-base-100 shadow-xl border-2 border-success">
+        <div class="card-body">
+          <span class="badge badge-success mb-2">Enterprise</span>
+          <h2 class="text-3xl font-bold">Pro</h2>
+          <span class="text-sm text-base-content/70">AI Consulting & Priority Support</span>
+          <div class="text-3xl font-bold my-2.75">
+            €499
+            <span class="text-base font-normal text-base-content/70">/ month</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <ul class="space-y-2 mb-6 text-sm">
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>Available for all plans</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>⚡ Priority support (4h response time)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>2 hours</strong> AI consulting per month</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Unused hours rollover (max 6h)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Monthly strategy call (30 min)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Direct Slack/Teams channel</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Quarterly AI readiness review</span>
+            </li>
+            <li class="flex items-start mb-0.5 gap-2 badge badge-xs opacity-0">
+            </li>
+          </ul>
+
+          <div class="card-actions">
+            <button id="buy-btn-pro" data-price-id="price_1TRuLfBqw3foifML619sOjia" class="btn btn-success btn-block">Upgrade</button>
+
+            <script>
+              import { actions } from 'astro:actions'
+
+              document.getElementById('buy-btn-pro')?.addEventListener('click', async (e) => {
+                const priceId = (e.currentTarget as HTMLElement).dataset.priceId!
+                const workspaceId = new URLSearchParams(window.location.search).get('workspaceId') ?? ''                
+
+                const { data, error } = await actions.checkout({ priceId, quantity: 1, workspaceId, subscriptionType: 'pro' })
+
+                if (error) {
+                  console.error('Checkout action failed:', error.message)
+                  return
+                }
+
+                window.location.href = data.url
+              })
+            </script>
+
+          </div>
+
+        </div>
+      </div>
+
+
+
+
+      </div>
+    </div>
+
+    <!-- Software Plans -->
+    <div class="mb-16">
       <h2 class="text-3xl font-bold text-center mb-2">Software Plans</h2>
       <p class="text-center text-base-content/70 mb-8">Choose the deployment model that fits your needs</p>
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">

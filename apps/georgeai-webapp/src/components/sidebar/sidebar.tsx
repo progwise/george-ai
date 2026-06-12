@@ -11,6 +11,7 @@ import { GearIcon } from '../../icons/gear-icon'
 import { LibraryIcon } from '../../icons/library-icon'
 import { LinkIcon } from '../../icons/link-icon'
 import { ListViewIcon } from '../../icons/list-view-icon'
+import { StarsIcon } from '../../icons/stars-icon'
 import { TrashIcon } from '../../icons/trash-icon'
 import { UserIcon } from '../../icons/user-icon'
 import { UsersIcon } from '../../icons/users-icon'
@@ -33,6 +34,7 @@ interface SidebarProps {
   newAutomationDialogRef: React.RefObject<HTMLDialogElement | null>
   createWorkspaceDialogRef: React.RefObject<HTMLDialogElement | null>
   deleteWorkspaceDialogRef: React.RefObject<HTMLDialogElement | null>
+  payWorkspaceDialogRef: React.RefObject<HTMLDialogElement | null>
 }
 
 export function Sidebar({
@@ -43,6 +45,7 @@ export function Sidebar({
   newAutomationDialogRef,
   createWorkspaceDialogRef,
   deleteWorkspaceDialogRef,
+  payWorkspaceDialogRef,
 }: SidebarProps) {
   const { t } = useTranslation()
   const membersDialogRef = useRef<HTMLDialogElement>(null)
@@ -202,6 +205,18 @@ export function Sidebar({
               </button>
             </li>
           )}
+          <li className="px-1">
+            <button
+              type="button"
+              onClick={() => payWorkspaceDialogRef.current?.showModal()}
+              className="flex h-9 w-full cursor-pointer items-center gap-2 rounded-lg p-2 pl-4 hover:bg-base-300 is-drawer-close:tooltip is-drawer-close:tooltip-right"
+              data-tip={t('workspace.pricingTitle')}
+              aria-label={t('workspace.pricingTitle')}
+            >
+              <StarsIcon className="mx-0 shrink-0" />
+              <span className="text-sm whitespace-nowrap is-drawer-close:hidden">{t('workspace.pricingTitle')}</span>
+            </button>
+          </li>
         </ul>
       </label>
 

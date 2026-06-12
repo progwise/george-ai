@@ -74,6 +74,7 @@ model Workspace {
   connectors      AiConnector[]
   automations     AiAutomation[]
   apiKeys         ApiKey[]
+  payments        Payment[]
 }
 
 model WorkspaceMember {
@@ -103,6 +104,16 @@ model WorkspaceInvitation {
 
   @@unique([workspaceId, email])
   @@index([email])
+}
+
+model Payment {
+  id               String   @id @default(cuid())
+  workspaceId      String?
+  subscriptionType String
+  validFrom        DateTime
+  validUntil       DateTime
+
+  workspace Workspace? @relation(fields: [workspaceId], references: [id])
 }
 
 model AiServiceProvider {

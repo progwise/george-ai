@@ -9,6 +9,7 @@ import { NewListDialog } from '../lists/new-list-dialog'
 import TopNavigation from '../top-navigation'
 import { CreateWorkspaceDialog } from '../workspace/create-workspace-dialog'
 import { DeleteWorkspaceDialog } from '../workspace/delete-workspace-dialog'
+import { PaymentWorkspaceDialog } from '../workspace/payment-workspace-dialog'
 import { Sidebar } from './sidebar'
 
 interface SidebarLayoutProps {
@@ -21,6 +22,7 @@ export function SidebarLayout({ user }: SidebarLayoutProps) {
   const newAutomationDialogRef = useRef<HTMLDialogElement | null>(null)
   const createWorkspaceRef = useRef<HTMLDialogElement>(null)
   const deleteWorkspaceDialogRef = useRef<HTMLDialogElement>(null)
+  const payWorkspaceDialogRef = useRef<HTMLDialogElement>(null)
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
@@ -54,6 +56,7 @@ export function SidebarLayout({ user }: SidebarLayoutProps) {
             newAutomationDialogRef={newAutomationDialogRef}
             createWorkspaceDialogRef={createWorkspaceRef}
             deleteWorkspaceDialogRef={deleteWorkspaceDialogRef}
+            payWorkspaceDialogRef={payWorkspaceDialogRef}
           />
 
           <NewLibraryDialog ref={newLibraryDialogRef} />
@@ -61,6 +64,7 @@ export function SidebarLayout({ user }: SidebarLayoutProps) {
           <NewAutomationDialog ref={newAutomationDialogRef} />
           <CreateWorkspaceDialog user={user} dialogRef={createWorkspaceRef} />
           <DeleteWorkspaceDialog user={user} ref={deleteWorkspaceDialogRef} />
+          <PaymentWorkspaceDialog user={user} ref={payWorkspaceDialogRef} />
         </>
       )}
     </div>

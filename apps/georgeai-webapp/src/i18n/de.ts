@@ -1188,6 +1188,10 @@ export default {
     namePlaceholder: 'Mein Arbeitsbereich',
     nameRequired: 'Arbeitsbereich-Name ist erforderlich',
     noWorkspaceSelected: 'Kein Arbeitsbereich ausgewählt',
+    paymentDescription: 'Besuche unsere Preisseite, um den passenden Plan für deinen Workspace auszuwählen.',
+    paymentTitle: 'Upgrade für {workspaceName} möglich',
+    pricing: 'Zu den Plänen',
+    pricingTitle: 'Upgrade Arbeitsbereich',
     selectWorkspace: 'Arbeitsbereich auswählen',
     settings: {
       title: 'Workspace Einstellungen',
