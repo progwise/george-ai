@@ -21,5 +21,5 @@ pnpm start
 ## Docker build
 
 ```bash
-docker build -f apps/georgeai-backend/Dockerfile -t smb-crawler .
+docker build -f apps/georgeai-backend/Dockerfile -t gai-backend .
 ```

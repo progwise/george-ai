@@ -21,7 +21,6 @@ RUN npm install -g corepack@0.31.0 && \
     corepack enable && \
     corepack prepare pnpm@9.15.4 --activate
 
-
 FROM base AS builder
 
 WORKDIR /app
@@ -30,19 +29,20 @@ COPY turbo.json ./
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/georgeai-backend/package.json ./apps/georgeai-backend/
 COPY packages/ai-act/package.json ./packages/ai-act/
-COPY packages/ai-service-client/package.json ./packages/ai-service-client/
 COPY packages/api-crawler/package.json ./packages/api-crawler/
-COPY packages/app-domain/package.json ./packages/app-domain/
 COPY packages/app-commons/package.json ./packages/app-commons/
 COPY packages/app-database/package.json ./packages/app-database/
 COPY packages/app-domain/package.json ./packages/app-domain/
+COPY packages/app-schema/package.json ./packages/app-schema/
 COPY packages/connector-types/package.json ./packages/connector-types/
 COPY packages/event-service-client/package.json ./packages/event-service-client/
 COPY packages/file-converter/package.json ./packages/file-converter/
 COPY packages/file-management/package.json ./packages/file-management/
 COPY packages/html-crawler-client/package.json ./packages/html-crawler-client/
 COPY packages/langchain-chat/package.json ./packages/langchain-chat/
+COPY packages/llm-client/package.json ./packages/llm-client/
 COPY packages/mailer/package.json ./packages/mailer/
+COPY packages/markdown-splitter/package.json ./packages/markdown-splitter/
 COPY packages/package-configs/package.json ./packages/package-configs/
 COPY packages/pothos-graphql/package.json ./packages/pothos-graphql/
 COPY packages/smb-crawler-client/package.json ./packages/smb-crawler-client/
@@ -57,18 +57,20 @@ COPY LICENSE ./
 # Copy only the source files for packages that backend depends on
 COPY apps/georgeai-backend ./apps/georgeai-backend
 COPY packages/ai-act ./packages/ai-act
-COPY packages/ai-service-client ./packages/ai-service-client
 COPY packages/api-crawler ./packages/api-crawler
 COPY packages/app-commons ./packages/app-commons
 COPY packages/app-database ./packages/app-database
 COPY packages/app-domain ./packages/app-domain
+COPY packages/app-schema ./packages/app-schema
 COPY packages/connector-types ./packages/connector-types
 COPY packages/event-service-client ./packages/event-service-client
 COPY packages/file-converter ./packages/file-converter
 COPY packages/file-management ./packages/file-management
 COPY packages/html-crawler-client ./packages/html-crawler-client
 COPY packages/langchain-chat ./packages/langchain-chat
+COPY packages/llm-client ./packages/llm-client
 COPY packages/mailer ./packages/mailer
+COPY packages/markdown-splitter ./packages/markdown-splitter
 COPY packages/package-configs ./packages/package-configs
 COPY packages/pothos-graphql ./packages/pothos-graphql
 COPY packages/smb-crawler-client ./packages/smb-crawler-client
