@@ -21,5 +21,11 @@ pnpm start
 ## Docker build
 
 ```bash
-docker build -f apps/georgeai-backend/Dockerfile -t gai-backend .
+docker build -f apps/georgeai-backend/Dockerfile -t gai-backend:local .
+```
+
+## Docker run
+
+```bash
+docker run --rm -p 3003:3003 gai-backend:local
 ```
