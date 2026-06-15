@@ -126,9 +126,6 @@ importers:
       nodemailer:
         specifier: ^7.0.11
         version: 7.0.13
-      pg:
-        specifier: ^8.20.0
-        version: 8.20.0
       reading-time:
         specifier: ^1.5.0
         version: 1.5.0

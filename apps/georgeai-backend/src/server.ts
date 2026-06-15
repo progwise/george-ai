@@ -4,10 +4,8 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import { createYoga } from 'graphql-yoga'
-import Stripe from 'stripe'
 
 import { getConfigReport } from '@george-ai/app-commons'
-import { createPayment } from '@george-ai/app-domain'
 import { schema } from '@george-ai/pothos-graphql'
 
 import { assistantIconMiddleware } from './assistant-icon-middleware'
@@ -17,6 +15,7 @@ import { getUserContext } from './get-user-context'
 import { handleDownloadGet } from './handle-download-get'
 import { handleFileGet } from './handle-file-get'
 import { handleUploadPost } from './handle-upload-post'
+import { stripeWebhook } from './stripe-webhook'
 import { userAvatarMiddleware } from './user-avatar-middleware'
 
 logger.info('*** Starting GeorgeAi backend server ***')
@@ -71,6 +70,7 @@ app.post('/upload', handleUploadPost)
 app.get('/download', handleDownloadGet)
 app.get('/library-files/:libraryId/:fileId', handleFileGet)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
+app.post('/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook)
 
 // Only check API key or user JWT for /graphql POST requests
 app.use('/graphql', (req, res, next) => {
@@ -135,43 +135,6 @@ const shutdown = async (signal: string) => {
     process.exit(1)
   }, 5000)
 }
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
-app.post('/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  const sig = req.headers['stripe-signature']
-
-  if (!sig) {
-    res.status(400).send('No signature')
-    return
-  }
-
-  let event: Stripe.Event
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
-  } catch (err) {
-    logger.error('[stripe-webhook] Signature verification failed:', err)
-    res.status(400).send('Webhook signature invalid')
-    return
-  }
-
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
-    const workspaceId = session.metadata?.workspaceId || undefined
-    const subscriptionType = session.metadata?.subscriptionType
-    const item = subscription.items.data[0]
-
-    await createPayment({
-      workspaceId,
-      subscriptionType: subscriptionType ?? 'subscriptionTypeMissing',
-      validFrom: new Date(item.current_period_start * 1000),
-      validUntil: new Date(item.current_period_end * 1000),
-    })
-  }
-
-  res.send('ok')
-})
 
 process.on('SIGTERM', () => shutdown('SIGTERM'))
 process.on('SIGINT', () => shutdown('SIGINT'))
