@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro'
+const webappUrl = import.meta.env.WEBAPP_URL || 'http://localhost:3001'
+---
+
+<Layout title="Payment Successful - George-AI" description="Payment confirmed">
+  <div class="max-w-6xl mt-8 mx-auto text-center">
+    <h1 class="text-4xl font-bold mb-4">Payment Successful</h1>
+    <p class="text-base-content/70 mb-8">Your workspace will be available within a few minutes. Check your email for confirmation.</p>
+    <a href={`${webappUrl}/overview`}>Go back to workspaces</a>
+  </div>
+</Layout>

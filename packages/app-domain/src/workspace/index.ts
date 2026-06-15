@@ -1,4 +1,5 @@
 import { SYSTEM_WORKSPACE_ID } from './common'
+import { createPayment } from './create-payment'
 import { createWorkspace } from './create-workspace'
 import { deleteWorkspace } from './delete-workspace'
 import { ensureSystemWorkspace } from './ensureSystemWorkspace'
@@ -23,6 +24,7 @@ export default {
   sendWorkspaceInvitationEmail,
   INVITATION_EXPIRY_DAYS,
   SYSTEM_WORKSPACE_ID,
+  createPayment,
 }
 
 export {
@@ -38,4 +40,5 @@ export {
   sendWorkspaceInvitationEmail,
   INVITATION_EXPIRY_DAYS,
   SYSTEM_WORKSPACE_ID,
+  createPayment,
 }

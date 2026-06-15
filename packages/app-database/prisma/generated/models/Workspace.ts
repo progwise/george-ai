@@ -192,6 +192,7 @@ export type WorkspaceWhereInput = {
   connectors?: Prisma.AiConnectorListRelationFilter
   automations?: Prisma.AiAutomationListRelationFilter
   apiKeys?: Prisma.ApiKeyListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
 }
 
 export type WorkspaceOrderByWithRelationInput = {
@@ -213,6 +214,7 @@ export type WorkspaceOrderByWithRelationInput = {
   connectors?: Prisma.AiConnectorOrderByRelationAggregateInput
   automations?: Prisma.AiAutomationOrderByRelationAggregateInput
   apiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
+  payments?: Prisma.PaymentOrderByRelationAggregateInput
 }
 
 export type WorkspaceWhereUniqueInput = Prisma.AtLeast<
@@ -238,6 +240,7 @@ export type WorkspaceWhereUniqueInput = Prisma.AtLeast<
     connectors?: Prisma.AiConnectorListRelationFilter
     automations?: Prisma.AiAutomationListRelationFilter
     apiKeys?: Prisma.ApiKeyListRelationFilter
+    payments?: Prisma.PaymentListRelationFilter
   },
   'id' | 'slug'
 >
@@ -283,6 +286,7 @@ export type WorkspaceCreateInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateInput = {
@@ -304,6 +308,7 @@ export type WorkspaceUncheckedCreateInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUpdateInput = {
@@ -325,6 +330,7 @@ export type WorkspaceUpdateInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateInput = {
@@ -346,6 +352,7 @@ export type WorkspaceUncheckedUpdateInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateManyInput = {
@@ -399,6 +406,11 @@ export type WorkspaceMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+}
+
+export type WorkspaceNullableScalarRelationFilter = {
+  is?: Prisma.WorkspaceWhereInput | null
+  isNot?: Prisma.WorkspaceWhereInput | null
 }
 
 export type WorkspaceCreateNestedOneWithoutDefaultForUsersInput = {
@@ -467,6 +479,25 @@ export type WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput = {
       Prisma.WorkspaceUpdateWithoutInvitationsInput
     >,
     Prisma.WorkspaceUncheckedUpdateWithoutInvitationsInput
+  >
+}
+
+export type WorkspaceCreateNestedOneWithoutPaymentsInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutPaymentsInput, Prisma.WorkspaceUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutPaymentsInput
+  connect?: Prisma.WorkspaceWhereUniqueInput
+}
+
+export type WorkspaceUpdateOneWithoutPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutPaymentsInput, Prisma.WorkspaceUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutPaymentsInput
+  upsert?: Prisma.WorkspaceUpsertWithoutPaymentsInput
+  disconnect?: Prisma.WorkspaceWhereInput | boolean
+  delete?: Prisma.WorkspaceWhereInput | boolean
+  connect?: Prisma.WorkspaceWhereUniqueInput
+  update?: Prisma.XOR<
+    Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutPaymentsInput, Prisma.WorkspaceUpdateWithoutPaymentsInput>,
+    Prisma.WorkspaceUncheckedUpdateWithoutPaymentsInput
   >
 }
 
@@ -712,6 +743,7 @@ export type WorkspaceCreateWithoutDefaultForUsersInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutDefaultForUsersInput = {
@@ -732,6 +764,7 @@ export type WorkspaceUncheckedCreateWithoutDefaultForUsersInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutDefaultForUsersInput = {
@@ -780,6 +813,7 @@ export type WorkspaceUpdateWithoutDefaultForUsersInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutDefaultForUsersInput = {
@@ -800,6 +834,7 @@ export type WorkspaceUncheckedUpdateWithoutDefaultForUsersInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutMembersInput = {
@@ -820,6 +855,7 @@ export type WorkspaceCreateWithoutMembersInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutMembersInput = {
@@ -840,6 +876,7 @@ export type WorkspaceUncheckedCreateWithoutMembersInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutMembersInput = {
@@ -876,6 +913,7 @@ export type WorkspaceUpdateWithoutMembersInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutMembersInput = {
@@ -896,6 +934,7 @@ export type WorkspaceUncheckedUpdateWithoutMembersInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutInvitationsInput = {
@@ -916,6 +955,7 @@ export type WorkspaceCreateWithoutInvitationsInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
@@ -936,6 +976,7 @@ export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutInvitationsInput = {
@@ -984,6 +1025,7 @@ export type WorkspaceUpdateWithoutInvitationsInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
@@ -999,6 +1041,107 @@ export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
   lists?: Prisma.AiListUncheckedUpdateManyWithoutWorkspaceNestedInput
   conversations?: Prisma.AiConversationUncheckedUpdateManyWithoutWorkspaceNestedInput
   members?: Prisma.WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+  defaultForUsers?: Prisma.UserUncheckedUpdateManyWithoutDefaultWorkspaceNestedInput
+  connectorTypes?: Prisma.AiConnectorTypeWorkspaceUncheckedUpdateManyWithoutWorkspaceNestedInput
+  connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
+  automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceCreateWithoutPaymentsInput = {
+  id?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  name: string
+  slug: string
+  providers?: Prisma.AiServiceProviderCreateNestedManyWithoutWorkspaceInput
+  languageModels?: Prisma.AiLanguageModelCreateNestedManyWithoutWorkspaceInput
+  libraries?: Prisma.AiLibraryCreateNestedManyWithoutWorkspaceInput
+  assistants?: Prisma.AiAssistantCreateNestedManyWithoutWorkspaceInput
+  lists?: Prisma.AiListCreateNestedManyWithoutWorkspaceInput
+  conversations?: Prisma.AiConversationCreateNestedManyWithoutWorkspaceInput
+  members?: Prisma.WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+  defaultForUsers?: Prisma.UserCreateNestedManyWithoutDefaultWorkspaceInput
+  connectorTypes?: Prisma.AiConnectorTypeWorkspaceCreateNestedManyWithoutWorkspaceInput
+  connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
+  automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceUncheckedCreateWithoutPaymentsInput = {
+  id?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  name: string
+  slug: string
+  providers?: Prisma.AiServiceProviderUncheckedCreateNestedManyWithoutWorkspaceInput
+  languageModels?: Prisma.AiLanguageModelUncheckedCreateNestedManyWithoutWorkspaceInput
+  libraries?: Prisma.AiLibraryUncheckedCreateNestedManyWithoutWorkspaceInput
+  assistants?: Prisma.AiAssistantUncheckedCreateNestedManyWithoutWorkspaceInput
+  lists?: Prisma.AiListUncheckedCreateNestedManyWithoutWorkspaceInput
+  conversations?: Prisma.AiConversationUncheckedCreateNestedManyWithoutWorkspaceInput
+  members?: Prisma.WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+  defaultForUsers?: Prisma.UserUncheckedCreateNestedManyWithoutDefaultWorkspaceInput
+  connectorTypes?: Prisma.AiConnectorTypeWorkspaceUncheckedCreateNestedManyWithoutWorkspaceInput
+  connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
+  automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+}
+
+export type WorkspaceCreateOrConnectWithoutPaymentsInput = {
+  where: Prisma.WorkspaceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutPaymentsInput, Prisma.WorkspaceUncheckedCreateWithoutPaymentsInput>
+}
+
+export type WorkspaceUpsertWithoutPaymentsInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutPaymentsInput, Prisma.WorkspaceUncheckedUpdateWithoutPaymentsInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutPaymentsInput, Prisma.WorkspaceUncheckedCreateWithoutPaymentsInput>
+  where?: Prisma.WorkspaceWhereInput
+}
+
+export type WorkspaceUpdateToOneWithWhereWithoutPaymentsInput = {
+  where?: Prisma.WorkspaceWhereInput
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutPaymentsInput, Prisma.WorkspaceUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type WorkspaceUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  providers?: Prisma.AiServiceProviderUpdateManyWithoutWorkspaceNestedInput
+  languageModels?: Prisma.AiLanguageModelUpdateManyWithoutWorkspaceNestedInput
+  libraries?: Prisma.AiLibraryUpdateManyWithoutWorkspaceNestedInput
+  assistants?: Prisma.AiAssistantUpdateManyWithoutWorkspaceNestedInput
+  lists?: Prisma.AiListUpdateManyWithoutWorkspaceNestedInput
+  conversations?: Prisma.AiConversationUpdateManyWithoutWorkspaceNestedInput
+  members?: Prisma.WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+  defaultForUsers?: Prisma.UserUpdateManyWithoutDefaultWorkspaceNestedInput
+  connectorTypes?: Prisma.AiConnectorTypeWorkspaceUpdateManyWithoutWorkspaceNestedInput
+  connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
+  automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+}
+
+export type WorkspaceUncheckedUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  providers?: Prisma.AiServiceProviderUncheckedUpdateManyWithoutWorkspaceNestedInput
+  languageModels?: Prisma.AiLanguageModelUncheckedUpdateManyWithoutWorkspaceNestedInput
+  libraries?: Prisma.AiLibraryUncheckedUpdateManyWithoutWorkspaceNestedInput
+  assistants?: Prisma.AiAssistantUncheckedUpdateManyWithoutWorkspaceNestedInput
+  lists?: Prisma.AiListUncheckedUpdateManyWithoutWorkspaceNestedInput
+  conversations?: Prisma.AiConversationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  members?: Prisma.WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+  invitations?: Prisma.WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   defaultForUsers?: Prisma.UserUncheckedUpdateManyWithoutDefaultWorkspaceNestedInput
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUncheckedUpdateManyWithoutWorkspaceNestedInput
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -1024,6 +1167,7 @@ export type WorkspaceCreateWithoutProvidersInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutProvidersInput = {
@@ -1044,6 +1188,7 @@ export type WorkspaceUncheckedCreateWithoutProvidersInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutProvidersInput = {
@@ -1080,6 +1225,7 @@ export type WorkspaceUpdateWithoutProvidersInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutProvidersInput = {
@@ -1100,6 +1246,7 @@ export type WorkspaceUncheckedUpdateWithoutProvidersInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutAssistantsInput = {
@@ -1120,6 +1267,7 @@ export type WorkspaceCreateWithoutAssistantsInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutAssistantsInput = {
@@ -1140,6 +1288,7 @@ export type WorkspaceUncheckedCreateWithoutAssistantsInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutAssistantsInput = {
@@ -1185,6 +1334,7 @@ export type WorkspaceUpdateWithoutAssistantsInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutAssistantsInput = {
@@ -1205,6 +1355,7 @@ export type WorkspaceUncheckedUpdateWithoutAssistantsInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutLibrariesInput = {
@@ -1225,6 +1376,7 @@ export type WorkspaceCreateWithoutLibrariesInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutLibrariesInput = {
@@ -1245,6 +1397,7 @@ export type WorkspaceUncheckedCreateWithoutLibrariesInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutLibrariesInput = {
@@ -1281,6 +1434,7 @@ export type WorkspaceUpdateWithoutLibrariesInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutLibrariesInput = {
@@ -1301,6 +1455,7 @@ export type WorkspaceUncheckedUpdateWithoutLibrariesInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutListsInput = {
@@ -1321,6 +1476,7 @@ export type WorkspaceCreateWithoutListsInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutListsInput = {
@@ -1341,6 +1497,7 @@ export type WorkspaceUncheckedCreateWithoutListsInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutListsInput = {
@@ -1377,6 +1534,7 @@ export type WorkspaceUpdateWithoutListsInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutListsInput = {
@@ -1397,6 +1555,7 @@ export type WorkspaceUncheckedUpdateWithoutListsInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutConversationsInput = {
@@ -1417,6 +1576,7 @@ export type WorkspaceCreateWithoutConversationsInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutConversationsInput = {
@@ -1437,6 +1597,7 @@ export type WorkspaceUncheckedCreateWithoutConversationsInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutConversationsInput = {
@@ -1485,6 +1646,7 @@ export type WorkspaceUpdateWithoutConversationsInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutConversationsInput = {
@@ -1505,6 +1667,7 @@ export type WorkspaceUncheckedUpdateWithoutConversationsInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutApiKeysInput = {
@@ -1525,6 +1688,7 @@ export type WorkspaceCreateWithoutApiKeysInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceCreateNestedManyWithoutWorkspaceInput
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutApiKeysInput = {
@@ -1545,6 +1709,7 @@ export type WorkspaceUncheckedCreateWithoutApiKeysInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUncheckedCreateNestedManyWithoutWorkspaceInput
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutApiKeysInput = {
@@ -1581,6 +1746,7 @@ export type WorkspaceUpdateWithoutApiKeysInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUpdateManyWithoutWorkspaceNestedInput
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutApiKeysInput = {
@@ -1601,6 +1767,7 @@ export type WorkspaceUncheckedUpdateWithoutApiKeysInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUncheckedUpdateManyWithoutWorkspaceNestedInput
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutLanguageModelsInput = {
@@ -1621,6 +1788,7 @@ export type WorkspaceCreateWithoutLanguageModelsInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutLanguageModelsInput = {
@@ -1641,6 +1809,7 @@ export type WorkspaceUncheckedCreateWithoutLanguageModelsInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutLanguageModelsInput = {
@@ -1689,6 +1858,7 @@ export type WorkspaceUpdateWithoutLanguageModelsInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutLanguageModelsInput = {
@@ -1709,6 +1879,7 @@ export type WorkspaceUncheckedUpdateWithoutLanguageModelsInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutConnectorTypesInput = {
@@ -1729,6 +1900,7 @@ export type WorkspaceCreateWithoutConnectorTypesInput = {
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutConnectorTypesInput = {
@@ -1749,6 +1921,7 @@ export type WorkspaceUncheckedCreateWithoutConnectorTypesInput = {
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutConnectorTypesInput = {
@@ -1797,6 +1970,7 @@ export type WorkspaceUpdateWithoutConnectorTypesInput = {
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutConnectorTypesInput = {
@@ -1817,6 +1991,7 @@ export type WorkspaceUncheckedUpdateWithoutConnectorTypesInput = {
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutConnectorsInput = {
@@ -1837,6 +2012,7 @@ export type WorkspaceCreateWithoutConnectorsInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutConnectorsInput = {
@@ -1857,6 +2033,7 @@ export type WorkspaceUncheckedCreateWithoutConnectorsInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUncheckedCreateNestedManyWithoutWorkspaceInput
   automations?: Prisma.AiAutomationUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutConnectorsInput = {
@@ -1902,6 +2079,7 @@ export type WorkspaceUpdateWithoutConnectorsInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutConnectorsInput = {
@@ -1922,6 +2100,7 @@ export type WorkspaceUncheckedUpdateWithoutConnectorsInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUncheckedUpdateManyWithoutWorkspaceNestedInput
   automations?: Prisma.AiAutomationUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceCreateWithoutAutomationsInput = {
@@ -1942,6 +2121,7 @@ export type WorkspaceCreateWithoutAutomationsInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceCreateNestedManyWithoutWorkspaceInput
   connectors?: Prisma.AiConnectorCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceUncheckedCreateWithoutAutomationsInput = {
@@ -1962,6 +2142,7 @@ export type WorkspaceUncheckedCreateWithoutAutomationsInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUncheckedCreateNestedManyWithoutWorkspaceInput
   connectors?: Prisma.AiConnectorUncheckedCreateNestedManyWithoutWorkspaceInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutWorkspaceInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
 export type WorkspaceCreateOrConnectWithoutAutomationsInput = {
@@ -2010,6 +2191,7 @@ export type WorkspaceUpdateWithoutAutomationsInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUpdateManyWithoutWorkspaceNestedInput
   connectors?: Prisma.AiConnectorUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutWorkspaceNestedInput
 }
 
 export type WorkspaceUncheckedUpdateWithoutAutomationsInput = {
@@ -2030,6 +2212,7 @@ export type WorkspaceUncheckedUpdateWithoutAutomationsInput = {
   connectorTypes?: Prisma.AiConnectorTypeWorkspaceUncheckedUpdateManyWithoutWorkspaceNestedInput
   connectors?: Prisma.AiConnectorUncheckedUpdateManyWithoutWorkspaceNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutWorkspaceNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
 /**
@@ -2050,6 +2233,7 @@ export type WorkspaceCountOutputType = {
   connectors: number
   automations: number
   apiKeys: number
+  payments: number
 }
 
 export type WorkspaceCountOutputTypeSelect<
@@ -2068,6 +2252,7 @@ export type WorkspaceCountOutputTypeSelect<
   connectors?: boolean | WorkspaceCountOutputTypeCountConnectorsArgs
   automations?: boolean | WorkspaceCountOutputTypeCountAutomationsArgs
   apiKeys?: boolean | WorkspaceCountOutputTypeCountApiKeysArgs
+  payments?: boolean | WorkspaceCountOutputTypeCountPaymentsArgs
 }
 
 /**
@@ -2199,6 +2384,15 @@ export type WorkspaceCountOutputTypeCountApiKeysArgs<
   where?: Prisma.ApiKeyWhereInput
 }
 
+/**
+ * WorkspaceCountOutputType without action
+ */
+export type WorkspaceCountOutputTypeCountPaymentsArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs,
+> = {
+  where?: Prisma.PaymentWhereInput
+}
+
 export type WorkspaceSelect<
   ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs,
 > = runtime.Types.Extensions.GetSelect<
@@ -2221,6 +2415,7 @@ export type WorkspaceSelect<
     connectors?: boolean | Prisma.Workspace$connectorsArgs<ExtArgs>
     automations?: boolean | Prisma.Workspace$automationsArgs<ExtArgs>
     apiKeys?: boolean | Prisma.Workspace$apiKeysArgs<ExtArgs>
+    payments?: boolean | Prisma.Workspace$paymentsArgs<ExtArgs>
     _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   },
   ExtArgs['result']['workspace']
@@ -2279,6 +2474,7 @@ export type WorkspaceInclude<
   connectors?: boolean | Prisma.Workspace$connectorsArgs<ExtArgs>
   automations?: boolean | Prisma.Workspace$automationsArgs<ExtArgs>
   apiKeys?: boolean | Prisma.Workspace$apiKeysArgs<ExtArgs>
+  payments?: boolean | Prisma.Workspace$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkspaceIncludeCreateManyAndReturn<
@@ -2306,6 +2502,7 @@ export type $WorkspacePayload<
     connectors: Prisma.$AiConnectorPayload<ExtArgs>[]
     automations: Prisma.$AiAutomationPayload<ExtArgs>[]
     apiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
+    payments: Prisma.$PaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
@@ -2854,6 +3051,11 @@ export interface Prisma__WorkspaceClient<
     args?: Prisma.Subset<T, Prisma.Workspace$apiKeysArgs<ExtArgs>>,
   ): Prisma.PrismaPromise<
     runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, 'findMany', GlobalOmitOptions> | Null
+  >
+  payments<T extends Prisma.Workspace$paymentsArgs<ExtArgs> = {}>(
+    args?: Prisma.Subset<T, Prisma.Workspace$paymentsArgs<ExtArgs>>,
+  ): Prisma.PrismaPromise<
+    runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, 'findMany', GlobalOmitOptions> | Null
   >
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -3648,6 +3850,32 @@ export type Workspace$apiKeysArgs<
   take?: number
   skip?: number
   distinct?: Prisma.ApiKeyScalarFieldEnum | Prisma.ApiKeyScalarFieldEnum[]
+}
+
+/**
+ * Workspace.payments
+ */
+export type Workspace$paymentsArgs<
+  ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs,
+> = {
+  /**
+   * Select specific fields to fetch from the Payment
+   */
+  select?: Prisma.PaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payment
+   */
+  omit?: Prisma.PaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentInclude<ExtArgs> | null
+  where?: Prisma.PaymentWhereInput
+  orderBy?: Prisma.PaymentOrderByWithRelationInput | Prisma.PaymentOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
 }
 
 /**

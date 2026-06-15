@@ -16,10 +16,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@george-ai/file-management": "workspace:*",
-    "@george-ai/app-domain": "workspace:*",
     "@george-ai/app-commons": "workspace:*",
+    "@george-ai/app-domain": "workspace:*",
     "@george-ai/app-schema": "workspace:*",
+    "@george-ai/file-management": "workspace:*",
     "@george-ai/pothos-graphql": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -28,6 +28,7 @@
     "graphql": "^16.11.0",
     "graphql-yoga": "^5.16.0",
     "jsonwebtoken": "^9.0.2",
+    "stripe": "21.0.1",
     "tsx": "^4.20.6"
   },
   "devDependencies": {

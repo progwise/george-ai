@@ -1167,6 +1167,10 @@ export default {
     namePlaceholder: 'My Workspace',
     nameRequired: 'Workspace name is required',
     noWorkspaceSelected: 'No workspace selected',
+    paymentDescription: 'Head over to our pricing page to choose the right plan for your workspace.',
+    paymentTitle: 'Upgrade for workspace {workspaceName} available',
+    pricing: 'Go to pricing',
+    pricingTitle: 'Upgrade workspace',
     selectWorkspace: 'Select Workspace',
     settings: {
       title: 'Workspace Settings',
