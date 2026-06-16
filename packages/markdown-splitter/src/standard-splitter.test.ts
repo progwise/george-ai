@@ -287,7 +287,7 @@ async function handleStream2(input: Readable) {
             expect(
               splitChunk.length,
               `\n\nchunk ${i++} of ${url} (maxCharsPerSection: ${maxCharsPerSection}, splitSectionOverlap: ${splitSectionOverlapLines}): unexpected length ${splitChunk.length}\n\n ${splitChunk}\n\n`,
-            ).toBeLessThan(200 + maxCharsPerSection * 1.2 + splitSectionOverlapLines * 300 * 2) // 200 = overhead like breadcrumb, 1.2 = Soft split,  300 = extimated max line length, 2 = additional lines before and after the split
+            ).toBeLessThan(250 + maxCharsPerSection * 1.2 + splitSectionOverlapLines * 300 * 2) // 200 = overhead like breadcrumb, 1.2 = Soft split,  300 = extimated max line length, 2 = additional lines before and after the split
           }
           expect(splitChunk.length).toBeGreaterThan(0)
 

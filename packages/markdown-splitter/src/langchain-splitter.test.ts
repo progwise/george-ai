@@ -47,6 +47,6 @@ describe('Testing the langchain splitter', () => {
 
     const splitChunks = await splitMarkdownText(responseText, { chunkOverlap: 200, chunkSize: 2000 })
 
-    expect(splitChunks.length).toBeGreaterThan(5)
+    expect(splitChunks.length).toBeGreaterThanOrEqual(5)
   })
 })

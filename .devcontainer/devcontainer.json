@@ -8,9 +8,13 @@
     "ghcr.io/devcontainers/features/common-utils:2": {
       "configureZshAsDefaultShell": true,
       "installZsh": "true"
+    },
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:3": {
+      "version": "latest",
+      "moby": "false"
     }
   },
-
   "customizations": {
     "vscode": {
       "extensions": [
@@ -27,9 +31,7 @@
     }
   },
 
-  "postCreateCommand": "pnpm install; curl -sS https://starship.rs/install.sh | sh -s -- -y && echo 'eval \"$(starship init zsh)\"' >> ~/.zshrc",
-
-  "postStartCommand": "sudo service ssh start"
+  "postCreateCommand": "pnpm install; curl -sS https://starship.rs/install.sh | sh -s -- -y && echo 'eval \"$(starship init zsh)\"' >> ~/.zshrc"
 
   // Configure tool-specific properties.
   // "customizations": {},
