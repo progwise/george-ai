@@ -14,7 +14,7 @@ This is a static marketing site showcasing George AI's features, use cases, and 
 - **Tailwind CSS v4** - Utility-first CSS framework
 - **DaisyUI** - Tailwind CSS component library
 - **TypeScript** - Type safety
-- **Nginx** - Production web server (Docker)
+- **Node.js** - Production web server (Docker, via Astro Node adapter)
 
 ## Project Structure
 
@@ -79,30 +79,29 @@ pnpm astro --help
 
 ## Docker Deployment
 
-The marketing site is deployed as a static site served by Nginx.
+The marketing site is deployed as a Node.js server using the Astro Node adapter.
 
 ### Building the Docker Image
 
 **Important:** Build from the repository root to include monorepo dependencies:
 
 ```bash
-docker build -f apps/georgeai-web/Dockerfile -t george-ai-web:local .
+docker build -f apps/georgeai-web/Dockerfile -t georgeai-web:local .
 ```
 
 ### Running the Docker Container
 
 ```bash
-docker run -p 8080:8080 george-ai-web:local
+docker run --rm -p 4321:4321 georgeai-web:local
 ```
 
-The site will be available at http://localhost:8080
+The site will be available at http://localhost:4321
 
 ### Security Features
 
-- **Non-root user**: Runs as user `nginx-user` (uid 1001)
-- **Non-privileged port**: Listens on port 8080 instead of 80
+- **Non-root user**: Runs as user `nodejs` (uid 1001)
 - **Health checks**: Built-in health check endpoint
-- **Minimal image**: Uses nginx:alpine for small footprint
+- **Minimal image**: Uses node:22-slim for small footprint
 
 ## Configuration
 

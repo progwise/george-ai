@@ -22,8 +22,7 @@ services:
     ports:
       - '3001:3001'
       - '3003:3003'
-      - '2222:22' # SSH access to container for development
-      - '4242:4242'
+      - '2222:2222' # SSH access to container for development
 
   gai-nats:
     build:

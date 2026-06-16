@@ -13,7 +13,6 @@
     "format": "{ git diff --name-only; git diff --staged --name-only; git ls-files --others --exclude-standard; } | sort -u | xargs -r prettier --write --ignore-unknown",
     "format:all": "prettier --write .",
     "format:check": "prettier --check .",
-    "codegen": "node codegen.ts",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "typecheck": "turbo run typecheck",
