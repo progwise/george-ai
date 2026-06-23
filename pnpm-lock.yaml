@@ -342,6 +342,43 @@ importers:
         specifier: ^5.1.4
         version: 5.1.4(typescript@5.9.3)(vite@7.3.1(@types/node@22.19.15)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
 
+  e2e-tests:
+    dependencies:
+      '@playwright/test':
+        specifier: ^1.52.0
+        version: 1.58.2
+      pg:
+        specifier: ^8.13.1
+        version: 8.20.0
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.25.1
+        version: 9.39.4
+      '@types/node':
+        specifier: ^22.13.8
+        version: 22.19.15
+      '@types/pg':
+        specifier: ^8.11.10
+        version: 8.20.0
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.6.1
+      eslint:
+        specifier: ^9.39.1
+        version: 9.39.4(jiti@2.6.1)
+      globals:
+        specifier: ^16.0.0
+        version: 16.5.0
+      stripe:
+        specifier: 21.0.1
+        version: 21.0.1(@types/node@22.19.15)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.44.1
+        version: 8.57.2(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+
   packages/ai-act:
     devDependencies:
       '@george-ai/package-configs':
@@ -21099,6 +21136,10 @@ snapshots:
   strip-literal@3.1.0:
     dependencies:
       js-tokens: 9.0.1
+
+  stripe@21.0.1(@types/node@22.19.15):
+    optionalDependencies:
+      '@types/node': 22.19.15
 
   stripe@21.0.1(@types/node@24.12.0):
     optionalDependencies:

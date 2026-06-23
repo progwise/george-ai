@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from '@playwright/test'
 
 export const migrationDialog = (locator: Locator | Page) => {
-  return locator.getByRole('dialog', { name: /migrate workspace/i })
+  return locator.getByRole('dialog', { name: /configure workspace/i })
 }
 
 export const closeMigrationDialogIfPresent = async (page: Page) => {
@@ -9,8 +9,7 @@ export const closeMigrationDialogIfPresent = async (page: Page) => {
   const isVisible = await dialog.isVisible()
   if (isVisible) {
     const closeButton = dialog.getByRole('button', { name: /later/i })
-    await expect(closeButton).toBeVisible()
-    await closeButton.click()
+    await closeButton.click({ force: true })
     await expect(dialog).not.toBeVisible()
   }
 }

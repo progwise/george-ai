@@ -268,7 +268,6 @@ async function globalSetup() {
     const createWorkspaceTestData = async (
       workspaceId: string,
       workspaceNum: number,
-      ownerId: string,
       preferredProvider: 'openai' | 'ollama',
     ) => {
       const librarySuffix = workspaceNum === 1 ? '' : ` - WS${workspaceNum}`
@@ -450,8 +449,8 @@ async function globalSetup() {
     // Create test data for both workspaces
     // Workspace 1: Uses OpenAI provider (for model filtering tests)
     // Workspace 2: Uses Ollama provider (for model filtering tests)
-    const ws1Data = await createWorkspaceTestData(workspace1Id, 1, userId, 'openai')
-    const ws2Data = await createWorkspaceTestData(workspace2Id, 2, userId, 'ollama')
+    const ws1Data = await createWorkspaceTestData(workspace1Id, 1, 'openai')
+    const ws2Data = await createWorkspaceTestData(workspace2Id, 2, 'ollama')
 
     // Step 6: Create test connectors and automations for E2E tests
     console.log('  🔌 Creating test connectors and automations...')

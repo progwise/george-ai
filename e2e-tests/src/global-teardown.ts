@@ -227,6 +227,17 @@ async function globalTeardown() {
       console.log('  ✅ No test workspaces to clean up')
     }
 
+    // Clean up payments
+    const paymentResult = await client.query(`DELETE FROM "Payment" WHERE "workspaceId" = ANY($1) RETURNING id`, [
+      ['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'],
+    ])
+
+    if (paymentResult.rows.length > 0) {
+      console.log(`  ✅ Deleted ${paymentResult.rows.length} test payments`)
+    } else {
+      console.log('  ✅ No test payments to clean up')
+    }
+
     console.log('✅ E2E Global Teardown completed')
   } catch (error) {
     console.error('❌ E2E Global Teardown failed:')
