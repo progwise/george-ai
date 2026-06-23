@@ -27,6 +27,6 @@ const getWorkspacePaymentStatus = createServerFn({ method: 'GET' })
 export const getWorkspacePaymentStatusQueryOptions = (workspaceId?: string) =>
   queryOptions({
     queryKey: [queryKeys.WorkspacePaymentStatus, workspaceId],
-    queryFn: () => (!workspaceId ? null : getWorkspacePaymentStatus({ data: { workspaceId } })),
+    queryFn: async () => (await getWorkspacePaymentStatus({ data: { workspaceId: workspaceId! } })) ?? null,
     enabled: !!workspaceId,
   })
