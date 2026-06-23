@@ -1188,6 +1188,7 @@ export default {
     namePlaceholder: 'Mein Arbeitsbereich',
     nameRequired: 'Arbeitsbereich-Name ist erforderlich',
     noWorkspaceSelected: 'Kein Arbeitsbereich ausgewählt',
+    paidTitle: 'Arbeitsbereich: ',
     paymentDescription: 'Besuche unsere Preisseite, um den passenden Plan für deinen Workspace auszuwählen.',
     paymentTitle: 'Upgrade für {workspaceName} möglich',
     pricing: 'Zu den Plänen',
@@ -1204,6 +1205,11 @@ export default {
     slugInvalid: 'Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten',
     slugPlaceholder: 'mein-arbeitsbereich',
     slugRequired: 'Arbeitsbereich-Slug ist erforderlich',
+    subscription: {
+      core: 'Core',
+      pro: 'Pro',
+    },
     title: 'Arbeitsbereich',
+    validUntil: 'Ihr {subscriptionType}-Paket ist bis zum {validUntil} gültig.',
   },
 }

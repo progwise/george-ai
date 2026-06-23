@@ -1910,6 +1910,7 @@ type Query {
   workspaceLibraries(workspaceId: String!): [AiLibrary!]!
   workspaceManifest(workspaceId: String!): WorkspaceManifest!
   workspaceMembers(workspaceId: ID!): [WorkspaceMember!]!
+  workspacePaymentStatus(workspaceId: ID!): WorkspacePaymentStatus
   workspaces(
     skip: Int
     sortField: WorkspaceSortField = name
@@ -2177,6 +2178,12 @@ type WorkspaceMember {
   role: String!
   user: User!
   workspace: Workspace!
+}
+
+type WorkspacePaymentStatus {
+  isPaid: Boolean!
+  subscriptionType: String
+  validUntil: DateTime
 }
 
 """

@@ -23,7 +23,9 @@ export const checkout = defineAction({
         mode: 'subscription',
         success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${url}/cancel?session_id={CHECKOUT_SESSION_ID}`,
-        metadata: { workspaceId, subscriptionType },
+        subscription_data: {
+          metadata: { workspaceId, subscriptionType },
+        },
         expand: ['subscription'],
       })
 

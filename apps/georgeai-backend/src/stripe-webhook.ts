@@ -24,19 +24,27 @@ export const stripeWebhook = async (req: Request, res: Response) => {
     return
   }
 
-  if (event.type === 'checkout.session.completed') {
+  if (event.type === 'invoice.paid') {
     try {
-      const session = event.data.object as Stripe.Checkout.Session
-      const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
-      const workspaceId = session.metadata?.workspaceId || undefined
-      const subscriptionType = session.metadata?.subscriptionType
-      const item = subscription.items.data[0]
+      const invoice = event.data.object as Stripe.Invoice
+      const subscription = invoice.parent?.subscription_details
+      const subscriptionId = subscription?.subscription as string
+      const line = invoice.lines.data[0]
+
+      if (!subscriptionId) {
+        logger.warn('[stripe-webhook] No subscription in invoice, skipping:', invoice.id)
+        res.send('ok')
+        return
+      }
+
+      const workspaceId = subscription?.metadata?.workspaceId || undefined
+      const subscriptionType = subscription?.metadata?.subscriptionType
 
       await createPayment({
         workspaceId,
         subscriptionType: subscriptionType ?? 'subscriptionTypeMissing',
-        validFrom: new Date(item.current_period_start * 1000),
-        validUntil: new Date(item.current_period_end * 1000),
+        validFrom: new Date(line.period.start * 1000),
+        validUntil: new Date(line.period.end * 1000),
       })
     } catch (err) {
       // res 500 lets stripe retry
@@ -44,7 +52,6 @@ export const stripeWebhook = async (req: Request, res: Response) => {
       res.status(500).send('Internal processing failed')
       return
     }
-
-    res.send('ok')
   }
+  res.send('ok')
 }

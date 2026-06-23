@@ -5,6 +5,7 @@ import { deleteWorkspace } from './delete-workspace'
 import { ensureSystemWorkspace } from './ensureSystemWorkspace'
 import { getWorkspaceId } from './get-workspace-id'
 import { getWorkspaceManifest } from './get-workspace-manifest'
+import { getWorkspacePaymentStatus } from './get-workspace-payment-status'
 import { getWorkspaceProviders } from './get-workspace-providers'
 import { invalidateWorkspace } from './invalidate-workspace'
 import { migrateWorkspace } from './migrate-workspace'
@@ -25,6 +26,7 @@ export default {
   INVITATION_EXPIRY_DAYS,
   SYSTEM_WORKSPACE_ID,
   createPayment,
+  getWorkspacePaymentStatus,
 }
 
 export {
@@ -41,4 +43,5 @@ export {
   INVITATION_EXPIRY_DAYS,
   SYSTEM_WORKSPACE_ID,
   createPayment,
+  getWorkspacePaymentStatus,
 }
