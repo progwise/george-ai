@@ -39,8 +39,8 @@ async function globalSetup() {
     // Ensure UserProfile exists for the E2E test user
     await client.query(
       `
-      INSERT INTO "UserProfile" (id, email, "userId", "freeMessages", "freeStorage", "createdAt", "updatedAt")
-      VALUES (gen_random_uuid(), $1, $2, 1000, 1000000, NOW(), NOW())
+      INSERT INTO "UserProfile" (id, email, "userId", "createdAt", "updatedAt")
+      VALUES (gen_random_uuid(), $1, $2, NOW(), NOW())
       ON CONFLICT ("userId")
       DO UPDATE SET email = $1, "updatedAt" = NOW()
     `,
@@ -268,7 +268,6 @@ async function globalSetup() {
     const createWorkspaceTestData = async (
       workspaceId: string,
       workspaceNum: number,
-      ownerId: string,
       preferredProvider: 'openai' | 'ollama',
     ) => {
       const librarySuffix = workspaceNum === 1 ? '' : ` - WS${workspaceNum}`
@@ -313,14 +312,13 @@ async function globalSetup() {
       // Create the test library
       const libraryResult = await client.query(
         `
-        INSERT INTO "AiLibrary" (id, "workspaceId", "ownerId", name, description, "embeddingModelId", "createdAt", "updatedAt")
-        VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, NOW(), NOW())
+        INSERT INTO "AiLibrary" (id, "workspaceId", name, description, "embeddingModelId", "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())
         ON CONFLICT DO NOTHING
         RETURNING id
       `,
         [
           workspaceId,
-          ownerId,
           `E2E Test Library${librarySuffix}`,
           `Test library for E2E tests in workspace ${workspaceNum}`,
           embeddingModelId,
@@ -391,11 +389,11 @@ async function globalSetup() {
       // Create the test list
       const listResult = await client.query(
         `
-        INSERT INTO "AiList" (id, "workspaceId", "ownerId", name, "createdAt", "updatedAt")
-        VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
+        INSERT INTO "AiList" (id, "workspaceId", name, "createdAt", "updatedAt")
+        VALUES (gen_random_uuid(), $1, $2, NOW(), NOW())
         RETURNING id
       `,
-        [workspaceId, ownerId, `E2E Test List${listSuffix}`],
+        [workspaceId, `E2E Test List${listSuffix}`],
       )
       const listId = listResult.rows[0].id
       console.log(`  ✅ Created test list: E2E Test List${listSuffix}`)
@@ -421,8 +419,8 @@ async function globalSetup() {
 
       for (const file of filesResult.rows) {
         await client.query(
-          `INSERT INTO "AiListItem" (id, "listId", "sourceId", "fileId", "itemName", "createdAt", "updatedAt")
-           VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())`,
+          `INSERT INTO "AiListItem" (id, "listId", "sourceId", "fileId", "itemName")
+           VALUES (gen_random_uuid(), $1, $2, $3, $4)`,
           [listId, sourceId, file.id, file.name],
         )
       }
@@ -439,9 +437,9 @@ async function globalSetup() {
 
       // Create test assistant
       await client.query(
-        `INSERT INTO "AiAssistant" (id, "workspaceId", "ownerId", name, "createdAt", "updatedAt")
-         VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW()) ON CONFLICT DO NOTHING`,
-        [workspaceId, ownerId, `E2E Test Assistant - WS${workspaceNum}`],
+        `INSERT INTO "AiAssistant" (id, "workspaceId", name, "createdAt", "updatedAt")
+         VALUES (gen_random_uuid(), $1, $2, NOW(), NOW()) ON CONFLICT DO NOTHING`,
+        [workspaceId, `E2E Test Assistant - WS${workspaceNum}`],
       )
       console.log(`  ✅ Created test assistant: E2E Test Assistant - WS${workspaceNum}`)
 
@@ -451,8 +449,8 @@ async function globalSetup() {
     // Create test data for both workspaces
     // Workspace 1: Uses OpenAI provider (for model filtering tests)
     // Workspace 2: Uses Ollama provider (for model filtering tests)
-    const ws1Data = await createWorkspaceTestData(workspace1Id, 1, userId, 'openai')
-    const ws2Data = await createWorkspaceTestData(workspace2Id, 2, userId, 'ollama')
+    const ws1Data = await createWorkspaceTestData(workspace1Id, 1, 'openai')
+    const ws2Data = await createWorkspaceTestData(workspace2Id, 2, 'ollama')
 
     // Step 6: Create test connectors and automations for E2E tests
     console.log('  🔌 Creating test connectors and automations...')

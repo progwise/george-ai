@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro'
+
+const sessionId = Astro.url.searchParams.get('session_id')
+---
+
+<Layout title="Payment Unsuccessful - George-AI" description="Get in touch with the George-AI team">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-4xl font-bold mb-4 text-center">Payment unsuccessful</h1>
+    <p class="text-center mb-12 text-base-content/70">Payment for George AI couldn't be completed.</p>
+    
+<div>
+
+  {sessionId
+    ? `Billing of ${sessionId} cancelled`
+    : 'Billing cancelled'}
+</div>

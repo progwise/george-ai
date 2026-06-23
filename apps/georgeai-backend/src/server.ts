@@ -15,6 +15,7 @@ import { getUserContext } from './get-user-context'
 import { handleDownloadGet } from './handle-download-get'
 import { handleFileGet } from './handle-file-get'
 import { handleUploadPost } from './handle-upload-post'
+import { stripeWebhook } from './stripe-webhook'
 import { userAvatarMiddleware } from './user-avatar-middleware'
 
 logger.info('*** Starting GeorgeAi backend server ***')
@@ -69,6 +70,7 @@ app.post('/upload', handleUploadPost)
 app.get('/download', handleDownloadGet)
 app.get('/library-files/:libraryId/:fileId', handleFileGet)
 app.get('/conversation-messages-sse', conversationMessagesSSE)
+app.post('/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhook)
 
 // Only check API key or user JWT for /graphql POST requests
 app.use('/graphql', (req, res, next) => {

@@ -50,6 +50,7 @@ export const queryKeys = {
   WorkspaceManifest: 'WorkspaceManifest',
   WorkspaceMembers: 'WorkspaceMembers',
   WorkspaceDeletionValidation: 'WorkspaceDeletionValidation',
+  WorkspacePaymentStatus: 'WorkspacePaymentStatus',
   WorkspaceStats: 'WorkspaceStats',
   WorkspaceVectorStore: 'WorkspaceVectorStore',
   // Connectors

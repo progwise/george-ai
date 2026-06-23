@@ -1167,6 +1167,11 @@ export default {
     namePlaceholder: 'My Workspace',
     nameRequired: 'Workspace name is required',
     noWorkspaceSelected: 'No workspace selected',
+    paidTitle: 'Workspace: ',
+    paymentDescription: 'Head over to our pricing page to choose the right plan for your workspace.',
+    paymentTitle: 'Upgrade for workspace {workspaceName} available',
+    pricing: 'Go to pricing',
+    pricingTitle: 'Upgrade workspace',
     selectWorkspace: 'Select Workspace',
     settings: {
       title: 'Workspace Settings',
@@ -1179,6 +1184,11 @@ export default {
     slugInvalid: 'Slug must contain only lowercase letters, numbers, and hyphens',
     slugPlaceholder: 'my-workspace',
     slugRequired: 'Workspace slug is required',
+    subscription: {
+      core: 'Core',
+      pro: 'Pro',
+    },
     title: 'Workspace',
+    validUntil: 'Your {subscriptionType} subscription is valid until {validUntil}.',
   },
 }
