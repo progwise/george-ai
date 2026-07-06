@@ -1,11 +1,15 @@
 import { Request, Response } from 'express'
 import Stripe from 'stripe'
 
+import { getConfigValue } from '@george-ai/app-commons'
 import { createPayment } from '@george-ai/app-domain'
 
 import { logger } from './common'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const STRIPE_SECRET_KEY = getConfigValue('STRIPE_SECRET_KEY')
+const STRIPE_WEBHOOK_SECRET = getConfigValue('STRIPE_WEBHOOK_SECRET')
+
+const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : undefined
 
 export const stripeWebhook = async (req: Request, res: Response) => {
   const sig = req.headers['stripe-signature']
@@ -15,9 +19,21 @@ export const stripeWebhook = async (req: Request, res: Response) => {
     return
   }
 
+  if (!stripe) {
+    logger.error('[stripe-webhook] Stripe is not configured')
+    res.status(400).send('Stripe is not configured')
+    return
+  }
+
+  if (!STRIPE_WEBHOOK_SECRET) {
+    logger.error('[stripe-webhook] Stripe webhook secret is not configured')
+    res.status(400).send('Stripe webhook secret is not configured')
+    return
+  }
+
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = stripe.webhooks.constructEvent(req.body, sig, STRIPE_WEBHOOK_SECRET!)
   } catch (err) {
     logger.error('[stripe-webhook] Signature verification failed:', err)
     res.status(400).send('Webhook signature invalid')
@@ -37,12 +53,26 @@ export const stripeWebhook = async (req: Request, res: Response) => {
         return
       }
 
+      if (!line) {
+        logger.warn('[stripe-webhook] invoice.paid has no line items, skipping:', invoice.id)
+        res.send('ok')
+        return
+      }
+
       const workspaceId = subscription?.metadata?.workspaceId || undefined
       const subscriptionType = subscription?.metadata?.subscriptionType
 
+      if (!subscriptionType) {
+        logger.warn('[stripe-webhook] invoice.paid has no subscriptionType in metadata, skipping:', invoice.id)
+        res.send('ok')
+        return
+      }
+
       await createPayment({
+        paymentProvider: 'stripe',
+        invoiceId: invoice.id,
         workspaceId,
-        subscriptionType: subscriptionType ?? 'subscriptionTypeMissing',
+        subscriptionType,
         validFrom: new Date(line.period.start * 1000),
         validUntil: new Date(line.period.end * 1000),
       })

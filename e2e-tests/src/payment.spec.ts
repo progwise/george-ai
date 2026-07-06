@@ -110,7 +110,7 @@ test.describe('Payment', () => {
       await page.waitForLoadState('networkidle')
 
       // check success page
-      await page.goto('localhost:4321/success')
+      await page.goto(`${MARKETING_WEBSITE_URL}/success`)
       await expect(page.getByRole('heading', { name: 'Payment Successful', level: 1 })).toBeVisible()
       await page.getByRole('link', { name: /go back to workspaces/i }).click()
 

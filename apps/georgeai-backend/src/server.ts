@@ -61,8 +61,6 @@ app.use(
   }),
 )
 app.use(cookieParser())
-
-// Serve static files (robots.txt)
 app.use(express.static('public'))
 app.use('/assistant-icon', assistantIconMiddleware)
 app.use('/avatar', userAvatarMiddleware)

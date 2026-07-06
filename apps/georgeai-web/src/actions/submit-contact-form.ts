@@ -49,6 +49,14 @@ export default defineAction({
 
     console.log('Contact form submission received from:', email)
 
+    const escapeHtml = (s: string) =>
+      s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+
     // Build email content
     const textContent = `
 Name: ${name}
@@ -62,12 +70,12 @@ ${message}
 
     const htmlContent = `
 <h2>New Contact Request from George-AI Website</h2>
-<p><strong>Name:</strong> ${name}</p>
-<p><strong>Email:</strong> ${email}</p>
-${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''}
-${company ? `<p><strong>Company:</strong> ${company}</p>` : ''}
+<p><strong>Name:</strong> ${escapeHtml(name)}</p>
+<p><strong>Email:</strong> ${escapeHtml(email)}</p>
+${phone ? `<p><strong>Phone:</strong> ${escapeHtml(phone)}</p>` : ''}
+${company ? `<p><strong>Company:</strong> ${escapeHtml(company)}</p>` : ''}
 <p><strong>Message:</strong></p>
-<p>${message.replace(/\n/g, '<br>')}</p>
+<p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>
       `.trim()
 
     try {

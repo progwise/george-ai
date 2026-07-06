@@ -26,6 +26,8 @@ export type AggregatePayment = {
 
 export type PaymentMinAggregateOutputType = {
   id: string | null
+  paymentProvider: string | null
+  invoiceId: string | null
   workspaceId: string | null
   subscriptionType: string | null
   validFrom: Date | null
@@ -34,6 +36,8 @@ export type PaymentMinAggregateOutputType = {
 
 export type PaymentMaxAggregateOutputType = {
   id: string | null
+  paymentProvider: string | null
+  invoiceId: string | null
   workspaceId: string | null
   subscriptionType: string | null
   validFrom: Date | null
@@ -42,6 +46,8 @@ export type PaymentMaxAggregateOutputType = {
 
 export type PaymentCountAggregateOutputType = {
   id: number
+  paymentProvider: number
+  invoiceId: number
   workspaceId: number
   subscriptionType: number
   validFrom: number
@@ -51,6 +57,8 @@ export type PaymentCountAggregateOutputType = {
 
 export type PaymentMinAggregateInputType = {
   id?: true
+  paymentProvider?: true
+  invoiceId?: true
   workspaceId?: true
   subscriptionType?: true
   validFrom?: true
@@ -59,6 +67,8 @@ export type PaymentMinAggregateInputType = {
 
 export type PaymentMaxAggregateInputType = {
   id?: true
+  paymentProvider?: true
+  invoiceId?: true
   workspaceId?: true
   subscriptionType?: true
   validFrom?: true
@@ -67,6 +77,8 @@ export type PaymentMaxAggregateInputType = {
 
 export type PaymentCountAggregateInputType = {
   id?: true
+  paymentProvider?: true
+  invoiceId?: true
   workspaceId?: true
   subscriptionType?: true
   validFrom?: true
@@ -149,6 +161,8 @@ export type PaymentGroupByArgs<
 
 export type PaymentGroupByOutputType = {
   id: string
+  paymentProvider: string | null
+  invoiceId: string | null
   workspaceId: string | null
   subscriptionType: string
   validFrom: Date
@@ -175,6 +189,8 @@ export type PaymentWhereInput = {
   OR?: Prisma.PaymentWhereInput[]
   NOT?: Prisma.PaymentWhereInput | Prisma.PaymentWhereInput[]
   id?: Prisma.StringFilter<'Payment'> | string
+  paymentProvider?: Prisma.StringNullableFilter<'Payment'> | string | null
+  invoiceId?: Prisma.StringNullableFilter<'Payment'> | string | null
   workspaceId?: Prisma.StringNullableFilter<'Payment'> | string | null
   subscriptionType?: Prisma.StringFilter<'Payment'> | string
   validFrom?: Prisma.DateTimeFilter<'Payment'> | Date | string
@@ -184,6 +200,8 @@ export type PaymentWhereInput = {
 
 export type PaymentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  paymentProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  invoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
   workspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionType?: Prisma.SortOrder
   validFrom?: Prisma.SortOrder
@@ -194,20 +212,25 @@ export type PaymentOrderByWithRelationInput = {
 export type PaymentWhereUniqueInput = Prisma.AtLeast<
   {
     id?: string
+    paymentProvider_invoiceId?: Prisma.PaymentPaymentProviderInvoiceIdCompoundUniqueInput
     AND?: Prisma.PaymentWhereInput | Prisma.PaymentWhereInput[]
     OR?: Prisma.PaymentWhereInput[]
     NOT?: Prisma.PaymentWhereInput | Prisma.PaymentWhereInput[]
+    paymentProvider?: Prisma.StringNullableFilter<'Payment'> | string | null
+    invoiceId?: Prisma.StringNullableFilter<'Payment'> | string | null
     workspaceId?: Prisma.StringNullableFilter<'Payment'> | string | null
     subscriptionType?: Prisma.StringFilter<'Payment'> | string
     validFrom?: Prisma.DateTimeFilter<'Payment'> | Date | string
     validUntil?: Prisma.DateTimeFilter<'Payment'> | Date | string
     workspace?: Prisma.XOR<Prisma.WorkspaceNullableScalarRelationFilter, Prisma.WorkspaceWhereInput> | null
   },
-  'id'
+  'id' | 'paymentProvider_invoiceId'
 >
 
 export type PaymentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  paymentProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  invoiceId?: Prisma.SortOrderInput | Prisma.SortOrder
   workspaceId?: Prisma.SortOrderInput | Prisma.SortOrder
   subscriptionType?: Prisma.SortOrder
   validFrom?: Prisma.SortOrder
@@ -222,6 +245,8 @@ export type PaymentScalarWhereWithAggregatesInput = {
   OR?: Prisma.PaymentScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PaymentScalarWhereWithAggregatesInput | Prisma.PaymentScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<'Payment'> | string
+  paymentProvider?: Prisma.StringNullableWithAggregatesFilter<'Payment'> | string | null
+  invoiceId?: Prisma.StringNullableWithAggregatesFilter<'Payment'> | string | null
   workspaceId?: Prisma.StringNullableWithAggregatesFilter<'Payment'> | string | null
   subscriptionType?: Prisma.StringWithAggregatesFilter<'Payment'> | string
   validFrom?: Prisma.DateTimeWithAggregatesFilter<'Payment'> | Date | string
@@ -230,6 +255,8 @@ export type PaymentScalarWhereWithAggregatesInput = {
 
 export type PaymentCreateInput = {
   id?: string
+  paymentProvider?: string | null
+  invoiceId?: string | null
   subscriptionType: string
   validFrom: Date | string
   validUntil: Date | string
@@ -238,6 +265,8 @@ export type PaymentCreateInput = {
 
 export type PaymentUncheckedCreateInput = {
   id?: string
+  paymentProvider?: string | null
+  invoiceId?: string | null
   workspaceId?: string | null
   subscriptionType: string
   validFrom: Date | string
@@ -246,6 +275,8 @@ export type PaymentUncheckedCreateInput = {
 
 export type PaymentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionType?: Prisma.StringFieldUpdateOperationsInput | string
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -254,6 +285,8 @@ export type PaymentUpdateInput = {
 
 export type PaymentUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionType?: Prisma.StringFieldUpdateOperationsInput | string
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -262,6 +295,8 @@ export type PaymentUncheckedUpdateInput = {
 
 export type PaymentCreateManyInput = {
   id?: string
+  paymentProvider?: string | null
+  invoiceId?: string | null
   workspaceId?: string | null
   subscriptionType: string
   validFrom: Date | string
@@ -270,6 +305,8 @@ export type PaymentCreateManyInput = {
 
 export type PaymentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionType?: Prisma.StringFieldUpdateOperationsInput | string
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -277,6 +314,8 @@ export type PaymentUpdateManyMutationInput = {
 
 export type PaymentUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workspaceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionType?: Prisma.StringFieldUpdateOperationsInput | string
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -293,8 +332,15 @@ export type PaymentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type PaymentPaymentProviderInvoiceIdCompoundUniqueInput = {
+  paymentProvider: string
+  invoiceId: string
+}
+
 export type PaymentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  paymentProvider?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   subscriptionType?: Prisma.SortOrder
   validFrom?: Prisma.SortOrder
@@ -303,6 +349,8 @@ export type PaymentCountOrderByAggregateInput = {
 
 export type PaymentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  paymentProvider?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   subscriptionType?: Prisma.SortOrder
   validFrom?: Prisma.SortOrder
@@ -311,6 +359,8 @@ export type PaymentMaxOrderByAggregateInput = {
 
 export type PaymentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  paymentProvider?: Prisma.SortOrder
+  invoiceId?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
   subscriptionType?: Prisma.SortOrder
   validFrom?: Prisma.SortOrder
@@ -393,6 +443,8 @@ export type PaymentUncheckedUpdateManyWithoutWorkspaceNestedInput = {
 
 export type PaymentCreateWithoutWorkspaceInput = {
   id?: string
+  paymentProvider?: string | null
+  invoiceId?: string | null
   subscriptionType: string
   validFrom: Date | string
   validUntil: Date | string
@@ -400,6 +452,8 @@ export type PaymentCreateWithoutWorkspaceInput = {
 
 export type PaymentUncheckedCreateWithoutWorkspaceInput = {
   id?: string
+  paymentProvider?: string | null
+  invoiceId?: string | null
   subscriptionType: string
   validFrom: Date | string
   validUntil: Date | string
@@ -436,6 +490,8 @@ export type PaymentScalarWhereInput = {
   OR?: Prisma.PaymentScalarWhereInput[]
   NOT?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
   id?: Prisma.StringFilter<'Payment'> | string
+  paymentProvider?: Prisma.StringNullableFilter<'Payment'> | string | null
+  invoiceId?: Prisma.StringNullableFilter<'Payment'> | string | null
   workspaceId?: Prisma.StringNullableFilter<'Payment'> | string | null
   subscriptionType?: Prisma.StringFilter<'Payment'> | string
   validFrom?: Prisma.DateTimeFilter<'Payment'> | Date | string
@@ -444,6 +500,8 @@ export type PaymentScalarWhereInput = {
 
 export type PaymentCreateManyWorkspaceInput = {
   id?: string
+  paymentProvider?: string | null
+  invoiceId?: string | null
   subscriptionType: string
   validFrom: Date | string
   validUntil: Date | string
@@ -451,6 +509,8 @@ export type PaymentCreateManyWorkspaceInput = {
 
 export type PaymentUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionType?: Prisma.StringFieldUpdateOperationsInput | string
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -458,6 +518,8 @@ export type PaymentUpdateWithoutWorkspaceInput = {
 
 export type PaymentUncheckedUpdateWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionType?: Prisma.StringFieldUpdateOperationsInput | string
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -465,6 +527,8 @@ export type PaymentUncheckedUpdateWithoutWorkspaceInput = {
 
 export type PaymentUncheckedUpdateManyWithoutWorkspaceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  paymentProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subscriptionType?: Prisma.StringFieldUpdateOperationsInput | string
   validFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   validUntil?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -475,6 +539,8 @@ export type PaymentSelect<
 > = runtime.Types.Extensions.GetSelect<
   {
     id?: boolean
+    paymentProvider?: boolean
+    invoiceId?: boolean
     workspaceId?: boolean
     subscriptionType?: boolean
     validFrom?: boolean
@@ -489,6 +555,8 @@ export type PaymentSelectCreateManyAndReturn<
 > = runtime.Types.Extensions.GetSelect<
   {
     id?: boolean
+    paymentProvider?: boolean
+    invoiceId?: boolean
     workspaceId?: boolean
     subscriptionType?: boolean
     validFrom?: boolean
@@ -503,6 +571,8 @@ export type PaymentSelectUpdateManyAndReturn<
 > = runtime.Types.Extensions.GetSelect<
   {
     id?: boolean
+    paymentProvider?: boolean
+    invoiceId?: boolean
     workspaceId?: boolean
     subscriptionType?: boolean
     validFrom?: boolean
@@ -514,6 +584,8 @@ export type PaymentSelectUpdateManyAndReturn<
 
 export type PaymentSelectScalar = {
   id?: boolean
+  paymentProvider?: boolean
+  invoiceId?: boolean
   workspaceId?: boolean
   subscriptionType?: boolean
   validFrom?: boolean
@@ -522,7 +594,7 @@ export type PaymentSelectScalar = {
 
 export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> =
   runtime.Types.Extensions.GetOmit<
-    'id' | 'workspaceId' | 'subscriptionType' | 'validFrom' | 'validUntil',
+    'id' | 'paymentProvider' | 'invoiceId' | 'workspaceId' | 'subscriptionType' | 'validFrom' | 'validUntil',
     ExtArgs['result']['payment']
   >
 export type PaymentInclude<
@@ -551,6 +623,8 @@ export type $PaymentPayload<
   scalars: runtime.Types.Extensions.GetPayloadResult<
     {
       id: string
+      paymentProvider: string | null
+      invoiceId: string | null
       workspaceId: string | null
       subscriptionType: string
       validFrom: Date
@@ -1070,6 +1144,8 @@ export interface Prisma__PaymentClient<
  */
 export interface PaymentFieldRefs {
   readonly id: Prisma.FieldRef<'Payment', 'String'>
+  readonly paymentProvider: Prisma.FieldRef<'Payment', 'String'>
+  readonly invoiceId: Prisma.FieldRef<'Payment', 'String'>
   readonly workspaceId: Prisma.FieldRef<'Payment', 'String'>
   readonly subscriptionType: Prisma.FieldRef<'Payment', 'String'>
   readonly validFrom: Prisma.FieldRef<'Payment', 'DateTime'>

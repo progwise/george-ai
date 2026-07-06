@@ -15,7 +15,11 @@ export function getConfigMasked(key: ConfigKey) {
         apiKey: instance.apiKey ? instance.apiKey.replace(/^(....).*(....)$/, '$1****************$2') : '',
       }))
     case 'OPENAI_API_KEY':
-      return getConfigValue('OPENAI_API_KEY')!.replace(/^(....).*(....)$/, '$1****************$2')
+      return getConfigValue('OPENAI_API_KEY')?.replace(/^(....).*(....)$/, '$1****************$2')
+    case 'STRIPE_SECRET_KEY':
+      return getConfigValue('STRIPE_SECRET_KEY')?.replace(/^(....).*(....)$/, '$1****************$2')
+    case 'STRIPE_WEBHOOK_SECRET':
+      return getConfigValue('STRIPE_WEBHOOK_SECRET')?.replace(/^(....).*(....)$/, '$1****************$2')
     case 'TEST_DB_PASSWORD':
       return '*'.repeat(getConfigValue('TEST_DB_PASSWORD').length)
     default:

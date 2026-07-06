@@ -21,6 +21,13 @@ async function globalSetup() {
   try {
     await client.connect()
     console.log('  ✅ Database connected')
+
+    // Clean up any payments left over from previous runs before creating test data
+    await client.query(`DELETE FROM "Payment" WHERE "workspaceId" = ANY($1) OR "workspaceId" IS NULL`, [
+      ['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003'],
+    ])
+    console.log('  ✅ Cleared stale payments from previous runs')
+
     // Step 1: Ensure E2E test user exists (upsert) with admin privileges
     const userResult = await client.query(
       `

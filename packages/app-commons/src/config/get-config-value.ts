@@ -2,7 +2,9 @@ import { ConfigKey } from './common'
 
 export function getConfigValue(key: 'IS_PRODUCTION'): boolean
 export function getConfigValue(key: 'TEST_DB_PORT'): number
-export function getConfigValue(key: 'OPENAI_API_KEY' | 'OPENAI_BASE_URL'): string | undefined
+export function getConfigValue(
+  key: 'OPENAI_API_KEY' | 'OPENAI_BASE_URL' | 'STRIPE_SECRET_KEY' | 'STRIPE_WEBHOOK_SECRET',
+): string | undefined
 export function getConfigValue(key: 'OLLAMA_INSTANCES'): Array<{
   baseUrl: string
   apiKey?: string
@@ -86,6 +88,8 @@ export function getConfigValue(key: ConfigKey):
       return process.env[key] ? parseInt(process.env[key]) : 5432
     case 'OPENAI_API_KEY':
     case 'OPENAI_BASE_URL':
+    case 'STRIPE_SECRET_KEY':
+    case 'STRIPE_WEBHOOK_SECRET':
       return process.env[key] || undefined
     case 'OLLAMA_INSTANCES':
       return getConfiguredOllamaInstances()

@@ -10,7 +10,7 @@ export const checkout = defineAction({
     priceId: z.string(),
     quantity: z.number().int().positive().default(1),
     workspaceId: z.string(),
-    subscriptionType: z.string(),
+    subscriptionType: z.enum(['core', 'pro']),
   }),
   handler: async (input) => {
     const { priceId, quantity, workspaceId, subscriptionType } = input

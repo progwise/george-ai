@@ -1,4 +1,4 @@
-import { getWorkspacePaymentStatus } from '@george-ai/app-domain'
+import { canReadWorkspaceOrThrow, getWorkspacePaymentStatus } from '@george-ai/app-domain'
 
 import { builder } from '../../builder'
 
@@ -19,7 +19,8 @@ builder.queryField('workspacePaymentStatus', (t) =>
     args: {
       workspaceId: t.arg.id({ required: true }),
     },
-    resolve: async (_root, { workspaceId }) => {
+    resolve: async (_root, { workspaceId }, { session }) => {
+      await canReadWorkspaceOrThrow(workspaceId, session.user.id)
       return getWorkspacePaymentStatus(workspaceId)
     },
   }),

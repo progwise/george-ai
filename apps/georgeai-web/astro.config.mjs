@@ -3,7 +3,7 @@ import mdx from '@astrojs/mdx'
 import node from '@astrojs/node'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
-import { defineConfig } from 'astro/config'
+import { defineConfig, envField } from 'astro/config'
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,6 +15,12 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
+
+  env: {
+    schema: {
+      WEBAPP_URL: envField.string({ context: 'server', access: 'public' }),
+    },
+  },
 
   vite: {
     plugins: [tailwindcss()],

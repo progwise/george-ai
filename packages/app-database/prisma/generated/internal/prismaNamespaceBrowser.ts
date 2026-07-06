@@ -173,6 +173,8 @@ export type WorkspaceInvitationScalarFieldEnum =
 
 export const PaymentScalarFieldEnum = {
   id: 'id',
+  paymentProvider: 'paymentProvider',
+  invoiceId: 'invoiceId',
   workspaceId: 'workspaceId',
   subscriptionType: 'subscriptionType',
   validFrom: 'validFrom',

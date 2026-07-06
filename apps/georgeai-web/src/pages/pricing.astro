@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import { WEBAPP_URL } from 'astro:env/server'
 
 // FAQ data - single source of truth for both HTML and JSON-LD schema
 const faqs = [
@@ -122,15 +123,24 @@ const faqs = [
           </ul>
 
           <div class="card-actions">
-            
+            <div id="checkout-error-core" class="alert alert-error hidden w-full text-sm" role="alert">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Open this page from your workspace to subscribe. <a href={`${WEBAPP_URL}/overview`} class="link font-semibold">Go to your workspace →</a></span>
+            </div>
             <button id="buy-btn-core" data-price-id="price_1TRu2UBqw3foifMLHYDieN1f" class="btn btn-secondary btn-block">Get started for free</button>
 
             <script>
               import { actions } from 'astro:actions'
 
+              const workspaceId = new URLSearchParams(window.location.search).get('workspaceId') ?? ''
+
               document.getElementById('buy-btn-core')?.addEventListener('click', async (e) => {
                 const priceId = (e.currentTarget as HTMLElement).dataset.priceId!
-                const workspaceId = new URLSearchParams(window.location.search).get('workspaceId') ?? ''
+
+                if (!workspaceId) {
+                  document.getElementById('checkout-error-core')?.classList.remove('hidden')
+                  return
+                }
 
                 const { data, error } = await actions.checkout({ priceId, quantity: 1, workspaceId, subscriptionType: 'core' })
 
@@ -194,14 +204,24 @@ const faqs = [
           </ul>
 
           <div class="card-actions">
+            <div id="checkout-error-pro" class="alert alert-error hidden w-full text-sm" role="alert">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Open this page from your workspace to subscribe. <a href={`${WEBAPP_URL}/overview`} class="link font-semibold">Go to your workspace →</a></span>
+            </div>
             <button id="buy-btn-pro" data-price-id="price_1TRuLfBqw3foifML619sOjia" class="btn btn-success btn-block">Upgrade</button>
 
             <script>
               import { actions } from 'astro:actions'
 
+              const workspaceId = new URLSearchParams(window.location.search).get('workspaceId') ?? ''
+
               document.getElementById('buy-btn-pro')?.addEventListener('click', async (e) => {
                 const priceId = (e.currentTarget as HTMLElement).dataset.priceId!
-                const workspaceId = new URLSearchParams(window.location.search).get('workspaceId') ?? ''                
+
+                if (!workspaceId) {
+                  document.getElementById('checkout-error-pro')?.classList.remove('hidden')
+                  return
+                }
 
                 const { data, error } = await actions.checkout({ priceId, quantity: 1, workspaceId, subscriptionType: 'pro' })
 
