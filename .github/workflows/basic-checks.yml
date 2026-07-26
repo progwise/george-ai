@@ -44,6 +44,7 @@ env:
   STORAGE_PATH_USERS: /tmp/.storage/user-storage
   STORAGE_PATH_CREDENTIALS: /tmp/.storage/credential-storage
   STORAGE_PATH_LEGACY_LIBRARIES: /tmp/.uploads
+  WEBAPP_URL: http://localhost:3001
 
 jobs:
   calculate-smb-test-hash:
