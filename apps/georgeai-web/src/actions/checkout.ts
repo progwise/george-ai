@@ -12,10 +12,10 @@ export const checkout = defineAction({
     workspaceId: z.string(),
     subscriptionType: z.enum(['core', 'pro']),
   }),
-  handler: async (input) => {
+  handler: async (input, context) => {
     const { priceId, quantity, workspaceId, subscriptionType } = input
 
-    const url = import.meta.env.DOMAIN || process.env.DOMAIN || 'http://localhost:4321'
+    const url = context.url.origin
 
     try {
       const session = await stripe.checkout.sessions.create({

@@ -23,6 +23,7 @@ export const queryKeys = {
   FileManifest: 'FileManifest',
   FileUsages: 'FileUsages',
   KeycloakConfig: 'KeycloakConfig',
+  MarketingWebsiteUrl: 'MarketingWebsiteUrl',
   ModelProviders: 'ModelProviders',
   InferenceHostConfig: 'InferenceHostConfig',
   InferenceHostStatus: 'InferenceHostStatus',

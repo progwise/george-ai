@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 
 import { CurrentUserFragment } from '../../gql/graphql'
 import { useTranslation } from '../../i18n/use-translation-hook'
+import { getMarketingWebsiteUrl } from '../../queries'
 import { DialogForm } from '../dialog-form'
 import { getWorkspacePaymentStatusQueryOptions } from './queries/get-workspace-payment-status'
 import { useWorkspace } from './use-workspace'
@@ -25,10 +26,9 @@ export const PaymentWorkspaceDialog = ({ user, ref }: PaymentWorkspaceDialogProp
 
   if (!currentWorkspace) return null
 
-  const handleCheckout = () => {
-    const { hostname, port } = window.location
-    const domain = port === '3001' ? `http://${hostname}:4321` : window.location.origin
-    window.location.href = `${domain}/pricing?workspaceId=${currentWorkspace.id}`
+  const handleCheckout = async () => {
+    const marketingWebsiteUrl = await getMarketingWebsiteUrl()
+    window.location.href = `${marketingWebsiteUrl}/pricing?workspaceId=${currentWorkspace.id}`
   }
 
   return (

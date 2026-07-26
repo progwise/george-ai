@@ -224,6 +224,7 @@ services:
 
       # Frontend config
       PUBLIC_APP_URL: http://localhost:3011
+      MARKETING_WEBSITE_URL: http://localhost:4331
 
       # Git
       GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}

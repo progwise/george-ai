@@ -380,6 +380,7 @@ jobs:
           KEYCLOAK_CLIENT_ID: george-ai-e2e
           KEYCLOAK_REDIRECT_URL: http://localhost:3001
           PUBLIC_APP_URL: http://localhost:3001
+          MARKETING_WEBSITE_URL: http://localhost:4321
           GIT_COMMIT_SHA: ${{ github.sha }}
         ports:
           - 3001:3000
