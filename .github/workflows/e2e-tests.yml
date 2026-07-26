@@ -262,6 +262,7 @@ jobs:
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
             PUBLIC_DISCORD_INVITE_URL=https://discord.gg/GbQFKb2MNJ
+            WEBAPP_URL=http://localhost:3001
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 

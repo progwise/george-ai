@@ -25,6 +25,8 @@ COPY LICENSE ./
 # Accept build args and expose as environment variables for Astro build
 ARG PUBLIC_DISCORD_INVITE_URL=https://discord.gg/GbQFKb2MNJ
 ENV PUBLIC_DISCORD_INVITE_URL=${PUBLIC_DISCORD_INVITE_URL}
+ARG WEBAPP_URL=https://app.george-ai.net
+ENV WEBAPP_URL=${WEBAPP_URL}
 
 # Build with Node adapter
 RUN pnpm --filter @george-ai/web build

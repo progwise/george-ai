@@ -240,6 +240,8 @@ services:
     build:
       context: ..
       dockerfile: apps/georgeai-web/Dockerfile
+      args:
+        WEBAPP_URL: http://localhost:3011
     container_name: gai-e2e-web
     environment:
       HOST: 0.0.0.0
