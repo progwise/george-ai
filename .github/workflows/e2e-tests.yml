@@ -340,6 +340,8 @@ jobs:
           OLLAMA_VRAM_GB: 16
           SMB_CRAWLER_URL: http://smb-crawler:3006
           GIT_COMMIT_SHA: ${{ github.sha }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         ports:
           - 3003:3003
 
@@ -394,6 +396,7 @@ jobs:
         env:
           HOST: 0.0.0.0
           PORT: 4321
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         ports:
           - 4321:4321
 
@@ -505,6 +508,8 @@ jobs:
           EXPECTED_DISCORD_URL: https://discord.gg/GbQFKb2MNJ
           # SMB test server hostname (matches service name in this workflow)
           E2E_SMB_TEST_SERVER: smb-test
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
       - name: Upload Playwright report
         if: failure()

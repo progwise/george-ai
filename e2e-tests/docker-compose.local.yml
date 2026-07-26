@@ -138,6 +138,10 @@ services:
       SMTP_FROM: ${SMTP_FROM:-noreply@george-ai.net}
       SMTP_TEST_RECIPIENT: ${SMTP_TEST_RECIPIENT:-}
 
+      # Stripe (test-mode keys, required for the payment e2e suite)
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+
       # Git
       GIT_COMMIT_SHA: ${GIT_COMMIT_SHA:-e2e-test}
 
@@ -247,6 +251,7 @@ services:
     environment:
       HOST: 0.0.0.0
       PORT: 4331
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
     ports:
       - '4331:4331'
     networks:
