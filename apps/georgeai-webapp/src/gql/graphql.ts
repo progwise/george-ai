@@ -2249,6 +2249,7 @@ export type Query = {
   workspaceLibraries: Array<AiLibrary>
   workspaceManifest: WorkspaceManifest
   workspaceMembers: Array<WorkspaceMember>
+  workspacePaymentStatus?: Maybe<WorkspacePaymentStatus>
   workspaces: WorkspacesResponseType
 }
 
@@ -2532,6 +2533,10 @@ export type QueryWorkspaceManifestArgs = {
 }
 
 export type QueryWorkspaceMembersArgs = {
+  workspaceId: Scalars['ID']['input']
+}
+
+export type QueryWorkspacePaymentStatusArgs = {
   workspaceId: Scalars['ID']['input']
 }
 
@@ -2821,6 +2826,13 @@ export type WorkspaceMember = {
   role: Scalars['String']['output']
   user: User
   workspace: Workspace
+}
+
+export type WorkspacePaymentStatus = {
+  __typename?: 'WorkspacePaymentStatus'
+  isPaid: Scalars['Boolean']['output']
+  subscriptionType?: Maybe<Scalars['String']['output']>
+  validUntil?: Maybe<Scalars['DateTime']['output']>
 }
 
 /** The role of a user within a workspace */
@@ -6936,6 +6948,20 @@ export type GetWorkspaceMembersQuery = {
       avatarUrl?: string | null
     }
   }>
+}
+
+export type GetWorkspacePaymentStatusQueryVariables = Exact<{
+  workspaceId: Scalars['ID']['input']
+}>
+
+export type GetWorkspacePaymentStatusQuery = {
+  __typename?: 'Query'
+  workspacePaymentStatus?: {
+    __typename?: 'WorkspacePaymentStatus'
+    isPaid: boolean
+    subscriptionType?: string | null
+    validUntil?: string | null
+  } | null
 }
 
 export type GetWorkspaceVectorStoreQueryVariables = Exact<{
@@ -22196,6 +22222,47 @@ export const GetWorkspaceMembersDocument = {
     },
   ],
 } as unknown as DocumentNode<GetWorkspaceMembersQuery, GetWorkspaceMembersQueryVariables>
+export const GetWorkspacePaymentStatusDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'GetWorkspacePaymentStatus' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+          type: { kind: 'NonNullType', type: { kind: 'NamedType', name: { kind: 'Name', value: 'ID' } } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'workspacePaymentStatus' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'workspaceId' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'workspaceId' } },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'isPaid' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'subscriptionType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'validUntil' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<GetWorkspacePaymentStatusQuery, GetWorkspacePaymentStatusQueryVariables>
 export const GetWorkspaceVectorStoreDocument = {
   kind: 'Document',
   definitions: [

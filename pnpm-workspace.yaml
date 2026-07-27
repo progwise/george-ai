@@ -6,3 +6,4 @@ packages:
   - 'services/event-queue-worker'
   - 'packages/*'
   - '!packages/ai-models'
+  - 'e2e-tests'

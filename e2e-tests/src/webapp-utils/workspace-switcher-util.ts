@@ -19,16 +19,17 @@ export const switchWorkspace = async (locator: Locator | Page, workspaceName: st
   await expect(optionsList).toBeVisible()
   await optionsList.getByRole('option', { name: workspaceName, exact: true }).click()
   await expect(optionsList).not.toBeVisible()
-  await expect(summary).toContainText(workspaceName)
 
   // Wait for data to refetch after workspace switch
   // This gives TanStack Query time to invalidate and refetch all workspace-scoped queries
   // Check if locator is a Page (has waitForLoadState) or a Locator (has page() method)
   if ('waitForLoadState' in locator) {
+    await locator.reload()
     await locator.waitForLoadState('networkidle')
     await closeMigrationDialogIfPresent(locator)
   } else {
     await locator.page().waitForLoadState('networkidle')
     await closeMigrationDialogIfPresent(locator.page())
   }
+  await expect(summary).toContainText(workspaceName)
 }

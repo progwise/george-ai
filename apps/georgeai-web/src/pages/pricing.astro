@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import { WEBAPP_URL } from 'astro:env/server'
 
 // FAQ data - single source of truth for both HTML and JSON-LD schema
 const faqs = [
@@ -65,6 +66,182 @@ const faqs = [
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
           View on GitHub
         </a></span>
+      </div>
+    </div>
+
+    <!-- Software Plans -->
+    <div class="mb-16">
+      <h2 class="text-3xl font-bold text-center mb-2">Get your own Workspace</h2>
+      <p class="text-center text-base-content/70 mb-8">George Pro included</p>
+      <div class="grid md:grid-cols-2 gap-6">    
+
+      <!-- Cloud -->
+      <div class="card bg-primary text-primary-content shadow-xl border-4 border-primary">
+        <div class="card-body">
+          <span class="badge badge-secondary mb-2">Recommended</span>
+          <h2 class="text-3xl font-bold">Core</h2>
+          <span class="text-4xl font-bold mt-4">
+            7-Day Free
+          </span>
+          <span class="text-sm font-normal opacity-85">then €149 / month</span>
+
+          <div class="divider"></div>
+
+          <ul class="space-y-2 mb-6 text-sm">
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>Everything in Community</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Zero DevOps - We manage infrastructure</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>100 GB</strong> ingested data</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>10</strong> users included</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span class="text-xs opacity-70">Additional capacity available - contact sales</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>EU-hosted (GDPR compliant)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Automatic backups & updates</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Email support</span>
+            </li>
+          </ul>
+
+          <div class="card-actions">
+            <div id="checkout-error-core" class="alert alert-error hidden w-full text-sm" role="alert">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Open this page from your workspace to subscribe. <a href={`${WEBAPP_URL}/overview`} class="link font-semibold">Go to your workspace →</a></span>
+            </div>
+            <button id="buy-btn-core" data-price-id="price_1TRu2UBqw3foifMLHYDieN1f" class="btn btn-secondary btn-block">Get started for free</button>
+
+            <script>
+              import { actions } from 'astro:actions'
+
+              const workspaceId = new URLSearchParams(window.location.search).get('workspaceId') ?? ''
+
+              document.getElementById('buy-btn-core')?.addEventListener('click', async (e) => {
+                const priceId = (e.currentTarget as HTMLElement).dataset.priceId!
+
+                if (!workspaceId) {
+                  document.getElementById('checkout-error-core')?.classList.remove('hidden')
+                  return
+                }
+
+                const { data, error } = await actions.checkout({ priceId, quantity: 1, workspaceId, subscriptionType: 'core' })
+
+                if (error) {
+                  console.error('Checkout action failed:', error)
+                  return
+                }
+
+                window.location.href = data.url
+              })
+            </script>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Priority Support & AI Consulting -->
+      <div class="card bg-base-100 shadow-xl border-2 border-success">
+        <div class="card-body">
+          <span class="badge badge-success mb-2">Enterprise</span>
+          <h2 class="text-3xl font-bold">Pro</h2>
+          <span class="text-sm text-base-content/70">AI Consulting & Priority Support</span>
+          <div class="text-3xl font-bold my-2.75">
+            €499
+            <span class="text-base font-normal text-base-content/70">/ month</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <ul class="space-y-2 mb-6 text-sm">
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>Available for all plans</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>⚡ Priority support (4h response time)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span><strong>2 hours</strong> AI consulting per month</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Unused hours rollover (max 6h)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Monthly strategy call (30 min)</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Direct Slack/Teams channel</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <svg class="w-4 h-4 text-success shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              <span>Quarterly AI readiness review</span>
+            </li>
+            <li class="flex items-start mb-0.5 gap-2 badge badge-xs opacity-0">
+            </li>
+          </ul>
+
+          <div class="card-actions">
+            <div id="checkout-error-pro" class="alert alert-error hidden w-full text-sm" role="alert">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span>Open this page from your workspace to subscribe. <a href={`${WEBAPP_URL}/overview`} class="link font-semibold">Go to your workspace →</a></span>
+            </div>
+            <button id="buy-btn-pro" data-price-id="price_1TRuLfBqw3foifML619sOjia" class="btn btn-success btn-block">Upgrade</button>
+
+            <script>
+              import { actions } from 'astro:actions'
+
+              const workspaceId = new URLSearchParams(window.location.search).get('workspaceId') ?? ''
+
+              document.getElementById('buy-btn-pro')?.addEventListener('click', async (e) => {
+                const priceId = (e.currentTarget as HTMLElement).dataset.priceId!
+
+                if (!workspaceId) {
+                  document.getElementById('checkout-error-pro')?.classList.remove('hidden')
+                  return
+                }
+
+                const { data, error } = await actions.checkout({ priceId, quantity: 1, workspaceId, subscriptionType: 'pro' })
+
+                if (error) {
+                  console.error('Checkout action failed:', error.message)
+                  return
+                }
+
+                window.location.href = data.url
+              })
+            </script>
+
+          </div>
+
+        </div>
+      </div>
+
+
+
+
       </div>
     </div>
 

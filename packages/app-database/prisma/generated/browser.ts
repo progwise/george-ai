@@ -42,6 +42,11 @@ export type WorkspaceMember = Prisma.WorkspaceMemberModel
  */
 export type WorkspaceInvitation = Prisma.WorkspaceInvitationModel
 /**
+ * Model Payment
+ *
+ */
+export type Payment = Prisma.PaymentModel
+/**
  * Model AiServiceProvider
  *
  */

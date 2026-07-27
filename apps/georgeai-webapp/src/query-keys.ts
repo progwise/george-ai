@@ -23,6 +23,7 @@ export const queryKeys = {
   FileManifest: 'FileManifest',
   FileUsages: 'FileUsages',
   KeycloakConfig: 'KeycloakConfig',
+  MarketingWebsiteUrl: 'MarketingWebsiteUrl',
   ModelProviders: 'ModelProviders',
   InferenceHostConfig: 'InferenceHostConfig',
   InferenceHostStatus: 'InferenceHostStatus',
@@ -50,6 +51,7 @@ export const queryKeys = {
   WorkspaceManifest: 'WorkspaceManifest',
   WorkspaceMembers: 'WorkspaceMembers',
   WorkspaceDeletionValidation: 'WorkspaceDeletionValidation',
+  WorkspacePaymentStatus: 'WorkspacePaymentStatus',
   WorkspaceStats: 'WorkspaceStats',
   WorkspaceVectorStore: 'WorkspaceVectorStore',
   // Connectors

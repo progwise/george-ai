@@ -52,6 +52,7 @@ export const ModelName = {
   Workspace: 'Workspace',
   WorkspaceMember: 'WorkspaceMember',
   WorkspaceInvitation: 'WorkspaceInvitation',
+  Payment: 'Payment',
   AiServiceProvider: 'AiServiceProvider',
   AiAssistant: 'AiAssistant',
   AiAssistantBaseCase: 'AiAssistantBaseCase',
@@ -169,6 +170,18 @@ export const WorkspaceInvitationScalarFieldEnum = {
 
 export type WorkspaceInvitationScalarFieldEnum =
   (typeof WorkspaceInvitationScalarFieldEnum)[keyof typeof WorkspaceInvitationScalarFieldEnum]
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  paymentProvider: 'paymentProvider',
+  invoiceId: 'invoiceId',
+  workspaceId: 'workspaceId',
+  subscriptionType: 'subscriptionType',
+  validFrom: 'validFrom',
+  validUntil: 'validUntil',
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
 
 export const AiServiceProviderScalarFieldEnum = {
   id: 'id',

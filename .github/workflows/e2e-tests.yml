@@ -64,6 +64,7 @@ jobs:
       web_hash: ${{ steps.hash.outputs.web }}
       smb_crawler_hash: ${{ steps.hash.outputs.smb_crawler }}
       smb_test_hash: ${{ steps.hash.outputs.smb_test }}
+      nats_hash: ${{ steps.hash.outputs.nats }}
 
     steps:
       - name: Checkout repository
@@ -82,8 +83,8 @@ jobs:
           echo "backend=${BACKEND_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Backend hash: ${BACKEND_HASH_SHORT}"
 
-          # Webapp hash (depends on webapp code + web-utils package)
-          WEBAPP_HASH=$(find apps/georgeai-webapp packages/web-utils pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          # Webapp hash (depends on webapp code + app-commons + web-utils packages)
+          WEBAPP_HASH=$(find apps/georgeai-webapp packages/app-commons packages/web-utils pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           WEBAPP_HASH_SHORT="${WEBAPP_HASH:0:12}"
           echo "webapp=${WEBAPP_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Webapp hash: ${WEBAPP_HASH_SHORT}"
@@ -94,8 +95,8 @@ jobs:
           echo "web=${WEB_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Web hash: ${WEB_HASH_SHORT}"
 
-          # SMB Crawler hash (depends on smb-crawler app + smb-crawler package + smb2-client package)
-          SMB_CRAWLER_HASH=$(find services/smb-crawler-service packages/smb-crawler packages/smb2-client pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          # SMB Crawler hash (depends on smb-crawler app + app-commons + smb-crawler-client + smb2-client packages)
+          SMB_CRAWLER_HASH=$(find services/smb-crawler-service packages/app-commons packages/smb-crawler-client packages/smb2-client pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           SMB_CRAWLER_HASH_SHORT="${SMB_CRAWLER_HASH:0:12}"
           echo "smb_crawler=${SMB_CRAWLER_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "SMB Crawler hash: ${SMB_CRAWLER_HASH_SHORT}"
@@ -105,6 +106,12 @@ jobs:
           SMB_TEST_HASH_SHORT="${SMB_TEST_HASH:0:12}"
           echo "smb_test=${SMB_TEST_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "SMB Test Server hash: ${SMB_TEST_HASH_SHORT}"
+
+          # NATS hash (depends on nats-service only)
+          NATS_HASH=$(find services/nats-service -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          NATS_HASH_SHORT="${NATS_HASH:0:12}"
+          echo "nats=${NATS_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "NATS hash: ${NATS_HASH_SHORT}"
 
   # Job 2: Check which images need building
   check-images:
@@ -120,11 +127,13 @@ jobs:
       build_web: ${{ steps.check.outputs.build_web }}
       build_smb_crawler: ${{ steps.check.outputs.build_smb_crawler }}
       build_smb_test: ${{ steps.check.outputs.build_smb_test }}
+      build_nats: ${{ steps.check.outputs.build_nats }}
       backend_tag: ${{ steps.check.outputs.backend_tag }}
       webapp_tag: ${{ steps.check.outputs.webapp_tag }}
       web_tag: ${{ steps.check.outputs.web_tag }}
       smb_crawler_tag: ${{ steps.check.outputs.smb_crawler_tag }}
       smb_test_tag: ${{ steps.check.outputs.smb_test_tag }}
+      nats_tag: ${{ steps.check.outputs.nats_tag }}
 
     steps:
       - name: Log in to GitHub Container Registry
@@ -142,6 +151,7 @@ jobs:
           WEB_HASH: ${{ needs.calculate-hashes.outputs.web_hash }}
           SMB_CRAWLER_HASH: ${{ needs.calculate-hashes.outputs.smb_crawler_hash }}
           SMB_TEST_HASH: ${{ needs.calculate-hashes.outputs.smb_test_hash }}
+          NATS_HASH: ${{ needs.calculate-hashes.outputs.nats_hash }}
         run: |
           echo "Checking which images need to be built..."
 
@@ -200,10 +210,21 @@ jobs:
             echo "build_smb_test=true" >> $GITHUB_OUTPUT
           fi
 
+          # Check nats
+          NATS_TAG="${{ env.IMAGE_PREFIX }}-nats:${NATS_HASH}"
+          echo "nats_tag=${NATS_TAG}" >> $GITHUB_OUTPUT
+          if docker manifest inspect "${NATS_TAG}" > /dev/null 2>&1; then
+            echo "✓ NATS image exists (${NATS_HASH})"
+            echo "build_nats=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ NATS image needs building (${NATS_HASH})"
+            echo "build_nats=true" >> $GITHUB_OUTPUT
+          fi
+
   # Job 3: Build Docker images (only those that changed)
   build-images:
     needs: [calculate-hashes, check-images]
-    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_web == 'true' || needs.check-images.outputs.build_smb_crawler == 'true' || needs.check-images.outputs.build_smb_test == 'true'
+    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_web == 'true' || needs.check-images.outputs.build_smb_crawler == 'true' || needs.check-images.outputs.build_smb_test == 'true' || needs.check-images.outputs.build_nats == 'true'
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     permissions:
@@ -214,25 +235,38 @@ jobs:
       matrix:
         include:
           - name: backend
+            context: .
             dockerfile: apps/georgeai-backend/Dockerfile
             build: ${{ needs.check-images.outputs.build_backend }}
             hash: ${{ needs.calculate-hashes.outputs.backend_hash }}
           - name: webapp
+            context: .
             dockerfile: apps/georgeai-webapp/Dockerfile
             build: ${{ needs.check-images.outputs.build_webapp }}
             hash: ${{ needs.calculate-hashes.outputs.webapp_hash }}
           - name: web
+            context: .
             dockerfile: apps/georgeai-web/Dockerfile
             build: ${{ needs.check-images.outputs.build_web }}
             hash: ${{ needs.calculate-hashes.outputs.web_hash }}
           - name: smb-crawler
+            context: .
             dockerfile: services/smb-crawler-service/Dockerfile
             build: ${{ needs.check-images.outputs.build_smb_crawler }}
             hash: ${{ needs.calculate-hashes.outputs.smb_crawler_hash }}
           - name: smb-test
+            context: .
             dockerfile: apps/smb-test-server/Dockerfile
             build: ${{ needs.check-images.outputs.build_smb_test }}
             hash: ${{ needs.calculate-hashes.outputs.smb_test_hash }}
+          - name: nats
+            # Its Dockerfile copies nats-server.conf relative to its own folder
+            # (matches docker-compose.local.yml's `context: ../services/nats-service`),
+            # unlike every other image here which builds from the repo root.
+            context: services/nats-service
+            dockerfile: services/nats-service/Dockerfile
+            build: ${{ needs.check-images.outputs.build_nats }}
+            hash: ${{ needs.calculate-hashes.outputs.nats_hash }}
 
     steps:
       - name: Checkout repository
@@ -255,13 +289,14 @@ jobs:
         if: matrix.build == 'true'
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ matrix.hash }}
           build-args: |
             GIT_COMMIT_SHA=${{ github.sha }}
             PUBLIC_DISCORD_INVITE_URL=https://discord.gg/GbQFKb2MNJ
+            WEBAPP_URL=http://localhost:3001
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
@@ -306,6 +341,15 @@ jobs:
           TYPESENSE_ENABLE_CORS: true
         options: --tmpfs /data
 
+      # NATS (JetStream event bus) - must be declared before backend: GitHub
+      # Actions creates/starts service containers in declaration order with no
+      # cross-service readiness awaiting, and backend connects to NATS at boot.
+      nats:
+        image: ${{ needs.check-images.outputs.nats_tag }}
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       # Backend API
       backend:
         image: ${{ needs.check-images.outputs.backend_tag }}
@@ -322,23 +366,23 @@ jobs:
           TYPESENSE_API_PORT: 8108
           TYPESENSE_API_PROTOCOL: http
           TYPESENSE_API_KEY: xyz-test-key
-          KEYCLOAK_URL: https://keycloak.george-ai.net
-          KEYCLOAK_REALM: george-ai-e2e-test
-          KEYCLOAK_CLIENT_ID: george-ai-e2e
-          KEYCLOAK_REDIRECT_URL: http://localhost:3001
           GRAPHQL_API_KEY: TestKey
-          BACKEND_URL: http://backend:3003
           BACKEND_PUBLIC_URL: http://localhost:3003
           PUBLIC_APP_URL: http://localhost:3001
-          UPLOADS_PATH: /tmp/uploads
-          CRAWLER_CREDENTIALS_DIR: /tmp/crawler-credentials
-          AUTOSTART_ENRICHMENT_WORKER: true
-          AUTOSTART_CONTENT_PROCESSING_WORKER: true
+          STORAGE_PATH_WORKSPACES: /tmp/.storage/workspace-storage
+          STORAGE_PATH_WORKSPACES_BACKUP: /tmp/.storage/workspace-storage-backup
+          STORAGE_PATH_ASSISTANTS: /tmp/.storage/assistant-storage
+          STORAGE_PATH_USERS: /tmp/.storage/user-storage
+          STORAGE_PATH_CREDENTIALS: /tmp/.storage/credential-storage
+          STORAGE_PATH_LEGACY_LIBRARIES: /tmp/.uploads
           OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           OLLAMA_VRAM_GB: 16
           SMB_CRAWLER_URL: http://smb-crawler:3006
+          NATS_URL: nats://nats:4222
           GIT_COMMIT_SHA: ${{ github.sha }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         ports:
           - 3003:3003
 
@@ -379,6 +423,7 @@ jobs:
           KEYCLOAK_CLIENT_ID: george-ai-e2e
           KEYCLOAK_REDIRECT_URL: http://localhost:3001
           PUBLIC_APP_URL: http://localhost:3001
+          MARKETING_WEBSITE_URL: http://localhost:4321
           GIT_COMMIT_SHA: ${{ github.sha }}
         ports:
           - 3001:3000
@@ -392,6 +437,7 @@ jobs:
         env:
           HOST: 0.0.0.0
           PORT: 4321
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
         ports:
           - 4321:4321
 
@@ -456,6 +502,40 @@ jobs:
           echo "Testing connectivity to Keycloak..."
           curl -v https://keycloak.george-ai.net/realms/george-ai-e2e-test/.well-known/openid-configuration || echo "WARNING: Cannot reach Keycloak realm"
 
+      - name: Verify Keycloak login works
+        env:
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME || 'e2e-test-user@example.com' }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD || 'E2ETestPassword123!' }}
+        run: |
+          echo "Verifying the E2E test user can actually authenticate against Keycloak..."
+          # Uses the Resource Owner Password Credentials grant, which requires
+          # "Direct Access Grants" enabled on the george-ai-e2e client. This is
+          # only used by this CI smoke test - the app itself only ever uses the
+          # browser-based authorization code flow.
+          RESPONSE=$(curl -s -w '\n%{http_code}' -X POST \
+            "https://keycloak.george-ai.net/realms/george-ai-e2e-test/protocol/openid-connect/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "grant_type=password" \
+            --data-urlencode "client_id=george-ai-e2e" \
+            --data-urlencode "username=${E2E_USERNAME}" \
+            --data-urlencode "password=${E2E_PASSWORD}")
+
+          HTTP_CODE=$(echo "${RESPONSE}" | tail -n1)
+          BODY=$(echo "${RESPONSE}" | sed '$d')
+
+          if [ "${HTTP_CODE}" != "200" ] || ! echo "${BODY}" | grep -q '"access_token"'; then
+            echo "❌ Keycloak login failed for test user (HTTP ${HTTP_CODE})"
+            echo "${BODY}"
+            echo ""
+            echo "Check in the Keycloak admin console (realm george-ai-e2e-test, client george-ai-e2e):"
+            echo "  - the user exists with a permanent (non-temporary) password"
+            echo "  - Direct Access Grants is enabled on the client"
+            echo "  - the client is public (no client secret required)"
+            exit 1
+          fi
+
+          echo "✅ Keycloak login succeeded for test user"
+
       - name: Wait for services to be ready
         run: |
           echo "Waiting for all services to be healthy..."
@@ -503,6 +583,8 @@ jobs:
           EXPECTED_DISCORD_URL: https://discord.gg/GbQFKb2MNJ
           # SMB test server hostname (matches service name in this workflow)
           E2E_SMB_TEST_SERVER: smb-test
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
 
       - name: Upload Playwright report
         if: failure()

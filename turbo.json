@@ -3,7 +3,8 @@
   "globalEnv": [],
   "tasks": {
     "build": {
-      "dependsOn": []
+      "dependsOn": [],
+      "env": ["WEBAPP_URL"]
     },
     "deploy": {
       "dependsOn": []

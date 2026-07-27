@@ -35,7 +35,6 @@ env:
   MODEL_NAME_CHAT: qwen3:latest
   MODEL_NAME_VL: gemma3:latest
   MODEL_NAME_EMBEDDING: bge-m3:latest
-  CRAWLER_CREDENTIALS_DIR: /tmp/crawler-credentials
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/george-ai-ci
   STORAGE_PATH_WORKSPACES: /tmp/.storage/workspace-storage
@@ -44,6 +43,7 @@ env:
   STORAGE_PATH_USERS: /tmp/.storage/user-storage
   STORAGE_PATH_CREDENTIALS: /tmp/.storage/credential-storage
   STORAGE_PATH_LEGACY_LIBRARIES: /tmp/.uploads
+  WEBAPP_URL: http://localhost:3001
 
 jobs:
   calculate-smb-test-hash:

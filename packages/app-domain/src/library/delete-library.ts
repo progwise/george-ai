@@ -12,7 +12,7 @@ export async function deleteLibrary(workspace: WorkspaceManifest, options: { lib
   const { modelDriver, modelName } = settings?.embedding || {}
   logger.debug('deleteLibrary', { workspaceId, libraryId })
 
-  if (!workspace || !modelDriver || !modelName) {
+  if (!workspace) {
     logger.error('Workspace manifest does not contain embedding settings', { workspaceId, workspace })
     throw new DomainError('Workspace manifest not found', 'workspace')
   }
@@ -31,10 +31,14 @@ export async function deleteLibrary(workspace: WorkspaceManifest, options: { lib
         },
       })
 
-      await Promise.all([
-        vectorStore.removeChunks({ workspaceId, modelDriver, modelName, libraryId }),
-        library.delete(workspaceId, { libraryId }),
-      ])
+      if (modelDriver && modelName) {
+        await Promise.all([
+          vectorStore.removeChunks({ workspaceId, modelDriver, modelName, libraryId }),
+          library.delete(workspaceId, { libraryId }),
+        ])
+      } else {
+        await library.delete(workspaceId, { libraryId })
+      }
     })
   } catch (error) {
     logger.error('Error deleting library', { error, workspaceId, libraryId })

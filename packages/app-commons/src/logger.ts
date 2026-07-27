@@ -17,7 +17,9 @@ const LOG_LEVELS: Record<LogLevel, number> = {
  * Defaults to INFO if not set
  */
 function getCurrentLogLevel(): LogLevel {
-  const envLevel = process.env.LOG_LEVEL?.toUpperCase() as LogLevel | undefined
+  const envLevel = (typeof process !== 'undefined' ? process.env.LOG_LEVEL : undefined)?.toUpperCase() as
+    | LogLevel
+    | undefined
   return envLevel && envLevel in LOG_LEVELS ? envLevel : 'INFO'
 }
 
@@ -41,17 +43,18 @@ const DIM = '\x1b[2m'
  */
 function formatMessage(level: LogLevel, context: string, message: string): string {
   const timestamp = new Date().toISOString()
+  const pid = typeof process !== 'undefined' ? process.pid : 'N/A'
   switch (level) {
     case 'ERROR':
-      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${RED}[${level}] [${context}]${RESET} ${message}`
+      return `[${timestamp}] [${pid}] ${RED}[${level}] [${context}]${RESET} ${message}`
     case 'WARN':
-      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${YELLOW}[${level}] [${context}]${RESET} ${message}`
+      return `[${timestamp}] [${pid}] ${YELLOW}[${level}] [${context}]${RESET} ${message}`
     case 'INFO':
-      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${BLUE}[${level}] [${context}]${RESET} ${message}`
+      return `[${timestamp}] [${pid}] ${BLUE}[${level}] [${context}]${RESET} ${message}`
     case 'DEBUG':
-      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${DIM}[${level}] [${context}]${RESET} ${message}`
+      return `[${timestamp}] [${pid}] ${DIM}[${level}] [${context}]${RESET} ${message}`
     default:
-      return `[${timestamp}] [${process ? process.pid : 'N/A'}] ${CYAN}[${level}] [${context}]${RESET} ${message}`
+      return `[${timestamp}] [${pid}] ${CYAN}[${level}] [${context}]${RESET} ${message}`
   }
 }
 

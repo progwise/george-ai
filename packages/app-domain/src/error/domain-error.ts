@@ -14,7 +14,8 @@ export class DomainError extends Error {
       | 'embedding'
       | 'inference'
       | 'validation'
-      | 'authorization',
+      | 'authorization'
+      | 'payment',
   ) {
     super(message)
 

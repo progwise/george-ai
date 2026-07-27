@@ -21,11 +21,13 @@
     "eslint": "^9.39.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.44.1",
-    "globals": "^16.0.0"
+    "globals": "^16.0.0",
+    "stripe": "21.0.1"
   },
   "scripts": {
     "test": "playwright test --project=chromium",
     "test:ui": "playwright test --ui",
+    "test:ui:docker": "docker run --rm -it --network host --user \"$(id -u):$(id -g)\" -v \"$(cd .. && pwd):/workspace\" -w /workspace/e2e-tests mcr.microsoft.com/playwright:v1.52.0-jammy npx playwright test --ui-host=0.0.0.0 --ui-port=9323",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   }
