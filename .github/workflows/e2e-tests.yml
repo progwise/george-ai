@@ -502,6 +502,40 @@ jobs:
           echo "Testing connectivity to Keycloak..."
           curl -v https://keycloak.george-ai.net/realms/george-ai-e2e-test/.well-known/openid-configuration || echo "WARNING: Cannot reach Keycloak realm"
 
+      - name: Verify Keycloak login works
+        env:
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME || 'e2e-test-user@example.com' }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD || 'E2ETestPassword123!' }}
+        run: |
+          echo "Verifying the E2E test user can actually authenticate against Keycloak..."
+          # Uses the Resource Owner Password Credentials grant, which requires
+          # "Direct Access Grants" enabled on the george-ai-e2e client. This is
+          # only used by this CI smoke test - the app itself only ever uses the
+          # browser-based authorization code flow.
+          RESPONSE=$(curl -s -w '\n%{http_code}' -X POST \
+            "https://keycloak.george-ai.net/realms/george-ai-e2e-test/protocol/openid-connect/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            --data-urlencode "grant_type=password" \
+            --data-urlencode "client_id=george-ai-e2e" \
+            --data-urlencode "username=${E2E_USERNAME}" \
+            --data-urlencode "password=${E2E_PASSWORD}")
+
+          HTTP_CODE=$(echo "${RESPONSE}" | tail -n1)
+          BODY=$(echo "${RESPONSE}" | sed '$d')
+
+          if [ "${HTTP_CODE}" != "200" ] || ! echo "${BODY}" | grep -q '"access_token"'; then
+            echo "❌ Keycloak login failed for test user (HTTP ${HTTP_CODE})"
+            echo "${BODY}"
+            echo ""
+            echo "Check in the Keycloak admin console (realm george-ai-e2e-test, client george-ai-e2e):"
+            echo "  - the user exists with a permanent (non-temporary) password"
+            echo "  - Direct Access Grants is enabled on the client"
+            echo "  - the client is public (no client secret required)"
+            exit 1
+          fi
+
+          echo "✅ Keycloak login succeeded for test user"
+
       - name: Wait for services to be ready
         run: |
           echo "Waiting for all services to be healthy..."
