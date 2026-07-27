@@ -27,7 +27,7 @@
   "scripts": {
     "test": "playwright test --project=chromium",
     "test:ui": "playwright test --ui",
-    "test:ui:docker": "docker run --rm -it --network host -v \"$(pwd):/e2e\" -w /e2e mcr.microsoft.com/playwright:v1.52.0-jammy npx playwright test --ui-host=0.0.0.0 --ui-port=9323",
+    "test:ui:docker": "docker run --rm -it --network host --user \"$(id -u):$(id -g)\" -v \"$(cd .. && pwd):/workspace\" -w /workspace/e2e-tests mcr.microsoft.com/playwright:v1.52.0-jammy npx playwright test --ui-host=0.0.0.0 --ui-port=9323",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   }

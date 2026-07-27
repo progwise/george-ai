@@ -119,6 +119,22 @@ services:
     ports:
       - 8180:8080
 
+  # Forwards app's own localhost:8180 to gai-keycloak:8080. Needed so that
+  # containers sharing app's network namespace (e.g. the Playwright container
+  # started by `pnpm test:ui:docker` in e2e-tests, via --network host) can
+  # reach Keycloak at the same KEYCLOAK_URL (http://localhost:8180) that
+  # browsers on the real host already use via the published port above -
+  # gai-keycloak is a sibling container, so it isn't otherwise reachable on
+  # app's own loopback.
+  gai-keycloak-proxy:
+    image: alpine/socat:latest
+    network_mode: 'service:app'
+    depends_on:
+      - app
+      - gai-keycloak
+    restart: unless-stopped
+    command: ['-d', 'TCP-LISTEN:8180,fork,reuseaddr', 'TCP:gai-keycloak:8080']
+
   pgadmin:
     image: 'docker.io/dpage/pgadmin4:latest'
     environment:
