@@ -341,6 +341,15 @@ jobs:
           TYPESENSE_ENABLE_CORS: true
         options: --tmpfs /data
 
+      # NATS (JetStream event bus) - must be declared before backend: GitHub
+      # Actions creates/starts service containers in declaration order with no
+      # cross-service readiness awaiting, and backend connects to NATS at boot.
+      nats:
+        image: ${{ needs.check-images.outputs.nats_tag }}
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       # Backend API
       backend:
         image: ${{ needs.check-images.outputs.backend_tag }}
@@ -394,13 +403,6 @@ jobs:
       # SMB Test Server
       smb-test:
         image: ${{ needs.check-images.outputs.smb_test_tag }}
-        credentials:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # NATS (JetStream event bus)
-      nats:
-        image: ${{ needs.check-images.outputs.nats_tag }}
         credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
