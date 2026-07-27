@@ -59,6 +59,21 @@ The tests will connect to the services running in your devcontainer via `localho
 
 **Note:** If you encounter Keycloak errors with Firefox during local development, use Chromium or WebKit instead: `pnpm test:ui --project=chromium`. Firefox blocks third-party cookies on localhost ([issue #23018](https://github.com/keycloak/keycloak/issues/23018)). In CI there are no Firefox issues.
 
+#### No host file access? Run UI Mode inside the devcontainer instead
+
+If your checkout lives in a Docker volume rather than a host bind mount (e.g. you moved it there for filesystem performance), your host terminal has no access to the `e2e-tests` files and Step 2 above won't work. The devcontainer's `docker-in-docker` feature lets you run Playwright's browsers in a throwaway container while still driving UI Mode from your host browser:
+
+```bash
+cd e2e-tests
+pnpm test:ui:docker
+```
+
+This runs the official Playwright container image (bundled browsers, no need to install anything into the devcontainer itself) with `--network host`, so it reaches your `pnpm dev` services on `localhost:3001`/`localhost:3003` exactly like the native run does, and bind-mounts the current directory so it sees your actual test files. It serves UI Mode over HTTP on port `9323` instead of opening a native window. VS Code will prompt to forward the port automatically (or add it yourself in the **Ports** panel) — open `http://localhost:9323` in your regular browser to get the full UI Mode experience (test tree, watch mode, trace viewer, locator picker).
+
+Keep the image tag (`v1.52.0-jammy`) in sync with the `@playwright/test` version in `package.json` — a mismatch causes a "browser not found" error that names the expected version.
+
+**`DATABASE_URL` needs a different value here.** `localhost:5434` (used by the host-execution flows above) is not reachable from inside the devcontainer's own network namespace. Point `DATABASE_URL` at the compose service name instead, matching whatever your backend actually uses (see `apps/georgeai-backend/.env`) — typically `postgresql://chatweb:passw0rd@gai-test-db:5432/chatweb?schema=public`. See the commented example in `.env.example`.
+
 **Important - Custom BASE_URL:** If you set a custom `BASE_URL` in `.env` (different from `http://localhost:3001`), you **must** add the redirect URL to your Keycloak configuration:
 
 1. Check which Keycloak instance your webapp uses (see `KEYCLOAK_URL` in `apps/georgeai-webapp/.env`)

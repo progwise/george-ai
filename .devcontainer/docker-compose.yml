@@ -22,6 +22,7 @@ services:
     ports:
       - '3001:3001'
       - '3003:3003'
+      - '4321:4321' # Marketing website (georgeai-web, Astro dev server)
       - '2222:2222' # SSH access to container for development
 
   gai-nats:
