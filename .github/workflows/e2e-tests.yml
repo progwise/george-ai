@@ -323,18 +323,15 @@ jobs:
           TYPESENSE_API_PORT: 8108
           TYPESENSE_API_PROTOCOL: http
           TYPESENSE_API_KEY: xyz-test-key
-          KEYCLOAK_URL: https://keycloak.george-ai.net
-          KEYCLOAK_REALM: george-ai-e2e-test
-          KEYCLOAK_CLIENT_ID: george-ai-e2e
-          KEYCLOAK_REDIRECT_URL: http://localhost:3001
           GRAPHQL_API_KEY: TestKey
-          BACKEND_URL: http://backend:3003
           BACKEND_PUBLIC_URL: http://localhost:3003
           PUBLIC_APP_URL: http://localhost:3001
-          UPLOADS_PATH: /tmp/uploads
-          CRAWLER_CREDENTIALS_DIR: /tmp/crawler-credentials
-          AUTOSTART_ENRICHMENT_WORKER: true
-          AUTOSTART_CONTENT_PROCESSING_WORKER: true
+          STORAGE_PATH_WORKSPACES: /tmp/.storage/workspace-storage
+          STORAGE_PATH_WORKSPACES_BACKUP: /tmp/.storage/workspace-storage-backup
+          STORAGE_PATH_ASSISTANTS: /tmp/.storage/assistant-storage
+          STORAGE_PATH_USERS: /tmp/.storage/user-storage
+          STORAGE_PATH_CREDENTIALS: /tmp/.storage/credential-storage
+          STORAGE_PATH_LEGACY_LIBRARIES: /tmp/.uploads
           OLLAMA_BASE_URL: ${{ secrets.OLLAMA_BASE_URL }}
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           OLLAMA_VRAM_GB: 16

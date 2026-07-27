@@ -35,7 +35,6 @@ env:
   MODEL_NAME_CHAT: qwen3:latest
   MODEL_NAME_VL: gemma3:latest
   MODEL_NAME_EMBEDDING: bge-m3:latest
-  CRAWLER_CREDENTIALS_DIR: /tmp/crawler-credentials
   REGISTRY: ghcr.io
   IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/george-ai-ci
   STORAGE_PATH_WORKSPACES: /tmp/.storage/workspace-storage

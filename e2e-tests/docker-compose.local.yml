@@ -93,31 +93,24 @@ services:
       # This is a test key - DO NOT use in production
       ENCRYPTION_KEY: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
 
-      CRAWLER_CREDENTIALS_DIR: ./.crawler-credentials
       # Typesense
       TYPESENSE_API_HOST: gai-e2e-typesense
       TYPESENSE_API_PORT: 8108
       TYPESENSE_API_PROTOCOL: http
       TYPESENSE_API_KEY: xyz-test-key
 
-      # Keycloak (shared production instance with test realm)
-      KEYCLOAK_URL: https://keycloak.george-ai.net
-      KEYCLOAK_REALM: george-ai-e2e-test
-      KEYCLOAK_CLIENT_ID: george-ai-e2e
-      KEYCLOAK_REDIRECT_URL: http://localhost:3011
-
       # Backend config
       GRAPHQL_API_KEY: TestKey
-      BACKEND_URL: http://gai-e2e-backend:3003
       BACKEND_PUBLIC_URL: http://localhost:3013
       PUBLIC_APP_URL: http://localhost:3011
 
       # File uploads
-      UPLOADS_PATH: /app/.test-uploads
-
-      # Workers (disabled for e2e tests)
-      AUTOSTART_ENRICHMENT_WORKER: true
-      AUTOSTART_CONTENT_PROCESSING_WORKER: true
+      STORAGE_PATH_WORKSPACES: /app/.storage/workspace-storage
+      STORAGE_PATH_WORKSPACES_BACKUP: /app/.storage/workspace-storage-backup
+      STORAGE_PATH_ASSISTANTS: /app/.storage/assistant-storage
+      STORAGE_PATH_USERS: /app/.storage/user-storage
+      STORAGE_PATH_CREDENTIALS: /app/.storage/credential-storage
+      STORAGE_PATH_LEGACY_LIBRARIES: /app/.uploads
 
       # Ollama (shared remote instance, optional)
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-}
