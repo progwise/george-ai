@@ -64,6 +64,7 @@ jobs:
       web_hash: ${{ steps.hash.outputs.web }}
       smb_crawler_hash: ${{ steps.hash.outputs.smb_crawler }}
       smb_test_hash: ${{ steps.hash.outputs.smb_test }}
+      nats_hash: ${{ steps.hash.outputs.nats }}
 
     steps:
       - name: Checkout repository
@@ -106,6 +107,12 @@ jobs:
           echo "smb_test=${SMB_TEST_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "SMB Test Server hash: ${SMB_TEST_HASH_SHORT}"
 
+          # NATS hash (depends on nats-service only)
+          NATS_HASH=$(find services/nats-service -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          NATS_HASH_SHORT="${NATS_HASH:0:12}"
+          echo "nats=${NATS_HASH_SHORT}" >> $GITHUB_OUTPUT
+          echo "NATS hash: ${NATS_HASH_SHORT}"
+
   # Job 2: Check which images need building
   check-images:
     needs: calculate-hashes
@@ -120,11 +127,13 @@ jobs:
       build_web: ${{ steps.check.outputs.build_web }}
       build_smb_crawler: ${{ steps.check.outputs.build_smb_crawler }}
       build_smb_test: ${{ steps.check.outputs.build_smb_test }}
+      build_nats: ${{ steps.check.outputs.build_nats }}
       backend_tag: ${{ steps.check.outputs.backend_tag }}
       webapp_tag: ${{ steps.check.outputs.webapp_tag }}
       web_tag: ${{ steps.check.outputs.web_tag }}
       smb_crawler_tag: ${{ steps.check.outputs.smb_crawler_tag }}
       smb_test_tag: ${{ steps.check.outputs.smb_test_tag }}
+      nats_tag: ${{ steps.check.outputs.nats_tag }}
 
     steps:
       - name: Log in to GitHub Container Registry
@@ -142,6 +151,7 @@ jobs:
           WEB_HASH: ${{ needs.calculate-hashes.outputs.web_hash }}
           SMB_CRAWLER_HASH: ${{ needs.calculate-hashes.outputs.smb_crawler_hash }}
           SMB_TEST_HASH: ${{ needs.calculate-hashes.outputs.smb_test_hash }}
+          NATS_HASH: ${{ needs.calculate-hashes.outputs.nats_hash }}
         run: |
           echo "Checking which images need to be built..."
 
@@ -200,10 +210,21 @@ jobs:
             echo "build_smb_test=true" >> $GITHUB_OUTPUT
           fi
 
+          # Check nats
+          NATS_TAG="${{ env.IMAGE_PREFIX }}-nats:${NATS_HASH}"
+          echo "nats_tag=${NATS_TAG}" >> $GITHUB_OUTPUT
+          if docker manifest inspect "${NATS_TAG}" > /dev/null 2>&1; then
+            echo "✓ NATS image exists (${NATS_HASH})"
+            echo "build_nats=false" >> $GITHUB_OUTPUT
+          else
+            echo "✗ NATS image needs building (${NATS_HASH})"
+            echo "build_nats=true" >> $GITHUB_OUTPUT
+          fi
+
   # Job 3: Build Docker images (only those that changed)
   build-images:
     needs: [calculate-hashes, check-images]
-    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_web == 'true' || needs.check-images.outputs.build_smb_crawler == 'true' || needs.check-images.outputs.build_smb_test == 'true'
+    if: needs.check-images.outputs.build_backend == 'true' || needs.check-images.outputs.build_webapp == 'true' || needs.check-images.outputs.build_web == 'true' || needs.check-images.outputs.build_smb_crawler == 'true' || needs.check-images.outputs.build_smb_test == 'true' || needs.check-images.outputs.build_nats == 'true'
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     permissions:
@@ -214,25 +235,38 @@ jobs:
       matrix:
         include:
           - name: backend
+            context: .
             dockerfile: apps/georgeai-backend/Dockerfile
             build: ${{ needs.check-images.outputs.build_backend }}
             hash: ${{ needs.calculate-hashes.outputs.backend_hash }}
           - name: webapp
+            context: .
             dockerfile: apps/georgeai-webapp/Dockerfile
             build: ${{ needs.check-images.outputs.build_webapp }}
             hash: ${{ needs.calculate-hashes.outputs.webapp_hash }}
           - name: web
+            context: .
             dockerfile: apps/georgeai-web/Dockerfile
             build: ${{ needs.check-images.outputs.build_web }}
             hash: ${{ needs.calculate-hashes.outputs.web_hash }}
           - name: smb-crawler
+            context: .
             dockerfile: services/smb-crawler-service/Dockerfile
             build: ${{ needs.check-images.outputs.build_smb_crawler }}
             hash: ${{ needs.calculate-hashes.outputs.smb_crawler_hash }}
           - name: smb-test
+            context: .
             dockerfile: apps/smb-test-server/Dockerfile
             build: ${{ needs.check-images.outputs.build_smb_test }}
             hash: ${{ needs.calculate-hashes.outputs.smb_test_hash }}
+          - name: nats
+            # Its Dockerfile copies nats-server.conf relative to its own folder
+            # (matches docker-compose.local.yml's `context: ../services/nats-service`),
+            # unlike every other image here which builds from the repo root.
+            context: services/nats-service
+            dockerfile: services/nats-service/Dockerfile
+            build: ${{ needs.check-images.outputs.build_nats }}
+            hash: ${{ needs.calculate-hashes.outputs.nats_hash }}
 
     steps:
       - name: Checkout repository
@@ -255,7 +289,7 @@ jobs:
         if: matrix.build == 'true'
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           tags: ${{ env.IMAGE_PREFIX }}-${{ matrix.name }}:${{ matrix.hash }}
@@ -336,6 +370,7 @@ jobs:
           OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
           OLLAMA_VRAM_GB: 16
           SMB_CRAWLER_URL: http://smb-crawler:3006
+          NATS_URL: nats://nats:4222
           GIT_COMMIT_SHA: ${{ github.sha }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
@@ -359,6 +394,13 @@ jobs:
       # SMB Test Server
       smb-test:
         image: ${{ needs.check-images.outputs.smb_test_tag }}
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # NATS (JetStream event bus)
+      nats:
+        image: ${{ needs.check-images.outputs.nats_tag }}
         credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
