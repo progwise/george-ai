@@ -83,8 +83,8 @@ jobs:
           echo "backend=${BACKEND_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Backend hash: ${BACKEND_HASH_SHORT}"
 
-          # Webapp hash (depends on webapp code + web-utils package)
-          WEBAPP_HASH=$(find apps/georgeai-webapp packages/web-utils pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          # Webapp hash (depends on webapp code + app-commons + web-utils packages)
+          WEBAPP_HASH=$(find apps/georgeai-webapp packages/app-commons packages/web-utils pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           WEBAPP_HASH_SHORT="${WEBAPP_HASH:0:12}"
           echo "webapp=${WEBAPP_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Webapp hash: ${WEBAPP_HASH_SHORT}"
@@ -95,8 +95,8 @@ jobs:
           echo "web=${WEB_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "Web hash: ${WEB_HASH_SHORT}"
 
-          # SMB Crawler hash (depends on smb-crawler app + smb-crawler package + smb2-client package)
-          SMB_CRAWLER_HASH=$(find services/smb-crawler-service packages/smb-crawler packages/smb2-client pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          # SMB Crawler hash (depends on smb-crawler app + app-commons + smb-crawler-client + smb2-client packages)
+          SMB_CRAWLER_HASH=$(find services/smb-crawler-service packages/app-commons packages/smb-crawler-client packages/smb2-client pnpm-lock.yaml -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           SMB_CRAWLER_HASH_SHORT="${SMB_CRAWLER_HASH:0:12}"
           echo "smb_crawler=${SMB_CRAWLER_HASH_SHORT}" >> $GITHUB_OUTPUT
           echo "SMB Crawler hash: ${SMB_CRAWLER_HASH_SHORT}"
