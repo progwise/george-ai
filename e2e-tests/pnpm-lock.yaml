@@ -33,6 +33,9 @@ importers:
       globals:
         specifier: ^16.0.0
         version: 16.0.0
+      stripe:
+        specifier: 21.0.1
+        version: 21.0.1(@types/node@22.15.2)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -534,6 +537,15 @@ packages:
   strip-json-comments@3.1.1:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
+
+  stripe@21.0.1:
+    resolution: {integrity: sha512-ocv0j7dWttswDWV2XL/kb6+yiLpDXNXL3RQAOB5OB2kr49z0cEatdQc12+zP/j5nrXk6rAsT4N3y/NUvBbK7Pw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@types/node': '>=18'
+    peerDependenciesMeta:
+      '@types/node':
+        optional: true
 
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
@@ -1079,6 +1091,10 @@ snapshots:
   split2@4.2.0: {}
 
   strip-json-comments@3.1.1: {}
+
+  stripe@21.0.1(@types/node@22.15.2):
+    optionalDependencies:
+      '@types/node': 22.15.2
 
   supports-color@7.2.0:
     dependencies:
