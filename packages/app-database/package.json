@@ -24,7 +24,6 @@
   "devDependencies": {
     "@george-ai/package-configs": "workspace:*",
     "@george-ai/test-utils": "workspace:*",
-    "@pothos/plugin-prisma": "^4.14.1",
     "@types/bcrypt": "^6.0.0",
     "@types/node": "^22.13.8",
     "@types/pg": "^8.16.0",
@@ -37,6 +36,7 @@
   "dependencies": {
     "@george-ai/app-commons": "workspace:*",
     "@george-ai/event-service-client": "workspace:*",
+    "@pothos/plugin-prisma": "^4.14.1",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "bcrypt": "^6.0.0",
